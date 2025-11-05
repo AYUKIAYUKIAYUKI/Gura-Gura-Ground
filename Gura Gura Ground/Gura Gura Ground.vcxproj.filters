@@ -173,65 +173,65 @@
     <ClInclude Include="Src\MySrc\beamlight.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.camera.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.constantbuffer.manager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.fullscreen.2D.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.gltf.manager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.hud.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.input.manager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.inputlayout.manager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.manager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.model.gltf.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.object.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.object.manager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.pixelshader.manager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.rect.2D.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.registry.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.renderer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.singleton.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.useful.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.vertexshader.manager.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Src\MyAPI\API.world.h">
+      <Filter>%28公開API%29</Filter>
     </ClInclude>
     <ClInclude Include="Src\MyAPI\API.window.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>%28公開API%29</Filter>
     </ClInclude>
-    <ClInclude Include="Src\MyAPI\API.world.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Src\MyAPI\API.vertexshader.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.useful.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.singleton.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.renderer.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.registry.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.rect.2D.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.pixelshader.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.object.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.object.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.model.gltf.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.input.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.inputlayout.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.hud.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.gltf.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.fullscreen.2D.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.constantbuffer.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.camera.h">
+      <Filter>%28公開API%29</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

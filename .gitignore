@@ -416,3 +416,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# ImGui
+/Gura Gura Ground/imgui.ini
