@@ -203,10 +203,10 @@ bool CPlayer::Initialize()
 	//	return false;
 	//}
 
-	m_stateMachine->Start(this);
+	//m_stateMachine->Start(this);
 
 	// 初期状態のステートをセット
-	m_stateMachine->ChangeState<CPlayer_DefaultState>();
+	//m_stateMachine->ChangeState<CPlayer_DefaultState>();
 
 	return true;
 }
