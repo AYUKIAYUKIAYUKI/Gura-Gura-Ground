@@ -1,0 +1,260 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="テンプレート ファイル">
+      <UniqueIdentifier>{e4e2b4e8-e324-4557-a952-4a6e1f340c7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="モジュール インターフェース">
+      <UniqueIdentifier>{c375772e-2091-428b-842d-36b43a1d52fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="%28リンカー用外部ファイル%29">
+      <UniqueIdentifier>{b1fdd5f7-69c9-46fb-86a3-e09fa6266c07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="%28リンカー用外部ファイル%29\ImGui">
+      <UniqueIdentifier>{a4ca6ed1-591a-40ae-bf7e-428e6ef9a456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="%28分類済み%29">
+      <UniqueIdentifier>{d7b4909a-6089-4393-98b5-fd54e7404534}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="%28分類済み%29\【マネージャー系統】">
+      <UniqueIdentifier>{a5fb867c-8f7c-4d9e-8c28-de9ac076b0f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="%28分類済み%29\【ジオメトリ系統】">
+      <UniqueIdentifier>{29b5531a-bb6e-4ff0-87b4-f517107347e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="%28分類済み%29\【エンティティ系統】">
+      <UniqueIdentifier>{87cf8145-529c-443c-a12f-7cc763790d6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="%28分類済み%29\【シーン系統】">
+      <UniqueIdentifier>{841689a9-61e0-468a-a134-3f4cbfb33133}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="%28公開API%29">
+      <UniqueIdentifier>{b026c020-6cde-42a9-82a8-0b21a2436013}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Src\MySrc\main.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\pch.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\External\ImGui\imgui.cpp">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\External\ImGui\imgui_draw.cpp">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\External\ImGui\imgui_demo.cpp">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\External\ImGui\imgui_impl_dx11.cpp">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\External\ImGui\imgui_impl_win32.cpp">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\External\ImGui\imgui_tables.cpp">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\External\ImGui\imgui_widgets.cpp">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\any.cpp">
+      <Filter>%28分類済み%29\【ジオメトリ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\field.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\obstacle.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\scene.manager.cpp">
+      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\sound.manager.cpp">
+      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\texture.manager.cpp">
+      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\scene.title.cpp">
+      <Filter>%28分類済み%29\【シーン系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\scene.game.cpp">
+      <Filter>%28分類済み%29\【シーン系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\scene.select.cpp">
+      <Filter>%28分類済み%29\【シーン系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\player.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\beamlight.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Src\MySrc\main.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\pch.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\External\ImGui\imconfig.h">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\External\ImGui\imgui.h">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\External\ImGui\imgui_impl_dx11.h">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\External\ImGui\imgui_impl_win32.h">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\External\ImGui\imgui_internal.h">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\External\ImGui\imstb_rectpack.h">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\External\ImGui\imstb_textedit.h">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\External\ImGui\imstb_truetype.h">
+      <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\scene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\scene.manager.h">
+      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\sound.manager.h">
+      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\texture.manager.h">
+      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\any.h">
+      <Filter>%28分類済み%29\【ジオメトリ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\field.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\obstacle.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\scene.game.h">
+      <Filter>%28分類済み%29\【シーン系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\scene.title.h">
+      <Filter>%28分類済み%29\【シーン系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\scene.select.h">
+      <Filter>%28分類済み%29\【シーン系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\player.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\beamlight.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.camera.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.constantbuffer.manager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.fullscreen.2D.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.gltf.manager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.hud.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.input.manager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.inputlayout.manager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.manager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.model.gltf.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.object.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.object.manager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.pixelshader.manager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.rect.2D.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.registry.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.renderer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.singleton.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.useful.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.vertexshader.manager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.window.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.world.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Src\MySrc\scene.manager.impl">
+      <Filter>テンプレート ファイル</Filter>
+    </None>
+    <None Include="Src\MyAPI\API.window.tpp">
+      <Filter>%28公開API%29</Filter>
+    </None>
+    <None Include="Src\MyAPI\API.useful.tpp">
+      <Filter>%28公開API%29</Filter>
+    </None>
+    <None Include="Src\MyAPI\API.singleton.tpp">
+      <Filter>%28公開API%29</Filter>
+    </None>
+    <None Include="Src\MyAPI\API.registry.tpp">
+      <Filter>%28公開API%29</Filter>
+    </None>
+    <None Include="Src\MyAPI\API.object.tpp">
+      <Filter>%28公開API%29</Filter>
+    </None>
+    <None Include="Src\MyAPI\API.constantbuffer.manager.tpp">
+      <Filter>%28公開API%29</Filter>
+    </None>
+  </ItemGroup>
+</Project>

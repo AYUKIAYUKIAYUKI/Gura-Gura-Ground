@@ -1,0 +1,24 @@
+{
+  "Element": [
+    [
+      "BGM",
+      "Data\\Audio\\catswing.wav"
+    ],
+    [
+      "Buzzer",
+      "Data\\Audio\\buzzer.wav"
+    ],
+    [
+      "Jump",
+      "Data\\Audio\\jump.wav"
+    ],
+    [
+      "Light",
+      "Data\\Audio\\light.wav"
+    ],
+    [
+      "Noise",
+      "Data\\Audio\\noise.wav"
+    ]
+  ]
+}

@@ -1,0 +1,10 @@
+# 最上位のEditorConfig
+root = true
+
+# タブによるインデント
+[Makefile]
+indent_style = tab
+
+# インデントサイズを設定
+[*.{c,h,cpp,hpp}]
+indent_size = 4

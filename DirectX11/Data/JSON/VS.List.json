@@ -1,0 +1,16 @@
+{
+  "Element": [
+    [
+      "Vertex.2D",
+      "Data\\CSO\\vs.vertex.2D.cso"
+    ],
+    [
+      "Vertex.3D",
+      "Data\\CSO\\vs.vertex.3D.cso"
+    ],
+    [
+      "FullScreen.2D",
+      "Data\\CSO\\vs.fullscreen.2D.cso"
+    ]
+  ]
+}
