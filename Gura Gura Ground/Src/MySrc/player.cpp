@@ -251,21 +251,25 @@ void CPlayer::Update()
 
 		// 現在サイズ -> 目標サイズ : 指数減衰
 		Vec3 Size = GetTransform().Size;
-		ExponentialDecay(Size, m_SizeTarget, COEF_CORRECT_TARGET);
+		//ExponentialDecay(Size, m_SizeTarget, COEF_CORRECT_TARGET);
 		ChangeTransform.Size = Size;
 
 		// 現在向き -> 目標向き : 指数減衰
 		Vec4 Rot = GetTransform().Rot;
-		NormalizeAngleToDest(Rot.y, m_RotTarget.y);
-		ExponentialDecay(Rot, m_RotTarget, COEF_CORRECT_TARGET);
+		//NormalizeAngleToDest(Rot.y, m_RotTarget.y);
+		//ExponentialDecay(Rot, m_RotTarget, COEF_CORRECT_TARGET);
 		ChangeTransform.Rot = Rot;
 
 		// 現在位置 -> 目標位置 : 指数減衰
 		Vec3 Pos = GetTransform().Pos;
-		ExponentialDecay(Pos, m_PosTarget, COEF_CORRECT_TARGET);
+		//ExponentialDecay(Pos, m_PosTarget, COEF_CORRECT_TARGET);
 		ChangeTransform.Pos = Pos;
 
-		SetTransform();
+		//マトリックスそのまま
+		ChangeTransform.World = GetTransform().World;
+
+		//変更
+		SetTransform(ChangeTransform);
 	}
 
 
@@ -322,7 +326,7 @@ bool CPlayer::JudgeInput()
 	//	return true;
 	//}
 
-	//return false;
+	return false;
 }
 
 //============================================================================
@@ -365,7 +369,7 @@ void CPlayer::PlayWave()
 	m_SizeTarget = front;
 
 	// 現在のサイズを取得
-	const Vec3& Size = GetSize();
+	const Vec3& Size = GetTransform().Size;
 
 	// 近似値を設定する
 	const float fε = 0.1f;
@@ -394,58 +398,58 @@ bool CPlayer::Hit()
 //============================================================================
 void CPlayer::ValueEdit()
 {
-	// 静的メンバ変数を初期値として、全てコピー
-	float fCoefCrorrectTarget = CPlayer::COEF_CORRECT_TARGET;
-	float fCoefGravity = CPlayer::COEF_GRAVITY;
-	float fCoefTriggerJump = CPlayer::COEF_TRIGGER_JUMP;
-	float fCoefMoveSpeed = CPlayer::COEF_MOVE_SPEED;
-	float fCoefMoveSpeedAir = CPlayer::COEF_MOVE_SPEED_AIR;
-	float fCoefBraking = CPlayer::COEF_BRAKING;
+	//// 静的メンバ変数を初期値として、全てコピー
+	//float fCoefCrorrectTarget = CPlayer::COEF_CORRECT_TARGET;
+	//float fCoefGravity = CPlayer::COEF_GRAVITY;
+	//float fCoefTriggerJump = CPlayer::COEF_TRIGGER_JUMP;
+	//float fCoefMoveSpeed = CPlayer::COEF_MOVE_SPEED;
+	//float fCoefMoveSpeedAir = CPlayer::COEF_MOVE_SPEED_AIR;
+	//float fCoefBraking = CPlayer::COEF_BRAKING;
 
-	// 変化量
-	const float fSpeed = 0.01f;
+	//// 変化量
+	//const float fSpeed = 0.01f;
 
-	// ImGuiで編集
-	MIS::MyImGuiShortcut_BeginWindow(reinterpret_cast<const char*>(u8"プレイヤーの各種パラメータ操作"));
-	{
-		ImGui::DragFloat(reinterpret_cast<const char*>(u8"目標値への補間係数"), &fCoefCrorrectTarget, fSpeed, fSpeed, 1.0f);
-		ImGui::DragFloat(reinterpret_cast<const char*>(u8"重力"), &fCoefGravity, fSpeed, FLT_MIN, 0.0f);
-		ImGui::DragFloat(reinterpret_cast<const char*>(u8"ジャンプ力"), &fCoefTriggerJump, fSpeed, fSpeed, FLT_MAX);
-		ImGui::DragFloat(reinterpret_cast<const char*>(u8"地上の移動速度"), &fCoefMoveSpeed, fSpeed, fSpeed, FLT_MAX);
-		ImGui::DragFloat(reinterpret_cast<const char*>(u8"空中の移動速度"), &fCoefMoveSpeedAir, fSpeed, fSpeed, FLT_MAX);
-		ImGui::DragFloat(reinterpret_cast<const char*>(u8"制動力"), &fCoefBraking, fSpeed, fSpeed, FLT_MAX);
-		if (ImGui::Button(reinterpret_cast<const char*>(u8"書き出す")))
-		{
-			ExportStatus();
-		}
-		// サイズを出力
-		const Vec3& Size = GetSize();
-		ImGui::Text("Size:(%.2f, %.2f, %.2f)", Size.x, Size.y, Size.z);
+	//// ImGuiで編集
+	//MIS::MyImGuiShortcut_BeginWindow(reinterpret_cast<const char*>(u8"プレイヤーの各種パラメータ操作"));
+	//{
+	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"目標値への補間係数"), &fCoefCrorrectTarget, fSpeed, fSpeed, 1.0f);
+	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"重力"), &fCoefGravity, fSpeed, FLT_MIN, 0.0f);
+	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"ジャンプ力"), &fCoefTriggerJump, fSpeed, fSpeed, FLT_MAX);
+	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"地上の移動速度"), &fCoefMoveSpeed, fSpeed, fSpeed, FLT_MAX);
+	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"空中の移動速度"), &fCoefMoveSpeedAir, fSpeed, fSpeed, FLT_MAX);
+	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"制動力"), &fCoefBraking, fSpeed, fSpeed, FLT_MAX);
+	//	if (ImGui::Button(reinterpret_cast<const char*>(u8"書き出す")))
+	//	{
+	//		ExportStatus();
+	//	}
+	//	// サイズを出力
+	//	const Vec3& Size = GetTransform().Size;
+	//	ImGui::Text("Size:(%.2f, %.2f, %.2f)", Size.x, Size.y, Size.z);
 
-		// 向きを出力
-		const Vec3& Rot = GetRot();
-		ImGui::Text("Rot:(%.2f, %.2f, %.2f)", Rot.x, Rot.y, Rot.z);
+	//	// 向きを出力
+	//	const Vec4& Rot = GetTransform().Rot;
+	//	ImGui::Text("Rot:(%.2f, %.2f, %.2f)", Rot.x, Rot.y, Rot.z);
 
-		// 座標を出力
-		const Vec3& Pos = GetPos();
-		ImGui::Text("Pos:(%.2f, %.2f, %.2f)", Pos.x, Pos.y, Pos.z);
+	//	// 座標を出力
+	//	const Vec3& Pos = GetTransform().Pos;
+	//	ImGui::Text("Pos:(%.2f, %.2f, %.2f)", Pos.x, Pos.y, Pos.z);
 
-		// 加速度を出力
-		ImGui::Text("Velocity:(%.2f, %.2f, %.2f)", m_Velocity.x, m_Velocity.y, m_Velocity.z);
+	//	// 加速度を出力
+	//	ImGui::Text("Velocity:(%.2f, %.2f, %.2f)", m_Velocity.x, m_Velocity.y, m_Velocity.z);
 
-		// ステートを出力
-		ImGui::Text("State:%s", ToString());
+	//	// ステートを出力
+	//	ImGui::Text("State:%s", ToString());
 
-	}
-	ImGui::End();
+	//}
+	//ImGui::End();
 
-	// 編集した値をメンバ変数に反映
-	CPlayer::COEF_CORRECT_TARGET = fCoefCrorrectTarget;
-	CPlayer::COEF_GRAVITY = fCoefGravity;
-	CPlayer::COEF_TRIGGER_JUMP = fCoefTriggerJump;
-	CPlayer::COEF_MOVE_SPEED = fCoefMoveSpeed;
-	CPlayer::COEF_MOVE_SPEED_AIR = fCoefMoveSpeedAir;
-	CPlayer::COEF_BRAKING = fCoefBraking;
+	//// 編集した値をメンバ変数に反映
+	//CPlayer::COEF_CORRECT_TARGET = fCoefCrorrectTarget;
+	//CPlayer::COEF_GRAVITY = fCoefGravity;
+	//CPlayer::COEF_TRIGGER_JUMP = fCoefTriggerJump;
+	//CPlayer::COEF_MOVE_SPEED = fCoefMoveSpeed;
+	//CPlayer::COEF_MOVE_SPEED_AIR = fCoefMoveSpeedAir;
+	//CPlayer::COEF_BRAKING = fCoefBraking;
 }
 
 //============================================================================

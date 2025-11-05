@@ -32,8 +32,8 @@ namespace PLAYER_INFO
 bool CPlayerStateBase::CallJump(CPlayer* pPlayer)
 {
 	//SPACEキーが押された時かAボタンが押された時
-	if (CInputManager::RefInstance().GetStateKeyboard().Space== DirectX::Keyboard::Space
-|| CInputManager::RefInstance().GetStateGamePad()(CInputPad::JOYKEY::A))
+	if (CInputManager::RefInstance().GetStateKeyboard().Space
+		|| CInputManager::RefInstance().GetStateGamePad().IsAPressed()/*(CInputPad::JOYKEY::A)*/)
 	{
 		pPlayer->Jump(); //ジャンプ処理
 		GetMacine()->ChangeState<CPlayer_JumpState>(); //ジャンプ状態へ移行
@@ -92,17 +92,17 @@ void CPlayer_DefaultState::OnUpdate(CPlayer* pPlayer)
 
 	}
 
-	//Bキーが押された時
-	else if (CInputManager::RefInstance().GetKeyboard()->GetTrigger(DIK_B))
-	{
-		GetMacine()->ChangeState<CPlayer_DamageState>();  //ダメージ状態へ移行
-	}
+	////Bキーが押された時
+	//else if (CInputManager::RefInstance().GetKeyboard()->GetTrigger(DIK_B))
+	//{
+	//	GetMacine()->ChangeState<CPlayer_DamageState>();  //ダメージ状態へ移行
+	//}
 
-	//Tキーが押された時
-	else if (CInputManager::RefInstance().GetKeyboard()->GetTrigger(DIK_T))
-	{
-		GetMacine()->ChangeState<CPlayer_OsiriState>();  //お尻状態へ移行
-	}
+	////Tキーが押された時
+	//else if (CInputManager::RefInstance().GetKeyboard()->GetTrigger(DIK_T))
+	//{
+	//	GetMacine()->ChangeState<CPlayer_OsiriState>();  //お尻状態へ移行
+	//}
 }
 
 //========================================
@@ -193,10 +193,10 @@ void CPlayer_OsiriState::OnUpdate(CPlayer* pPlayer)
 {
 	pPlayer->Null();
 	//Yキーが押された時
-	if (CInputManager::RefInstance().GetKeyboard()->GetTrigger(DIK_Y))
-	{
-		GetMacine()->ChangeState<CPlayer_DefaultState>();  //通常状態へ移行
-	}
+	//if (CInputManager::RefInstance().GetKeyboard()->GetTrigger(DIK_Y))
+	//{
+	//	GetMacine()->ChangeState<CPlayer_DefaultState>();  //通常状態へ移行
+	//}
 }
 
 //========================================
@@ -239,13 +239,13 @@ void CPlayer_JumpState::OnUpdate(CPlayer* pPlayer)
 	//地面についた時(処理を完結)
 	if (pPlayer->InJump() == true)
 	{
-		//衝撃波生成
-		using namespace OBJ;
-		auto pImpact = CObject::Create<CImpact>(TYPE::IMPUCT, LAYER::DEFAULT, CImpact::s_fpDefaultFactory);
-		pImpact->SetPos(pPlayer->GetPos());			//位置を保存
-		pImpact->SetCreator(pPlayer);				//発生させた者を保存
-		pImpact->SetRadius(pPlayer->GetRadius());	//半径を保存
-		pImpact->Start();
+		////衝撃波生成
+		//using namespace OBJ;
+		//auto pImpact = CObject::Create<CImpact>(TYPE::IMPUCT, LAYER::DEFAULT, CImpact::s_fpDefaultFactory);
+		//pImpact->SetPos(pPlayer->GetPos());			//位置を保存
+		//pImpact->SetCreator(pPlayer);				//発生させた者を保存
+		//pImpact->SetRadius(pPlayer->GetRadius());	//半径を保存
+		//pImpact->Start();
 
 		//プレイヤーが格納されているリストを取得
 		std::list<CObject*> playerlist = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::PLAYER);
