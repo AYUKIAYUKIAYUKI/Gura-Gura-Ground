@@ -105,6 +105,9 @@
     <ClCompile Include="Src\MySrc\beamlight.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
+    <ClCompile Include="Src\MySrc\state.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\MySrc\main.h">
@@ -232,6 +235,9 @@
     </ClInclude>
     <ClInclude Include="Src\MyAPI\API.camera.h">
       <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\state.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -44,6 +44,7 @@
     <ClCompile Include="Src\MySrc\scene.manager.cpp" />
     <ClCompile Include="Src\MySrc\scene.select.cpp" />
     <ClCompile Include="Src\MySrc\sound.manager.cpp" />
+    <ClCompile Include="Src\MySrc\state.cpp" />
     <ClCompile Include="Src\MySrc\texture.manager.cpp" />
     <ClCompile Include="Src\MySrc\scene.title.cpp" />
   </ItemGroup>
@@ -88,6 +89,7 @@
     <ClInclude Include="Src\MySrc\scene.manager.h" />
     <ClInclude Include="Src\MySrc\scene.select.h" />
     <ClInclude Include="Src\MySrc\sound.manager.h" />
+    <ClInclude Include="Src\MySrc\state.h" />
     <ClInclude Include="Src\MySrc\texture.manager.h" />
     <ClInclude Include="Src\MySrc\scene.title.h" />
   </ItemGroup>
