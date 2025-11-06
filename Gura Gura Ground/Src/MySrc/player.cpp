@@ -66,13 +66,13 @@ std::function<bool(CPlayer*)> CPlayer::s_fpDefaultFactory =
 	//auto pModel = useful::PtrCheck(CXManager::RefInstance().RefRegistry().BindAtKey("Player"), "Syokika Lamda no Naka Model Nai");
 
 	//ステータスを取得
-	const JSON& Json = OpenJsonFileMaybeThrow("Data\\JSON\\PlayerStatus.json");
-	COEF_CORRECT_TARGET = Json["CORRECT_TARGET"];// 目標値への補間係数
-	COEF_GRAVITY = Json["GRAVITY"];		 // 重力加速度
-	COEF_TRIGGER_JUMP = Json["TRIGGER_JUMP"];	 // ジャンプ力
-	COEF_MOVE_SPEED = Json["MOVE_SPEED"];	 // 移動速度(地上)
-	COEF_MOVE_SPEED_AIR = Json["MOVE_SPEED_AIR"];// 移動速度(空中)
-	COEF_BRAKING = Json["BRAKING"];		 // 制動力
+	//const JSON& Json = OpenJsonFileMaybeThrow("Data\\JSON\\PlayerStatus.json");
+	//COEF_CORRECT_TARGET = Json["CORRECT_TARGET"];// 目標値への補間係数
+	//COEF_GRAVITY = Json["GRAVITY"];		 // 重力加速度
+	//COEF_TRIGGER_JUMP = Json["TRIGGER_JUMP"];	 // ジャンプ力
+	//COEF_MOVE_SPEED = Json["MOVE_SPEED"];	 // 移動速度(地上)
+	//COEF_MOVE_SPEED_AIR = Json["MOVE_SPEED_AIR"];// 移動速度(空中)
+	//COEF_BRAKING = Json["BRAKING"];		 // 制動力
 
 	// モデルの設定
 	//pPlayer->SetModel(pModel);
@@ -203,10 +203,10 @@ bool CPlayer::Initialize()
 	//	return false;
 	//}
 
-	//m_stateMachine->Start(this);
+	m_stateMachine->Start(this);
 
 	// 初期状態のステートをセット
-	//m_stateMachine->ChangeState<CPlayer_DefaultState>();
+	m_stateMachine->ChangeState<CPlayer_DefaultState>();
 
 	return true;
 }
@@ -225,58 +225,47 @@ void CPlayer::Finalize()
 //============================================================================
 void CPlayer::Update()
 {
-	CObject* self = this;
-	std::list<CObject*> playerlist = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::PLAYER);
+	m_stateMachine->Update(); //ステートの更新処理
 
-	if (!playerlist.empty() && self == playerlist.front())
-	{
-		m_stateMachine->Update(); //ステートの更新処理
+	// 数値編集
+	ValueEdit();
 
-		// 数値編集
-		ValueEdit();
+	// 振動再生
+	PlayWave();
 
-		// かんたんステートの実行
-		//m_afpExecuteState[static_cast<unsigned char>(m_State)]();
+	// 目標位置：毎回、加速度を加える
+	m_PosTarget.x += m_Velocity.x;
+	m_PosTarget.y += m_Velocity.y;
+	m_PosTarget.z += m_Velocity.z;
 
-		// 振動再生
-		PlayWave();
+	//変更後の情報を保存する用
+	OBJ::Transform ChangeTransform;
 
-		// 目標位置：毎回、加速度を加える
-		m_PosTarget.x += m_Velocity.x;
-		m_PosTarget.y += m_Velocity.y;
-		m_PosTarget.z += m_Velocity.z;
+	// 現在サイズ -> 目標サイズ : 指数減衰
+	Vec3 Size = GetTransform().Size;
+	//ExponentialDecay(Size, m_SizeTarget, COEF_CORRECT_TARGET);
+	ChangeTransform.Size = Size;
 
-		//変更後の情報を保存する用
-		OBJ::Transform ChangeTransform;
+	// 現在向き -> 目標向き : 指数減衰
+	Vec4 Rot = GetTransform().Rot;
+	//NormalizeAngleToDest(Rot.y, m_RotTarget.y);
+	//ExponentialDecay(Rot, m_RotTarget, COEF_CORRECT_TARGET);
+	ChangeTransform.Rot = Rot;
 
-		// 現在サイズ -> 目標サイズ : 指数減衰
-		Vec3 Size = GetTransform().Size;
-		//ExponentialDecay(Size, m_SizeTarget, COEF_CORRECT_TARGET);
-		ChangeTransform.Size = Size;
+	// 現在位置 -> 目標位置 : 指数減衰
+	Vec3 Pos = GetTransform().Pos;
+	//ExponentialDecay(Pos, m_PosTarget, COEF_CORRECT_TARGET);
+	ChangeTransform.Pos = Pos;
 
-		// 現在向き -> 目標向き : 指数減衰
-		Vec4 Rot = GetTransform().Rot;
-		//NormalizeAngleToDest(Rot.y, m_RotTarget.y);
-		//ExponentialDecay(Rot, m_RotTarget, COEF_CORRECT_TARGET);
-		ChangeTransform.Rot = Rot;
+	//マトリックスそのまま
+	ChangeTransform.World = GetTransform().World;
 
-		// 現在位置 -> 目標位置 : 指数減衰
-		Vec3 Pos = GetTransform().Pos;
-		//ExponentialDecay(Pos, m_PosTarget, COEF_CORRECT_TARGET);
-		ChangeTransform.Pos = Pos;
-
-		//マトリックスそのまま
-		ChangeTransform.World = GetTransform().World;
-
-		//変更
-		SetTransform(ChangeTransform);
-	}
-
+	//変更
+	SetTransform(ChangeTransform);
 
 	// オブジェクト(Xモデル)の更新処理
 	// 行列の再計算を含んでいるため更新処理の終わりに呼びます
 	CGltf::Update();
-
 }
 
 //============================================================================

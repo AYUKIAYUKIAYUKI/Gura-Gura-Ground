@@ -182,7 +182,7 @@ CSceneGame::CSceneGame()
 	// ÉvÉåÉCÉÑÅ[ÇÃê∂ê¨
 	if (!m_pPlayer)
 	{
-		m_pPlayer = CObject::Create<CPlayer>(OBJ::TYPE::PLAYER, OBJ::LAYER::DEFAULT, [](CPlayer*) -> bool { return true; });
+		m_pPlayer = CObject::Create<CPlayer>(OBJ::TYPE::PLAYER, OBJ::LAYER::DEFAULT, CPlayer::s_fpDefaultFactory);
 	}
 }
 
