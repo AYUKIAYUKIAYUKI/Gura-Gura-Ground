@@ -86,7 +86,7 @@ public:
 
 	// メッシュ用のインデックスバッファの生成
 	static bool CreateIndexBufferForMesh(ID3D11Buffer** ppIndexBuffer, const std::vector<uint16_t>& rvIndices);
-	//static bool CreateIndexBufferForMesh(ID3D11Buffer** ppIndexBuffer, const std::vector<uint32_t>& rvIndices);
+	static bool CreateIndexBufferForMesh(ID3D11Buffer** ppIndexBuffer, const std::vector<uint32_t>& rvIndices);
 
 	// 既存メッシュから取得した頂点情報を自分の頂点フォーマットに変換
 	template <typename T, typename U>

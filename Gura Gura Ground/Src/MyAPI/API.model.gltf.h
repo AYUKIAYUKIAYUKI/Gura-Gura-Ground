@@ -17,6 +17,11 @@
 #include "API.object.h"
 
 //****************************************************
+// 前方宣言
+//****************************************************
+struct GltfMesh;
+
+//****************************************************
 // glTFモデルクラスの定義
 //****************************************************
 class CGltf : public CObject
@@ -44,9 +49,8 @@ public:
 	// 描画処理
 	void Draw() override;
 
-	// トランスフォームの操作用
-	const OBJ::Transform& GetTransform() const;
-	      void            SetTransform(const OBJ::Transform& TF);
+	// モデルのバインド
+	void SetModel(const GltfMesh& rData);
 
 	// 頂点シェーダーのバインド
 	void SetVertexShader(const ComPtr<ID3D11VertexShader>& rcpVS);
@@ -59,6 +63,10 @@ public:
 
 	// 定数バッファのバインド
 	void SetConstantBuffer(const ComPtr<ID3D11Buffer>& rcpCB);
+
+	// トランスフォームの操作用
+	const OBJ::Transform& GetTransform() const;
+	      void            SetTransform(const OBJ::Transform& TF);
 
 private:
 

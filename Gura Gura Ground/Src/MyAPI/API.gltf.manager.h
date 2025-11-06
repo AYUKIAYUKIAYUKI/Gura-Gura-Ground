@@ -18,27 +18,38 @@
 #include <tiny_gltf.h>
 
 //****************************************************
+// メッシュ情報の構造体を定義
+//****************************************************
+struct GltfMesh
+{
+	tinygltf::Model      Model;        // glTFモデル
+	ComPtr<ID3D11Buffer> cpVertexBuff; // 頂点バッファ
+	ComPtr<ID3D11Buffer> cpIndexBuff;  // インデックスバッファ
+	int                  nNumIndex;    // インデックス数
+};
+
+//****************************************************
 // glTFモデルマネージャークラスの定義
 //****************************************************
-class CGltfManager : public CManager<CGltfManager, tinygltf::Model>
+class CGltfManager : public CManager<CGltfManager, GltfMesh>
 {
+	//****************************************************
+	// 前方宣言
+	//****************************************************
+	class Impl;
+
 	//****************************************************
 	// フレンド宣言
 	//****************************************************
 	friend struct std::default_delete<CGltfManager>;
 	friend CGltfManager& CSingleton<CGltfManager>::RefInstance();
 
-	//****************************************************
-	// 静的メンバ変数の定義
-	//****************************************************
-	static constexpr const char* INITIALIZE_PATH = "Data\\JSON\\glTF.List.json";
-
 private:
 
 	//****************************************************
 	// special function
 	//****************************************************
-	CGltfManager() = default; // デフォルトコンストラクタ
+	CGltfManager();           // デフォルトコンストラクタ
 	~CGltfManager() override; // デストラクタ
 
 	//****************************************************
@@ -50,5 +61,5 @@ private:
 	//****************************************************
 	// data
 	//****************************************************
-	tinygltf::TinyGLTF m_Loader; // glTFのローダーオブジェクト
+	std::unique_ptr<Impl> m_upImpl;
 };
