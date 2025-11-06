@@ -15,7 +15,11 @@
 // インクルードファイル
 //****************************************************
 #include "API.singleton.h"
-#include "btBulletDynamicsCommon.h"
+
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#include <btBulletDynamicsCommon.h>
+#pragma warning(pop)
 
 //****************************************************
 // 物理ワールドクラスの定義
