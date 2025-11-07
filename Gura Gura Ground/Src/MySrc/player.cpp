@@ -18,7 +18,8 @@
 
 #include "state.h"
 #include "API.object.manager.h"
-
+#include "API.world.h"
+#include "API.gltf.manager.h"
 //****************************************************
 // usingディレクティブ
 //****************************************************
@@ -233,36 +234,6 @@ void CPlayer::Update()
 	// 振動再生
 	PlayWave();
 
-	// 目標位置：毎回、加速度を加える
-	m_PosTarget.x += m_Velocity.x;
-	m_PosTarget.y += m_Velocity.y;
-	m_PosTarget.z += m_Velocity.z;
-
-	//変更後の情報を保存する用
-	OBJ::Transform ChangeTransform;
-
-	// 現在サイズ -> 目標サイズ : 指数減衰
-	Vec3 Size = GetTransform().Size;
-	//ExponentialDecay(Size, m_SizeTarget, COEF_CORRECT_TARGET);
-	ChangeTransform.Size = Size;
-
-	// 現在向き -> 目標向き : 指数減衰
-	Vec4 Rot = GetTransform().Rot;
-	//NormalizeAngleToDest(Rot.y, m_RotTarget.y);
-	//ExponentialDecay(Rot, m_RotTarget, COEF_CORRECT_TARGET);
-	ChangeTransform.Rot = Rot;
-
-	// 現在位置 -> 目標位置 : 指数減衰
-	Vec3 Pos = GetTransform().Pos;
-	//ExponentialDecay(Pos, m_PosTarget, COEF_CORRECT_TARGET);
-	ChangeTransform.Pos = Pos;
-
-	//マトリックスそのまま
-	ChangeTransform.World = GetTransform().World;
-
-	//変更
-	SetTransform(ChangeTransform);
-
 	// オブジェクト(Xモデル)の更新処理
 	// 行列の再計算を含んでいるため更新処理の終わりに呼びます
 	CGltf::Update();
@@ -282,23 +253,31 @@ void CPlayer::Draw()
 //============================================================================
 void CPlayer::Move(float fSpeed)
 {
-	//// 入力方向を取得
-	//std::optional<float> opDir = CInputManager::s_fpGetInputDir();
+	// 移動方向の取得：引数 0 ～ 3 ⇒ コントローラーの番号
+	const std::optional<float>& opDir = CInputManager::RefInstance().ConvertInputToMoveDirection(0);
 
-	//// 入力があるなら
-	//if (opDir)
-	//{
-	//	// 加速度：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
-	//	m_Velocity.x = sinf(opDir.value()) * fSpeed;
-	//	m_Velocity.z = cosf(opDir.value()) * fSpeed;
+	// 入力があるなら
+	if (opDir)
+	{
+		// 移動速度スケール
+		const float fSpeed = 5.0f;
+		btVector3   rMoveDir = { 0.0f, 0.0f, 0.0f };
 
-	//	// 目標向き：Y軸：移動方向に向くようにする
-	//	m_RotTarget.y = atan2f(-m_Velocity.x, -m_Velocity.z);
-	//}
+		// 加速度：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
+		rMoveDir.setX(sinf(opDir.value()) * fSpeed);
+		rMoveDir.setZ(cosf(opDir.value()) * fSpeed);
 
-	//// 加速度：XZ軸：時間に伴い減衰していく
-	//ExponentialDecay(m_Velocity.x, 0.0f, COEF_BRAKING);
-	//ExponentialDecay(m_Velocity.z, 0.0f, COEF_BRAKING);
+		// 加速度：Y軸：現在の重力速度を維持
+		btVector3 rCurrentVel = RefRgidBody().upRigidBody->getLinearVelocity();
+		rMoveDir.setY(rCurrentVel.getY());
+
+		// 新しい速度を設定
+		RefRgidBody().upRigidBody->setLinearVelocity(rMoveDir);
+	}
+
+	// 加速度：XZ軸：時間に伴い減衰していく
+	ExponentialDecay(m_Velocity.x, 0.0f, COEF_BRAKING);
+	ExponentialDecay(m_Velocity.z, 0.0f, COEF_BRAKING);
 }
 
 //============================================================================
@@ -306,14 +285,14 @@ void CPlayer::Move(float fSpeed)
 //============================================================================
 bool CPlayer::JudgeInput()
 {
-	//// 入力方向を取得
-	//std::optional<float> opDir = CInputManager::s_fpGetInputDir();
+	// 入力方向を取得
+	std::optional<float> opDir = CInputManager::RefInstance().ConvertInputToMoveDirection();
 
-	//// 入力があるなら
-	//if (opDir)
-	//{
-	//	return true;
-	//}
+	// 入力があるなら
+	if (opDir)
+	{
+		return true;
+	}
 
 	return false;
 }
@@ -387,58 +366,58 @@ bool CPlayer::Hit()
 //============================================================================
 void CPlayer::ValueEdit()
 {
-	//// 静的メンバ変数を初期値として、全てコピー
-	//float fCoefCrorrectTarget = CPlayer::COEF_CORRECT_TARGET;
-	//float fCoefGravity = CPlayer::COEF_GRAVITY;
-	//float fCoefTriggerJump = CPlayer::COEF_TRIGGER_JUMP;
-	//float fCoefMoveSpeed = CPlayer::COEF_MOVE_SPEED;
-	//float fCoefMoveSpeedAir = CPlayer::COEF_MOVE_SPEED_AIR;
-	//float fCoefBraking = CPlayer::COEF_BRAKING;
+	// 静的メンバ変数を初期値として、全てコピー
+	float fCoefCrorrectTarget = CPlayer::COEF_CORRECT_TARGET;
+	float fCoefGravity = CPlayer::COEF_GRAVITY;
+	float fCoefTriggerJump = CPlayer::COEF_TRIGGER_JUMP;
+	float fCoefMoveSpeed = CPlayer::COEF_MOVE_SPEED;
+	float fCoefMoveSpeedAir = CPlayer::COEF_MOVE_SPEED_AIR;
+	float fCoefBraking = CPlayer::COEF_BRAKING;
 
-	//// 変化量
-	//const float fSpeed = 0.01f;
+	// 変化量
+	const float fSpeed = 0.01f;
 
-	//// ImGuiで編集
-	//MIS::MyImGuiShortcut_BeginWindow(reinterpret_cast<const char*>(u8"プレイヤーの各種パラメータ操作"));
-	//{
-	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"目標値への補間係数"), &fCoefCrorrectTarget, fSpeed, fSpeed, 1.0f);
-	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"重力"), &fCoefGravity, fSpeed, FLT_MIN, 0.0f);
-	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"ジャンプ力"), &fCoefTriggerJump, fSpeed, fSpeed, FLT_MAX);
-	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"地上の移動速度"), &fCoefMoveSpeed, fSpeed, fSpeed, FLT_MAX);
-	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"空中の移動速度"), &fCoefMoveSpeedAir, fSpeed, fSpeed, FLT_MAX);
-	//	ImGui::DragFloat(reinterpret_cast<const char*>(u8"制動力"), &fCoefBraking, fSpeed, fSpeed, FLT_MAX);
-	//	if (ImGui::Button(reinterpret_cast<const char*>(u8"書き出す")))
-	//	{
-	//		ExportStatus();
-	//	}
-	//	// サイズを出力
-	//	const Vec3& Size = GetTransform().Size;
-	//	ImGui::Text("Size:(%.2f, %.2f, %.2f)", Size.x, Size.y, Size.z);
+	// ImGuiで編集
+	MIS::MyImGuiShortcut_BeginWindow(reinterpret_cast<const char*>(u8"プレイヤーの各種パラメータ操作"));
+	{
+		ImGui::DragFloat(reinterpret_cast<const char*>(u8"目標値への補間係数"), &fCoefCrorrectTarget, fSpeed, fSpeed, 1.0f);
+		ImGui::DragFloat(reinterpret_cast<const char*>(u8"重力"), &fCoefGravity, fSpeed, FLT_MIN, 0.0f);
+		ImGui::DragFloat(reinterpret_cast<const char*>(u8"ジャンプ力"), &fCoefTriggerJump, fSpeed, fSpeed, FLT_MAX);
+		ImGui::DragFloat(reinterpret_cast<const char*>(u8"地上の移動速度"), &fCoefMoveSpeed, fSpeed, fSpeed, FLT_MAX);
+		ImGui::DragFloat(reinterpret_cast<const char*>(u8"空中の移動速度"), &fCoefMoveSpeedAir, fSpeed, fSpeed, FLT_MAX);
+		ImGui::DragFloat(reinterpret_cast<const char*>(u8"制動力"), &fCoefBraking, fSpeed, fSpeed, FLT_MAX);
+		if (ImGui::Button(reinterpret_cast<const char*>(u8"書き出す")))
+		{
+			ExportStatus();
+		}
+		// サイズを出力
+		const Vec3& Size = GetTransform().Size;
+		ImGui::Text("Size:(%.2f, %.2f, %.2f)", Size.x, Size.y, Size.z);
 
-	//	// 向きを出力
-	//	const Vec4& Rot = GetTransform().Rot;
-	//	ImGui::Text("Rot:(%.2f, %.2f, %.2f)", Rot.x, Rot.y, Rot.z);
+		// 向きを出力
+		const Vec4& Rot = GetTransform().Rot;
+		ImGui::Text("Rot:(%.2f, %.2f, %.2f)", Rot.x, Rot.y, Rot.z);
 
-	//	// 座標を出力
-	//	const Vec3& Pos = GetTransform().Pos;
-	//	ImGui::Text("Pos:(%.2f, %.2f, %.2f)", Pos.x, Pos.y, Pos.z);
+		// 座標を出力
+		const Vec3& Pos = GetTransform().Pos;
+		ImGui::Text("Pos:(%.2f, %.2f, %.2f)", Pos.x, Pos.y, Pos.z);
 
-	//	// 加速度を出力
-	//	ImGui::Text("Velocity:(%.2f, %.2f, %.2f)", m_Velocity.x, m_Velocity.y, m_Velocity.z);
+		// 加速度を出力
+		ImGui::Text("Velocity:(%.2f, %.2f, %.2f)", m_Velocity.x, m_Velocity.y, m_Velocity.z);
 
-	//	// ステートを出力
-	//	ImGui::Text("State:%s", ToString());
+		// ステートを出力
+		//ImGui::Text("State:%s", ToString());
 
-	//}
-	//ImGui::End();
+	}
+	ImGui::End();
 
-	//// 編集した値をメンバ変数に反映
-	//CPlayer::COEF_CORRECT_TARGET = fCoefCrorrectTarget;
-	//CPlayer::COEF_GRAVITY = fCoefGravity;
-	//CPlayer::COEF_TRIGGER_JUMP = fCoefTriggerJump;
-	//CPlayer::COEF_MOVE_SPEED = fCoefMoveSpeed;
-	//CPlayer::COEF_MOVE_SPEED_AIR = fCoefMoveSpeedAir;
-	//CPlayer::COEF_BRAKING = fCoefBraking;
+	// 編集した値をメンバ変数に反映
+	CPlayer::COEF_CORRECT_TARGET = fCoefCrorrectTarget;
+	CPlayer::COEF_GRAVITY = fCoefGravity;
+	CPlayer::COEF_TRIGGER_JUMP = fCoefTriggerJump;
+	CPlayer::COEF_MOVE_SPEED = fCoefMoveSpeed;
+	CPlayer::COEF_MOVE_SPEED_AIR = fCoefMoveSpeedAir;
+	CPlayer::COEF_BRAKING = fCoefBraking;
 }
 
 //============================================================================
