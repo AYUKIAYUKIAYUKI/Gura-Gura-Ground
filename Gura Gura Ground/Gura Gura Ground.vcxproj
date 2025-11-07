@@ -29,6 +29,7 @@
     <ClCompile Include="Src\MySrc\any.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
     <ClCompile Include="Src\MySrc\field.cpp" />
+    <ClCompile Include="Src\MySrc\IronBall.cpp" />
     <ClCompile Include="Src\MySrc\main.cpp" />
     <ClCompile Include="Src\MySrc\obstacle.cpp" />
     <ClCompile Include="Src\MySrc\pch.cpp">
@@ -80,6 +81,7 @@
     <ClInclude Include="Src\MySrc\any.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
     <ClInclude Include="Src\MySrc\field.h" />
+    <ClInclude Include="Src\MySrc\IronBall.h" />
     <ClInclude Include="Src\MySrc\player.h" />
     <ClInclude Include="Src\MySrc\scene.game.h" />
     <ClInclude Include="Src\MySrc\main.h" />

@@ -22,6 +22,7 @@
 #include "API.object.manager.h"
 #include "field.h"
 #include "player.h"
+#include "IronBall.h"
 
 /* デバッグ */
 namespace
@@ -184,6 +185,9 @@ CSceneGame::CSceneGame()
 	{
 		m_pPlayer = CObject::Create<CPlayer>(OBJ::TYPE::PLAYER, OBJ::LAYER::DEFAULT, CPlayer::s_fpDefaultFactory);
 	}
+
+	//鉄球の生成
+	CObject::Create<CIronBall>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, CIronBall::s_fpDefaultFactory);
 }
 
 //============================================================================
