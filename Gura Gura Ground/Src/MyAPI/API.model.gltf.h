@@ -20,6 +20,7 @@
 // 前方宣言
 //****************************************************
 struct GltfMesh;
+struct RigidBody;
 
 //****************************************************
 // glTFモデルクラスの定義
@@ -67,6 +68,9 @@ public:
 	// トランスフォームの操作用
 	const OBJ::Transform& GetTransform() const;
 	      void            SetTransform(const OBJ::Transform& TF);
+
+	// リジッドボディの参照
+	const RigidBody& RefRgidBody() const;
 
 private:
 

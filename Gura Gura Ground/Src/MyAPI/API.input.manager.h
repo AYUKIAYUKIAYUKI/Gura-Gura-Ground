@@ -49,12 +49,15 @@ public:
 	// 更新処理
 	void Update();
 
+	// 入力を方向として変換
+	std::optional<float> ConvertInputToMoveDirection(const unsigned char wPadIdx = 0);
+
 	//****************************************************
 	// inline function
 	//****************************************************
 
 	// お手軽エンター
-	bool EnhancedEnter()
+	inline bool EnhancedEnter()
 	{
 		// キーボードのEnterキーか
 		if (m_KeyboardTracker.pressed.Enter)
