@@ -96,14 +96,6 @@ public:
 	inline const DirectX::XMFLOAT3& GetSizeTarget() const { return m_SizeTarget; }
 	inline void						SetSizeTarget(const DirectX::XMFLOAT3& SizeTarget) { m_SizeTarget = SizeTarget; }
 
-	// 目標向き操作用
-	inline const DirectX::XMFLOAT3& GetRotTarget() const { return m_RotTarget; }
-	inline void						SetRotTarget(const DirectX::XMFLOAT3& RotTarget) { m_RotTarget = RotTarget; }
-
-	// 目標位置操作用
-	inline const DirectX::XMFLOAT3& GetPosTarget() const { return m_PosTarget; }
-	inline void						SetPosTarget(const DirectX::XMFLOAT3& PosTarget) { m_PosTarget = PosTarget; }
-
 	//**//==========================================================================================================
 
 	/**
@@ -167,8 +159,6 @@ private:
 		//int       m_nLeftNumJump; // ジャンプ可能回数
 		DirectX::XMFLOAT3 m_Velocity;     // 加速度
 		DirectX::XMFLOAT3 m_SizeTarget;   // 目標サイズ
-		DirectX::XMFLOAT3 m_RotTarget;    // 目標向き
-		DirectX::XMFLOAT3 m_PosTarget;    // 目標位置
 
 		// 振動再生用：目標サイズリスト
 		using Michos = std::list<DirectX::XMFLOAT3>;

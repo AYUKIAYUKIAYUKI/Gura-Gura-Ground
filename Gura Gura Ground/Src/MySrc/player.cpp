@@ -89,9 +89,6 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 	, m_nFrame(0)
 	//, m_nLeftNumJump(NUM_LEFT_JUMP)
 	, m_Velocity(VEC3_ZERO_INIT)
-	, m_SizeTarget(VEC3_ONE_INIT)
-	, m_RotTarget(VEC3_ZERO_INIT)
-	, m_PosTarget(VEC3_ZERO_INIT)
 	, m_vMichos()
 	, m_stateMachine(new StateMachine<CPlayer>())
 {}
@@ -114,6 +111,14 @@ CPlayer::~CPlayer()
 //============================================================================
 void CPlayer::Jump()
 {
+	btVector3   rMoveDir = { 0.0f, 0.0f, 0.0f };
+
+	// 加速度：Y軸：現在の重力速度を維持
+	btVector3 rCurrentVel = RefRgidBody().upRigidBody->getLinearVelocity();
+	rMoveDir.setY(COEF_TRIGGER_JUMP);
+
+	// 新しい速度を設定
+	RefRgidBody().upRigidBody->setLinearVelocity(rMoveDir);
 
 	// 加速度：XZ軸：速度を抑えつつ余韻を遺す
 	// 　　　：Y軸 ：ジャンプ力を与える
@@ -151,10 +156,10 @@ void CPlayer::Jump()
 bool CPlayer::InJump()
 {
 	// 重力加速
-	bool bLanding = Gravity();
+	//bool bLanding = Gravity();
 
 	// 地面に到達したら通常状態へ
-	if (bLanding)
+	//if (bLanding)
 	{
 		// みちょ数
 		const int nMichosRepeat = 5;
@@ -302,19 +307,19 @@ bool CPlayer::JudgeInput()
 //============================================================================
 bool CPlayer::Gravity()
 {
-	// 加速度：Y軸：下方向へ加速度を増加
-	m_Velocity.y += COEF_GRAVITY;
+	//// 加速度：Y軸：下方向へ加速度を増加
+	//m_Velocity.y += COEF_GRAVITY;
 
-	// このフレーム、地面に到達するなら
-	if (m_PosTarget.y + m_Velocity.y < 0.0f)
-	{
-		// 加速度　：Y軸：停止
-		// 目標位置：Y軸：地面に合わせる
-		m_Velocity.y = 0.0f;
-		m_PosTarget.y = 0.0f;
+	//// このフレーム、地面に到達するなら
+	//if (m_PosTarget.y + m_Velocity.y < 0.0f)
+	//{
+	//	// 加速度　：Y軸：停止
+	//	// 目標位置：Y軸：地面に合わせる
+	//	m_Velocity.y = 0.0f;
+	//	m_PosTarget.y = 0.0f;
 
-		return true;
-	}
+	//	return true;
+	//}
 
 	return false;
 }
