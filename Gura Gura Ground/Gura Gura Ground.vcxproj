@@ -29,6 +29,8 @@
     <ClCompile Include="Src\MySrc\any.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
     <ClCompile Include="Src\MySrc\field.cpp" />
+    <ClCompile Include="Src\MySrc\gimmick.manager.cpp" />
+    <ClCompile Include="Src\MySrc\gimmickdata.cpp" />
     <ClCompile Include="Src\MySrc\IronBall.cpp" />
     <ClCompile Include="Src\MySrc\main.cpp" />
     <ClCompile Include="Src\MySrc\obstacle.cpp" />
@@ -81,6 +83,8 @@
     <ClInclude Include="Src\MySrc\any.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
     <ClInclude Include="Src\MySrc\field.h" />
+    <ClInclude Include="Src\MySrc\gimmick.manager.h" />
+    <ClInclude Include="Src\MySrc\gimmickdata.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
     <ClInclude Include="Src\MySrc\player.h" />
     <ClInclude Include="Src\MySrc\scene.game.h" />

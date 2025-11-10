@@ -24,6 +24,8 @@
 #include "player.h"
 #include "IronBall.h"
 
+#include "gimmick.manager.h"
+
 /* デバッグ */
 namespace
 {
@@ -186,8 +188,8 @@ CSceneGame::CSceneGame()
 		m_pPlayer = CObject::Create<CPlayer>(OBJ::TYPE::PLAYER, OBJ::LAYER::DEFAULT, CPlayer::s_fpDefaultFactory);
 	}
 
-	//鉄球の生成
-	CObject::Create<CIronBall>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, CIronBall::s_fpDefaultFactory);
+	//ギミックマネージャーの生成
+	CGimmickManager::RefInstance();
 }
 
 //============================================================================
@@ -207,6 +209,9 @@ void CSceneGame::Update()
 	{
 		Change();
 	}
+
+	// シーンの更新
+	CGimmickManager::RefInstance().Update();
 }
 
 //============================================================================
