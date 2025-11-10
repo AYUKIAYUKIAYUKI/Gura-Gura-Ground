@@ -112,7 +112,7 @@ void CIronBall::Move()
 	rMoveDir.setZ(cosf(0.0f) * fSpeed);
 
 	// 加速度：Y軸：現在の重力速度を維持
-	btVector3 rCurrentVel = RefRgidBody().upRigidBody->getLinearVelocity();
+	btVector3 rCurrentVel = RefRgidBody().UPtrRefRigidBody()->getLinearVelocity();
 	rMoveDir.setY(rCurrentVel.getY());
-	RefRgidBody().upRigidBody->setLinearVelocity(rMoveDir);
+	RefRgidBody().UPtrRefRigidBody()->setLinearVelocity(rMoveDir);
 }

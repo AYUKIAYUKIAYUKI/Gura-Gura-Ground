@@ -22,16 +22,6 @@
 #pragma warning(pop)
 
 //****************************************************
-// 剛体情報の構造体
-//****************************************************
-struct RigidBody
-{
-	std::unique_ptr<btCollisionShape>     upCollisionShape;
-	std::unique_ptr<btDefaultMotionState> upMotionState;
-	std::unique_ptr<btRigidBody>          upRigidBody;
-};
-
-//****************************************************
 // 物理ワールドクラスの定義
 //****************************************************
 class CWorld final : public CSingleton<CWorld>
