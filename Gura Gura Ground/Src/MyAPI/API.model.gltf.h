@@ -40,7 +40,6 @@ public:
 
 	// デフォルトコンストラクタ
 	CGltf(OBJ::TYPE Type, OBJ::LAYER Layer);
-	CGltf(OBJ::TYPE Type, OBJ::LAYER Layer, SHAPETYPE ShapeType, float fWidth, float fHeight, float fDepth);
 
 	// デストラクタ
 	~CGltf() override;
@@ -48,6 +47,9 @@ public:
 	//****************************************************
 	// function
 	//****************************************************
+
+	// ファクトリ
+	virtual void Factory();
 
 	// 更新処理
 	void Update() override;
@@ -75,7 +77,8 @@ public:
 	      void            SetTransform(const OBJ::Transform& TF);
 
 	// リジッドボディの参照
-	const RigidBody& RefRgidBody() const;
+	const RigidBody&                  RefRgidBody()     const;
+	      std::unique_ptr<RigidBody>& UptrRefRgidBody() const;
 
 private:
 

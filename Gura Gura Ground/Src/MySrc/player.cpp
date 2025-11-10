@@ -63,6 +63,9 @@ std::function<bool(CPlayer*)> CPlayer::s_fpDefaultFactory =
 	// 初期化処理
 	pPlayer->Initialize();
 
+	// ファクトリ
+	pPlayer->Factory();
+
 	// モデルの取得
 	//auto pModel = useful::PtrCheck(CXManager::RefInstance().RefRegistry().BindAtKey("Player"), "Syokika Lamda no Naka Model Nai");
 
@@ -104,6 +107,15 @@ CPlayer::~CPlayer()
 		delete m_stateMachine;
 		m_stateMachine = nullptr;
 	}
+}
+
+//============================================================================
+// ファクトリ
+//============================================================================
+void CPlayer::Factory()
+{
+	// プレイヤー用のリジッドボディの作成
+	RigidBody::CreateRigidBody(UptrRefRgidBody(), SHAPETYPE::CYLINDER, 1.0f, 2.0f, 1.0f);
 }
 
 //============================================================================
@@ -196,7 +208,6 @@ void CPlayer::Damage()
 {
 	
 }
-
 
 //============================================================================
 // 初期化処理

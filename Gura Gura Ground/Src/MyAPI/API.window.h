@@ -35,7 +35,7 @@ class CWindow final : public CSingleton<CWindow>
 	static constexpr const char* s_pClassName = "Window Class";
 
 	// ウィンドウの名前
-	static constexpr const char* s_pWindowName = "Gura Gura Ground";
+	static constexpr const char* s_pWindowName = "Chiba - Haruki - Step in to the WORLD";
 
 public:
 

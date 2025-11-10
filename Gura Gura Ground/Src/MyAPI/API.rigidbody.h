@@ -12,6 +12,11 @@
 #pragma once
 
 //****************************************************
+// インクルードファイル
+//****************************************************
+#include "API.object.h"
+
+//****************************************************
 // 剛体情報の構造体
 //****************************************************
 enum class SHAPETYPE : unsigned char
@@ -19,7 +24,8 @@ enum class SHAPETYPE : unsigned char
 	NONE = 0,
 	BOX,
 	SPHERE,
-	CYLINDER
+	CYLINDER,
+	CONE
 };
 
 //****************************************************
@@ -48,7 +54,8 @@ public:
 	// Type -> 形状のタイプですが、これに応じて引数の意味が変わります
 	// Type::BOX      ⇒ fWidth：幅, fHeight：高さ, fDepth：奥行き 
 	// Type::SPHERE   ⇒ fWidth：直径
-	// Type::CYLINDER ⇒ fWidth：直径, fHeight：高さ
+	// Type::CYLINDER ⇒ fWidth：幅, fHeight：高さ, fDepth：奥行き
+	// Type::CONE     ⇒ fWidth：直径, fHeight：高さ
 	RigidBody(SHAPETYPE Type, float fWidth, float fHeight, float fDepth);
 
 	// デストラクタ
@@ -58,15 +65,21 @@ public:
 	// function
 	//****************************************************
 
+	// ワイヤーの更新
+	// TF -> ワイヤーが付属する対象のトランスフォーム情報
+	void UpdateWire(const OBJ::Transform& TF);
+
 	// ワイヤーの描画
-	// ppCB -> ベースになるインスタンスのWVP行列を渡してください
-	void DrawWire(ID3D11Buffer** ppCB);
+	void DrawWire();
 
 	// モーションステートのユニークポインタを参照
 	const std::unique_ptr<btDefaultMotionState>& UPtrRefMotionState() const;
 
 	// リジッドボディのユニークポインタを参照
 	const std::unique_ptr<btRigidBody>& UPtrRefRigidBody() const;
+
+	// リジッドボディの生成
+	static void CreateRigidBody(std::unique_ptr<RigidBody>& upBase, SHAPETYPE Type = SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
 
 private:
 

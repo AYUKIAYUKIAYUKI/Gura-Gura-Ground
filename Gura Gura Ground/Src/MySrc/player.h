@@ -68,6 +68,9 @@ public:
 	// function
 	//****************************************************
 
+	// ファクトリ
+	void Factory() override;
+
 	// 初期化処理
 	bool Initialize();
 
