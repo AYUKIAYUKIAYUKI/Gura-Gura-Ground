@@ -4,7 +4,7 @@
 
 //============================================================================
 // 
-// glTFモデル、ヘッダーファイル [model.gltf.h]
+// リジッドボディ、ヘッダーファイル [rigidbody.h]
 // Author : 福田歩希
 // 
 //============================================================================
@@ -12,25 +12,31 @@
 #pragma once
 
 //****************************************************
-// インクルードファイル
+// 剛体情報の構造体
 //****************************************************
-#include "API.object.h"
-#include "API.rigidbody.h"
+enum class SHAPETYPE : unsigned char
+{
+	NONE = 0,
+	BOX,
+	SPHERE,
+	CYLINDER
+};
 
 //****************************************************
 // 前方宣言
 //****************************************************
-struct GltfMesh;
+struct btDefaultMotionState;
+class  btRigidBody;
 
 //****************************************************
-// glTFモデルクラスの定義
+// リジッドボディ構造体の定義
 //****************************************************
-class CGltf : public CObject
+class RigidBody
 {
 	//****************************************************
 	// 前方宣言
 	//****************************************************
-	class Impl;
+	struct Impl;
 
 public:
 
@@ -39,43 +45,28 @@ public:
 	//****************************************************
 
 	// デフォルトコンストラクタ
-	CGltf(OBJ::TYPE Type, OBJ::LAYER Layer);
-	CGltf(OBJ::TYPE Type, OBJ::LAYER Layer, SHAPETYPE ShapeType, float fWidth, float fHeight, float fDepth);
+	// Type -> 形状のタイプですが、これに応じて引数の意味が変わります
+	// Type::BOX      ⇒ fWidth：幅, fHeight：高さ, fDepth：奥行き 
+	// Type::SPHERE   ⇒ fWidth：直径
+	// Type::CYLINDER ⇒ fWidth：直径, fHeight：高さ
+	RigidBody(SHAPETYPE Type, float fWidth, float fHeight, float fDepth);
 
 	// デストラクタ
-	~CGltf() override;
+	~RigidBody();
 
 	//****************************************************
 	// function
 	//****************************************************
 
-	// 更新処理
-	void Update() override;
+	// ワイヤーの描画
+	// ppCB -> ベースになるインスタンスのWVP行列を渡してください
+	void DrawWire(ID3D11Buffer** ppCB);
 
-	// 描画処理
-	void Draw() override;
+	// モーションステートのユニークポインタを参照
+	const std::unique_ptr<btDefaultMotionState>& UPtrRefMotionState() const;
 
-	// モデルのバインド
-	void SetModel(const GltfMesh& rData);
-
-	// 頂点シェーダーのバインド
-	void SetVertexShader(const ComPtr<ID3D11VertexShader>& rcpVS);
-
-	// 入力レイアウトのバインド
-	void SetInputLayout(const ComPtr<ID3D11InputLayout>& rcpIL);
-
-	// ピクセルシェーダーのバインド
-	void SetPixelShader(const ComPtr<ID3D11PixelShader>& rcpPS);
-
-	// 定数バッファのバインド
-	void SetConstantBuffer(const ComPtr<ID3D11Buffer>& rcpCB);
-
-	// トランスフォームの操作用
-	const OBJ::Transform& GetTransform() const;
-	      void            SetTransform(const OBJ::Transform& TF);
-
-	// リジッドボディの参照
-	const RigidBody& RefRgidBody() const;
+	// リジッドボディのユニークポインタを参照
+	const std::unique_ptr<btRigidBody>& UPtrRefRigidBody() const;
 
 private:
 

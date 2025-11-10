@@ -114,11 +114,11 @@ void CPlayer::Jump()
 	btVector3   rMoveDir = { 0.0f, 0.0f, 0.0f };
 
 	// 加速度：Y軸：現在の重力速度を維持
-	btVector3 rCurrentVel = RefRgidBody().upRigidBody->getLinearVelocity();
+	btVector3 rCurrentVel = RefRgidBody().UPtrRefRigidBody()->getLinearVelocity();
 	rMoveDir.setY(COEF_TRIGGER_JUMP);
 
 	// 新しい速度を設定
-	RefRgidBody().upRigidBody->setLinearVelocity(rMoveDir);
+	RefRgidBody().UPtrRefRigidBody()->setLinearVelocity(rMoveDir);
 
 	// 加速度：XZ軸：速度を抑えつつ余韻を遺す
 	// 　　　：Y軸 ：ジャンプ力を与える
@@ -273,11 +273,11 @@ void CPlayer::Move(float fSpeed)
 		rMoveDir.setZ(cosf(opDir.value()) * fSpeed);
 
 		// 加速度：Y軸：現在の重力速度を維持
-		btVector3 rCurrentVel = RefRgidBody().upRigidBody->getLinearVelocity();
+		btVector3 rCurrentVel = RefRgidBody().UPtrRefRigidBody()->getLinearVelocity();
 		rMoveDir.setY(rCurrentVel.getY());
 
 		// 新しい速度を設定
-		RefRgidBody().upRigidBody->setLinearVelocity(rMoveDir);
+		RefRgidBody().UPtrRefRigidBody()->setLinearVelocity(rMoveDir);
 	}
 
 	// 加速度：XZ軸：時間に伴い減衰していく
