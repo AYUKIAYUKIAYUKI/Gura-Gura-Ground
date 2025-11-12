@@ -11,7 +11,6 @@
 // インクルードファイル
 //****************************************************
 #include "API.singleton.h"
-#include "API.object.h"
 
 //****************************************************
 // 前方宣言
@@ -31,8 +30,6 @@ class CGimmickManager final : public CSingleton<CGimmickManager>
 	{
 		int triggerTime;				 // 経過時間で出現
 		std::string trigger;			 // 条件
-		std::function<bool()> condition; // 出現条件
-		bool IsSpawned;					 // 生成されたか
 		//DirectX::XMFLOAT3 spawnPosition; // 出現位置
 		//std::string objectType;			 // 何を出すか
 	};
@@ -42,10 +39,8 @@ class CGimmickManager final : public CSingleton<CGimmickManager>
 	//****************************************************
 	struct DeleteCondition
 	{
-		int triggerTime;               // 経過時間で消去
+		int triggerTime;				 // 経過時間で消去
 		std::string trigger;			 // 条件
-		std::function<bool()> condition; // 消去条件
-		bool IsDelete;					 // 消去されたか
 	};
 
 	//****************************************************
@@ -53,9 +48,11 @@ class CGimmickManager final : public CSingleton<CGimmickManager>
 	//****************************************************
 	struct GimmickEntry
 	{
-		CIronBall* Gimmick;					// ギミックのポインタ
+		CIronBall* Gimmick;					// ギミックの情報
 		SpawnCondition SpawnConditions;		// 出現条件
 		DeleteCondition DeleteCondition;	// 消去条件
+		bool IsSpawned;						// 現在の状況
+
 	};
 
 	//****************************************************
@@ -94,13 +91,13 @@ private:
 	void Finalize();
 
 	// 生成
-	void Create();
+	void Create(GimmickEntry& GimmickEntry);
 
-	// ギミックを出現させるか判定
-	void CanSpawnGimmick();
+	// ギミックを出現させる
+	void GimmickSpawn();
 
 	// 出現条件を満たしてるか
-	bool CanSpawnCondition(const SpawnCondition& Condition);
+	bool CanSpawnCondition(SpawnCondition& SCondition);
 
 	// ギミックを消す
 	void GimmickDelete();
@@ -108,9 +105,7 @@ private:
 	//****************************************************
 	// data
 	//****************************************************
-	std::list<CObject*> m_GimmickList;				// ギミックを格納
-	std::vector<SpawnCondition> m_SpawnConditions;	// 出現条件を格納
-	GimmickEntry m_GimmickEntry;					// ギミックの管理
+	std::vector<GimmickEntry> m_GimmickEntryList;	// ギミックの管理
 	int m_SpawnTime;								// 時間経過カウント
 	bool m_WarningActive;							// 警告表示中か
 };

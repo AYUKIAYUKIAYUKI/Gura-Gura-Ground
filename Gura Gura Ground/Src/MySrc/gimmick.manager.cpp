@@ -35,32 +35,23 @@ bool CGimmickManager::Initialize()
 
 	// ギミック発生条件の設定
 	SpawnCondition SCondition;
-
-	// 条件
-	SCondition.trigger = "time";
-
-	// 生成する経過時間
-	SCondition.triggerTime = SPAWN_TIME;
-	
-	// 生成判定
-	SCondition.IsSpawned = false;
+	SCondition.trigger = "time";			// ギミック発生条件
+	SCondition.triggerTime = SPAWN_TIME;	// 生成する経過時間
 
 	// ギミック削除条件の設定
 	DeleteCondition DCondition;
-	
-	// 条件
-	DCondition.trigger = "time";
-
-	// 削除する経過時間
-	DCondition.triggerTime = SPAWN_TIME;
-
-	// 削除判定
-	DCondition.IsDelete = false;
+	DCondition.trigger = "time";			// ギミック削除条件
+	DCondition.triggerTime = SPAWN_TIME;	// 削除する経過時間
 
 	//ギミック関する情報を設定
-	m_GimmickEntry.DeleteCondition = DCondition;	// 削除条件を設定
-	m_GimmickEntry.SpawnConditions = SCondition;	// 生成条件を設定
-	m_GimmickEntry.Gimmick = nullptr;				// 生成しない
+	GimmickEntry GimmickEntry;
+	GimmickEntry.DeleteCondition = DCondition;	// 削除条件を設定
+	GimmickEntry.SpawnConditions = SCondition;	// 生成条件を設定
+	GimmickEntry.Gimmick = nullptr;				// 生成しない
+	GimmickEntry.IsSpawned = false;				// 生成されていない
+	
+	//格納
+	m_GimmickEntryList.push_back(GimmickEntry);
 
 	return true;
 }
@@ -78,11 +69,13 @@ void CGimmickManager::Finalize()
 //============================================================================
 void CGimmickManager::Update()
 {
+	// 警告表示してない状態に変更
 	m_WarningActive = false;
+
 	m_SpawnTime++;
 
-	// ギミックを出現させるか判定
-	CanSpawnGimmick();
+	// ギミックを出現させる
+	GimmickSpawn();
 
 	// ギミックを消す
 	GimmickDelete();
@@ -91,60 +84,59 @@ void CGimmickManager::Update()
 //============================================================================
 // 生成処理
 //============================================================================
-void  CGimmickManager::Create()
+void  CGimmickManager::Create(GimmickEntry& GimmickEntry)
 {
 	// 鉄球の生成
 	auto Gimmick = CObject::Create<CIronBall>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, CIronBall::s_fpDefaultFactory);
-	m_GimmickEntry.Gimmick = Gimmick;
-	m_GimmickEntry.SpawnConditions.IsSpawned = true;
-
+	GimmickEntry.Gimmick = Gimmick;	// 生成したインスタンスのアドレスを代入
+	GimmickEntry.IsSpawned = true;	// 生成されている状態に変更
 }
 
 //============================================================================
-// ギミックを出現させるか判定
+// ギミックを出現させる
 //============================================================================
-void CGimmickManager::CanSpawnGimmick()
+void CGimmickManager::GimmickSpawn()
 {
 	// ギミック出現の〇秒前に警告を出す時間
 	constexpr int WARNING_FRAME = 120;
 
-	//for (auto it = m_SpawnConditions.begin(); it != m_SpawnConditions.end();)
-	//{
-		if (CanSpawnCondition(m_GimmickEntry.SpawnConditions))
-		{//条件を満たしてるとき
+	for (auto& it : m_GimmickEntryList)
+	{
+		if (CanSpawnCondition(it.SpawnConditions)	// 出現条件を満たしてる
+			&&!it.IsSpawned)						// 生成されてない
+		{
 
 			// 生成
-			Create();
-
-			//it = m_SpawnConditions.erase(it);
+			Create(it);
 		}
 		else
 		{
 			//出現時間
-			int TriggerTime = m_GimmickEntry.SpawnConditions.triggerTime;
+			int TriggerTime = it.SpawnConditions.triggerTime;
 
 			if (!m_WarningActive								 // 警告中ではない
 				&& m_SpawnTime >= (TriggerTime - WARNING_FRAME)) // かつ出現時間の2秒前
 			{
+				//警告表示中に変更
 				m_WarningActive = true;
 			}
-
-			//it++;
 		}
-	//}
+	}
 }
 
 //============================================================================
 // 出現条件を満たしてるか
 //============================================================================
-bool CGimmickManager::CanSpawnCondition(const SpawnCondition& Condition)
+bool CGimmickManager::CanSpawnCondition(SpawnCondition& SCondition)
 {
+	SpawnCondition Condition = SCondition;
+
 	if (Condition.trigger == "time")
 	{//時間経過が条件のとき
 
-		if (m_SpawnTime >= Condition.triggerTime
-			&& !Condition.IsSpawned)
-		{
+		if (m_SpawnTime >= Condition.triggerTime)
+		{// 出現時間経過
+
 			return true;
 		}
 	}
@@ -157,27 +149,36 @@ bool CGimmickManager::CanSpawnCondition(const SpawnCondition& Condition)
 //============================================================================
 void CGimmickManager::GimmickDelete()
 {
-	if (m_GimmickEntry.DeleteCondition.trigger == "time")
-	{//時間経過が条件のとき
-
-		if (m_GimmickEntry.DeleteCondition.IsDelete)
-		{
-			return;
+	for (auto it = m_GimmickEntryList.begin(); it != m_GimmickEntryList.end();)
+	{
+		if (!it->IsSpawned)
+		{//生成してない
+			it++;
+			continue;
 		}
 
-		// 生成時間
-		int SpawnTriggerTime = m_GimmickEntry.SpawnConditions.triggerTime;
+		if (it->DeleteCondition.trigger == "time")
+		{//時間経過が条件のとき
 
-		// 消去時間
-		int DeleteTriggerTime = m_GimmickEntry.DeleteCondition.triggerTime;
+			// 生成時間
+			int SpawnTriggerTime = it->SpawnConditions.triggerTime;
 
-		if (m_SpawnTime >= SpawnTriggerTime + DeleteTriggerTime)
-		{//消去するまでの時間が経過した
+			// 消去時間
+			int DeleteTriggerTime = it->DeleteCondition.triggerTime;
 
-			m_GimmickEntry.Gimmick->SetDeath();
-			m_GimmickEntry.DeleteCondition.IsDelete = true;
-			m_GimmickEntry.Gimmick = nullptr;
+			if (m_SpawnTime >= SpawnTriggerTime + DeleteTriggerTime)
+			{//消去するまでの時間が経過した
+
+				//ギミックを削除
+				it->Gimmick->SetDeath();
+				it->Gimmick = nullptr;
+
+				it = m_GimmickEntryList.erase(it);
+			}
+			else
+			{
+				it++;
+			}
 		}
 	}
-
 }
