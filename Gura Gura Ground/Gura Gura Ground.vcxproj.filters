@@ -114,9 +114,6 @@
     <ClCompile Include="Src\MySrc\gimmick.manager.cpp">
       <Filter>%28分類済み%29\【マネージャー系統】</Filter>
     </ClCompile>
-    <ClCompile Include="Src\MySrc\gimmickdata.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\MySrc\main.h">
@@ -253,9 +250,6 @@
     </ClInclude>
     <ClInclude Include="Src\MySrc\gimmick.manager.h">
       <Filter>%28分類済み%29\【マネージャー系統】</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MySrc\gimmickdata.h">
-      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
