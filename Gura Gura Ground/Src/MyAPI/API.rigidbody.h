@@ -39,7 +39,7 @@ public:
 	//****************************************************
 
 	// デフォルトコンストラクタ
-	CRigidBody(Collision::SHAPETYPE Type, float fWidth, float fHeight, float fDepth);
+	CRigidBody(const OBJ::Transform& TF, Collision::SHAPETYPE Type, float fWidth, float fHeight, float fDepth);
 
 	// デストラクタ
 	~CRigidBody() override;
@@ -67,8 +67,8 @@ public:
 	//****************************************************
 
 	// リジッドボディの生成
-	static void CreateRigidBody(std::unique_ptr<CRigidBody>& upRB, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
-	static void CreateRigidBody(std::unique_ptr<CCollider>&  upCL, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
+	static void CreateRigidBody(const OBJ::Transform& TF, std::unique_ptr<CRigidBody>& upRB, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
+	static void CreateRigidBody(const OBJ::Transform& TF, std::unique_ptr<CCollider>&  upCL, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
 
 private:
 

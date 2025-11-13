@@ -38,7 +38,7 @@ public:
 	//****************************************************
 
 	// デフォルトコンストラクタ
-	CGhost(Collision::SHAPETYPE Type, float fWidth, float fHeight, float fDepth);
+	CGhost(const OBJ::Transform& TF, Collision::SHAPETYPE Type, float fWidth, float fHeight, float fDepth);
 
 	// デストラクタ
 	~CGhost();
@@ -58,8 +58,8 @@ public:
 	//const std::unique_ptr<btPairCachingGhostObject>& UptrRefGhostConst() const;
 
 	// ゴーストの生成
-	static void CreateGhost(std::unique_ptr<CGhost>&    upGhost, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
-	static void CreateGhost(std::unique_ptr<CCollider>& upCL,    Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
+	static void CreateGhost(const OBJ::Transform& TF, std::unique_ptr<CGhost>&    upGhost, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
+	static void CreateGhost(const OBJ::Transform& TF, std::unique_ptr<CCollider>& upCL,    Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
 
 private:
 

@@ -115,8 +115,16 @@ CPlayer::~CPlayer()
 //============================================================================
 void CPlayer::Factory()
 {
+	const OBJ::Transform TF =
+	{
+		useful::VEC3_ONE_INIT,
+		{ 0.0f,  0.0f, 0.0f, 1.0f },
+		{ 0.0f, 10.0f, 0.0f }
+	};
+
+
 	// プレイヤー用のリジッドボディの作成
-	CRigidBody::CreateRigidBody(UptrRefCollider(), Collision::SHAPETYPE::CYLINDER, 1.0f, 2.0f, 1.0f);
+	CRigidBody::CreateRigidBody(TF/*本来はファクトリでm_Transformを操作しGetTransform()など*/, UptrRefCollider(), Collision::SHAPETYPE::CYLINDER, 1.0f, 2.0f, 1.0f);
 }
 
 //============================================================================
