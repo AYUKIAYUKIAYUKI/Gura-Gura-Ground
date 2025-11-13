@@ -16,16 +16,18 @@
 //****************************************************
 #include "API.manager.h"
 #include <tiny_gltf.h>
+#include <WICTextureLoader.h>
 
 //****************************************************
 // メッシュ情報の構造体を定義
 //****************************************************
 struct GltfMesh
 {
-	tinygltf::Model      Model;        // glTFモデル
-	ComPtr<ID3D11Buffer> cpVertexBuff; // 頂点バッファ
-	ComPtr<ID3D11Buffer> cpIndexBuff;  // インデックスバッファ
-	int                  nNumIndex;    // インデックス数
+	tinygltf::Model                  Model;        // glTFモデル
+	ComPtr<ID3D11Buffer>             cpVertexBuff; // 頂点バッファ
+	ComPtr<ID3D11Buffer>             cpIndexBuff;  // インデックスバッファ
+	int                              nNumIndex;    // インデックス数
+	ComPtr<ID3D11ShaderResourceView> cpTexture;    // テクスチャ
 };
 
 //****************************************************

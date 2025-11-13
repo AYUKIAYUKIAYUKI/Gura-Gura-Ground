@@ -15,12 +15,12 @@
 // インクルードファイル
 //****************************************************
 #include "API.object.h"
-#include "API.rigidbody.h"
 
 //****************************************************
 // 前方宣言
 //****************************************************
 struct GltfMesh;
+class  CCollider;
 
 //****************************************************
 // glTFモデルクラスの定義
@@ -76,9 +76,9 @@ public:
 	const OBJ::Transform& GetTransform() const;
 	      void            SetTransform(const OBJ::Transform& TF);
 
-	// リジッドボディの参照
-	const RigidBody&                  RefRgidBody()     const;
-	      std::unique_ptr<RigidBody>& UptrRefRgidBody() const;
+	// コライダーのユニークポインタの参照
+		  std::unique_ptr<CCollider>& UptrRefCollider();
+	const std::unique_ptr<CCollider>& UptrRefColliderConst() const;
 
 private:
 

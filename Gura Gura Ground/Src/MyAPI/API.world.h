@@ -22,6 +22,11 @@
 #pragma warning(pop)
 
 //****************************************************
+// 前方宣言
+//****************************************************
+class btPairCachingGhostObject;
+
+//****************************************************
 // 物理ワールドクラスの定義
 //****************************************************
 class CWorld final : public CSingleton<CWorld>
@@ -57,6 +62,12 @@ public:
 
 	// ワールドにリジッドボディを追加
 	void AddRigidBody(const std::unique_ptr<btRigidBody>& upRB);
+
+	// ワールドにゴーストを追加
+	void AddGhost(const std::unique_ptr<btPairCachingGhostObject>& upGO);
+
+	// ゴーストキャッシュを削除
+	void ClearCacheGhost(const std::unique_ptr<btPairCachingGhostObject>& upGO);
 
 private:
 

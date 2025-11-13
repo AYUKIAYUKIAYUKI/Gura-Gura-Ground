@@ -14,19 +14,7 @@
 //****************************************************
 // インクルードファイル
 //****************************************************
-#include "API.object.h"
-
-//****************************************************
-// 剛体情報の構造体
-//****************************************************
-enum class SHAPETYPE : unsigned char
-{
-	NONE = 0,
-	BOX,
-	SPHERE,
-	CYLINDER,
-	CONE
-};
+#include "API.collider.h"
 
 //****************************************************
 // 前方宣言
@@ -35,9 +23,9 @@ struct btDefaultMotionState;
 class  btRigidBody;
 
 //****************************************************
-// リジッドボディ構造体の定義
+// リジッドボディクラスの定義
 //****************************************************
-class RigidBody
+class CRigidBody : public CCollider
 {
 	//****************************************************
 	// 前方宣言
@@ -51,37 +39,43 @@ public:
 	//****************************************************
 
 	// デフォルトコンストラクタ
-	// Type -> 形状のタイプですが、これに応じて引数の意味が変わります
-	// Type::BOX      ⇒ fWidth：幅, fHeight：高さ, fDepth：奥行き 
-	// Type::SPHERE   ⇒ fWidth：直径
-	// Type::CYLINDER ⇒ fWidth：幅, fHeight：高さ, fDepth：奥行き
-	// Type::CONE     ⇒ fWidth：直径, fHeight：高さ
-	RigidBody(SHAPETYPE Type, float fWidth, float fHeight, float fDepth);
+	CRigidBody(Collision::SHAPETYPE Type, float fWidth, float fHeight, float fDepth);
 
 	// デストラクタ
-	~RigidBody();
+	~CRigidBody() override;
 
 	//****************************************************
 	// function
 	//****************************************************
 
-	// ワイヤーの更新
-	// TF -> ワイヤーが付属する対象のトランスフォーム情報
-	void UpdateWire(const OBJ::Transform& TF);
+	// 更新処理
+	void Update(const OBJ::Transform& TF) override;
 
-	// ワイヤーの描画
-	void DrawWire();
+	// 更新処理
+	void Draw() override;
 
 	// モーションステートのユニークポインタを参照
-	const std::unique_ptr<btDefaultMotionState>& UPtrRefMotionState() const;
+	      std::unique_ptr<btDefaultMotionState>& UptrRefMotionState();
+	const std::unique_ptr<btDefaultMotionState>& UptrRefMotionStateConst() const;
 
-	// リジッドボディのユニークポインタを参照
-	const std::unique_ptr<btRigidBody>& UPtrRefRigidBody() const;
+	// リジッドボディ本体のユニークポインタを参照
+	      std::unique_ptr<btRigidBody>& UptrRefRigidBody();
+	const std::unique_ptr<btRigidBody>& UptrRefRigidBodyConst() const;
+
+	//****************************************************
+	// static function
+	//****************************************************
 
 	// リジッドボディの生成
-	static void CreateRigidBody(std::unique_ptr<RigidBody>& upBase, SHAPETYPE Type = SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
+	static void CreateRigidBody(std::unique_ptr<CRigidBody>& upRB, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
+	static void CreateRigidBody(std::unique_ptr<CCollider>&  upCL, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
 
 private:
+
+	//****************************************************
+	// function
+	//****************************************************
+	void Error(); // エラー処理
 
 	//****************************************************
 	// data

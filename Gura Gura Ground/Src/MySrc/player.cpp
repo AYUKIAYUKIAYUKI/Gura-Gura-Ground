@@ -19,6 +19,7 @@
 #include "state.h"
 #include "API.object.manager.h"
 #include "API.world.h"
+#include "API.rigidbody.h"
 #include "API.gltf.manager.h"
 //****************************************************
 // usingディレクティブ
@@ -115,7 +116,7 @@ CPlayer::~CPlayer()
 void CPlayer::Factory()
 {
 	// プレイヤー用のリジッドボディの作成
-	RigidBody::CreateRigidBody(UptrRefRgidBody(), SHAPETYPE::CYLINDER, 1.0f, 2.0f, 1.0f);
+	CRigidBody::CreateRigidBody(UptrRefCollider(), Collision::SHAPETYPE::CYLINDER, 1.0f, 2.0f, 1.0f);
 }
 
 //============================================================================
@@ -125,12 +126,20 @@ void CPlayer::Jump()
 {
 	btVector3   rMoveDir = { 0.0f, 0.0f, 0.0f };
 
+	// コライダーからリジッドボディを取得
+	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(UptrRefColliderConst().get());
+
+	if (!pRB)
+	{
+		return;
+	}
+
 	// 加速度：Y軸：現在の重力速度を維持
-	btVector3 rCurrentVel = RefRgidBody().UPtrRefRigidBody()->getLinearVelocity();
+	btVector3 rCurrentVel = pRB->UptrRefRigidBodyConst()->getLinearVelocity();
 	rMoveDir.setY(COEF_TRIGGER_JUMP);
 
 	// 新しい速度を設定
-	RefRgidBody().UPtrRefRigidBody()->setLinearVelocity(rMoveDir);
+	pRB->UptrRefRigidBodyConst()->setLinearVelocity(rMoveDir);
 
 	// 加速度：XZ軸：速度を抑えつつ余韻を遺す
 	// 　　　：Y軸 ：ジャンプ力を与える
@@ -283,12 +292,20 @@ void CPlayer::Move(float fSpeed)
 		rMoveDir.setX(sinf(opDir.value()) * fSpeed);
 		rMoveDir.setZ(cosf(opDir.value()) * fSpeed);
 
+		// コライダーからリジッドボディを取得
+		const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(UptrRefColliderConst().get());
+
+		if (!pRB)
+		{
+			return;
+		}
+
 		// 加速度：Y軸：現在の重力速度を維持
-		btVector3 rCurrentVel = RefRgidBody().UPtrRefRigidBody()->getLinearVelocity();
+		btVector3 rCurrentVel = pRB->UptrRefRigidBodyConst()->getLinearVelocity();
 		rMoveDir.setY(rCurrentVel.getY());
 
 		// 新しい速度を設定
-		RefRgidBody().UPtrRefRigidBody()->setLinearVelocity(rMoveDir);
+		pRB->UptrRefRigidBodyConst()->setLinearVelocity(rMoveDir);
 	}
 
 	// 加速度：XZ軸：時間に伴い減衰していく

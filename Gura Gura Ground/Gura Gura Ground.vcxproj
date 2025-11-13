@@ -60,8 +60,10 @@
     <ClInclude Include="Src\External\ImGui\imstb_textedit.h" />
     <ClInclude Include="Src\External\ImGui\imstb_truetype.h" />
     <ClInclude Include="Src\MyAPI\API.camera.h" />
+    <ClInclude Include="Src\MyAPI\API.collider.h" />
     <ClInclude Include="Src\MyAPI\API.constantbuffer.manager.h" />
     <ClInclude Include="Src\MyAPI\API.fullscreen.2D.h" />
+    <ClInclude Include="Src\MyAPI\API.ghost.h" />
     <ClInclude Include="Src\MyAPI\API.gltf.manager.h" />
     <ClInclude Include="Src\MyAPI\API.hud.h" />
     <ClInclude Include="Src\MyAPI\API.input.manager.h" />
@@ -74,6 +76,7 @@
     <ClInclude Include="Src\MyAPI\API.rect.2D.h" />
     <ClInclude Include="Src\MyAPI\API.registry.h" />
     <ClInclude Include="Src\MyAPI\API.renderer.h" />
+    <ClInclude Include="Src\MyAPI\API.rigidbody.h" />
     <ClInclude Include="Src\MyAPI\API.singleton.h" />
     <ClInclude Include="Src\MyAPI\API.useful.h" />
     <ClInclude Include="Src\MyAPI\API.vertexshader.manager.h" />
