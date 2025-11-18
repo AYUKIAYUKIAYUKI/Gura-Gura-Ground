@@ -26,84 +26,6 @@
 
 #include "gimmick.manager.h"
 
-/* デバッグ */
-namespace
-{
-	// 任意のジオメトリのセットアップ
-	const auto Init = [](CAny* pAny) -> bool
-		{
-			// 立方体の各軸への辺の長さ
-			const float fSpan = 0.25f;
-			const float fHalf = fSpan * 0.5f;
-
-			// ジオメトリのバインド
-			//pAny->SetGeometry(DirectX::GeometricPrimitive::CreateSphere(CRenderer::RefInstance().GetContext(), fSpan, 64, false));
-			pAny->SetGeometry(DirectX::GeometricPrimitive::CreateBox(CRenderer::RefInstance().GetContext(), { fSpan, fSpan, fSpan }, false, true));
-
-			// 形状設定
-			//pAny->SetCollisionShape(std::make_unique<btSphereShape>(fHalf));
-			pAny->SetCollisionShape(std::make_unique<btBoxShape>(btVector3(fHalf, fHalf, fHalf)));
-
-			// 初期姿勢設定
-			const btQuaternion InitRot(1.0f, 1.0f, 1.0f, 1.0f);
-			const btVector3    InitPos(0.0f, 10.0f, 0.0f);
-			pAny->SetMotionState(std::make_unique<btDefaultMotionState>(btTransform(InitRot, InitPos)));
-
-			// 質量設定
-			const btScalar  Mass = 0.02f;
-			btVector3 Inertia(0.0f, 0.0f, 0.0f);
-			pAny->GetCollisionShape()->calculateLocalInertia(Mass, Inertia);
-
-			// 剛体情報
-			btRigidBody::btRigidBodyConstructionInfo boxCI(Mass, pAny->GetMotionState().get(), pAny->GetCollisionShape().get(), Inertia);
-			pAny->SetRigidBody(std::make_unique<btRigidBody>(boxCI));
-
-			// 弾性係数をセット
-			pAny->GetRigidBody()->setRestitution(0.8f);
-
-			// 摩擦力をセット
-			//pAny->GetRigidBody()->setFriction(0.25f);
-
-			// 回転抵抗をセット
-			//pAny->GetRigidBody()->setRollingFriction(0.25f);
-
-			// ワールドに追加
-			CWorld::RefInstance().AddRigidBody(pAny->GetRigidBody());
-
-			return true;
-		};
-
-	void AAA()
-	{
-		for (int i = 0; i < 1; ++i)
-		{
-			CObject::Create<CAny>(Init);
-		}
-	}
-
-	// コントローラー複数接続のテスト
-	void BBB()
-	{
-		if (CInputManager::RefInstance().GetTrackerGamePad(0).a == DirectX::GamePad::ButtonStateTracker::PRESSED)
-		{
-			AAA();
-		}
-
-		if (CInputManager::RefInstance().GetTrackerGamePad(1).b == DirectX::GamePad::ButtonStateTracker::PRESSED)
-		{
-			AAA();
-			AAA();
-		}
-
-		if (CInputManager::RefInstance().GetTrackerGamePad(2).y == DirectX::GamePad::ButtonStateTracker::PRESSED)
-		{
-			AAA();
-			AAA();
-			AAA();
-		}
-	}
-}
-
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
@@ -203,8 +125,7 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
-	BBB();
-
+	// シーン変更
 	if (CInputManager::RefInstance().EnhancedEnter())
 	{
 		Change();
