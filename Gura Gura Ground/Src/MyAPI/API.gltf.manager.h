@@ -28,6 +28,7 @@ struct GltfMesh
 	ComPtr<ID3D11Buffer>             cpIndexBuff;  // インデックスバッファ
 	int                              nNumIndex;    // インデックス数
 	ComPtr<ID3D11ShaderResourceView> cpTexture;    // テクスチャ
+	//std::vector<Bone>                vBone;        // ボーン情報
 };
 
 //****************************************************

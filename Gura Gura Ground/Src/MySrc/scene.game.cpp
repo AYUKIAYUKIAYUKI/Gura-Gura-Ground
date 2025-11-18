@@ -11,7 +11,7 @@
 #include "scene.game.h"
 
 // 遷移先のシーン
-#include "scene.manager.h"
+#include "API.scene.manager.h"
 #include "scene.title.h"
 
 // インプット取得のため
@@ -77,7 +77,7 @@ namespace
 	{
 		for (int i = 0; i < 1; ++i)
 		{
-			CObject::Create<CAny>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, Init);
+			CObject::Create<CAny>(Init);
 		}
 	}
 
@@ -180,12 +180,12 @@ CSceneGame::CSceneGame()
 		};
 
 	// フィールドの生成
-	CObject::Create<CField>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, InitFiled);
+	CObject::Create<CField>(InitFiled);
 
 	// プレイヤーの生成
 	if (!m_pPlayer)
 	{
-		m_pPlayer = CObject::Create<CPlayer>(OBJ::TYPE::PLAYER, OBJ::LAYER::DEFAULT, CPlayer::s_fpDefaultFactory);
+		m_pPlayer = CObject::Create<CPlayer>(CPlayer::s_fpDefaultFactory, OBJ::TYPE::PLAYER);
 	}
 
 	//ギミックマネージャーの生成

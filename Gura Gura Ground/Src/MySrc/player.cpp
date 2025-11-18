@@ -113,7 +113,7 @@ CPlayer::~CPlayer()
 //============================================================================
 // ファクトリ
 //============================================================================
-void CPlayer::Factory()
+void CPlayer::Factory(float /*fWidth*/, float /*fHeight*/, float /*fDepth*/)
 {
 	const OBJ::Transform TF =
 	{
@@ -121,7 +121,6 @@ void CPlayer::Factory()
 		{ 0.0f,  0.0f, 0.0f, 1.0f },
 		{ 0.0f, 10.0f, 0.0f }
 	};
-
 
 	// プレイヤー用のリジッドボディの作成
 	CRigidBody::CreateRigidBody(TF/*本来はファクトリでm_Transformを操作しGetTransform()など*/, UptrRefCollider(), Collision::SHAPETYPE::CYLINDER, 1.0f, 2.0f, 1.0f);

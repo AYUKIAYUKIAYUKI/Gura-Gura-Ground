@@ -9,10 +9,10 @@
 // インクルードファイル
 //****************************************************
 #include "scene.select.h"
-#include "sound.manager.h"
+#include "API.sound.manager.h"
 
 // 遷移先のシーン
-#include "scene.manager.h"
+#include "API.scene.manager.h"
 #include "scene.game.h"
 
 // インプット取得のため
@@ -21,7 +21,7 @@
 // オブジェクト生成・破棄のため
 #include "API.renderer.h"
 #include "API.object.manager.h"
-#include "texture.manager.h"
+#include "API.texture.manager.h"
 #include "API.hud.h"
 #include "API.fullscreen.2D.h"
 #include "beamlight.h"
@@ -58,7 +58,7 @@ CSceneSelect::CSceneSelect()
 	, m_pCursor(nullptr)
 {
 	// サンシャインエフェクトの生成
-	auto pfst = CObject::Create<CFullScreen2D>(OBJ::TYPE::NONE, OBJ::LAYER::UI, [](CFullScreen2D*) { return true; });
+	auto pfst = CObject::Create<CFullScreen2D>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
 	auto rcpVS = CVertexShaderManager::RefInstance().RefRegistry().BindAtKey("FullScreen.2D");
 	pfst->SetVertexShader(rcpVS);
 	auto rcpPS = CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Sunshine");
@@ -74,7 +74,7 @@ CSceneSelect::CSceneSelect()
 	m_vBeamLightQue.push_back({ fC, {  0.0f,           fOffsetY_Light } });
 
 	// カーソルの生成
-	auto pCursor = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI, [](CHud*) { return true; });
+	auto pCursor = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
 	pCursor->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Cursor"));
 	m_pCursor = pCursor;
 }
@@ -167,7 +167,7 @@ void CSceneSelect::WhileEvent_QueInstantiateLight()
 		m_nCommonCnt = 0;
 
 		// ビームライトを生成
-		auto pfsbl = CObject::Create<CBeamLight>(OBJ::TYPE::NONE, OBJ::LAYER::FRONT, [](CBeamLight*) { return true; });
+		auto pfsbl = CObject::Create<CBeamLight>(OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
 
 		// 位置設定
 		const DirectX::XMFLOAT2& Pos = m_vBeamLightQue[Size].second;

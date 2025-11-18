@@ -175,7 +175,7 @@ namespace useful
 	{
 		if (!Ptr)
 		{
-			throw std::runtime_error(static_cast<std::string>(pName) + "is nullptr");
+			throw std::runtime_error(static_cast<std::string>(pName) + "がnullptrでした");
 		}
 
 		return Ptr;
@@ -424,6 +424,12 @@ namespace useful
 #endif // NONUSE_DX9
 
 	/**
+	 * 警告メッセージの出力
+	 */
+	void WarningMessage(const char* pMessage);
+	void WarningMessage(const std::string& rMessage);
+
+	/**
 	 * JSONファイルの展開
 	 * 返り値は
 	 * 
@@ -513,6 +519,21 @@ namespace useful
 		void MyImGuiShortcut_ResetVector(const char* pLabel, Vec3& Vec3);
 		void MyImGuiShortcut_ResetVector(const char* pLabel, Vec3& Vec3, float fInitValue);
 #endif // NONUSE_DX9
+
+		/**
+		 * Vector系構造体のドラッグ操作
+		 * 返り値無し
+		 */
+		void MyImGuiShortcut_DragVector(const char* pLabel, Vec2& Vec2, float fSpeed);
+		void MyImGuiShortcut_DragVector(const char* pLabel, Vec3& Vec3, float fSpeed);
+
+		/**
+		 * Vector系構造体のリセット操作
+		 */
+		void MyImGuiShortcut_ResetVector(const char* pLabel, Vec2& Vec2);
+		void MyImGuiShortcut_ResetVector(const char* pLabel, Vec2& Vec2, float fInitValue);
+		void MyImGuiShortcut_ResetVector(const char* pLabel, Vec3& Vec3);
+		void MyImGuiShortcut_ResetVector(const char* pLabel, Vec3& Vec3, float fInitValue);
 	}
 }
 

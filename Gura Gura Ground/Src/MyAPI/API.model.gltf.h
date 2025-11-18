@@ -49,7 +49,7 @@ public:
 	//****************************************************
 
 	// ファクトリ
-	virtual void Factory();
+	virtual void Factory(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
 
 	// 更新処理
 	void Update() override;

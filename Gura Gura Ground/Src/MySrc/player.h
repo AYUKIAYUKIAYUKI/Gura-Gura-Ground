@@ -69,7 +69,7 @@ public:
 	//****************************************************
 
 	// ファクトリ
-	void Factory() override;
+	void Factory(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f) override;
 
 	// 初期化処理
 	bool Initialize();

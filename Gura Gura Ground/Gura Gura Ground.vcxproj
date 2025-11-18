@@ -43,11 +43,8 @@
     </ClCompile>
     <ClCompile Include="Src\MySrc\player.cpp" />
     <ClCompile Include="Src\MySrc\scene.game.cpp" />
-    <ClCompile Include="Src\MySrc\scene.manager.cpp" />
     <ClCompile Include="Src\MySrc\scene.select.cpp" />
-    <ClCompile Include="Src\MySrc\sound.manager.cpp" />
     <ClCompile Include="Src\MySrc\state.cpp" />
-    <ClCompile Include="Src\MySrc\texture.manager.cpp" />
     <ClCompile Include="Src\MySrc\scene.title.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -77,7 +74,11 @@
     <ClInclude Include="Src\MyAPI\API.registry.h" />
     <ClInclude Include="Src\MyAPI\API.renderer.h" />
     <ClInclude Include="Src\MyAPI\API.rigidbody.h" />
+    <ClInclude Include="Src\MyAPI\API.scene.h" />
+    <ClInclude Include="Src\MyAPI\API.scene.manager.h" />
     <ClInclude Include="Src\MyAPI\API.singleton.h" />
+    <ClInclude Include="Src\MyAPI\API.sound.manager.h" />
+    <ClInclude Include="Src\MyAPI\API.texture.manager.h" />
     <ClInclude Include="Src\MyAPI\API.useful.h" />
     <ClInclude Include="Src\MyAPI\API.vertexshader.manager.h" />
     <ClInclude Include="Src\MyAPI\API.window.h" />
@@ -92,22 +93,18 @@
     <ClInclude Include="Src\MySrc\main.h" />
     <ClInclude Include="Src\MySrc\obstacle.h" />
     <ClInclude Include="Src\MySrc\pch.h" />
-    <ClInclude Include="Src\MySrc\scene.h" />
-    <ClInclude Include="Src\MySrc\scene.manager.h" />
     <ClInclude Include="Src\MySrc\scene.select.h" />
-    <ClInclude Include="Src\MySrc\sound.manager.h" />
     <ClInclude Include="Src\MySrc\state.h" />
-    <ClInclude Include="Src\MySrc\texture.manager.h" />
     <ClInclude Include="Src\MySrc\scene.title.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp" />
     <None Include="Src\MyAPI\API.object.tpp" />
     <None Include="Src\MyAPI\API.registry.tpp" />
+    <None Include="Src\MyAPI\API.scene.manager.tpp" />
     <None Include="Src\MyAPI\API.singleton.tpp" />
     <None Include="Src\MyAPI\API.useful.tpp" />
     <None Include="Src\MyAPI\API.window.tpp" />
-    <None Include="Src\MySrc\scene.manager.impl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

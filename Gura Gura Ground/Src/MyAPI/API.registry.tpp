@@ -96,7 +96,7 @@ T CRegistry<T>::BindAtKey(const std::string& Key)
 	// 見つからなかった場合は例外を投げる
 	if (it == m_mData.end())
 	{
-		throw std::runtime_error("'BindAtKey' was Failed : " + Key);
+		throw std::runtime_error("レジストリに不正なキー指定がされています：" + Key);
 	}
 
 	// 見つかった場合は対応するデータを返す

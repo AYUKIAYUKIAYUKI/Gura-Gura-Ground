@@ -9,6 +9,10 @@
       "Data\\CSO\\ps.vertex.3D.cso"
     ],
     [
+      "Collider",
+      "Data\\CSO\\ps.collider.cso"
+    ],
+    [
       "Cloud",
       "Data\\CSO\\ps.cloud.cso"
     ],

@@ -13,14 +13,14 @@
 #include "API.window.h"
 #include "API.renderer.h"
 #include "API.input.manager.h"
+#include "API.sound.manager.h"
+#include "API.texture.manager.h"
 #include "API.gltf.manager.h"
+#include "API.scene.manager.h"
 #include "API.object.manager.h"
 #include "API.world.h"
 
-// 各種マネージャークラスの読み込み
-#include "sound.manager.h"
-#include "texture.manager.h"
-#include "scene.manager.h"
+// 初期シーン生成のため
 #include "scene.title.h"
 
 //****************************************************

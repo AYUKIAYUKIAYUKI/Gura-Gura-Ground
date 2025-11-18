@@ -9,10 +9,10 @@
 // インクルードファイル
 //****************************************************
 #include "scene.title.h"
-#include "sound.manager.h"
+#include "API.sound.manager.h"
 
 // 遷移先のシーン
-#include "scene.manager.h"
+#include "API.scene.manager.h"
 #include "scene.select.h"
 
 // インプット取得のため
@@ -21,7 +21,7 @@
 // オブジェクト生成・破棄のため
 #include "API.renderer.h"
 #include "API.object.manager.h"
-#include "texture.manager.h"
+#include "API.texture.manager.h"
 #include "API.hud.h"
 #include "API.fullscreen.2D.h"
 
@@ -73,7 +73,7 @@ CSceneTitle::CSceneTitle()
 	const OBJ::Transform ITFB = { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f,  15.0f, 0.0f }, { WCX,  WCY, 0.0f } };
 
 	// 幕を生成
-	auto pBG = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::BG, [](CHud*) { return true; });
+	auto pBG = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::BG);
 	pBG->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("BG"));
 	OBJ::Transform TF = { { 1280.0f, 1280.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX, WCY, 0.0f } };
 	pBG->SetTransform(TF);
@@ -81,14 +81,14 @@ CSceneTitle::CSceneTitle()
 	m_pBackCurtain = pBG;
 
 	// 額縁を生成
-	auto pFrame = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, [](CHud*) { return true; });
+	auto pFrame = CObject::Create<CHud>();
 	pFrame->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Frame"));
 	TF = { { 500.0f, 500.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX, WCY, 0.0f } };
 	pFrame->SetTransform(TF);
 	pFrame->SetTransformTarget(TF);
 
 	// 無を生成
-	auto pPicture = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, [](CHud*) { return true; });
+	auto pPicture = CObject::Create<CHud>();
 	pPicture->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
 	TF = { { fA, fB, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX, WCY, 0.0f } };
 	pPicture->SetTransform(TF);
@@ -96,7 +96,7 @@ CSceneTitle::CSceneTitle()
 	Ijiru = pPicture;
 
 	// 緞帳(左)を生成
-	auto pSatinCurtain = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, [](CHud*) { return true; });
+	auto pSatinCurtain = CObject::Create<CHud>();
 	pSatinCurtain->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
 	TF = { { 600.0f, 720.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 300.0f, WCY, 0.0f } };
 	pSatinCurtain->SetTransform(TF);
@@ -104,7 +104,7 @@ CSceneTitle::CSceneTitle()
 	m_vpSatinCurtain.push_back(pSatinCurtain);
 
 	// 緞帳(右)を生成
-	pSatinCurtain = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, [](CHud*) { return true; });
+	pSatinCurtain = CObject::Create<CHud>();
 	pSatinCurtain->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
 	TF = { { 600.0f, 720.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 1280.0 - 300.0f, WCY, 0.0f } };
 	pSatinCurtain->SetTransform(TF);
@@ -112,7 +112,7 @@ CSceneTitle::CSceneTitle()
 	m_vpSatinCurtain.push_back(pSatinCurtain);
 
 	// 地面を作成
-	auto Logo = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, [](CHud*) { return true; });
+	auto Logo = CObject::Create<CHud>();
 	Logo->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Logo.A"));
 	Logo->SetTransform(ITFB);
 	TF = { { 624.0f, 113.0f, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { WCX + 125.0f, WCY + 125.0f, 0.0f } };
@@ -120,7 +120,7 @@ CSceneTitle::CSceneTitle()
 	m_vpLogo.push_back(Logo);
 
 	//「ぐらぐら」を生成
-	Logo = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, [](CHud*) { return true; });
+	Logo = CObject::Create<CHud>();
 	Logo->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Logo.B"));
 	Logo->SetTransform(ITFA);
 	TF = { { 417.0f, 134.0f, 0.0f }, { 0.0f, 0.0f, -0.2f, 0.0f }, { WCX - 200.0f, WCY - 125.0f, 0.0f } };
@@ -128,7 +128,7 @@ CSceneTitle::CSceneTitle()
 	m_vpLogo.push_back(Logo);
 
 	//「ぐらうんど」を生成
-	Logo = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, [](CHud*) { return true; });
+	Logo = CObject::Create<CHud>();
 	Logo->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Logo.C"));
 	Logo->SetTransform(ITFB);
 	TF = { { 529.0f, 135.0f, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { WCX + 125.0f, WCY + 40.0f, 0.0f } };

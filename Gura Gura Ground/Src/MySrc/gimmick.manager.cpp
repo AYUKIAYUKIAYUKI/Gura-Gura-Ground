@@ -87,7 +87,7 @@ void CGimmickManager::Update()
 void  CGimmickManager::Create(GimmickEntry& GimmickEntry)
 {
 	// 鉄球の生成
-	auto Gimmick = CObject::Create<CIronBall>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT, CIronBall::s_fpDefaultFactory);
+	auto Gimmick = CObject::Create<CIronBall>(CIronBall::s_fpDefaultFactory);
 	GimmickEntry.Gimmick = Gimmick;	// 生成したインスタンスのアドレスを代入
 	GimmickEntry.IsSpawned = true;	// 生成されている状態に変更
 }

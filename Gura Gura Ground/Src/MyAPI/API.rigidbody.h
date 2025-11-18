@@ -62,6 +62,9 @@ public:
 	      std::unique_ptr<btRigidBody>& UptrRefRigidBody();
 	const std::unique_ptr<btRigidBody>& UptrRefRigidBodyConst() const;
 
+	// éøó ÇÃê›íË
+	void SetMass(float fMass);
+
 	//****************************************************
 	// static function
 	//****************************************************

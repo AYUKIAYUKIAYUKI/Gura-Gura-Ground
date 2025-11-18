@@ -138,12 +138,15 @@ public:
 	//****************************************************
 
 	// ê∂ê¨èàóù
+	template <DerivedFromObject T>
+	static T* Create(OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
+
 #if CONCEPT_É√ || CONCEPT_Éœ
 	template <DerivedFromObject T, ObjectFactoryFunction U>
-	static T* Create(OBJ::TYPE Type, OBJ::LAYER Layer, U&& fpInitialize);
+	static T* Create(U&& fpFactory, OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
 #else
 	template <DerivedFromObject T, typename U>
-	static T* Create(OBJ::TYPE Type, OBJ::LAYER Layer, U&& fpInitialize);
+	static T* Create(U&& fpFactory, OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
 #endif
 
 	//****************************************************

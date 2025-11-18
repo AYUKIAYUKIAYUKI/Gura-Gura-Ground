@@ -73,6 +73,9 @@ public:
 	// •`‰æˆ—
 	virtual void Draw();
 
+	// ƒRƒŠƒWƒ‡ƒ“•`‰æ‚ÌØ‚è‘Ö‚¦
+	static void SwitchRenderCollision();
+
 protected:
 
 	//****************************************************

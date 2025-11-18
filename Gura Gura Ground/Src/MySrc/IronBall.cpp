@@ -37,7 +37,7 @@ std::function<bool(CIronBall*)> CIronBall::s_fpDefaultFactory =
 	pIronBall->Factory();
 
 	// ƒ‚ƒfƒ‹‚ÌŽæ“¾
-	auto pModel = CGltfManager::RefInstance().RefRegistry().BindAtKey("Penis");
+	auto pModel = CGltfManager::RefInstance().RefRegistry().BindAtKey("Test");
 
 	// ƒ‚ƒfƒ‹‚ÌÝ’è
 	pIronBall->SetModel(pModel);

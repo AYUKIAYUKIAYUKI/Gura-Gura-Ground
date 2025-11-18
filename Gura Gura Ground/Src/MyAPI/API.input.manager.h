@@ -132,10 +132,11 @@ private:
 	//****************************************************
 	// function
 	//****************************************************
-	bool Initialize();      // 初期化処理
-	void Finalize();        // 終了処理
-	void UpdateMouseMove(); // マウス移動量の更新処理
-	void UpdateTracker();   // トラッカーの更新処理
+	bool Initialize();           // 初期化処理
+	void Finalize();             // 終了処理
+	void UpdateMouseMove();      // マウス移動量の更新処理
+	void UpdateConnectGamePad(); // ゲームパッドの接続更新
+	void UpdateTracker();        // トラッカーの更新処理
 
 	//****************************************************
 	// data

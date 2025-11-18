@@ -81,15 +81,6 @@
     <ClCompile Include="Src\MySrc\obstacle.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
-    <ClCompile Include="Src\MySrc\scene.manager.cpp">
-      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\MySrc\sound.manager.cpp">
-      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\MySrc\texture.manager.cpp">
-      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
-    </ClCompile>
     <ClCompile Include="Src\MySrc\scene.title.cpp">
       <Filter>%28分類済み%29\【シーン系統】</Filter>
     </ClCompile>
@@ -145,18 +136,6 @@
     </ClInclude>
     <ClInclude Include="Src\External\ImGui\imstb_truetype.h">
       <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MySrc\scene.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MySrc\scene.manager.h">
-      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MySrc\sound.manager.h">
-      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MySrc\texture.manager.h">
-      <Filter>%28分類済み%29\【マネージャー系統】</Filter>
     </ClInclude>
     <ClInclude Include="Src\MySrc\any.h">
       <Filter>%28分類済み%29\【ジオメトリ系統】</Filter>
@@ -251,11 +230,29 @@
     <ClInclude Include="Src\MySrc\gimmick.manager.h">
       <Filter>%28分類済み%29\【マネージャー系統】</Filter>
     </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.texture.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.sound.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.scene.manager.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.scene.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.rigidbody.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.ghost.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MyAPI\API.collider.h">
+      <Filter>%28公開API%29</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Src\MySrc\scene.manager.impl">
-      <Filter>テンプレート ファイル</Filter>
-    </None>
     <None Include="Src\MyAPI\API.window.tpp">
       <Filter>%28公開API%29</Filter>
     </None>
@@ -272,6 +269,9 @@
       <Filter>%28公開API%29</Filter>
     </None>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp">
+      <Filter>%28公開API%29</Filter>
+    </None>
+    <None Include="Src\MyAPI\API.scene.manager.tpp">
       <Filter>%28公開API%29</Filter>
     </None>
   </ItemGroup>
