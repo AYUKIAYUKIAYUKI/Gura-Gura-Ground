@@ -20,94 +20,43 @@
 // オブジェクト生成・破棄のため
 #include "API.renderer.h"
 #include "API.object.manager.h"
-#include "field.h"
 #include "player.h"
-#include "IronBall.h"
-
 #include "gimmick.manager.h"
+
+//****************************************************
+// デバッグ用
+//****************************************************
+namespace
+{
+	// 定数
+	const int   NUM_PLAYER = 4;
+	const float INIT_DIST  = 10.0f;
+
+	// グローバル
+	OBJ::Transform g_TF = { { 0.5f, 0.5f, 0.5f }, {0.0f, 0.0f, 0.0f, 1.0f}, {-INIT_DIST, 25.0f, -INIT_DIST} };
+}
 
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
 CSceneGame::CSceneGame()
-	: m_pPlayer(nullptr)
 {
-	// フィールドのジオメトリのセットアップ
-	const auto InitFiled = [](CField* pField) -> bool
-		{
-			// ジオメトリのバインド
-			pField->SetGeometry(DirectX::GeometricPrimitive::CreateBox(CRenderer::RefInstance().GetContext(), { 10.0f, 0.2f, 10.0f }, false, true));
-			//pField->SetGeometry(DirectX::GeometricPrimitive::CreateCylinder(CRenderer::RefInstance().GetContext(), 0.2f, 10.0f, 64, false));
-
-			// 形状設定
-			pField->SetCollisionShape(std::make_unique<btBoxShape>(btVector3(5.0f, 0.1f, 5.0f)));
-			//pField->SetCollisionShape(std::make_unique<btCylinderShape>(btVector3(5.0f, 0.1f, 5.0f)));
-
-			// 初期姿勢設定
-			const btQuaternion InitRot(0.0f, 0.0f, 0.0f, 1.0f);
-			const btVector3    InitPos(0.0f, 1.1f, 0.0f);
-			pField->SetMotionState(std::make_unique<btDefaultMotionState>(btTransform(InitRot, InitPos)));
-
-			// 質量設定
-			const btScalar Mass = 1.0f;
-			btVector3 Inertia(0.0f, 0.0f, 0.0f);
-			pField->GetCollisionShape()->calculateLocalInertia(Mass, Inertia);
-
-			// 剛体情報
-			btRigidBody::btRigidBodyConstructionInfo FieldCI(Mass, pField->GetMotionState().get(), pField->GetCollisionShape().get(), Inertia);
-			pField->SetRigidBody(std::make_unique<btRigidBody>(FieldCI));
-
-			// ワールドにリジッドボディを追加
-			CWorld::RefInstance().AddRigidBody(pField->GetRigidBody());
-
-			/*--------------------------------------------------------------*/
-
-			// ジオメトリのバインド
-			pField->SetGeometryC(DirectX::GeometricPrimitive::CreateCone(CRenderer::RefInstance().GetContext(), 1.0f, 1.0f, 64, false));
-
-			// 形状設定
-			pField->SetCollisionShapeC(std::make_unique<btConeShape>(0.5f, 1.0f));
-
-			// 初期姿勢設定
-			const btQuaternion InitRotC(0.0f, 0.0f, 0.0f, 1.0f);
-			const btVector3    InitPosC(0.0f, 0.5f, 0.0f);
-			pField->SetMotionStateC(std::make_unique<btDefaultMotionState>(btTransform(InitRotC, InitPosC)));
-
-			// 質量設定
-			const btScalar MassC = 100.0f;
-			btVector3 InertiaC(0.0f, 0.0f, 0.0f);
-			pField->GetCollisionShapeC()->calculateLocalInertia(MassC, InertiaC);
-
-			// 剛体情報
-			btRigidBody::btRigidBodyConstructionInfo ConeCI(MassC, pField->GetMotionStateC().get(), pField->GetCollisionShapeC().get(), InertiaC);
-			pField->SetRigidBodyC(std::make_unique<btRigidBody>(ConeCI));
-
-			// ワールドにリジッドボディを追加
-			CWorld::RefInstance().AddRigidBody(pField->GetRigidBodyC());
-
-			/*--------------------------------------------------------------*/
-
-			// フィールドに…コーンの先端？を原点として、シリンダーの傾きを制限するヒンジの作成…？
-			btVector3 PivotF = { 0.0f, -0.1f, 0.0f };
-			btVector3 PivotC = { 0.0f,  0.5f, 0.0f };
-			pField->SetConstraintC(std::make_unique<btPoint2PointConstraint>(*pField->GetRigidBody().get(), *pField->GetRigidBodyC().get(), PivotF, PivotC));
-
-			// ヒンジの接続の強さを設定
-			//pField->GetConstraintC()->setParam();
-
-			// ワールドにヒンジを追加
-			CWorld::RefInstance().RefDynamicsWorldConst()->addConstraint(pField->GetConstraintC().get(), false);
-
-			return true;
-		};
-
-	// フィールドの生成
-	CObject::Create<CField>(InitFiled);
-
 	// プレイヤーの生成
-	if (!m_pPlayer)
+	for (unsigned char wIdxPlayer = 0; wIdxPlayer < NUM_PLAYER; ++wIdxPlayer)
 	{
-		m_pPlayer = CObject::Create<CPlayer>(CPlayer::s_fpDefaultFactory, OBJ::TYPE::PLAYER);
+		// 良い感じに四方に散らばらせる
+		if (wIdxPlayer % 2 == 0) g_TF.Pos.z *= -1.0f;
+		if (wIdxPlayer % 2 == 1) g_TF.Pos.x *= -1.0f;
+
+		CObject::Create<CPlayer>(
+			[&wIdxPlayer](CPlayer* p) -> bool
+			{
+				p->SetIdxPlayer(wIdxPlayer);
+				p->SetTransform(g_TF);
+				p->FactoryRigidBody(1.0f, 1.0f, 1.0f);
+				return true;
+			},
+			OBJ::TYPE::PLAYER);
 	}
 
 	//ギミックマネージャーの生成
@@ -126,7 +75,7 @@ CSceneGame::~CSceneGame()
 void CSceneGame::Update()
 {
 	// シーン変更
-	if (CInputManager::RefInstance().EnhancedEnter())
+	if (CInputManager::RefInstance().GetTrackerKeyboard().pressed.Enter)
 	{
 		Change();
 	}

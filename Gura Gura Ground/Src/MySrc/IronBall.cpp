@@ -116,16 +116,13 @@ void CIronBall::Move()
 	rMoveDir.setX(sinf(0.0f) * fSpeed);
 	rMoveDir.setZ(cosf(0.0f) * fSpeed);
 
-	// コライダーからリジッドボディを取得
+	// リジッドボディの取得
 	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(UptrRefColliderConst().get());
 
-	if (!pRB)
-	{
-		return;
-	}
+	// 現在の加速度を参照
+	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
 
 	// 加速度：Y軸：現在の重力速度を維持
-	btVector3 rCurrentVel = pRB->UptrRefRigidBodyConst()->getLinearVelocity();
 	rMoveDir.setY(rCurrentVel.getY());
-	pRB->UptrRefRigidBodyConst()->setLinearVelocity(rMoveDir);
+	pRB->SetLinearVelocity(rMoveDir);
 }
