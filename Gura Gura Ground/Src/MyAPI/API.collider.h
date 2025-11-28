@@ -82,17 +82,13 @@ protected:
 	// function：継承先からの設定変更のため
 	//****************************************************
 
-	// コリジョン形状の参照
-	      btCollisionShape& RefCollisionShape();
-	const btCollisionShape& RefCollisionShapeConst() const;
+	// コリジョン形状の取得
+	      btCollisionShape* GetCollisionShape();
+	const btCollisionShape* GetCollisionShapeConst() const;
 
-	// コリジョン形状のユニークポインタの参照
-          std::unique_ptr<btCollisionShape>& UptrRefCollisionShape();
-	const std::unique_ptr<btCollisionShape>& UptrRefCollisionShapeConst() const;
-
-	// コリジョン描画のユニークポインタの参照
-	      std::unique_ptr<RenderCollision>& UptrRefRenderCollision();
-	const std::unique_ptr<RenderCollision>& UptrRefRenderCollisionConst() const;
+	// コリジョン描画の取得
+	      RenderCollision* GetRenderCollision();
+	const RenderCollision* GetRenderCollisionConst() const;
 
 	// コリジョン描画のカラー設定
 	void SetRenderCollisionColor(const DirectX::XMFLOAT4& Color);

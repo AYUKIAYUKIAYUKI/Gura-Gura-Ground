@@ -43,11 +43,8 @@ public:
 	// function
 	//****************************************************
 
-	// リジッドボディのファクトリ
-	virtual void FactoryRigidBody(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
-
-	// ゴーストのファクトリ
-	virtual void FactoryGhost(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
+	// コライダーの生成
+	virtual void FactoryCollider(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
 
 	// 更新処理
 	void Update() override;
@@ -59,9 +56,10 @@ public:
 	const OBJ::Transform& GetTransform() const;
 	      void            SetTransform(const OBJ::Transform& TF);
 
-	// コライダーのユニークポインタの参照
-	      std::unique_ptr<CCollider>& UptrRefCollider();
-	const std::unique_ptr<CCollider>& UptrRefColliderConst() const;
+	// コライダーの操作用
+	      CCollider* GetCollider();
+	const CCollider* GetColliderConst() const;
+	      void       SetCollider(CCollider* pCollider);
 
 private:
 

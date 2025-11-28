@@ -57,6 +57,9 @@ public:
 	// 更新処理
 	void Update();
 
+	// シミュレーション可否変更
+	void ToggleSimulation();
+
 	// ワールドのユニークポインタを参照
 	const std::unique_ptr<btDiscreteDynamicsWorld>& RefDynamicsWorldConst() const;
 

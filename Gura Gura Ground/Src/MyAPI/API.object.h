@@ -24,7 +24,9 @@ namespace OBJ
 	enum class TYPE : unsigned char
 	{
 		NONE = 0, // 無し
+		FIELD,    // 地面
 		PLAYER,   // プレイヤー
+		OBSTACLE, // 障害物
 		MAX
 	};
 

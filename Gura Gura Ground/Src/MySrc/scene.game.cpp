@@ -18,22 +18,36 @@
 #include "API.input.manager.h"
 
 // オブジェクト生成・破棄のため
-#include "API.renderer.h"
 #include "API.object.manager.h"
+#include "field.h"
 #include "player.h"
-#include "gimmick.manager.h"
 
 //****************************************************
-// デバッグ用
+// 仮
 //****************************************************
 namespace
 {
 	// 定数
-	const int   NUM_PLAYER = 4;
-	const float INIT_DIST  = 10.0f;
+	const int nNumB = 4;
+	const float fInitDist = 10.0f;
 
 	// グローバル
-	OBJ::Transform g_TF = { { 0.5f, 0.5f, 0.5f }, {0.0f, 0.0f, 0.0f, 1.0f}, {-INIT_DIST, 25.0f, -INIT_DIST} };
+	OBJ::Transform g_BoxTF = { { 0.5f, 0.5f, 0.5f }, {0.0f, 0.0f, 0.0f, 1.0f}, {-fInitDist, 25.0f, -fInitDist} };
+
+	/* シンプルなゲームセット */
+	bool GameSet()
+	{
+		// プレイヤーのリストを取得
+		const auto& rPlayerList = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::PLAYER);
+
+		// 一体もプレイヤーが存在しないなら
+		if (rPlayerList.size() == 1)
+		{
+			return true;
+		}
+
+		return false;
+	}
 }
 
 //============================================================================
@@ -41,26 +55,44 @@ namespace
 //============================================================================
 CSceneGame::CSceneGame()
 {
+	// 地面を生成
+	float fSpanField = 15.0f;
+	CObject::Create<CField>(
+		[&fSpanField](CField* p) -> bool
+		{
+			p->SetTransform(
+				{
+					{ fSpanField, 1.0f, fSpanField },
+					{ 0.0f, 0.0f, 0.0f, 1.0f },
+					{ 0.0f, 5.0f, 0.0f }
+				}
+			);
+
+			p->FactoryCollider(fSpanField * 2.0f, 1.0f * 2.0f, fSpanField * 2.0f);
+			return true;
+		},
+		OBJ::TYPE::FIELD);
+
+	// ああ
+	const float fUnkoSpan = 3.0f;
+
 	// プレイヤーの生成
-	for (unsigned char wIdxPlayer = 0; wIdxPlayer < NUM_PLAYER; ++wIdxPlayer)
+	for (unsigned char i = 0; i < nNumB; ++i)
 	{
 		// 良い感じに四方に散らばらせる
-		if (wIdxPlayer % 2 == 0) g_TF.Pos.z *= -1.0f;
-		if (wIdxPlayer % 2 == 1) g_TF.Pos.x *= -1.0f;
+		if (i % 2 == 0) g_BoxTF.Pos.z *= -1.0f;
+		if (i % 2 == 1) g_BoxTF.Pos.x *= -1.0f;
 
 		CObject::Create<CPlayer>(
-			[&wIdxPlayer](CPlayer* p) -> bool
+			[&i](CPlayer* p) -> bool
 			{
-				p->SetIdxPlayer(wIdxPlayer);
-				p->SetTransform(g_TF);
-				p->FactoryRigidBody(1.0f, 1.0f, 1.0f);
+				p->SetIdxPlayer(i);
+				p->SetTransform(g_BoxTF);
+				p->FactoryCollider(1.0f, 1.0f, 1.0f);
 				return true;
 			},
 			OBJ::TYPE::PLAYER);
 	}
-
-	//ギミックマネージャーの生成
-	CGimmickManager::RefInstance();
 }
 
 //============================================================================
@@ -74,14 +106,11 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
-	// シーン変更
-	if (CInputManager::RefInstance().GetTrackerKeyboard().pressed.Enter)
+	// ゲームセットしたらシーン遷移
+	if (GameSet())
 	{
 		Change();
 	}
-
-	// シーンの更新
-	CGimmickManager::RefInstance().Update();
 }
 
 //============================================================================

@@ -19,9 +19,8 @@
 //****************************************************
 // 前方宣言
 //****************************************************
-struct btDefaultMotionState;
-class  btRigidBody;
-class  btVector3;
+class btVector3;
+class btRigidBody;
 
 //****************************************************
 // リジッドボディクラスの定義
@@ -61,7 +60,8 @@ public:
 	// ダイナミック化
 	void SetDynamic() const;
 
-	// アクティブ化
+	// アクティブ状態の操作用
+	bool GetActive() const;
 	void SetActive() const;
 
 	// 質量の設定
@@ -69,6 +69,10 @@ public:
 
 	// 弾性力の設定
 	void SetRestitution(float fMass) const;
+
+	// 摩擦力の設定
+	void SetFriction(float fFriction)        const;
+	void SetRollingFriction(float fFriction) const;
 
 	// 使用する回転軸の設定
 	void SetAngularFactor(const btVector3& Vec) const;
@@ -88,27 +92,16 @@ public:
 	// インパルスの付与
 	void SetImpulse(const btVector3& Impulse) const;
 
+	// リジッドボディ本体の取得
+	      btRigidBody* GetRigidBody();
+	const btRigidBody* GetRigidBodyConst() const;
+
 	//****************************************************
 	// static function
 	//****************************************************
 
 	// リジッドボディの生成
-	static void CreateRigidBody(const OBJ::Transform& TF, std::unique_ptr<CRigidBody>& upRB, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
-	static void CreateRigidBody(const OBJ::Transform& TF, std::unique_ptr<CCollider>&  upCL, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
-
-protected:
-
-	//****************************************************
-	// function
-	//****************************************************
-
-	// モーションステートのユニークポインタを参照
-	      std::unique_ptr<btDefaultMotionState>& UptrRefMotionState();
-	const std::unique_ptr<btDefaultMotionState>& UptrRefMotionStateConst() const;
-
-	// リジッドボディ本体のユニークポインタを参照
-	      std::unique_ptr<btRigidBody>& UptrRefRigidBody();
-	const std::unique_ptr<btRigidBody>& UptrRefRigidBodyConst() const;
+	static CCollider* CreateRigidBody(const OBJ::Transform& Transform, Collision::SHAPETYPE Type = Collision::SHAPETYPE::BOX, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
 
 private:
 

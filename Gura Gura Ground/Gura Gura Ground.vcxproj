@@ -28,6 +28,7 @@
     <ClCompile Include="Src\External\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Src\MySrc\any.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
+    <ClCompile Include="Src\MySrc\dust.cpp" />
     <ClCompile Include="Src\MySrc\field.cpp" />
     <ClCompile Include="Src\MySrc\gimmick.manager.cpp" />
     <ClCompile Include="Src\MySrc\IronBall.cpp" />
@@ -44,6 +45,7 @@
     <ClCompile Include="Src\MySrc\player.cpp" />
     <ClCompile Include="Src\MySrc\scene.game.cpp" />
     <ClCompile Include="Src\MySrc\scene.select.cpp" />
+    <ClCompile Include="Src\MySrc\shockwave.cpp" />
     <ClCompile Include="Src\MySrc\state.cpp" />
     <ClCompile Include="Src\MySrc\scene.title.cpp" />
   </ItemGroup>
@@ -58,6 +60,7 @@
     <ClInclude Include="Src\External\ImGui\imstb_truetype.h" />
     <ClInclude Include="Src\MyAPI\API.camera.h" />
     <ClInclude Include="Src\MyAPI\API.collider.h" />
+    <ClInclude Include="Src\MyAPI\API.collision.h" />
     <ClInclude Include="Src\MyAPI\API.constantbuffer.manager.h" />
     <ClInclude Include="Src\MyAPI\API.fullscreen.2D.h" />
     <ClInclude Include="Src\MyAPI\API.ghost.h" />
@@ -69,6 +72,7 @@
     <ClInclude Include="Src\MyAPI\API.model.gltf.h" />
     <ClInclude Include="Src\MyAPI\API.object.h" />
     <ClInclude Include="Src\MyAPI\API.object.manager.h" />
+    <ClInclude Include="Src\MyAPI\API.physics.object.h" />
     <ClInclude Include="Src\MyAPI\API.pixelshader.manager.h" />
     <ClInclude Include="Src\MyAPI\API.rect.2D.h" />
     <ClInclude Include="Src\MyAPI\API.registry.h" />
@@ -85,6 +89,7 @@
     <ClInclude Include="Src\MyAPI\API.world.h" />
     <ClInclude Include="Src\MySrc\any.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
+    <ClInclude Include="Src\MySrc\dust.h" />
     <ClInclude Include="Src\MySrc\field.h" />
     <ClInclude Include="Src\MySrc\gimmick.manager.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
@@ -94,6 +99,7 @@
     <ClInclude Include="Src\MySrc\obstacle.h" />
     <ClInclude Include="Src\MySrc\pch.h" />
     <ClInclude Include="Src\MySrc\scene.select.h" />
+    <ClInclude Include="Src\MySrc\shockwave.h" />
     <ClInclude Include="Src\MySrc\state.h" />
     <ClInclude Include="Src\MySrc\scene.title.h" />
   </ItemGroup>
