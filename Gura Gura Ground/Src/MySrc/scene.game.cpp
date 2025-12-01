@@ -21,6 +21,7 @@
 #include "API.object.manager.h"
 #include "field.h"
 #include "player.h"
+#include "API.world.h"
 
 //****************************************************
 // âº
@@ -55,6 +56,8 @@ namespace
 //============================================================================
 CSceneGame::CSceneGame()
 {
+	CCollider::SwitchRenderCollision();
+
 	// ínñ Çê∂ê¨
 	float fSpanField = 15.0f;
 	CObject::Create<CField>(

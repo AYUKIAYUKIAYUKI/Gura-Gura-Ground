@@ -259,12 +259,6 @@ void StateJump::Execute(CPlayer::StateMachine& rStateMachine)
 	{
 		m_bGoDown = true;
 	}
-	
-	// 下降判定取り消し
-	if (m_bGoDown && rCurrentVel.getY() < -5.0f && m_btOldVel.getY() < -5.0f)
-	{
-		m_bGoDown = false;
-	}
 
 	// 割り当てが該当するゲームパッドの方向入力を取得
 	const std::optional<float>& opDir = CInputManager::RefInstance().ConvertInputToMoveDirection(rStateMachine.m_rPalyer.GetIdxPlayer());
@@ -290,21 +284,6 @@ void StateJump::Execute(CPlayer::StateMachine& rStateMachine)
 		pRB->SetLinearVelocity(MoveDir);
 	}
 
-	// フィールドを取得のリストを取得
-	const auto& rFieldList = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::FIELD);
-
-	// 抜き出したオブジェクトをフィールドにキャストする
-	CField* pField = useful::DownCast<CField>(rFieldList.front());
-
-	// フィールドのコライダーをリジッドボディにキャスト
-	CRigidBody* const pFieldRB = useful::DownCast<CRigidBody>(pField->GetCollider());
-
-	// コールバックを作成
-	Collision::MyContactCallbackRigidBodyAndRigidBody CallBack(pRB, pFieldRB);
-
-	// 衝突検出に各リジッドボディ、コールバックを渡す
-	CWorld::RefInstance().RefDynamicsWorldConst()->contactPairTest(pRB->GetRigidBody(), pFieldRB->GetRigidBody(), CallBack);
-
 	// 状態変更
 	if (m_bGoDown && CInputManager::RefInstance().GetTrackerGamePad(rStateMachine.m_rPalyer.GetIdxPlayer()).a == DirectX::GamePad::ButtonStateTracker::PRESSED)
 	{
@@ -314,9 +293,9 @@ void StateJump::Execute(CPlayer::StateMachine& rStateMachine)
 		// 下降判定後、ジャンプ状態中に追加入力でドロップ状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDrop>());
 	}
-	else if (CallBack.m_bHit)
+	else if (m_bGoDown && Collision::GetHitRigidBody(pRB))
 	{
-		// 地面に着地していたら通常状態に変更
+		// 下降判定中に何かに剛体に接触していたら通常状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
 	}
 
@@ -381,7 +360,7 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	if (Collision::GetHitRigidBody(pRB))
 	{
 		// 衝撃波の作成
-		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 6.0f, 1.0f, 6.0f }, 10);
+		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 7.0f, 1.0f, 7.0f }, 10);
 
 		// 通常状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
@@ -509,6 +488,7 @@ void CPlayer::Update()
 					// リジッドボディを持っていたら
 					if (pRigidBody)
 					{
+						pRigidBody->SetActive();
 						Collision::BumperPush(pShockwaveGhost, pRigidBody, 3.0f);
 					}
 				}

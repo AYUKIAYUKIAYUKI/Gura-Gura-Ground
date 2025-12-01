@@ -46,6 +46,30 @@ public:
 	// inline function
 	//****************************************************
 
+	// 向きの操作用
+	inline const DirectX::XMFLOAT3& GetRot() const                       { return m_Rot; }
+	inline       void               SetRot(const DirectX::XMFLOAT3& Rot) { m_Rot = Rot; }
+
+	// 目標向きの操作用
+	inline const DirectX::XMFLOAT3& GetRotTarget() const                       { return m_RotTarget; }
+	inline       void               SetRotTarget(const DirectX::XMFLOAT3& Rot) { m_RotTarget = Rot; }
+
+	// 位置の操作用
+	inline const DirectX::XMFLOAT3& GetPos() const                       { return m_Pos; }
+	inline       void               SetPos(const DirectX::XMFLOAT3& Pos) { m_Pos = Pos; }
+
+	// 目標位置の操作用
+	inline const DirectX::XMFLOAT3& GetPosTarget() const                       { return m_PosTarget; }
+	inline       void               SetPosTarget(const DirectX::XMFLOAT3& Pos) { m_PosTarget = Pos; }
+
+	// 距離の操作用
+	inline float GetDistance() const          { return m_fDistance; }
+	inline void  SetDistance(float fDistance) { m_fDistance = fDistance; }
+
+	// 目標距離の操作用
+	inline float GetDistanceTarget() const          { return m_fDistanceTarget; }
+	inline void  SetDistanceTarget(float fDistance) { m_fDistanceTarget = fDistance; }
+
 	// ビュー行列を参照
 	inline const DirectX::XMMATRIX& GetView() const { return m_View; }
 
