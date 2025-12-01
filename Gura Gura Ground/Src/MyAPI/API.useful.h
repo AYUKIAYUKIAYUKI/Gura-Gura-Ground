@@ -351,6 +351,85 @@ namespace useful
 #endif // NONUSE_DX9
 
 	//****************************************************
+	// インライン関数を定義
+	//****************************************************
+
+#ifndef NONUSE_DX11
+	// XMFLOAT3のための '+' 演算子のオーバーロード
+	inline DirectX::XMFLOAT3 operator+(const DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2)
+	{
+		return { Arg1.x + Arg2.x, Arg1.y + Arg2.y, Arg1.z + Arg2.z };
+	}
+
+	// XMFLOAT3のための '-' 演算子のオーバーロード
+	inline DirectX::XMFLOAT3 operator-(const DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2)
+	{
+		return { Arg1.x - Arg2.x, Arg1.y - Arg2.y, Arg1.z - Arg2.z };
+	}
+
+	// XMFLOAT3のための '*' 演算子のオーバーロード
+	inline DirectX::XMFLOAT3 operator*(const DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2)
+	{
+		return { Arg1.x * Arg2.x, Arg1.y * Arg2.y, Arg1.z * Arg2.z };
+	}
+
+	// XMFLOAT3とfloatのための '*' 演算子のオーバーロード
+	inline DirectX::XMFLOAT3 operator*(const DirectX::XMFLOAT3& Arg1, float Arg2)
+	{
+		return { Arg1.x * Arg2, Arg1.y * Arg2, Arg1.z * Arg2 };
+	}
+
+	// XMFLOAT3のための '/' 演算子のオーバーロード
+	inline DirectX::XMFLOAT3 operator/(const DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2)
+	{
+		return { Arg1.x / Arg2.x, Arg1.y / Arg2.y, Arg1.z / Arg2.z };
+	}
+
+	// XMFLOAT3とfloatのための '/' 演算子のオーバーロード
+	inline DirectX::XMFLOAT3 operator/(const DirectX::XMFLOAT3& Arg1, float Arg2)
+	{
+		return { Arg1.x / Arg2, Arg1.y / Arg2, Arg1.z / Arg2 };
+	}
+
+	// XMFLOAT3のための '+=' 演算子のオーバーロード
+	inline DirectX::XMFLOAT3& operator+=(DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2)
+	{
+		Arg1.x += Arg2.x;
+		Arg1.y += Arg2.y;
+		Arg1.z += Arg2.z;
+		return Arg1;
+	}
+
+	// XMFLOAT3のための '-=' 演算子のオーバーロード
+	inline DirectX::XMFLOAT3& operator-=(DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2)
+	{
+		Arg1.x -= Arg2.x;
+		Arg1.y -= Arg2.y;
+		Arg1.z -= Arg2.z;
+		return Arg1;
+	}
+
+	// XMFLOAT3のための '*=' 演算子のオーバーロード
+	inline DirectX::XMFLOAT3& operator*=(DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2)
+	{
+		Arg1.x *= Arg2.x;
+		Arg1.y *= Arg2.y;
+		Arg1.z *= Arg2.z;
+		return Arg1;
+	}
+
+	// XMFLOAT3のための '/=' 演算子のオーバーロード
+	inline DirectX::XMFLOAT3& operator/=(DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2)
+	{
+		Arg1.x /= Arg2.x;
+		Arg1.y /= Arg2.y;
+		Arg1.z /= Arg2.z;
+		return Arg1;
+	}
+
+#endif // NONUSE_DX11
+
+	//****************************************************
 	// プロトタイプ宣言
 	//****************************************************
 
@@ -422,6 +501,33 @@ namespace useful
 	void WrapAngleToRange(float& fAngle);
 	void WrapAngleToRange(float& fAngle1, float& fAngle2);
 #endif // NONUSE_DX9
+
+#ifndef NONUSE_DX11
+	/**
+	 * DirectX::XMFLOAT3のための足し算
+	 */
+	void AddFloat3(const DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2, DirectX::XMFLOAT3& Arg3);
+
+	/**
+	 * DirectX::XMFLOAT3のための引き算
+	 */
+	void SubFloat3(const DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2, DirectX::XMFLOAT3& Arg3);
+
+	/**
+	 * DirectX::XMFLOAT3のための掛け算
+	 */
+	void MulFloat3(const DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2, DirectX::XMFLOAT3& Arg3);
+
+	/**
+	 * DirectX::XMFLOAT3のための割り算
+	 */
+	void DivFloat3(const DirectX::XMFLOAT3& Arg1, const DirectX::XMFLOAT3& Arg2, DirectX::XMFLOAT3& Arg3);
+
+	/**
+	 * DirectX::XMFLOAT3のための指数減衰
+	 */
+	void ExponentialDecayFloat3(DirectX::XMFLOAT3& Base, const DirectX::XMFLOAT3& Target, float fCoef);
+#endif // NONUSE_DX11
 
 	/**
 	 * 警告メッセージの出力
