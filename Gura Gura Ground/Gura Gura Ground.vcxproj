@@ -29,6 +29,7 @@
     <ClCompile Include="Src\MySrc\any.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
     <ClCompile Include="Src\MySrc\dust.cpp" />
+    <ClCompile Include="Src\MySrc\effect.manager.cpp" />
     <ClCompile Include="Src\MySrc\field.cpp" />
     <ClCompile Include="Src\MySrc\gimmick.manager.cpp" />
     <ClCompile Include="Src\MySrc\IronBall.cpp" />
@@ -90,6 +91,7 @@
     <ClInclude Include="Src\MySrc\any.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
     <ClInclude Include="Src\MySrc\dust.h" />
+    <ClInclude Include="Src\MySrc\effect.manager.h" />
     <ClInclude Include="Src\MySrc\field.h" />
     <ClInclude Include="Src\MySrc\gimmick.manager.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
@@ -221,7 +223,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Src\MyAPI;$(SolutionDir)Src\MySrc;$(SolutionDir)Src\External\assimp;$(SolutionDir)Src\External\B3;$(SolutionDir)Src\External\DirectXTK;$(SolutionDir)Src\External\DirectXTex;$(SolutionDir)Src\External\ImGui;$(SolutionDir)Src\External\JSON\include;$(SolutionDir)Src\External\lua54;$(SolutionDir)Src\External\sol2\include;$(SolutionDir)Src\External\TinyGLTF;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Src\External\EffekseerRendererDX11;$(SolutionDir)Src\External\Effekseer;$(SolutionDir)Src\MyAPI;$(SolutionDir)Src\MySrc;$(SolutionDir)Src\External\assimp;$(SolutionDir)Src\External\B3;$(SolutionDir)Src\External\DirectXTK;$(SolutionDir)Src\External\DirectXTex;$(SolutionDir)Src\External\ImGui;$(SolutionDir)Src\External\JSON\include;$(SolutionDir)Src\External\lua54;$(SolutionDir)Src\External\sol2\include;$(SolutionDir)Src\External\TinyGLTF;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -231,7 +233,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)Lib\_Debug\DirectXTK.lib;$(SolutionDir)Lib\_Debug\BulletCollision_Debug.lib;$(SolutionDir)Lib\_Debug\BulletDynamics_Debug.lib;$(SolutionDir)Lib\_Debug\DirectXTex.lib;$(SolutionDir)Lib\_Debug\LinearMath_Debug.lib;$(SolutionDir)Lib\_Debug\lua54.lib;$(SolutionDir)Lib\_Debug\3E8ED147825_Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Lib\_Debug\DirectXTK.lib;$(SolutionDir)Lib\_Debug\BulletCollision_Debug.lib;$(SolutionDir)Lib\_Debug\BulletDynamics_Debug.lib;$(SolutionDir)Lib\_Debug\DirectXTex.lib;$(SolutionDir)Lib\_Debug\LinearMath_Debug.lib;$(SolutionDir)Lib\_Debug\lua54.lib;$(SolutionDir)Lib\_Debug\3E8ED147825_Debug.lib;$(SolutionDir)Lib\_Debug\Effekseer.lib;$(SolutionDir)Lib\_Debug\EffekseerRendererDX11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -243,7 +245,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Src\MyAPI;$(SolutionDir)Src\MySrc;$(SolutionDir)Src\External\assimp;$(SolutionDir)Src\External\B3;$(SolutionDir)Src\External\DirectXTK;$(SolutionDir)Src\External\DirectXTex;$(SolutionDir)Src\External\ImGui;$(SolutionDir)Src\External\JSON\include;$(SolutionDir)Src\External\lua54;$(SolutionDir)Src\External\sol2\include;$(SolutionDir)Src\External\TinyGLTF;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Src\External\EffekseerRendererDX11;$(SolutionDir)Src\External\Effekseer;$(SolutionDir)Src\MyAPI;$(SolutionDir)Src\MySrc;$(SolutionDir)Src\External\assimp;$(SolutionDir)Src\External\B3;$(SolutionDir)Src\External\DirectXTK;$(SolutionDir)Src\External\DirectXTex;$(SolutionDir)Src\External\ImGui;$(SolutionDir)Src\External\JSON\include;$(SolutionDir)Src\External\lua54;$(SolutionDir)Src\External\sol2\include;$(SolutionDir)Src\External\TinyGLTF;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>pch.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -255,7 +257,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)Lib\_Release\BulletCollision.lib;$(SolutionDir)Lib\_Release\BulletDynamics.lib;$(SolutionDir)Lib\_Release\DirectXTex.lib;$(SolutionDir)Lib\_Release\DirectXTK.lib;$(SolutionDir)Lib\_Release\LinearMath.lib;$(SolutionDir)Lib\_Release\3E8ED147825_Release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Lib\_Release\BulletCollision.lib;$(SolutionDir)Lib\_Release\BulletDynamics.lib;$(SolutionDir)Lib\_Release\DirectXTex.lib;$(SolutionDir)Lib\_Release\DirectXTK.lib;$(SolutionDir)Lib\_Release\LinearMath.lib;$(SolutionDir)Lib\_Release\3E8ED147825_Release.lib;$(SolutionDir)Lib\_Release\Effekseer.lib;$(SolutionDir)Lib\_Release\EffekseerRendererDX11\lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
