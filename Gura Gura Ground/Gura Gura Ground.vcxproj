@@ -28,6 +28,7 @@
     <ClCompile Include="Src\External\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Src\MySrc\any.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
+    <ClCompile Include="Src\MySrc\cameracontroller.cpp" />
     <ClCompile Include="Src\MySrc\dust.cpp" />
     <ClCompile Include="Src\MySrc\effect.manager.cpp" />
     <ClCompile Include="Src\MySrc\field.cpp" />
@@ -90,6 +91,7 @@
     <ClInclude Include="Src\MyAPI\API.world.h" />
     <ClInclude Include="Src\MySrc\any.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
+    <ClInclude Include="Src\MySrc\cameracontroller.h" />
     <ClInclude Include="Src\MySrc\dust.h" />
     <ClInclude Include="Src\MySrc\effect.manager.h" />
     <ClInclude Include="Src\MySrc\field.h" />

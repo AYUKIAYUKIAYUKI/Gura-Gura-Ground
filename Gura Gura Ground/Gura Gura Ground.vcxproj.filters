@@ -126,6 +126,9 @@
     <ClCompile Include="Src\MySrc\effect.manager.cpp">
       <Filter>%28分類済み%29\【マネージャー系統】</Filter>
     </ClCompile>
+    <ClCompile Include="Src\MySrc\cameracontroller.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\MySrc\main.h">
@@ -286,6 +289,9 @@
     </ClInclude>
     <ClInclude Include="Src\MySrc\effect.manager.h">
       <Filter>%28分類済み%29\【マネージャー系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\cameracontroller.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
