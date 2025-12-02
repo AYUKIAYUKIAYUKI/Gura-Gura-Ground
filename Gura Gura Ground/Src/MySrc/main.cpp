@@ -21,7 +21,7 @@
 #include "API.world.h"
 
 // 初期シーン生成のため
-#include "scene.title.h"
+#include "scene.debugroom.h"
 
 //****************************************************
 // エントリーポイント
@@ -61,7 +61,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hInstancePre
 		CGltfManager::RefInstance();
 
 		// シーンマネージャーの生成
-		CSceneManager::RefInstance().Initialize<CSceneTitle>();
+		CSceneManager::RefInstance().Initialize<CSceneDebugRoom>();
 
 		// オブジェクトマネージャーの生成
 		CObjectManager::RefInstance();

@@ -43,6 +43,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Src\MySrc\player.cpp" />
+    <ClCompile Include="Src\MySrc\scene.debugroom.cpp" />
     <ClCompile Include="Src\MySrc\scene.game.cpp" />
     <ClCompile Include="Src\MySrc\scene.select.cpp" />
     <ClCompile Include="Src\MySrc\shockwave.cpp" />
@@ -94,6 +95,7 @@
     <ClInclude Include="Src\MySrc\gimmick.manager.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
     <ClInclude Include="Src\MySrc\player.h" />
+    <ClInclude Include="Src\MySrc\scene.debugroom.h" />
     <ClInclude Include="Src\MySrc\scene.game.h" />
     <ClInclude Include="Src\MySrc\main.h" />
     <ClInclude Include="Src\MySrc\obstacle.h" />
