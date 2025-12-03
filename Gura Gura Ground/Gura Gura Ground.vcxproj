@@ -31,6 +31,7 @@
     <ClCompile Include="Src\MySrc\dust.cpp" />
     <ClCompile Include="Src\MySrc\field.cpp" />
     <ClCompile Include="Src\MySrc\gimmick.manager.cpp" />
+    <ClCompile Include="Src\MySrc\Hudeditor.cpp" />
     <ClCompile Include="Src\MySrc\IronBall.cpp" />
     <ClCompile Include="Src\MySrc\main.cpp" />
     <ClCompile Include="Src\MySrc\obstacle.cpp" />
@@ -93,6 +94,7 @@
     <ClInclude Include="Src\MySrc\dust.h" />
     <ClInclude Include="Src\MySrc\field.h" />
     <ClInclude Include="Src\MySrc\gimmick.manager.h" />
+    <ClInclude Include="Src\MySrc\Hudeditor.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
     <ClInclude Include="Src\MySrc\player.h" />
     <ClInclude Include="Src\MySrc\scene.debugroom.h" />

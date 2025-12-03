@@ -126,6 +126,9 @@
     <ClCompile Include="Src\MySrc\scene.debugroom.cpp">
       <Filter>%28分類済み%29\【シーン系統】</Filter>
     </ClCompile>
+    <ClCompile Include="Src\MySrc\Hudeditor.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\MySrc\main.h">
@@ -286,6 +289,9 @@
     </ClInclude>
     <ClInclude Include="Src\MySrc\scene.debugroom.h">
       <Filter>%28分類済み%29\【シーン系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\Hudeditor.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

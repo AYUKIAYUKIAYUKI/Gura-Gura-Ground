@@ -21,13 +21,14 @@
 #include "API.renderer.h"
 #include "API.object.manager.h"
 #include "API.model.gltf.h"
-#include "API.physics.object.h"
 
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
 CSceneDebugRoom::CSceneDebugRoom()
-{}
+{
+
+}
 
 //============================================================================
 // デストラクタ
@@ -45,6 +46,8 @@ void CSceneDebugRoom::Update()
 	{
 		Change();
 	}
+
+	m_hudEditor.Update();
 }
 
 //============================================================================
@@ -54,4 +57,8 @@ void CSceneDebugRoom::Change()
 {
 	// 全オブジェクトに死亡フラグを立てる
 	CObjectManager::RefInstance().SetDeathAllObject();
+	m_hudEditor.vHudUI.clear();
+	m_hudEditor.vCol.clear();
+	m_hudEditor.vTf.clear();
+	m_hudEditor.vHudNames.clear();
 }
