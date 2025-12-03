@@ -60,11 +60,13 @@ private:
 	//****************************************************
 	// function
 	//****************************************************
-	void CameraMove();	// デバッグカメラ移動
+	void CameraMove();				// デバッグカメラ移動
+	DirectX::XMFLOAT3 DetermineCameraPosition();	// カメラの位置を指定
 
 	//****************************************************
 	// data
 	//****************************************************
 	CCamera* m_Camera;				// カメラの情報
 	std::list<CPlayer*> m_Players;	// プレイヤーを格納
+	DirectX::XMFLOAT3 m_CenterPos;	// 中心位置
 };
