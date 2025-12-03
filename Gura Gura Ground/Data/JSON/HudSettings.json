@@ -8,8 +8,8 @@
         ],
         "layer_index": 0,
         "pos": [
-            509.0,
-            268.0,
+            514.0,
+            266.0,
             0.0
         ],
         "rot": [
@@ -20,10 +20,10 @@
         ],
         "size": [
             300.0,
-            300.0,
+            330.0,
             0.0
         ],
-        "texture_name": "Logo.A"
+        "texture_name": "Human.B"
     },
     {
         "color": [

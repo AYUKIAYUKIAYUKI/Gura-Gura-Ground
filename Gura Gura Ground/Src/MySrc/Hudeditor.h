@@ -41,6 +41,7 @@ public:
     std::vector<DirectX::XMFLOAT4> vCol;        // HUDの色情報の配列
     std::vector<std::string> vHudNames;         // HUDのテクスチャ名の配列
 
+    std::vector<std::string> vTextureKeys;
 private:
     static const char* DefaultKeys[3];
 };

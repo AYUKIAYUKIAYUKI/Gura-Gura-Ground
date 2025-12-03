@@ -11,7 +11,6 @@
 // インクルードファイル
 //****************************************************
 #include "API.scene.h"
-#include "API.physics.object.h"
 
 #include "Hudeditor.h"
 

@@ -47,6 +47,7 @@ void CSceneDebugRoom::Update()
 		Change();
 	}
 
+	//HUDエディター更新処理
 	m_hudEditor.Update();
 }
 
@@ -57,6 +58,8 @@ void CSceneDebugRoom::Change()
 {
 	// 全オブジェクトに死亡フラグを立てる
 	CObjectManager::RefInstance().SetDeathAllObject();
+
+	//HUD関係の削除
 	m_hudEditor.vHudUI.clear();
 	m_hudEditor.vCol.clear();
 	m_hudEditor.vTf.clear();

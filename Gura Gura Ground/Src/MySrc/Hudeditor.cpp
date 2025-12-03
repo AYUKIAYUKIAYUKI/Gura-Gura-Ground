@@ -18,6 +18,23 @@ const char* CHudEditor::DefaultKeys[3] = { "Uchiyama", "Frame", "Logo.A" };
 //============================================================================
 CHudEditor::CHudEditor() 
 {
+   //テクスチャキーを取得
+   std::ifstream tj("Data\\JSON\\Texture.List.json");
+   if (tj) {
+       nlohmann::json tjroot;
+       tj >> tjroot;
+       for (const auto& elem : tjroot["Element"]) 
+       {
+           vTextureKeys.push_back(elem[0].get<std::string>());
+       }
+   }
+
+   // 万が一ファイルが読めなければデフォルトに
+   if (vTextureKeys.empty()) 
+   {
+       vTextureKeys.assign(DefaultKeys, DefaultKeys + 3);
+   }
+
     // JSONファイルがある場合
     if (std::ifstream("Data\\JSON\\HudSettings.json").good()) 
     {
@@ -60,7 +77,21 @@ void CHudEditor::Update()
 #ifdef _DEBUG
     // HUDが無ければ何も表示しない
     if (vHudUI.empty()) return;
+
+    //Imguiウィンドウの座標、サイズ指定
+    static bool firstWindow = true;
+    if (firstWindow) 
+    {
+        ImGui::SetNextWindowPos(ImVec2(825, 5), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(440, 500), ImGuiCond_FirstUseEver);
+        firstWindow = false;
+    }
+
     ImGui::Begin("HUD Edit List");
+
+    std::vector<const char*> texKeyCstrs;
+    for (auto& key : vTextureKeys) texKeyCstrs.push_back(key.c_str());
+
     // HUDごとにImGuiで編集項目を表示
     for (int i = 0; i < vHudUI.size(); ++i)
     {
@@ -82,6 +113,21 @@ void CHudEditor::Update()
             ImGui::PopID();
             break;
         }
+
+        // テクスチャ選択コンボ
+        int curTexIdx = 0;
+        for (int t = 0; t < (int)vTextureKeys.size(); ++t)
+            if (vTextureKeys[t] == vHudNames[i]) curTexIdx = t;
+        if (ImGui::Combo("Texture", &curTexIdx, texKeyCstrs.data(), (int)texKeyCstrs.size()))
+        {
+            vHudNames[i] = vTextureKeys[curTexIdx];
+            if (vHudUI[i])
+            {
+                auto tex = CTextureManager::RefInstance().RefRegistry().BindAtKey(vHudNames[i].c_str());
+                vHudUI[i]->SetTexture(tex);
+            }
+        }
+
         // 位置とサイズを調整
         ImGui::DragFloat2("Pos", &vTf[i].Pos.x, 1.0f);
         ImGui::DragFloat2("Size", &vTf[i].Size.x, 1.0f);
@@ -95,6 +141,7 @@ void CHudEditor::Update()
             vHudUI[i]->SetTransformTarget(vTf[i]);
             vHudUI[i]->SetColTarget(vCol[i]);
         }
+
         // HUD削除ボタン
         if (ImGui::Button("Delete"))
         {
@@ -241,6 +288,7 @@ void CHudEditor::LoadFromFile(const std::string& path)
         OBJ::Transform tf;
         DirectX::XMFLOAT4 col;
     };
+
     std::vector<HudInfo> infos;
     // JSONの各項目を解析してHUD情報を取得
     for (const auto& item : j)
