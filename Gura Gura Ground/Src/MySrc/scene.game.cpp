@@ -30,7 +30,7 @@
 namespace
 {
 	// ’è”
-	const int nNumB = 2;
+	const int nNumB = 4;
 	const float fInitDist = 10.0f;
 
 	// ƒOƒ[ƒoƒ‹

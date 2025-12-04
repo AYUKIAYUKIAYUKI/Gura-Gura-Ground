@@ -103,21 +103,47 @@ void CCameraController::CameraMove()
 //============================================================================
 void CCameraController::CalculatePlayersCenter()
 {
-	using namespace useful;
-
-	DirectX::XMFLOAT3 PlayersPos = { 0.0f,0.0f, 0.0f };
-	for (auto ite : m_Players)
+	if (m_Players.empty())
 	{
-		// プレイヤーの位置取得
-		PlayersPos += ite->GetTransform().Pos;
+		return;
 	}
 
-	// プレイヤーの位置を全て足したものを人数で割って平均の位置を計算
-	PlayersPos = PlayersPos / static_cast<float>(m_Players.size());
+	using namespace useful;
+
+	DirectX::XMFLOAT3 MinPlayersPos = { 0.0f,0.0f, 0.0f };	// 最小位置
+	DirectX::XMFLOAT3 MaxPlayersPos = { 0.0f,0.0f, 0.0f };	// 最大位置
+	DirectX::XMFLOAT3 CenterPos = { 0.0f,0.0f, 0.0f };		// 中央位置
+
+	// プレイヤー全体で最小と最大の位置を取得
+	for (auto ite : m_Players)
+	{
+		// X座標の最小最大
+		if (ite->GetTransform().Pos.x <= MinPlayersPos.x)
+		{
+			MinPlayersPos.x = ite->GetTransform().Pos.x;
+		}
+		if (MaxPlayersPos.x <= ite->GetTransform().Pos.x)
+		{
+			MaxPlayersPos.x = ite->GetTransform().Pos.x;
+		}
+
+		// Z座標の最小最大
+		if (ite->GetTransform().Pos.z <= MinPlayersPos.z)
+		{
+			MinPlayersPos.z = ite->GetTransform().Pos.z;
+		}
+		if (MaxPlayersPos.z <= ite->GetTransform().Pos.z)
+		{
+			MaxPlayersPos.z = ite->GetTransform().Pos.z;
+		}
+	}
+
+	// 中心位置を求める
+	CenterPos = (MaxPlayersPos + MinPlayersPos) / 2;
 
 	// 高さ変えない
-	PlayersPos.y = m_Camera->GetPos().y;
+	CenterPos.y = m_Camera->GetPos().y;
 
 	// 中心位置に設定
-	m_PlayersCenterPos = PlayersPos;
+	m_PlayersCenterPos = CenterPos;
 }
