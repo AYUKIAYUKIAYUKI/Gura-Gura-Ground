@@ -34,6 +34,8 @@ public:
     void MoveHudUp(int idx);                    // HUDのレイヤーを1つ上げる
     void MoveHudDown(int idx);                  // HUDのレイヤーを1つ下げる
     void ReFlashHudObjects();                   // HUDパラメーター読み込み
+    void SetPreviewMode(bool enabled);
+    bool IsPreviewMode() const { return bPreviewMode; }
 
     // UIデータ群
     std::vector<CHud*> vHudUI;                  // HUDオブジェクトの配列
@@ -43,6 +45,19 @@ public:
     std::vector<std::string> vTextureKeys;      // テクスチャキーの配列
     std::vector<bool> vVisible;                 //表示するかどうか
     std::vector<float> vDisplayTime;            //表示している時間
+    std::vector<double> vShowStartTime;         //描画開始時間
 private:
-    static const char* DefaultKeys[3];
+    //HUD情報保管用
+    struct HudBackup 
+    {
+        std::string textureName;
+        OBJ::Transform tf;
+        DirectX::XMFLOAT4 col;
+        bool visible;
+        float displayTime;
+    };
+    std::vector<HudBackup> vBackupHud;
+    static const char* DefaultKeys[3]; //デフォルト用キー
+    bool bPreviewMode = false;  // プレビューモードフラグ
+
 };
