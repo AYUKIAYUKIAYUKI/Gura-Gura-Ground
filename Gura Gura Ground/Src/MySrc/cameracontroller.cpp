@@ -18,7 +18,7 @@
 //============================================================================
 CCameraController::CCameraController()
 	: m_Camera(nullptr)
-	, m_CenterPos({0.0f,3.0f,0.0f})
+	, m_PlayersCenterPos({0.0f,0.0f,0.0f})
 {
 	
 }
@@ -36,6 +36,8 @@ CCameraController::~CCameraController()
 //============================================================================
 bool CCameraController::Initialize()
 {
+	//using namespace useful;
+
 	// 初期化
 	m_Players.clear();
 
@@ -91,52 +93,31 @@ void CCameraController::UnRegist(CPlayer* player)
 //============================================================================
 void CCameraController::CameraMove()
 {
-	using namespace useful;
-
-	// ターゲットの位置設定
-	DirectX::XMFLOAT3 TargetPos = DetermineCameraPosition();
-	
-	m_Camera->SetPosTarget(TargetPos);
+	// カメラの注視点位置設定
+	CalculatePlayersCenter();
+	m_Camera->SetPosTarget(m_PlayersCenterPos);
 }
 
 //============================================================================
-// カメラの位置を指定
+// プレイヤーの中心位置を計算
 //============================================================================
-DirectX::XMFLOAT3 CCameraController::DetermineCameraPosition()
+void CCameraController::CalculatePlayersCenter()
 {
-	bool isMovingRight = true;
-	bool isMovingLeft = true;
-	DirectX::XMFLOAT3 CameraPos;// カメラの位置
+	using namespace useful;
 
+	DirectX::XMFLOAT3 PlayersPos = { 0.0f,0.0f, 0.0f };
 	for (auto ite : m_Players)
 	{
 		// プレイヤーの位置取得
-		DirectX::XMFLOAT3 PlayerPos = ite->GetTransform().Pos;
-
-		if (PlayerPos.x < m_CenterPos.x)
-		{
-			isMovingRight = false;
-		}
-
-		if (PlayerPos.x > m_CenterPos.x)
-		{
-			isMovingLeft = false;
-		}
+		PlayersPos += ite->GetTransform().Pos;
 	}
 
-	if (isMovingRight)
-	{
-		CameraPos = { 10.0f,m_Camera->GetPos().y ,m_Camera->GetPos().z };
-	}
-	else if(isMovingLeft)
-	{
-		CameraPos = { -10.0f,m_Camera->GetPos().y ,m_Camera->GetPos().z };
-	}
-	else if (!isMovingLeft&&!isMovingRight)
-	{
-		CameraPos = { 0.0f,m_Camera->GetPos().y ,m_Camera->GetPos().z };
-	}
+	// プレイヤーの位置を全て足したものを人数で割って平均の位置を計算
+	PlayersPos = PlayersPos / static_cast<float>(m_Players.size());
 
+	// 高さ変えない
+	PlayersPos.y = m_Camera->GetPos().y;
 
-	return CameraPos;
+	// 中心位置に設定
+	m_PlayersCenterPos = PlayersPos;
 }
