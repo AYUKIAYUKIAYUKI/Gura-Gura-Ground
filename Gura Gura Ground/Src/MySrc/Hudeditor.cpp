@@ -43,22 +43,24 @@ CHudEditor::CHudEditor()
     else 
     {
         // JSONファイルがない場合
-        float WCX = OBJ::CalcCenterOfWindow().x;
-        for (int i = 0; i < 3; ++i)
+        float windowCenterX = OBJ::CalcCenterOfWindow().x;
+        for (int hudIndex = 0; hudIndex < 3; ++hudIndex)
         {
             auto hud = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
-            auto tex = CTextureManager::RefInstance().RefRegistry().BindAtKey(DefaultKeys[i]);
+            auto tex = CTextureManager::RefInstance().RefRegistry().BindAtKey(DefaultKeys[hudIndex]);
             hud->SetTexture(tex);
-            OBJ::Transform tf = { {300.0f, 300.0f, 0.0f}, {0,0,0,0}, {WCX + i * 320.0f - 320.0f, 100.0f, 0.0f} };
+            OBJ::Transform tf = { {300.0f, 300.0f, 0.0f}, {0,0,0,0}, {windowCenterX + hudIndex * 320.0f - 320.0f, 100.0f, 0.0f} };
             DirectX::XMFLOAT4 col = { 1,1,1,1 };
             hud->SetTransform(tf);
             hud->SetTransformTarget(tf);
             hud->SetColTarget(col);
 
-            vHudUI.push_back(hud);           // HUD本体を格納
-            vTf.push_back(tf);               // 位置・サイズ情報を格納
-            vCol.push_back(col);             // 色情報を格納
-            vHudNames.push_back(DefaultKeys[i]); // テクスチャ名を格納
+            vHudUI.push_back(hud);           // HUDオブジェクト
+            vTf.push_back(tf);               // 座標・サイズ等
+            vCol.push_back(col);             // カラー
+            vHudNames.push_back(DefaultKeys[hudIndex]); // テクスチャキー
+            vVisible.push_back(true);
+            vDisplayTime.push_back(0.0f);  // 0は常時表示
         }
     }
 }
@@ -93,23 +95,23 @@ void CHudEditor::Update()
     for (auto& key : vTextureKeys) texKeyCstrs.push_back(key.c_str());
 
     // HUDごとにImGuiで編集項目を表示
-    for (int i = 0; i < vHudUI.size(); ++i)
+    for (int hudIndex = 0; hudIndex < vHudUI.size(); ++hudIndex)
     {
-        ImGui::PushID(i);
+        ImGui::PushID(hudIndex);
         ImGui::Separator();
-        ImGui::Text("HUD #%d : %s", i + 1, vHudNames[i].c_str());
+        ImGui::Text("HUD #%d : %s", hudIndex + 1, vHudNames[hudIndex].c_str());
         // レイヤーを1つ上に移動
-        if (i > 0 && ImGui::Button("Layer UP"))
+        if (hudIndex > 0 && ImGui::Button("Layer UP"))
         {
-            MoveHudUp(i);
+            MoveHudUp(hudIndex);
             ImGui::PopID();
             break;
         }
         ImGui::SameLine();
         // レイヤーを1つ下に移動
-        if (i < vHudUI.size() - 1 && ImGui::Button("Layer DOWN"))
+        if (hudIndex < vHudUI.size() - 1 && ImGui::Button("Layer DOWN"))
         {
-            MoveHudDown(i);
+            MoveHudDown(hudIndex);
             ImGui::PopID();
             break;
         }
@@ -117,35 +119,43 @@ void CHudEditor::Update()
         // テクスチャ選択コンボ
         int curTexIdx = 0;
         for (int t = 0; t < (int)vTextureKeys.size(); ++t)
-            if (vTextureKeys[t] == vHudNames[i]) curTexIdx = t;
+            if (vTextureKeys[t] == vHudNames[hudIndex]) curTexIdx = t;
         if (ImGui::Combo("Texture", &curTexIdx, texKeyCstrs.data(), (int)texKeyCstrs.size()))
         {
-            vHudNames[i] = vTextureKeys[curTexIdx];
-            if (vHudUI[i])
+            vHudNames[hudIndex] = vTextureKeys[curTexIdx];
+            if (vHudUI[hudIndex])
             {
-                auto tex = CTextureManager::RefInstance().RefRegistry().BindAtKey(vHudNames[i].c_str());
-                vHudUI[i]->SetTexture(tex);
+                auto tex = CTextureManager::RefInstance().RefRegistry().BindAtKey(vHudNames[hudIndex].c_str());
+                vHudUI[hudIndex]->SetTexture(tex);
             }
         }
 
         // 位置とサイズを調整
-        ImGui::DragFloat2("Pos", &vTf[i].Pos.x, 1.0f);
-        ImGui::DragFloat2("Size", &vTf[i].Size.x, 1.0f);
+        ImGui::DragFloat2("Pos", &vTf[hudIndex].Pos.x, 1.0f);
+        ImGui::DragFloat2("Size", &vTf[hudIndex].Size.x, 1.0f);
         //向きを編集
-        ImGui::DragFloat("Rot", &vTf[i].Rot.z, 1.0f);
+        ImGui::DragFloat("Rot", &vTf[hudIndex].Rot.z, 1.0f);
         // 色を編集
-        ImGui::ColorEdit4("Color", &vCol[i].x);
+        ImGui::ColorEdit4("Color", &vCol[hudIndex].x);
 
-        if (vHudUI[i])
+        if (vHudUI[hudIndex])
         {
-            vHudUI[i]->SetTransformTarget(vTf[i]);
-            vHudUI[i]->SetColTarget(vCol[i]);
+            vHudUI[hudIndex]->SetTransformTarget(vTf[hudIndex]);
+            vHudUI[hudIndex]->SetColTarget(vCol[hudIndex]);
         }
+
+        bool Visibletmp = (vVisible[hudIndex] != 0);
+        if (ImGui::Checkbox("Visible", &Visibletmp))
+        {
+            vVisible[hudIndex] = Visibletmp ? 1 : 0;
+        }
+
+        ImGui::DragFloat("Display Time", &vDisplayTime[hudIndex], 0.1f, 0.0f, 9999.0f);
 
         // HUD削除ボタン
         if (ImGui::Button("Delete"))
         {
-            RemoveHud(i);
+            RemoveHud(hudIndex);
             ImGui::PopID();
             break;
         }
@@ -154,15 +164,17 @@ void CHudEditor::Update()
     // HUDの追加ボタン
     if (ImGui::Button("Add New HUD"))
     {
-        int idx = vHudUI.size() % 3;
-        AddHud(DefaultKeys[idx]);
+        int defaultKeyIndex = vHudUI.size() % 3;
+        AddHud(DefaultKeys[defaultKeyIndex]);
     }
+
     // 現在の設定をJSONに保存
     if (ImGui::Button("Save Param"))
     {
         SaveToFile("Data\\JSON\\HudSettings.json");
     }
     ImGui::End();
+
 #endif
 }
 
@@ -188,9 +200,11 @@ void CHudEditor::AddHud(const std::string& textureKey)
     vTf.push_back(tf);
     vCol.push_back(col);
     vHudNames.push_back(textureKey);
+    vVisible.push_back(true);
+    vDisplayTime.push_back(0.0f);  // 0は常時表示
 
     // レイヤー情報更新
-    UpdateHudLayers();
+    ReFlashHudObjects();
 }
 
 //============================================================================
@@ -204,7 +218,7 @@ void CHudEditor::RemoveHud(int idx)
     vTf.erase(vTf.begin() + idx);
     vCol.erase(vCol.begin() + idx);
     vHudNames.erase(vHudNames.begin() + idx);
-    UpdateHudLayers();
+    ReFlashHudObjects();
 }
 
 //============================================================================
@@ -218,7 +232,7 @@ void CHudEditor::MoveHudUp(int idx)
         std::swap(vTf[idx], vTf[idx - 1]);
         std::swap(vCol[idx], vCol[idx - 1]);
         std::swap(vHudNames[idx], vHudNames[idx - 1]);
-        UpdateHudLayers();
+        ReFlashHudObjects();
     }
 }
 
@@ -233,17 +247,8 @@ void CHudEditor::MoveHudDown(int idx)
         std::swap(vTf[idx], vTf[idx + 1]);
         std::swap(vCol[idx], vCol[idx + 1]);
         std::swap(vHudNames[idx], vHudNames[idx + 1]);
-        UpdateHudLayers();
+        ReFlashHudObjects();
     }
-}
-
-//============================================================================
-// 描画順更新
-//============================================================================
-void CHudEditor::UpdateHudLayers() 
-{
-    for (int i = 0; i < vHudUI.size(); ++i)
-        if (vHudUI[i]) vHudUI[i]->SetLayer(static_cast<OBJ::LAYER>(i));
 }
 
 //============================================================================
@@ -251,22 +256,25 @@ void CHudEditor::UpdateHudLayers()
 //============================================================================
 void CHudEditor::SaveToFile(const std::string& path) 
 {
-    nlohmann::json j;
+    nlohmann::json savejson;
+
     // 現在登録済みHUDの全情報をJSON配列化
-    for (size_t i = 0; i < vHudUI.size(); ++i) 
+    for (size_t hudIndex = 0; hudIndex < vHudUI.size(); ++hudIndex)
     {
         nlohmann::json item;
-        item["texture_name"] = vHudNames[i];
-        item["pos"] = { vTf[i].Pos.x, vTf[i].Pos.y, vTf[i].Pos.z };
-        item["size"] = { vTf[i].Size.x, vTf[i].Size.y, vTf[i].Size.z };
-        item["rot"] = { vTf[i].Rot.x, vTf[i].Rot.y, vTf[i].Rot.z, vTf[i].Rot.w };
-        item["color"] = { vCol[i].x, vCol[i].y, vCol[i].z, vCol[i].w };
-        item["layer_index"] = i;
-        j.push_back(item);
+        item["texture_name"] = vHudNames[hudIndex];
+        item["pos"] = { vTf[hudIndex].Pos.x, vTf[hudIndex].Pos.y, vTf[hudIndex].Pos.z };
+        item["size"] = { vTf[hudIndex].Size.x, vTf[hudIndex].Size.y, vTf[hudIndex].Size.z };
+        item["rot"] = { vTf[hudIndex].Rot.x, vTf[hudIndex].Rot.y, vTf[hudIndex].Rot.z, vTf[hudIndex].Rot.w };
+        item["color"] = { vCol[hudIndex].x, vCol[hudIndex].y, vCol[hudIndex].z, vCol[hudIndex].w };
+        item["visible"] = vVisible[hudIndex];
+        item["display_time"] = vDisplayTime[hudIndex];
+        item["layer_index"] = hudIndex;
+        savejson.push_back(item);
     }
     // ファイルへ書き込み
     std::ofstream out(path);
-    out << j.dump(4);
+    out << savejson.dump(4);
 }
 
 //============================================================================
@@ -277,8 +285,8 @@ void CHudEditor::LoadFromFile(const std::string& path)
     std::ifstream in(path);
     if (!in) return;
 
-    nlohmann::json j;
-    in >> j;
+    nlohmann::json loadjson;
+    in >> loadjson;
 
     // 一時的にHUD情報を格納する構造体
     struct HudInfo
@@ -287,11 +295,13 @@ void CHudEditor::LoadFromFile(const std::string& path)
         std::string texName;
         OBJ::Transform tf;
         DirectX::XMFLOAT4 col;
+        bool visible;
+        float displayTime;
     };
 
     std::vector<HudInfo> infos;
     // JSONの各項目を解析してHUD情報を取得
-    for (const auto& item : j)
+    for (const auto& item : loadjson)
     {
         HudInfo info;
         info.texName = item["texture_name"].get<std::string>();
@@ -299,6 +309,8 @@ void CHudEditor::LoadFromFile(const std::string& path)
         info.tf.Size = { item["size"][0], item["size"][1], item["size"][2] };
         info.tf.Rot = { item["rot"][0], item["rot"][1], item["rot"][2], item["rot"][3] };
         info.col = { item["color"][0], item["color"][1], item["color"][2], item["color"][3] };
+        info.visible = item.value("visible", true);
+        info.displayTime = item.value("display_time", 0.0f);
         info.layer_index = item.value("layer_index", infos.size());
         infos.push_back(info);
     }
@@ -322,5 +334,37 @@ void CHudEditor::LoadFromFile(const std::string& path)
         vTf.push_back(info.tf);
         vCol.push_back(info.col);
         vHudNames.push_back(info.texName);
+        vVisible.push_back(info.visible);
+        vDisplayTime.push_back(info.displayTime);
     }
+}
+
+//============================================================================
+// HUDパラメーター読み込み
+//============================================================================
+void CHudEditor::ReFlashHudObjects()
+{
+    // 既存のHUDオブジェクトを全て削除
+    for (auto* hud : vHudUI)
+        if (hud) hud->SetDeath();
+
+    // 再生成用の新配列
+    std::vector<CHud*> newList;
+
+    for (int hudIndex = 0; hudIndex < vHudNames.size(); ++hudIndex)
+    {
+        auto hud = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+
+        auto tex = CTextureManager::RefInstance()
+            .RefRegistry().BindAtKey(vHudNames[hudIndex].c_str());
+        hud->SetTexture(tex);
+
+        hud->SetTransform(vTf[hudIndex]);
+        hud->SetTransformTarget(vTf[hudIndex]);
+        hud->SetColTarget(vCol[hudIndex]);
+
+        newList.push_back(hud);
+    }
+
+    vHudUI = newList;
 }
