@@ -62,6 +62,7 @@ CHudEditor::CHudEditor()
             vHudNames.push_back(DefaultKeys[hudIndex]); // テクスチャキー
             vVisible.push_back(true);
             vDisplayTime.push_back(0.0f);  // 0は常時表示
+            vDisplayDelay.push_back(0.0f); // 表示遅延
         }
     }
 }
@@ -87,27 +88,53 @@ void CHudEditor::Update()
 
         for (size_t i = 0; i < vHudUI.size(); ++i)
         {
+            double elapsed = currentTime - vShowStartTime[i];
+
             // 表示開始時間を未設定なら初期化
             if (vShowStartTime.size() <= i) vShowStartTime.resize(vHudUI.size(), currentTime);
             if (vShowStartTime[i] == 0.0) vShowStartTime[i] = currentTime;
 
-            // 表示時間を超えていれば消滅
+            // 表示時間を超えていれば消滅させる
             if (vDisplayTime[i] > 0.0f &&
                 currentTime - vShowStartTime[i] >= vDisplayTime[i])
             {
                 if (vHudUI[i])
                 {
-                    vHudUI[i]->SetDeath(); // HUD消滅
-                    vHudUI[i] = nullptr;   // ポインタ削除(またはRemoveHud(i)しても良い)
+                    vCol[i].w = 0.0f;
+                    vVisible[i] = false;
+                    vHudUI[i]->SetColTarget(vCol[i]);
                 }
                 continue;
             }
 
+            if (elapsed < vDisplayDelay[i]) 
+            {
+                // 描画遅延中はHUDを非表示にする
+                if (vHudUI[i]) 
+                {
+                    vCol[i].w = 0.0f;
+                    vVisible[i] = false;
+                    vHudUI[i]->SetColTarget(vCol[i]);
+                }
+                continue;
+            }
+            else 
+            {
+                // 遅延終了後は表示（アルファ値1）
+                if (vHudUI[i]) 
+                {
+                    vCol[i].w = 1.0f; // 表示
+                    vVisible[i] = true;
+                    vHudUI[i]->SetColTarget(vCol[i]);
+                }
+            }
+
+
             // vVisibleがfalseなら非表示
             if (!vVisible[i] && vHudUI[i])
             {
-                vHudUI[i]->SetDeath(); // HUD一時的に消滅
-                vHudUI[i] = nullptr;   // あるいは非表示状態にするメソッドがあればそれを使う
+                vCol[i].w = 0.0f;
+                vHudUI[i]->SetColTarget(vCol[i]);
             }
         }
         // nullptrのHUDを削除
@@ -171,16 +198,28 @@ void CHudEditor::Update()
         {
             double currentTime = ImGui::GetTime();
             double timer = 0.0;
-            if (vDisplayTime[hudIndex] > 0.0f)
+            double startTime = (vShowStartTime.size() > hudIndex) ? vShowStartTime[hudIndex] : currentTime;
+            double elapsed = currentTime - startTime;
+
+            if (elapsed < vDisplayDelay[hudIndex])
             {
-                double startTime = (vShowStartTime.size() > hudIndex) ? vShowStartTime[hudIndex] : currentTime;
-                timer = vDisplayTime[hudIndex] - (currentTime - startTime);
-                if (timer < 0.0) timer = 0.0;
-                ImGui::TextColored(ImVec4(1, 0.5f, 0.1f, 1), "Time left: %.2f sec", timer);
+                double delayLeft = vDisplayDelay[hudIndex] - elapsed;
+                if (delayLeft < 0.0) delayLeft = 0.0;
+                ImGui::TextColored(ImVec4(0.7f, 0.7f, 1.0f, 1.0f), "Display start left : %.2f sec", delayLeft);
             }
             else
             {
-                ImGui::TextColored(ImVec4(0.4f, 0.9f, 0.2f, 1), "Always visible");
+                if (vDisplayTime[hudIndex] > 0.0f)
+                {
+                    double startTime = (vShowStartTime.size() > hudIndex) ? vShowStartTime[hudIndex] : currentTime;
+                    timer = vDisplayTime[hudIndex] - (currentTime - startTime);
+                    if (timer < 0.0) timer = 0.0;
+                    ImGui::TextColored(ImVec4(1, 0.5f, 0.1f, 1), "Display end left: %.2f sec", timer);
+                }
+                else
+                {
+                    ImGui::TextColored(ImVec4(0.4f, 0.9f, 0.2f, 1), "Always visible");
+                }
             }
         }
 
@@ -238,6 +277,7 @@ void CHudEditor::Update()
             }
 
             ImGui::DragFloat("Display Time", &vDisplayTime[hudIndex], 0.1f, 0.0f, 10000.0f);
+            ImGui::DragFloat("Display Delay", &vDisplayDelay[hudIndex], 0.1f, 0.0f, 10000.0f);
 
             // HUD削除ボタン
             if (ImGui::Button("Delete"))
@@ -290,7 +330,8 @@ void CHudEditor::AddHud(const std::string& textureKey)
     vCol.push_back(col);
     vHudNames.push_back(textureKey);
     vVisible.push_back(true);
-    vDisplayTime.push_back(0.0f);  // 0は常時表示
+    vDisplayTime.push_back(0.0f);  // 0に設定されている場合は常時表示
+    vDisplayDelay.push_back(0.0f);
 
     // レイヤー情報更新
     ReFlashHudObjects();
@@ -307,6 +348,7 @@ void CHudEditor::RemoveHud(int idx)
     vTf.erase(vTf.begin() + idx);
     vCol.erase(vCol.begin() + idx);
     vHudNames.erase(vHudNames.begin() + idx);
+    vDisplayDelay.erase(vDisplayDelay.begin() + idx);
     ReFlashHudObjects();
 }
 
@@ -358,6 +400,7 @@ void CHudEditor::SaveToFile(const std::string& path)
         item["color"] = { vCol[hudIndex].x, vCol[hudIndex].y, vCol[hudIndex].z, vCol[hudIndex].w };
         item["visible"] = vVisible[hudIndex];
         item["display_time"] = vDisplayTime[hudIndex];
+        item["display_delay"] = vDisplayDelay[hudIndex];
         item["layer_index"] = hudIndex;
         savejson.push_back(item);
     }
@@ -377,17 +420,6 @@ void CHudEditor::LoadFromFile(const std::string& path)
     nlohmann::json loadjson;
     in >> loadjson;
 
-    // 一時的にHUD情報を格納する構造体
-    struct HudInfo
-    {
-        size_t layer_index;
-        std::string texName;
-        OBJ::Transform tf;
-        DirectX::XMFLOAT4 col;
-        bool visible;
-        float displayTime;
-    };
-
     std::vector<HudInfo> infos;
     // JSONの各項目を解析してHUD情報を取得
     for (const auto& item : loadjson)
@@ -400,6 +432,7 @@ void CHudEditor::LoadFromFile(const std::string& path)
         info.col = { item["color"][0], item["color"][1], item["color"][2], item["color"][3] };
         info.visible = item.value("visible", true);
         info.displayTime = item.value("display_time", 0.0f);
+        info.displayDelay = item.value("display_delay", 0.0f);
         info.layer_index = item.value("layer_index", infos.size());
         infos.push_back(info);
     }
@@ -426,6 +459,7 @@ void CHudEditor::LoadFromFile(const std::string& path)
         vHudNames.push_back(info.texName);
         vVisible.push_back(info.visible);
         vDisplayTime.push_back(info.displayTime);
+        vDisplayDelay.push_back(info.displayDelay);
     }
 }
 
@@ -456,6 +490,9 @@ void CHudEditor::ReFlashHudObjects()
         newList.push_back(hud);
     }
 
+    if (vDisplayDelay.size() < vHudUI.size())
+        vDisplayDelay.resize(vHudUI.size(), 0.0f);
+
     vHudUI = newList;
 }
 
@@ -464,7 +501,7 @@ void CHudEditor::ReFlashHudObjects()
 //============================================================================
 void CHudEditor::SetPreviewMode(bool enabled)
 {
-    if (bPreviewMode == enabled) return; // 状態変化なしなら何もしない
+    if (bPreviewMode == enabled) return;
 
     if (enabled)
     {
