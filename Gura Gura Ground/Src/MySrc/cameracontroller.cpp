@@ -19,7 +19,7 @@
 CCameraController::CCameraController()
 	: m_Camera(nullptr)
 	, m_PlayersCenterPos({0.0f,0.0f,0.0f})
-	, m_BaseHeight(0.0f)
+	, m_BaseCameraDistance(0.0f)
 {
 	
 }
@@ -44,8 +44,8 @@ bool CCameraController::Initialize()
 	m_Camera = nullptr;
 	m_Camera = CRenderer::RefInstance().GetCamera();
 
-	// 最初の高さ
-	m_BaseHeight = m_Camera->GetPos().y;
+	// 基準の距離
+	m_BaseCameraDistance = 24.0f;
 
 	return true;
 }
@@ -95,9 +95,15 @@ void CCameraController::UnRegist(CPlayer* player)
 //============================================================================
 void CCameraController::CameraMove()
 {
+	if (m_Players.empty())
+	{
+		return;
+	}
+
 	// カメラの注視点位置設定
 	CalculatePlayersCenter();
 
+	// カメラの変更位置を設定
 	m_Camera->SetPosTarget(m_PlayersCenterPos);
 }
 
@@ -106,17 +112,43 @@ void CCameraController::CameraMove()
 //============================================================================
 void CCameraController::CalculatePlayersCenter()
 {
-	if (m_Players.empty())
-	{
-		return;
-	}
-
 	using namespace useful;
 
 	DirectX::XMFLOAT3 MinPlayersPos = { 0.0f,0.0f, 0.0f };	// 最小位置
 	DirectX::XMFLOAT3 MaxPlayersPos = { 0.0f,0.0f, 0.0f };	// 最大位置
 	DirectX::XMFLOAT3 CenterPos = { 0.0f,0.0f, 0.0f };		// 中央位置
-	DirectX::XMFLOAT3 Size = { 0.0f,0.0f, 0.0f };			// 幅の大きさ
+	DirectX::XMFLOAT3 Size = { 0.0f,0.0f, 0.0f };			// 幅
+
+	// プレイヤー全てで最小最大の位置を取得
+	GetPlayersBounds(MinPlayersPos, MaxPlayersPos);
+
+	// 中心位置を求める
+	CenterPos = (MaxPlayersPos + MinPlayersPos) / 2;
+
+	// プレイヤーの広がりを計算
+	float SpreadX = MaxPlayersPos.x - MinPlayersPos.x;
+
+	// 高さの設定
+	CenterPos.y = m_Camera->GetPos().y;
+
+	// 距離を計算
+	float Distance = (m_BaseCameraDistance + (SpreadX * 0.7f));
+
+	// 中心位置に設定
+	m_PlayersCenterPos = CenterPos;
+
+	m_Camera->SetDistanceTarget(Distance);
+}
+
+//============================================================================
+// プレイヤー全てで最小最大の位置を取得
+//============================================================================
+void CCameraController::GetPlayersBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max)
+{
+	using namespace useful;
+
+	DirectX::XMFLOAT3 MinPlayersPos = { 0.0f,0.0f, 0.0f };	// 最小位置
+	DirectX::XMFLOAT3 MaxPlayersPos = { 0.0f,0.0f, 0.0f };	// 最大位置
 
 	int Count = 0;
 
@@ -152,15 +184,7 @@ void CCameraController::CalculatePlayersCenter()
 		Count++;
 	}
 
-	// 最小最大位置の幅を求める
-	Size = MaxPlayersPos + MinPlayersPos;
-
-	// 中心位置を求める
-	CenterPos = Size / 2;
-
-	// 高さを求める
-	CenterPos.y = m_Camera->GetPos().y;
-
-	// 中心位置に設定
-	m_PlayersCenterPos = CenterPos;
+	// 位置を設定
+	min = MinPlayersPos;
+	max = MaxPlayersPos;
 }
