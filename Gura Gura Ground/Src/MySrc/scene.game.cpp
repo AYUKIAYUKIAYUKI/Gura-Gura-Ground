@@ -23,8 +23,10 @@
 #include "player.h"
 #include "API.world.h"
 
-#include "cameracontroller.h"
-//****************************************************
+/* 一次生成 */
+#include "ball.h"
+#include "bar.h
+#include "cameracontroller.h"//****************************************************
 // 仮
 //****************************************************
 namespace
@@ -43,7 +45,7 @@ namespace
 		const auto& rPlayerList = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::PLAYER);
 
 		// 一体もプレイヤーが存在しないなら
-		if (rPlayerList.size() == 1)
+		if (rPlayerList.size() < 1)
 		{
 			return true;
 		}
@@ -103,6 +105,24 @@ CSceneGame::CSceneGame()
 		// プレイヤー登録
 		CCameraController::RefInstance().Regist(Player);
 	}
+
+	// ボールの生成
+	CObject::Create<CBall>(
+		[&fUnkoSpan](CBall* p) -> bool
+		{
+			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);
+
+	// バーの生成
+	CObject::Create<CBar>(
+		[&fUnkoSpan](CBar* p) -> bool
+		{
+			p->FactoryCollider(1.5f, 15.0f, 1.5f);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);
 }
 
 //============================================================================

@@ -1,6 +1,6 @@
 //============================================================================
 // 
-// 障害物、ヘッダーファイル [obstacle.h]
+// ボール、ヘッダーファイル [ball.h]
 // Author : 福田歩希
 // 
 //============================================================================
@@ -10,20 +10,20 @@
 //****************************************************
 // インクルードファイル
 //****************************************************
-#include "API.physics.object.h"
+#include "obstacle.h"
 
 //****************************************************
-// 障害物クラスの定義
+// ボールクラスの定義
 //****************************************************
-class CObstacle : public CPhysicsObject
+class CBall : public CObstacle
 {
 public:
 
 	//****************************************************
 	// special function
 	//****************************************************
-	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer); // デフォルトコンストラクタ
-	~CObstacle() override;                       // デストラクタ
+	CBall(OBJ::TYPE Type, OBJ::LAYER Layer); // デフォルトコンストラクタ
+	~CBall() override;                       // デストラクタ
 
 	//****************************************************
 	// function
@@ -39,5 +39,23 @@ public:
 	void Draw() override;
 
 	// パラメータの編集
-	virtual void EditParam() = 0;
+	void EditParam() override { int i = 0; }
+
+	// 進行方向の設定
+	inline const DirectX::XMFLOAT3& GetDirection() const                             { return m_Direction; }
+	inline       void               SetDirection(const DirectX::XMFLOAT3& Direction) { m_Direction = Direction; }
+
+private:
+
+	//****************************************************
+	// function
+	//****************************************************
+	void Appear(); // 出現
+	void Action(); // 挙動
+	void Loop();   // 戻る
+
+	//****************************************************
+	// data
+	//****************************************************
+	DirectX::XMFLOAT3 m_Direction; // 進行方向
 };
