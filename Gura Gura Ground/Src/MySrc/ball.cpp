@@ -62,7 +62,7 @@ namespace
 // デフォルトコンストラクタ
 //============================================================================
 CBall::CBall(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CPhysicsObject(Type, Layer)
+	: CObstacle(Type, Layer)
 	, m_Direction(useful::VEC3_ZERO_INIT)
 {}
 

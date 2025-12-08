@@ -23,7 +23,7 @@ public:
 	// special function
 	//****************************************************
 	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer); // デフォルトコンストラクタ
-	~CObstacle() override = 0;                   // デストラクタ
+	~CObstacle() override;                       // デストラクタ
 
 	//****************************************************
 	// function
