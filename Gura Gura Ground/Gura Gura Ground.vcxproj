@@ -27,6 +27,8 @@
     <ClCompile Include="Src\External\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Src\External\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Src\MySrc\any.cpp" />
+    <ClCompile Include="Src\MySrc\ball.cpp" />
+    <ClCompile Include="Src\MySrc\bar.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
     <ClCompile Include="Src\MySrc\cameracontroller.cpp" />
     <ClCompile Include="Src\MySrc\dust.cpp" />
@@ -90,6 +92,8 @@
     <ClInclude Include="Src\MyAPI\API.window.h" />
     <ClInclude Include="Src\MyAPI\API.world.h" />
     <ClInclude Include="Src\MySrc\any.h" />
+    <ClInclude Include="Src\MySrc\ball.h" />
+    <ClInclude Include="Src\MySrc\bar.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
     <ClInclude Include="Src\MySrc\cameracontroller.h" />
     <ClInclude Include="Src\MySrc\dust.h" />
