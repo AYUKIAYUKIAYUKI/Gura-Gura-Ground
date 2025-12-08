@@ -29,13 +29,13 @@ public:
     void LoadFromFile(const std::string& path);
 
     // HUD追加・削除・階層変更・レイヤー同期
-    void AddHud(const std::string& textureKey); // HUDを追加
+    void AddHud();                              // HUDを追加
     void RemoveHud(int idx);                    // HUDを削除
     void MoveHudUp(int idx);                    // HUDのレイヤーを1つ上げる
     void MoveHudDown(int idx);                  // HUDのレイヤーを1つ下げる
     void ReFlashHudObjects();                   // HUDパラメーター読み込み
-    void SetPreviewMode(bool enabled);
-    bool IsPreviewMode() const { return bPreviewMode; }
+    void SetSwitchMode(bool enabled);          // モード切り替え時処理時処理
+    bool IsPreviewMode() const { return bPreviewMode; } // 選択モード識別
 
     // UIデータ群
     std::vector<CHud*> vHudUI;                  // HUDオブジェクトの配列
@@ -47,12 +47,14 @@ public:
     std::vector<float> vDisplayTime;            // 表示している時間
     std::vector<double> vShowStartTime;         // 表示開始時間
     std::vector<float> vDisplayDelay;           // 表示遅延時間
+    std::vector<std::string> vHudUserNames;     // HUD名称
 private:
     // HUD情報を格納する構造体
     struct HudInfo
     {
         size_t layer_index;
         std::string texName;
+        std::string hudName;
         OBJ::Transform tf;
         DirectX::XMFLOAT4 col;
         bool visible;
