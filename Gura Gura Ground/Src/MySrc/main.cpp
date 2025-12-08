@@ -96,6 +96,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hInstancePre
 						// オブジェクトリストの更新
 						CObjectManager::RefInstance().UpdateAllObject();
 						CObjectManager::RefInstance().LateUpdateAllObject();
+
+						// エフェクトマネージャーの更新
 						//CEffectManager::RefInstance().Update();
 					});
 
@@ -105,6 +107,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hInstancePre
 					{
 						// オブジェクトリストの描画
 						CObjectManager::RefInstance().DrawAllObject();
+
+						// エフェクトマネージャーの描画
 						//CEffectManager::RefInstance().Draw();
 					});
 			});

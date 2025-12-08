@@ -59,9 +59,6 @@ public:
 	// 描画処理
 	void Draw() override;
 
-	// コリジョン描画のカラー設定
-	void SetRenderCollisionColor(const DirectX::XMFLOAT4& Color);
-
 	// ワールドトランスフォームの操作
 	OBJ::Transform GetWorldTransform()                                 const;
 	void           GetWorldTransform(OBJ::Transform& rTransform)       const;
@@ -83,7 +80,7 @@ private:
 	//****************************************************
 	// function
 	//****************************************************
-	void Error(); // エラー処理
+	void ErrorCheck(); // エラー検出
 
 	//****************************************************
 	// data
