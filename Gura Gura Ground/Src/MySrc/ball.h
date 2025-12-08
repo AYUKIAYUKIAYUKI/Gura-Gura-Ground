@@ -38,6 +38,9 @@ public:
 	// 描画処理
 	void Draw() override;
 
+	// パラメータの編集
+	void EditParam() override { int i = 0; }
+
 	// 進行方向の設定
 	inline const DirectX::XMFLOAT3& GetDirection() const                             { return m_Direction; }
 	inline       void               SetDirection(const DirectX::XMFLOAT3& Direction) { m_Direction = Direction; }
