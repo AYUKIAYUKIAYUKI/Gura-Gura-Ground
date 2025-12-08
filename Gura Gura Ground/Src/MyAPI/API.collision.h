@@ -174,6 +174,47 @@ namespace Collision
 		return nullptr;
 	}
 
+	static CRigidBody* GetHitRigidBody(CGhost* pGhost, CRigidBody* pNone)
+	{
+		// オブジェクトのリストを取得
+		const auto& rObjList = CObjectManager::RefInstance().RefObjList();
+
+		for (const auto& rTypeList : rObjList)
+		{
+			for (const auto& rIt : rTypeList)
+			{
+				CPhysicsObject* pPhysicsObject = dynamic_cast<CPhysicsObject*>(rIt);
+
+				// 物理オブジェクトにキャスト可能
+				if (pPhysicsObject)
+				{
+					CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(pPhysicsObject->GetCollider());
+
+					if (pRigidBody == pNone)
+					{
+						continue;
+					}
+
+					// リジッドボディにキャスト可能なら
+					if (pRigidBody)
+					{
+						// 衝突判定
+						Collision::MyContactCallbackGhostAndRigidBody CallBack(pGhost, pRigidBody);
+						CWorld::RefInstance().RefDynamicsWorldConst()->contactPairTest(pGhost->GetGhost(), pRigidBody->GetRigidBody(), CallBack);
+
+						// 衝突が確認出来たら
+						if (CallBack.m_bHit)
+						{
+							return pRigidBody;
+						}
+					}
+				}
+			}
+		}
+
+		return nullptr;
+	}
+
 	// バンパー反応
 	static void BumperPush(CGhost*& rpGhost, CRigidBody*& rpRigidBody, float fPower)
 	{
@@ -192,16 +233,18 @@ namespace Collision
 			const btVector3 Direction =
 			{
 				rRigidBodyPosition.x - rGhostPosition.x,
-				rRigidBodyPosition.y - rGhostPosition.y,
+				//rRigidBodyPosition.y - rGhostPosition.y,
+				1.0f,
 				rRigidBodyPosition.z - rGhostPosition.z
 			};
 
-			// ノーマライズして方向の単位ベクトルに変更
+			// ノーマライズして方向ベクトルに変更
 			Direction.normalized();
 
 			// 対象を最終的な方向へ跳ね飛ばす
 			rpRigidBody->SetActive();
 			rpRigidBody->SetImpulse(Direction * fPower);
+			//rpRigidBody->SetLinearVelocity(Direction * fPower);
 		}
 	}
 }

@@ -427,6 +427,15 @@ namespace useful
 		return Arg1;
 	}
 
+	//// XMFLOAT3とbtVector3のための '<<' 演算子のオーバーロード
+	//inline DirectX::XMFLOAT3 operator<<(DirectX::XMFLOAT3& Arg1, const btVector3& Arg2)
+	//{
+	//	Arg1.x = Arg2.getX();
+	//	Arg1.y = Arg2.getY();
+	//	Arg1.z = Arg2.getZ();
+	//	return Arg1;
+	//}
+
 #endif // NONUSE_DX11
 
 	//****************************************************

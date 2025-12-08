@@ -20,12 +20,11 @@
 // 前方宣言
 //****************************************************
 struct GltfMesh;
-class  CCollider;
 
 //****************************************************
 // glTFモデルクラスの定義
 //****************************************************
-class CGltf : public CObject
+class CGltf
 {
 	//****************************************************
 	// 前方宣言
@@ -39,23 +38,20 @@ public:
 	//****************************************************
 
 	// デフォルトコンストラクタ
-	CGltf(OBJ::TYPE Type, OBJ::LAYER Layer);
+	CGltf();
 
 	// デストラクタ
-	~CGltf() override;
+	~CGltf();
 
 	//****************************************************
 	// function
 	//****************************************************
 
-	// ファクトリ
-	virtual void Factory(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
-
 	// 更新処理
-	void Update() override;
+	void Update(const OBJ::Transform& TF);
 
 	// 描画処理
-	void Draw() override;
+	void Draw();
 
 	// モデルのバインド
 	void SetModel(const GltfMesh& rData);
@@ -71,14 +67,6 @@ public:
 
 	// 定数バッファのバインド
 	void SetConstantBuffer(const ComPtr<ID3D11Buffer>& rcpCB);
-
-	// トランスフォームの操作用
-	const OBJ::Transform& GetTransform() const;
-	      void            SetTransform(const OBJ::Transform& TF);
-
-	// コライダーのユニークポインタの参照
-		  std::unique_ptr<CCollider>& UptrRefCollider();
-	const std::unique_ptr<CCollider>& UptrRefColliderConst() const;
 
 private:
 
