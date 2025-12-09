@@ -8,6 +8,30 @@
 
 #include "API.renderer.h"
 
+namespace {
+    static int SelectNum = 0;
+    std::vector<std::string> TagName;
+    void EditUI()
+    {
+#ifdef _DEBUG
+        ImGui::SetNextWindowPos(ImVec2(1000, 0));
+        ImGui::SetNextWindowSize(ImVec2(300, 400));
+        ImGui::Begin("Effect Edit");
+
+        if(ImGui::Button("Instance"))CEffectManager::RefInstance();
+        if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_LIGHTNING, {20.0f,0.0f,0.0f});
+        ImGui::SameLine();
+        if (ImGui::Button("Water"))CEffect::Create(L"Data\\EFFECT\\Effect\\Simple_Turbulence_Fireworks.efkefc", { -20.0f,0.0f,0.0f },nullptr,1.0f);
+
+        ImGui::Button("<");
+        ImGui::SameLine();
+        ImGui::Button(">");
+
+        ImGui::End();
+#endif // _DEBUG
+    }
+}
+
 CEffect::~CEffect()
 {
 }
@@ -65,18 +89,50 @@ void CEffect::Draw()
 //==========================================================================================
 CEffect* CEffect::Create(const std::wstring& filename, useful::Vec3 pos,int* handle,float sizevalue)
 {
-    CEffect* pEffect = new CEffect();
+    CEffect* pEffect = DBG_NEW CEffect();
     Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
     std::ifstream file(filename.c_str(), std::ios::binary);
     if (!file.good())throw std::runtime_error("Effect file not found!!!");
     pEffect->m_effects = Effekseer::Effect::Create(m_manager, (char16_t*)(filename.c_str()), sizevalue);
+    if(pEffect->m_effects == nullptr)throw std::runtime_error("Effect is nullptr!!!!!!");
+    pEffect->m_pos = pos;
+    pEffect->Init();
+    if (handle != nullptr)handle = &pEffect->m_handle;
+    return pEffect;
+}
+//==========================================================================================
+//生成処理
+//==========================================================================================
+CEffect* CEffect::Create(CEffectManager::EFFECT_TAG tag, useful::Vec3 pos, int* handle, float sizevalue)
+{
+    CEffect* pEffect = DBG_NEW CEffect();
+    Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
+
+    std::string filename = CEffectManager::RefInstance().GetFilename(tag);
+    std::ifstream file(filename.c_str(), std::ios::binary);
+    if (!file.good())throw std::runtime_error("Effect file not found!!!");
+    // UTF-8 → UTF-16 の長さ取得
+    int len = MultiByteToWideChar(CP_UTF8, 0, filename.c_str(), -1, nullptr, 0);
+
+    // 変換先の UTF-16 バッファ（wstring）
+    std::wstring wstr(len, u'\0');
+
+    // stringからwstringに変換の変換
+    MultiByteToWideChar(
+        CP_UTF8, 0,
+        filename.c_str(), -1,
+        &wstr[0], len
+    );
+
+    pEffect->m_effects = Effekseer::Effect::Create(m_manager, (char16_t*)(wstr.c_str()), sizevalue);
+
+    if (pEffect->m_effects == nullptr)throw std::runtime_error("Effect is nullptr!!!!!!");
 
     pEffect->m_pos = pos;
     pEffect->Init();
     if (handle != nullptr)handle = &pEffect->m_handle;
     return pEffect;
 }
-
 CEffectManager::CEffectManager() 
 {
 
@@ -95,7 +151,6 @@ CEffectManager::~CEffectManager()
 //==========================================================================================
 bool CEffectManager::Initialize()
 {
-    
     ID3D11Device* pDevice = CRenderer::RefInstance().GetDevice();
     ID3D11DeviceContext* pContext = CRenderer::RefInstance().GetContext();
     // Effekseerレンダラー作成
@@ -120,6 +175,8 @@ bool CEffectManager::Initialize()
     // 状態復帰フラグ（DirectXの状態を戻す）
     m_renderer->SetRestorationOfStatesFlag(true);
 
+    LoadFile();
+
     return true;
 }
 
@@ -140,12 +197,15 @@ void CEffectManager::Finalize()
 //==========================================================================================
 void CEffectManager::Update()
 {
-    m_manager->Update();    //エフェクシアのマネージャーを更新
+    m_EffectName;
+    EditUI();
+    m_manager->Update();    //エフェクシアのマネージャーを更新.
     //一括で更新
     for (auto& i : m_effectsList) {
         i->Update();
     }
     EraseEffect();
+
 }
 
 //==========================================================================================
@@ -195,6 +255,32 @@ CEffect* CEffectManager::GetEffect(int handle)
     return nullptr;
 }
 
+bool CEffectManager::LoadFile()
+{
+    std::ifstream ifs(LoadFilename);    //ファイルの読み込み
+    if (!ifs) {
+        throw std::runtime_error("Cannot Found JsonFile "); 
+        return false;
+    }
+    nlohmann::ordered_json jsonFile;
+   
+    ifs >> jsonFile;
+
+    for (auto& obj : jsonFile["EffectList"])
+    {
+        for (auto& e : obj.items())
+        {
+            std::string keyname = e.key();
+            TagName.push_back(keyname);
+            std::string valuename = e.value().get<std::string>();
+            m_EffectName.push_back(valuename);
+        }
+    }
+
+    return true;
+}
+
+
 //==========================================================================================
 //カメラのマトリックスを設定
 //==========================================================================================
@@ -209,13 +295,13 @@ void CEffectManager::SetCameraMtx()
     DirectX::XMStoreFloat4x4(&StoredViewMtx, CamViewMtx);       //ビュー行列をFloat4X4型に変換
 
 
-    memcpy(viewmtx.Values, &StoredViewMtx, sizeof(float) * 16); //
+    memcpy(viewmtx.Values, &StoredViewMtx, sizeof(float) * 16); //エフェクシア側の型にコピー
 
     Effekseer::Matrix44 prtjmtx;
     DirectX::XMFLOAT4X4 StoredProjMtx;
-    DirectX::XMStoreFloat4x4(&StoredProjMtx, CamProjMtx);
+    DirectX::XMStoreFloat4x4(&StoredProjMtx, CamProjMtx);       //投影行列をFloat4X4型に変換
 
-    memcpy(prtjmtx.Values, &StoredProjMtx, sizeof(float) * 16);
+    memcpy(prtjmtx.Values, &StoredProjMtx, sizeof(float) * 16); //エフェクシア側の型にコピー
 
     EffekseerRendererDX11::RendererRef renderer = CEffectManager::RefInstance().GetRenderer();
 
