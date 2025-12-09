@@ -26,7 +26,7 @@
 /* 一次生成 */
 #include "ball.h"
 #include "bar.h"
-
+#include "cameracontroller.h"
 //****************************************************
 // 仮
 //****************************************************
@@ -62,6 +62,9 @@ CSceneGame::CSceneGame()
 {
 	CCollider::SwitchRenderCollision();
 
+	// 初期設定
+	CCameraController::RefInstance().Initialize();
+
 	// 地面を生成
 	float fSpanField = 15.0f;
 	CObject::Create<CField>(
@@ -90,7 +93,7 @@ CSceneGame::CSceneGame()
 		if (i % 2 == 0) g_BoxTF.Pos.z *= -1.0f;
 		if (i % 2 == 1) g_BoxTF.Pos.x *= -1.0f;
 
-		CObject::Create<CPlayer>(
+		auto* Player = CObject::Create<CPlayer>(
 			[&i](CPlayer* p) -> bool
 			{
 				p->SetIdxPlayer(i);
@@ -99,6 +102,9 @@ CSceneGame::CSceneGame()
 				return true;
 			},
 			OBJ::TYPE::PLAYER);
+
+		// プレイヤー登録
+		CCameraController::RefInstance().Regist(Player);
 	}
 
 	// ボールの生成
@@ -131,6 +137,9 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
+	// カメラコントローラー更新
+	CCameraController::RefInstance().Update();
+
 	// ゲームセットしたらシーン遷移
 	if (GameSet())
 	{

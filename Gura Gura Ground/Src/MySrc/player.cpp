@@ -22,6 +22,7 @@
 // 塵発生用
 #include "dust.h"
 
+#include "cameracontroller.h"
 //****************************************************
 // 無名名前空間の定義
 //****************************************************
@@ -509,6 +510,7 @@ void CPlayer::Update()
 	   // 自身の死亡フラグを立てる
 		SetDeath();
 		CDust::GenerateSpread(Pos, 20);
+		CCameraController::RefInstance().UnRegist(this);
 	}
 }
 

@@ -60,11 +60,14 @@ private:
 	//****************************************************
 	// function
 	//****************************************************
-	void CameraMove();	// デバッグカメラ移動
-
+	void CameraMove();					// デバッグカメラ移動
+	void CalculatePlayersCenter();		// プレイヤーの中心位置を計算
+	void GetPlayersBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max);
 	//****************************************************
 	// data
 	//****************************************************
-	CCamera* m_Camera;				// カメラの情報
-	std::list<CPlayer*> m_Players;	// プレイヤーを格納
+	CCamera* m_Camera;						// カメラの情報
+	std::list<CPlayer*> m_Players;			// プレイヤーを格納
+	DirectX::XMFLOAT3 m_PlayersCenterPos;	// プレイヤーたちの中心位置
+	float m_BaseCameraDistance;				// カメラの最初の距離
 };
