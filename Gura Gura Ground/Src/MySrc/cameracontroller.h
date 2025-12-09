@@ -69,5 +69,6 @@ private:
 	CCamera* m_Camera;						// カメラの情報
 	std::list<CPlayer*> m_Players;			// プレイヤーを格納
 	DirectX::XMFLOAT3 m_PlayersCenterPos;	// プレイヤーたちの中心位置
-	float m_BaseCameraDistance;				// カメラの最初の距離
+	float m_BaseCameraDistance;				// カメラ基本の距離
+	float m_MaxCameraDistance;				// カメラの最大の距離
 };

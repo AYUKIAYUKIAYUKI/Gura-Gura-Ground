@@ -45,7 +45,10 @@ bool CCameraController::Initialize()
 	m_Camera = CRenderer::RefInstance().GetCamera();
 
 	// 基準の距離
-	m_BaseCameraDistance = 24.0f;
+	m_BaseCameraDistance = 30.0f;
+
+	//最大の距離
+	m_MaxCameraDistance = m_Camera->GetDistance();
 
 	return true;
 }
@@ -123,7 +126,7 @@ void CCameraController::CalculatePlayersCenter()
 	GetPlayersBounds(MinPlayersPos, MaxPlayersPos);
 
 	// 中心位置を求める
-	CenterPos = (MaxPlayersPos + MinPlayersPos) / 2;
+	CenterPos = (MaxPlayersPos + MinPlayersPos) * 0.5f;
 
 	// プレイヤーの広がりを計算
 	float SpreadX = MaxPlayersPos.x - MinPlayersPos.x;
@@ -131,13 +134,20 @@ void CCameraController::CalculatePlayersCenter()
 	// 高さの設定
 	CenterPos.y = m_Camera->GetPos().y;
 
-	// 距離を計算
-	//float Distance = (m_BaseCameraDistance + (SpreadX * 0.7f));
-
 	// 中心位置に設定
 	m_PlayersCenterPos = CenterPos;
 
-	//m_Camera->SetDistanceTarget(Distance);
+	// 距離を計算
+	float Distance = (m_BaseCameraDistance + (SpreadX * 0.7f));
+
+	// 遠すぎ
+	if (Distance > m_MaxCameraDistance)
+	{
+		Distance = m_MaxCameraDistance;
+	}
+
+	// 距離設定
+	m_Camera->SetDistanceTarget(Distance);
 }
 
 //============================================================================

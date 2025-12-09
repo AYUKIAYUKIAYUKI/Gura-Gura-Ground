@@ -107,23 +107,23 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(Player);
 	}
 
-	// ボールの生成
-	CObject::Create<CBall>(
-		[&fUnkoSpan](CBall* p) -> bool
-		{
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
+	//// ボールの生成
+	//CObject::Create<CBall>(
+	//	[&fUnkoSpan](CBall* p) -> bool
+	//	{
+	//		p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+	//		return true;
+	//	},
+	//	OBJ::TYPE::OBSTACLE);
 
-	// バーの生成
-	CObject::Create<CBar>(
-		[&fUnkoSpan](CBar* p) -> bool
-		{
-			p->FactoryCollider(1.5f, 15.0f, 1.5f);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
+	//// バーの生成
+	//CObject::Create<CBar>(
+	//	[&fUnkoSpan](CBar* p) -> bool
+	//	{
+	//		p->FactoryCollider(1.5f, 15.0f, 1.5f);
+	//		return true;
+	//	},
+	//	OBJ::TYPE::OBSTACLE);
 }
 
 //============================================================================
