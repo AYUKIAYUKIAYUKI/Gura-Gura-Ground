@@ -11,11 +11,7 @@
 // インクルードファイル
 //****************************************************
 #include "API.object.h"
-
-//****************************************************
-// 前方宣言
-//****************************************************
-class  CCollider;
+#include "API.collider.h"
 
 //****************************************************
 // 物理オブジェクトクラスの定義
@@ -45,6 +41,9 @@ public:
 
 	// コライダーの生成
 	virtual void FactoryCollider(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
+	virtual void FactoryCollider(const DirectX::XMFLOAT3& rSize);
+	virtual void FactoryCollider(Collision::SHAPETYPE Type, float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
+	virtual void FactoryCollider(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3& rSize);
 
 	// 更新処理
 	void Update() override;
