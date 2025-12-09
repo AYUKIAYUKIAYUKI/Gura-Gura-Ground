@@ -132,12 +132,12 @@ void CCameraController::CalculatePlayersCenter()
 	CenterPos.y = m_Camera->GetPos().y;
 
 	// ‹——£‚ðŒvŽZ
-	float Distance = (m_BaseCameraDistance + (SpreadX * 0.7f));
+	//float Distance = (m_BaseCameraDistance + (SpreadX * 0.7f));
 
 	// ’†SˆÊ’u‚ÉÝ’è
 	m_PlayersCenterPos = CenterPos;
 
-	m_Camera->SetDistanceTarget(Distance);
+	//m_Camera->SetDistanceTarget(Distance);
 }
 
 //============================================================================
