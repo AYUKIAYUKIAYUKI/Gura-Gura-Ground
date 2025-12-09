@@ -239,7 +239,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)Lib\_Debug\DirectXTK.lib;$(SolutionDir)Lib\_Debug\BulletCollision_Debug.lib;$(SolutionDir)Lib\_Debug\BulletDynamics_Debug.lib;$(SolutionDir)Lib\_Debug\DirectXTex.lib;$(SolutionDir)Lib\_Debug\LinearMath_Debug.lib;$(SolutionDir)Lib\_Debug\lua54.lib;$(SolutionDir)Lib\_Debug\3E8ED147825_Debug.lib;$(SolutionDir)Lib\_Debug\Effekseer.lib;$(SolutionDir)Lib\_Debug\EffekseerRendererDX11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Lib\_Debug\BulletCollision_Debug.lib;$(SolutionDir)Lib\_Debug\BulletDynamics_Debug.lib;$(SolutionDir)Lib\_Debug\DirectXTex.lib;$(SolutionDir)Lib\_Debug\DirectXTK.lib;$(SolutionDir)Lib\_Debug\LinearMath_Debug.lib;$(SolutionDir)Lib\_Debug\lua54.lib;$(SolutionDir)Lib\_Debug\3E8ED147825_Debug.lib;$(SolutionDir)Lib\_Debug\Effekseer.lib;$(SolutionDir)Lib\_Debug\EffekseerRendererDX11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -263,7 +263,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)Lib\_Release\BulletCollision.lib;$(SolutionDir)Lib\_Release\BulletDynamics.lib;$(SolutionDir)Lib\_Release\DirectXTex.lib;$(SolutionDir)Lib\_Release\DirectXTK.lib;$(SolutionDir)Lib\_Release\LinearMath.lib;$(SolutionDir)Lib\_Release\3E8ED147825_Release.lib;$(SolutionDir)Lib\_Release\Effekseer.lib;$(SolutionDir)Lib\_Release\EffekseerRendererDX11\lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Lib\_Release\BulletCollision.lib;$(SolutionDir)Lib\_Release\BulletDynamics.lib;$(SolutionDir)Lib\_Release\DirectXTex.lib;$(SolutionDir)Lib\_Release\DirectXTK.lib;$(SolutionDir)Lib\_Release\LinearMath.lib;$(SolutionDir)Lib\_Release\3E8ED147825_Release.lib;$(SolutionDir)Lib\_Release\Effekseer.lib;$(SolutionDir)Lib\_Release\EffekseerRendererDX11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
