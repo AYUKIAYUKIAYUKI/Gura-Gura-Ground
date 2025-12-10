@@ -117,7 +117,16 @@ void CBar::Update()
 	Action();
 
 	// 戻る
-	Loop();
+	//Loop();
+
+	// ワールドトランスフォームから位置を取得
+	CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
+	const DirectX::XMFLOAT3& Pos = pRB->GetWorldTransform().Pos;
+	if (Pos.y < 3.0f)
+	{
+		// 自身の死亡フラグを立てる
+		SetDeath();
+	}
 
 	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
 	CPhysicsObject::Update();

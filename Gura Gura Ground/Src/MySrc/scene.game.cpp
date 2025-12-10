@@ -36,6 +36,9 @@ namespace
 	const int nNumB = 4;
 	const float fInitDist = 10.0f;
 
+	bool CreateBar = false;
+	int Count = 0;
+
 	// グローバル
 	OBJ::Transform g_BoxTF = { { 0.5f, 0.5f, 0.5f }, {0.0f, 0.0f, 0.0f, 1.0f}, {-fInitDist, 25.0f, -fInitDist} };
 
@@ -107,23 +110,23 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(Player);
 	}
 
-	//// ボールの生成
-	//CObject::Create<CBall>(
-	//	[&fUnkoSpan](CBall* p) -> bool
-	//	{
-	//		p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-	//		return true;
-	//	},
-	//	OBJ::TYPE::OBSTACLE);
+	// ボールの生成
+	/*CObject::Create<CBall>(
+		[&fUnkoSpan](CBall* p) -> bool
+		{
+			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);*/
 
-	//// バーの生成
-	//CObject::Create<CBar>(
-	//	[&fUnkoSpan](CBar* p) -> bool
-	//	{
-	//		p->FactoryCollider(1.5f, 15.0f, 1.5f);
-	//		return true;
-	//	},
-	//	OBJ::TYPE::OBSTACLE);
+	// バーの生成
+	/*CObject::Create<CBar>(
+		[&fUnkoSpan](CBar* p) -> bool
+		{
+			p->FactoryCollider(1.5f, 15.0f, 1.5f);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);*/
 }
 
 //============================================================================
@@ -139,6 +142,24 @@ void CSceneGame::Update()
 {
 	// カメラコントローラー更新
 	CCameraController::RefInstance().Update();
+
+	Count++;
+	if (Count>=180
+		&&!CreateBar)
+	{
+		const float fUnkoSpan = 3.0f;
+
+		// バーの生成
+		CObject::Create<CBar>(
+			[&fUnkoSpan](CBar* p) -> bool
+			{
+				p->FactoryCollider(1.5f, 15.0f, 1.5f);
+				return true;
+			},
+			OBJ::TYPE::OBSTACLE);
+
+		CreateBar = true;
+	}
 
 	// ゲームセットしたらシーン遷移
 	if (GameSet())

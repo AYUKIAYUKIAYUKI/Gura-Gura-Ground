@@ -172,24 +172,12 @@ void CCameraController::GetPlayersBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOA
 		}
 
 		// XÀ•W‚ÌÅ¬Å‘å
-		if (ite->GetTransform().Pos.x <= MinPlayersPos.x)
-		{
-			MinPlayersPos.x = ite->GetTransform().Pos.x;
-		}
-		if (MaxPlayersPos.x <= ite->GetTransform().Pos.x)
-		{
-			MaxPlayersPos.x = ite->GetTransform().Pos.x;
-		}
-
+		MaxPlayersPos.x = max(MaxPlayersPos.x, ite->GetTransform().Pos.x);
+		MinPlayersPos.x = min(MinPlayersPos.x, ite->GetTransform().Pos.x);
+		
 		// ZÀ•W‚ÌÅ¬Å‘å
-		if (ite->GetTransform().Pos.z <= MinPlayersPos.z)
-		{
-			MinPlayersPos.z = ite->GetTransform().Pos.z;
-		}
-		if (MaxPlayersPos.z <= ite->GetTransform().Pos.z)
-		{
-			MaxPlayersPos.z = ite->GetTransform().Pos.z;
-		}
+		MaxPlayersPos.z = max(MaxPlayersPos.z, ite->GetTransform().Pos.z);
+		MinPlayersPos.z = min(MinPlayersPos.z, ite->GetTransform().Pos.z);
 
 		Count++;
 	}
