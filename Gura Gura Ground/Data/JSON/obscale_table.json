@@ -1,0 +1,53 @@
+{
+    "auto_type": 0,
+    "enable": false,
+    "interval": 3.0,
+    "param_sets": [
+        {
+            "manual_type": 1,
+            "spawnX": 4.0,
+            "spawnY": 10.0,
+            "spawnZ": 15.0,
+            "speedX": 0.0,
+            "speedY": 0.0,
+            "speedZ": -5.0
+        },
+        {
+            "manual_type": 0,
+            "spawnX": 0.0,
+            "spawnY": 10.0,
+            "spawnZ": 15.0,
+            "speedX": 0.0,
+            "speedY": 0.0,
+            "speedZ": -5.0
+        },
+        {
+            "manual_type": 1,
+            "spawnX": -4.0,
+            "spawnY": 10.0,
+            "spawnZ": 15.0,
+            "speedX": 0.0,
+            "speedY": 0.0,
+            "speedZ": -5.0
+        },
+        {
+            "manual_type": 0,
+            "spawnX": 0.0,
+            "spawnY": 10.0,
+            "spawnZ": 15.0,
+            "speedX": 0.0,
+            "speedY": 0.0,
+            "speedZ": -5.0
+        },
+        {
+            "manual_type": 0,
+            "spawnX": 0.0,
+            "spawnY": 10.0,
+            "spawnZ": 15.0,
+            "speedX": 0.0,
+            "speedY": 0.0,
+            "speedZ": -5.0
+        }
+    ],
+    "spawn_enable_time": 3.0
+}

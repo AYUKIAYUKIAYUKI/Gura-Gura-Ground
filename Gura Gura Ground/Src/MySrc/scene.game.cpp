@@ -27,6 +27,8 @@
 #include "ball.h"
 #include "bar.h"
 
+#include "obstacle_editer.h"
+
 //****************************************************
 // 仮
 //****************************************************
@@ -35,6 +37,20 @@ namespace
 	// 定数
 	const int nNumB = 4;
 	const float fInitDist = 10.0f;
+
+	// オブジェクトの出現方向, 0:縦(上下), 1:横(左右)
+	int g_ObstacleDirection = 0;
+
+	bool g_AutoSpawnEnabled = true;
+
+	// 障害物の出現間隔(秒), imguiで設定
+	float g_ObstacleSpawnInterval = 3.0f;
+
+	// 前回出現した時刻
+	float g_ObstacleLastSpawnTime = 0.0f;
+
+	std::chrono::steady_clock::time_point g_LastUpdateTime;
+	float g_GameTime = 0.0f;
 
 	// グローバル
 	OBJ::Transform g_BoxTF = { { 0.5f, 0.5f, 0.5f }, {0.0f, 0.0f, 0.0f, 1.0f}, {-fInitDist, 25.0f, -fInitDist} };
@@ -101,23 +117,7 @@ CSceneGame::CSceneGame()
 			OBJ::TYPE::PLAYER);
 	}
 
-	// ボールの生成
-	CObject::Create<CBall>(
-		[&fUnkoSpan](CBall* p) -> bool
-		{
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
-
-	// バーの生成
-	CObject::Create<CBar>(
-		[&fUnkoSpan](CBar* p) -> bool
-		{
-			p->FactoryCollider(1.5f, 15.0f, 1.5f);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
+	ObstacleEditer::LoadParams("Data\\JSON\\obscale_table.json");
 }
 
 //============================================================================
@@ -131,11 +131,18 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
+	// 障害物スポーンメニュー表示
+	ObstacleEditer::ShowEditerMenu();
+
+	// 自動スポーン判定
+	ObstacleEditer::TryAutoSpawn(g_GameTime);
+
 	// ゲームセットしたらシーン遷移
 	if (GameSet())
 	{
 		Change();
 	}
+
 }
 
 //============================================================================
