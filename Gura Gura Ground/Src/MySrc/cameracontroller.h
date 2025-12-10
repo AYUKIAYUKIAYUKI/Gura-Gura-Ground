@@ -17,6 +17,7 @@
 //****************************************************
 class CCamera;
 class CPlayer;
+class CObstacle;
 
 //****************************************************
 // カメラの移動制御クラスの定義
@@ -61,11 +62,14 @@ private:
 	// function
 	//****************************************************
 
-	// プレイヤーの中心位置を計算
-	void CalculatePlayersCenter();
+	// 中心位置を計算
+	void CalculateCenter();
 	
-	// プレイヤーの最小最大位置取得
-	void GetPlayersBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max);
+	// プレイヤーと定点のギミックから最小最大位置取得
+	void GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max);
+
+	// ギミックを取得
+	void GetObstacles();
 
 	// ギミックがあるか判定
 	void HasMovingGimmick();
@@ -75,6 +79,7 @@ private:
 	//****************************************************
 	CCamera* m_Camera;						// カメラの情報
 	std::list<CPlayer*> m_Players;			// プレイヤーを格納
+	std::list<CObstacle*> m_Obstacles;		// ギミックを格納
 	DirectX::XMFLOAT3 m_CameraTargetPos;	// カメラの移動位置
 	DirectX::XMFLOAT3 m_FirstCameraPos;		// カメラの最初の位置
 	float m_BaseCameraDistance;				// カメラ基本の距離

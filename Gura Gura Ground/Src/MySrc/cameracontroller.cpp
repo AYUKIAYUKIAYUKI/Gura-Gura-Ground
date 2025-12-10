@@ -42,6 +42,7 @@ bool CCameraController::Initialize()
 {
 	// 初期化
 	m_Players.clear();
+	m_Obstacles.clear();
 
 	// カメラの情報取得
 	m_Camera = nullptr;
@@ -73,13 +74,16 @@ void CCameraController::Finalize()
 //============================================================================
 void CCameraController::Update()
 {
+	// ギミックを取得
+	GetObstacles();
+
 	// 移動ギミックがあるか判定
 	HasMovingGimmick();
 
 	if (!m_IsMovingGimmickActive)
 	{
 		// カメラの注視点位置設定
-		CalculatePlayersCenter();
+		CalculateCenter();
 	}
 
 	// カメラの変更位置を設定
@@ -112,15 +116,10 @@ void CCameraController::UnRegist(CPlayer* player)
 }
 
 //============================================================================
-// プレイヤーの中心位置を計算
+// 中心位置を計算
 //============================================================================
-void CCameraController::CalculatePlayersCenter()
+void CCameraController::CalculateCenter()
 {
-	if (m_Players.empty())
-	{
-		return;
-	}
-
 	using namespace useful;
 
 	DirectX::XMFLOAT3 MinPlayersPos = { 0.0f,0.0f, 0.0f };	// 最小位置
@@ -128,20 +127,20 @@ void CCameraController::CalculatePlayersCenter()
 	DirectX::XMFLOAT3 CenterPos = { 0.0f,0.0f, 0.0f };		// 中央位置
 	DirectX::XMFLOAT3 Size = { 0.0f,0.0f, 0.0f };			// 幅
 
-	// プレイヤー全てで最小最大の位置を取得
-	GetPlayersBounds(MinPlayersPos, MaxPlayersPos);
+	// プレイヤーと定点のギミックから最小最大位置取得
+	GetPlayersAndObstaclesBounds(MinPlayersPos, MaxPlayersPos);
 
 	// 中心位置を求める
 	CenterPos = (MaxPlayersPos + MinPlayersPos) * 0.5f;
-
-	// プレイヤーの広がりを計算
-	float SpreadX = MaxPlayersPos.x - MinPlayersPos.x;
 
 	// 高さの設定
 	CenterPos.y = m_Camera->GetPos().y;
 
 	// 中心位置に設定
 	m_CameraTargetPos = CenterPos;
+
+	//// プレイヤーの広がりを計算
+	//float SpreadX = MaxPlayersPos.x - MinPlayersPos.x;
 
 	//// 距離を計算
 	//float Distance = (m_BaseCameraDistance + (SpreadX * 0.7f));
@@ -157,9 +156,9 @@ void CCameraController::CalculatePlayersCenter()
 }
 
 //============================================================================
-// プレイヤー全てで最小最大の位置を取得
+// プレイヤーと定点のギミックから最小最大位置取得
 //============================================================================
-void CCameraController::GetPlayersBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max)
+void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max)
 {
 	using namespace useful;
 
@@ -188,9 +187,42 @@ void CCameraController::GetPlayersBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOA
 		Count++;
 	}
 
+	// ギミックで最小と最大の位置を取得
+	for (auto ite : m_Obstacles)
+	{
+		if (ite->GetObsType() != OBS::OBSTACLE_TYPE::STATIONARY)
+		{
+			continue;
+		}
+
+		// X座標の最小最大
+		MaxPlayersPos.x = max(MaxPlayersPos.x, ite->GetTransform().Pos.x);
+		MinPlayersPos.x = min(MinPlayersPos.x, ite->GetTransform().Pos.x);
+
+		// Z座標の最小最大
+		MaxPlayersPos.z = max(MaxPlayersPos.z, ite->GetTransform().Pos.z);
+		MinPlayersPos.z = min(MinPlayersPos.z, ite->GetTransform().Pos.z);
+	}
+
 	// 位置を設定
 	min = MinPlayersPos;
 	max = MaxPlayersPos;
+}
+
+//============================================================================
+// ギミックを取得
+//============================================================================
+void CCameraController::GetObstacles()
+{
+	// 障害物リスト取得
+	auto List = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::OBSTACLE);
+
+	for (auto ite : List)
+	{
+		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite);
+
+		m_Obstacles.push_back(Obstacle);
+	}
 }
 
 //============================================================================
@@ -198,17 +230,12 @@ void CCameraController::GetPlayersBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOA
 //============================================================================
 void CCameraController::HasMovingGimmick()
 {
-	// 障害物リスト取得
-	auto List = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::OBSTACLE);
-
 	// 判定を戻す
 	m_IsMovingGimmickActive = false;
 
-	for (auto ite : List)
+	for (auto ite : m_Obstacles)
 	{
-		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite);
-
-		if (Obstacle->GetObsType() == OBS::OBSTACLE_TYPE::MOVING)
+		if (ite->GetObsType() == OBS::OBSTACLE_TYPE::MOVING)
 		{
 			m_IsMovingGimmickActive = true;
 		}

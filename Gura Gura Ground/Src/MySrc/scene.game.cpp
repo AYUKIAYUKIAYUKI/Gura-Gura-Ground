@@ -39,6 +39,7 @@ namespace
 	const float fInitDist = 10.0f;
 
 	bool CreateBar = false;
+	bool CreateBomb = false;
 	int Count = 0;
 
 	// グローバル
@@ -130,18 +131,7 @@ CSceneGame::CSceneGame()
 		},
 		OBJ::TYPE::OBSTACLE);*/
 
-	// ボムの生成
-	CObject::Create<CBomb>(
-		[&fUnkoSpan](CBomb* p) -> bool
-		{
-			OBJ::Transform TF = p->GetTransform();
-			TF.Pos = { 0.0f, 20.0f, 0.0f };
-			p->SetTransform(TF);
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			p->SetTimer(300);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
+	
 }
 
 //============================================================================
@@ -159,8 +149,28 @@ void CSceneGame::Update()
 	CCameraController::RefInstance().Update();
 
 	Count++;
-	if (Count>=180
-		&&!CreateBar)
+	if (Count >= 300
+		&& !CreateBomb)
+	{
+		const float fUnkoSpan = 3.0f;
+
+		// ボムの生成
+		CObject::Create<CBomb>(
+			[&fUnkoSpan](CBomb* p) -> bool
+			{
+				OBJ::Transform TF = p->GetTransform();
+				TF.Pos = { -10.0f, 20.0f, 0.0f };
+				p->SetTransform(TF);
+				p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+				p->SetTimer(300);
+				return true;
+			},
+			OBJ::TYPE::OBSTACLE);
+
+		CreateBomb = true;
+	}
+	else if (Count >= 360
+		&& !CreateBar)
 	{
 		const float fUnkoSpan = 3.0f;
 
