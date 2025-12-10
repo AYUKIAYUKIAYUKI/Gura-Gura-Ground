@@ -36,14 +36,15 @@ private:
 	friend CEffectManager& CSingleton<CEffectManager>::RefInstance();
 
 
-	const std::string LoadFilename = "Data\\JSON\\Effect.json";
+	const std::string LoadFilename = "Data\\JSON\\Effect.List.json";
 	std::vector<std::string> m_EffectName;
 public:
 	enum EFFECT_TAG
 	{
 		TAG_LIGHTNING = 0,
 		TAG_WATER,
-		TAG_FIRE
+		TAG_FIREWORK,
+		TAG_MAX
 	};
 	void Update();			//çXêV
 	void Draw();			//ï`âÊ

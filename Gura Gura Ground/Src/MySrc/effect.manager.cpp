@@ -7,9 +7,13 @@
 #include "effect.manager.h"
 
 #include "API.renderer.h"
+#include <magic_enum.hpp>
 
 namespace {
     static int SelectNum = 0;
+    static float SizeValue = 1.0f;
+    static useful::Vec3 Vec3Value = { 0.0f,0.0f,0.0f };
+    static bool isSizeUnder1 = true;
     std::vector<std::string> TagName;
     void EditUI()
     {
@@ -18,15 +22,69 @@ namespace {
         ImGui::SetNextWindowSize(ImVec2(300, 400));
         ImGui::Begin("Effect Edit");
 
-        if(ImGui::Button("Instance"))CEffectManager::RefInstance();
-        if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_LIGHTNING, {20.0f,0.0f,0.0f});
+        ImGui::Text("Create Test");
+        if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_LIGHTNING, { 20.0f,0.0f,0.0f });
         ImGui::SameLine();
-        if (ImGui::Button("Water"))CEffect::Create(L"Data\\EFFECT\\Effect\\Simple_Turbulence_Fireworks.efkefc", { -20.0f,0.0f,0.0f },nullptr,1.0f);
+        if (ImGui::Button("Water"))CEffect::Create(L"Data\\EFFECT\\Effect\\Simple_Turbulence_Fireworks.efkefc", { -20.0f,0.0f,0.0f }, nullptr, 1.0f);
+        ImGui::Separator();
+        if (ImGui::TreeNode("Effect List")) {
 
-        ImGui::Button("<");
+            ImGui::BeginChild(ImGui::GetID((void*)0), ImVec2(250, 200), ImGuiWindowFlags_NoTitleBar);
+            for (int i = 0; i < TagName.size(); ++i)
+            {
+                ImGui::SetNextItemWidth(300.0f);
+                CEffectManager::EFFECT_TAG tag = static_cast<CEffectManager::EFFECT_TAG>(i);
+                std::string Casted_name = std::string(magic_enum::enum_name(tag));
+                std::string ButtonName = "Create :" + Casted_name;
+                if (ImGui::Button(ButtonName.c_str()))CEffect::Create((CEffectManager::EFFECT_TAG)i, { 0.0f,0.0f,0.0f }, nullptr, 1.0f);
+                ImGui::SameLine();
+
+                std::string text = "TAG = ";
+                text += TagName[i];
+                ImGui::Text(text.c_str());
+            }
+            ImGui::EndChild();
+            ImGui::TreePop();
+        }
+        ImGui::Separator();
+        std::string ButtonTag = "Now Effect :";
+        CEffectManager::EFFECT_TAG tag = static_cast<CEffectManager::EFFECT_TAG>(SelectNum);
+        std::string Casted_name = std::string(magic_enum::enum_name(tag));
+        ButtonTag += Casted_name;
+        ImGui::Text(ButtonTag.c_str());
+        if (ImGui::Button("<")) {
+            --SelectNum;
+            if (SelectNum < 0)SelectNum = CEffectManager::TAG_MAX - 1;
+        }
         ImGui::SameLine();
-        ImGui::Button(">");
+        if (ImGui::Button("Generate Effect"))CEffect::Create((CEffectManager::EFFECT_TAG)SelectNum, Vec3Value, nullptr, SizeValue);
+        ImGui::SameLine();
+        if (ImGui::Button(">")) {
+            ++SelectNum;
+            if (SelectNum >= CEffectManager::TAG_MAX)SelectNum = 0;
+        }
+        if (ImGui::TreeNode("Size")) {
+            ImGui::Spacing();
+            ImGui::Text("Size");
+            ImGui::SameLine();
+            if (ImGui::Button("Change Float"))isSizeUnder1 = !isSizeUnder1;
+            ImGui::SetNextItemWidth(150.0f);
+            if (!isSizeUnder1)ImGui::SliderFloat("over 1.0f", &SizeValue, 1.0f, 100.0f);
+            else ImGui::SliderFloat("under 1.0f", &SizeValue, 0.01, 1.0f);
+            ImGui::TreePop();
 
+        }
+        if (ImGui::TreeNode("Position")) {
+            ImGui::Spacing();
+            ImGui::Text("Position");
+            ImGui::SetNextItemWidth(150.0f);
+            ImGui::SliderFloat("x", &Vec3Value.x, -50.0f, 50.0f);
+            ImGui::SetNextItemWidth(150.0f);
+            ImGui::SliderFloat("y", &Vec3Value.y, -50.0f, 50.0f);
+            ImGui::SetNextItemWidth(150.0f);
+            ImGui::SliderFloat("z", &Vec3Value.z, -50.0f, 50.0f);
+            ImGui::TreePop();
+        }
         ImGui::End();
 #endif // _DEBUG
     }

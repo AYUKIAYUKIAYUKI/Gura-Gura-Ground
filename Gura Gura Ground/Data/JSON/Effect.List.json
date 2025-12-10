@@ -1,0 +1,13 @@
+{
+  "EffectList": [
+    {
+      "Thunder": "Data\\EFFECT\\Effect\\LightningStrike_2.efkefc"
+    },
+    {
+      "Water": "Data\\EFFECT\\Effect\\ToonWater.efkefc"
+    },
+    {
+      "Fire": "Data\\EFFECT\\Effect\\Simple_Turbulence_Fireworks.efkefc"
+    }
+  ]
+}
