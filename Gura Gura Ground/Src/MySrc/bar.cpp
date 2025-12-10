@@ -80,7 +80,7 @@ namespace
 // デフォルトコンストラクタ
 //============================================================================
 CBar::CBar(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CObstacle(Type, Layer)
+	: CObstacle(Type, Layer, OBS::OBSTACLE_TYPE::MOVING)
 	, m_Direction(VEC3_ZERO_INIT)
 {}
 

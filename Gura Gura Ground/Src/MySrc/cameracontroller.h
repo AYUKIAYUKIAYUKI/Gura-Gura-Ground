@@ -60,15 +60,24 @@ private:
 	//****************************************************
 	// function
 	//****************************************************
-	void CameraMove();					// デバッグカメラ移動
-	void CalculatePlayersCenter();		// プレイヤーの中心位置を計算
+
+	// プレイヤーの中心位置を計算
+	void CalculatePlayersCenter();
+	
+	// プレイヤーの最小最大位置取得
 	void GetPlayersBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max);
+
+	// ギミックがあるか判定
+	void HasMovingGimmick();
+
 	//****************************************************
 	// data
 	//****************************************************
 	CCamera* m_Camera;						// カメラの情報
 	std::list<CPlayer*> m_Players;			// プレイヤーを格納
-	DirectX::XMFLOAT3 m_PlayersCenterPos;	// プレイヤーたちの中心位置
+	DirectX::XMFLOAT3 m_CameraTargetPos;	// カメラの移動位置
+	DirectX::XMFLOAT3 m_FirstCameraPos;		// カメラの最初の位置
 	float m_BaseCameraDistance;				// カメラ基本の距離
 	float m_MaxCameraDistance;				// カメラの最大の距離
+	bool m_IsMovingGimmickActive;			// 特定方向に移動するギミックが出現しているか
 };

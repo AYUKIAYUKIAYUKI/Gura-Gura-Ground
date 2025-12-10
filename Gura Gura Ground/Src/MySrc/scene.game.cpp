@@ -118,7 +118,7 @@ CSceneGame::CSceneGame()
 			return true;
 		},
 		OBJ::TYPE::OBSTACLE);*/
-
+	
 	// ÉoÅ[ÇÃê∂ê¨
 	/*CObject::Create<CBar>(
 		[&fUnkoSpan](CBar* p) -> bool
