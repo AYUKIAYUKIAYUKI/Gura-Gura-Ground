@@ -21,6 +21,8 @@ public:
         float ObstacleSpawnY = 10.0f;
         float ObstacleSpawnZ = 15.0f;
         int  ManualObstacleType = 0;
+        float SpawnTime = 0.0f;
+        bool Spawned = false;
     };
 
     static const int PARAM_SET_MAX = 5;
@@ -40,6 +42,12 @@ public:
     static float GetAutoSpawnInterval() { return s_ObstacleSpawnInterval; }
     static int GetAutoSpawnObstacleType() { return s_AutoSpawnObstacleType; }
 
+    static void PlayModeSpawn(float deltaTime);
+    static void ResetPlayMode();                       
+
+    static bool     s_PlayModeEnabled;    
+    static float    s_PlayModeElapsedTime;
+
 private:
     static float        s_ObstacleLastSpawnTime;
     static bool         s_AutoSpawnEnabled;
@@ -52,4 +60,5 @@ private:
     static float        s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ;
     static float        s_LoadedSpeedX, s_LoadedSpeedY, s_LoadedSpeedZ;
     static int          s_LoadedType; // 0:Ball, 1:Bar
+    bool Spawned = false;
 };

@@ -154,7 +154,7 @@ void CBall::Action()
 	// 移動方向：Y軸：現在の重力速度を維持
 	MoveDir.setY(rCurrentVel.getY());
 
-	// 新しい加速度をセット7
+	// 新しい加速度をセット
 	pRB->SetLinearVelocity(MoveDir);
 }
 

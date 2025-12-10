@@ -131,8 +131,17 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
+	//タイム計測
+	auto now = std::chrono::steady_clock::now();
+	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();
+	g_LastUpdateTime = now;
+	g_GameTime += deltaTime;
+
 	// 障害物スポーンメニュー表示
 	ObstacleEditer::ShowEditerMenu();
+
+	//プレイモード中の自動スポーン処理
+	ObstacleEditer::PlayModeSpawn(deltaTime);
 
 	// 自動スポーン判定
 	ObstacleEditer::TryAutoSpawn(g_GameTime);

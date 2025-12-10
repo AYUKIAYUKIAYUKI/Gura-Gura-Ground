@@ -24,6 +24,8 @@ bool  ObstacleEditer::s_LoadedShown = false;
 float ObstacleEditer::s_LoadedSpawnX = 0.0f, ObstacleEditer::s_LoadedSpawnY = 0.0f, ObstacleEditer::s_LoadedSpawnZ = 0.0f;
 float ObstacleEditer::s_LoadedSpeedX = 0.0f, ObstacleEditer::s_LoadedSpeedY = 0.0f, ObstacleEditer::s_LoadedSpeedZ = 0.0f;
 int   ObstacleEditer::s_LoadedType = 0; // 0:Ball, 1:Bar
+bool ObstacleEditer::s_PlayModeEnabled = false;
+float ObstacleEditer::s_PlayModeElapsedTime = 0.0f;
 
 std::vector<ObstacleEditer::ObstacleParam> ObstacleEditer::s_ParamSets(ObstacleEditer::PARAM_SET_MAX);
 int ObstacleEditer::s_CurrentParamIndex = 0;
@@ -44,6 +46,7 @@ void ObstacleEditer::EditCommonParams()
     ImGui::DragFloat("Spawm Speed Y", &param.ObstacleSpeedY, 0.1f, -20.0f, 20.0f);
     ImGui::DragFloat("Spawm Speed Z", &param.ObstacleSpeedZ, 0.1f, -20.0f, 20.0f);
     ImGui::Combo("Manual Obstacle Type (Param)", &param.ManualObstacleType, s_ObstacleTypeNames, IM_ARRAYSIZE(s_ObstacleTypeNames));
+    ImGui::DragFloat("Spawn Time", &param.SpawnTime, 0.1f, 0.0f, 100.0f);
 }
 
 //============================================================================
@@ -61,6 +64,12 @@ void ObstacleEditer::ShowEditerMenu()
     ImGui::Checkbox("Enable Auto Spawn", &s_AutoSpawnEnabled);
     ImGui::DragFloat("Auto Spawn Interval", &s_ObstacleSpawnInterval, 0.1f, 0.1f, 30.0f);
 
+    bool lastPlayMode = s_PlayModeEnabled;
+    ImGui::Checkbox("Play Mode", &s_PlayModeEnabled);
+    if (!s_PlayModeEnabled && lastPlayMode) {
+        ResetPlayMode();
+    }
+
     ImGui::Separator();
 
     ImGui::Combo("Auto Obstacle Type", &s_AutoSpawnObstacleType, s_ObstacleTypeNames, IM_ARRAYSIZE(s_ObstacleTypeNames));
@@ -75,6 +84,52 @@ void ObstacleEditer::ShowEditerMenu()
     }
 
     ImGui::End();
+}
+
+//============================================================================
+//プレイモード中の自動スポーン処理
+//============================================================================
+void ObstacleEditer::PlayModeSpawn(float deltaTime)
+{
+    if (s_PlayModeEnabled)
+    {
+        s_PlayModeElapsedTime += deltaTime;
+        // 各パラメータセット確認
+        for (auto& param : s_ParamSets) {
+            if (!param.Spawned && s_PlayModeElapsedTime >= param.SpawnTime)
+            {
+                // 障害物を出現させる
+                switch (param.ManualObstacleType) {
+                case 0: // Ball
+                    CObject::Create<CBall>(
+                        [](CBall* p) -> bool
+                        {
+                            p->FactoryCollider(3.0f, 3.0f, 3.0f);
+                            return true;
+                        }, OBJ::TYPE::OBSTACLE);
+                    break;
+                case 1: // Bar
+                    CObject::Create<CBar>(
+                        [](CBar* p) -> bool
+                        {
+                            p->FactoryCollider(1.5f, 15.0f, 1.5f);
+                            return true;
+                        }, OBJ::TYPE::OBSTACLE);
+                    break;
+                }
+                param.Spawned = true;
+            }
+        }
+    }
+}
+
+//============================================================================
+// プレイモード中の経過時間リセット＆スポーンフラグをリセット
+//============================================================================
+void ObstacleEditer::ResetPlayMode()
+{
+    s_PlayModeElapsedTime = 0.0f;
+    for (auto& param : s_ParamSets) param.Spawned = false;
 }
 
 //============================================================================
@@ -164,6 +219,7 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
         jp["speedY"] = param.ObstacleSpeedY;
         jp["speedZ"] = param.ObstacleSpeedZ;
         jp["manual_type"] = param.ManualObstacleType;
+        jp["spawn_time"] = param.SpawnTime;
         js["param_sets"].push_back(jp);
     }
 
@@ -203,6 +259,8 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
                 param.ObstacleSpeedY = jp.value("speedY", 0.0f);
                 param.ObstacleSpeedZ = jp.value("speedZ", -5.0f);
                 param.ManualObstacleType = jp.value("manual_type", 0);
+                param.SpawnTime = jp.value("spawn_time", 3.0f);
+                param.Spawned = false;
             }
         }
     }

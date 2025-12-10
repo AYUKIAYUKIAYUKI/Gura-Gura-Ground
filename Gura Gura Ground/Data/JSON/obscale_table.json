@@ -8,6 +8,7 @@
             "spawnX": 4.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
+            "spawn_time": 5.699999809265137,
             "speedX": 0.0,
             "speedY": 0.0,
             "speedZ": -5.0
@@ -17,6 +18,7 @@
             "spawnX": 0.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
+            "spawn_time": 9.0,
             "speedX": 0.0,
             "speedY": 0.0,
             "speedZ": -5.0
@@ -26,6 +28,7 @@
             "spawnX": -4.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
+            "spawn_time": 3.0,
             "speedX": 0.0,
             "speedY": 0.0,
             "speedZ": -5.0
@@ -35,6 +38,7 @@
             "spawnX": 0.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
+            "spawn_time": 1.2000000476837158,
             "speedX": 0.0,
             "speedY": 0.0,
             "speedZ": -5.0
@@ -44,6 +48,7 @@
             "spawnX": 0.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
+            "spawn_time": 7.0,
             "speedX": 0.0,
             "speedY": 0.0,
             "speedZ": -5.0
