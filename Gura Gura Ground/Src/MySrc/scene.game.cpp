@@ -26,7 +26,9 @@
 /* àÍéüê∂ê¨ */
 #include "ball.h"
 #include "bar.h"
+#include "bomb.h"
 #include "cameracontroller.h"
+
 //****************************************************
 // âº
 //****************************************************
@@ -121,6 +123,19 @@ CSceneGame::CSceneGame()
 		[&fUnkoSpan](CBar* p) -> bool
 		{
 			p->FactoryCollider(1.5f, 15.0f, 1.5f);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);
+
+	// É{ÉÄÇÃê∂ê¨
+	CObject::Create<CBomb>(
+		[&fUnkoSpan](CBomb* p) -> bool
+		{
+			OBJ::Transform TF = p->GetTransform();
+			TF.Pos = { 0.0f, 20.0f, 0.0f };
+			p->SetTransform(TF);
+			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+			p->SetTimer(300);
 			return true;
 		},
 		OBJ::TYPE::OBSTACLE);
