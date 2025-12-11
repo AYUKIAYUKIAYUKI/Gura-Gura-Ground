@@ -22,6 +22,7 @@
 #include "field.h"
 #include "player.h"
 #include "API.world.h"
+#include <enemy1.h>
 
 //****************************************************
 // âº
@@ -96,6 +97,26 @@ CSceneGame::CSceneGame()
 			},
 			OBJ::TYPE::PLAYER);
 	}
+
+
+	// ìGê∂ê¨
+	float fSize = 1.0f;
+
+	CObject::Create<CEnemy1>(
+		[&fSize](CEnemy1* p) -> bool
+		{
+			p->SetTransform(
+				{
+					{ fSize, fSize, fSize },
+					{ 0.0f, 0.0f, 0.0f, 1.0f },
+					{ 2.0f, 15.0f, 2.0f }
+				}
+			);
+
+			p->FactoryCollider(fSize, fSize, fSize);
+			return true;
+		},
+		OBJ::TYPE::NONE); //TYPEÇÕENEMYÇ∆Ç©ï ògÇ≈ämï€ÇµÇΩÇ¢
 }
 
 //============================================================================
