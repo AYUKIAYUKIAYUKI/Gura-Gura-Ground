@@ -1,25 +1,22 @@
 {
     "auto_type": 0,
-    "enable": false,
     "interval": 3.0,
     "param_sets": [
         {
             "manual_type": 1,
-            "spawnX": 4.0,
+            "spawnX": -17.799999237060547,
             "spawnY": 10.0,
-            "spawnZ": 15.0,
-            "spawn_time": 5.699999809265137,
-            "speedX": 0.0,
+            "spawnZ": -4.199999809265137,
+            "speedX": 4.0,
             "speedY": 0.0,
-            "speedZ": -5.0
+            "speedZ": 0.0
         },
         {
             "manual_type": 0,
-            "spawnX": 0.0,
+            "spawnX": -14.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
-            "spawn_time": 9.0,
-            "speedX": 0.0,
+            "speedX": 3.0,
             "speedY": 0.0,
             "speedZ": -5.0
         },
@@ -28,8 +25,16 @@
             "spawnX": -4.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
-            "spawn_time": 3.0,
             "speedX": 0.0,
+            "speedY": 0.0,
+            "speedZ": -5.0
+        },
+        {
+            "manual_type": 0,
+            "spawnX": 14.0,
+            "spawnY": 10.0,
+            "spawnZ": 15.0,
+            "speedX": -3.0,
             "speedY": 0.0,
             "speedZ": -5.0
         },
@@ -38,21 +43,17 @@
             "spawnX": 0.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
-            "spawn_time": 1.2000000476837158,
-            "speedX": 0.0,
-            "speedY": 0.0,
-            "speedZ": -5.0
-        },
-        {
-            "manual_type": 0,
-            "spawnX": 0.0,
-            "spawnY": 10.0,
-            "spawnZ": 15.0,
-            "spawn_time": 7.0,
             "speedX": 0.0,
             "speedY": 0.0,
             "speedZ": -5.0
         }
     ],
-    "spawn_enable_time": 3.0
+    "spawn_enable_time": 3.0,
+    "spawn_time_presets": [
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0
+    ]
 }

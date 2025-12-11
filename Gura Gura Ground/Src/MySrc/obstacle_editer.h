@@ -13,52 +13,45 @@
 class ObstacleEditer
 {
 public:
+    //========================
+    // 障害物パラメータセット
+    //========================
     struct ObstacleParam {
-        float ObstacleSpeedX = 0.0f;
-        float ObstacleSpeedY = 0.0f;
-        float ObstacleSpeedZ = -5.0f;
-        float ObstacleSpawnX = 0.0f;
-        float ObstacleSpawnY = 10.0f;
-        float ObstacleSpawnZ = 15.0f;
-        int  ManualObstacleType = 0;
-        float SpawnTime = 0.0f;
-        bool Spawned = false;
+        int  ManualObstacleType = 0;                   // 障害物タイプ(0:Ball, 1:Bar)
+        bool Spawned = false;                          // 生成済みフラグ
+        float ObstacleSpeedX = 0.0f;                   // 初速度X
+        float ObstacleSpeedY = 0.0f;                   // 初速度Y
+        float ObstacleSpeedZ = -5.0f;                  // 初速度Z
+        float ObstacleSpawnX = 0.0f;                   // 生成位置X
+        float ObstacleSpawnY = 10.0f;                  // 生成位置Y
+        float ObstacleSpawnZ = 15.0f;                  // 生成位置Z
     };
 
-    static const int PARAM_SET_MAX = 5;
-    static std::vector<ObstacleParam> s_ParamSets;
-    static int s_CurrentParamIndex;
+    static const int PARAM_SET_MAX = 5;                // パラメータセット最大数
+
+    static void EditCommonParams();                    // 共通パラメータ編集UI
+    static void EditerMenu();                          // メイン編集ウィンドウ
+    static void SpawnTimePresetEditor();               // スポーンタイムプリセット編集
+    static void TryManualSpawn();                      // 手動生成
+    static void SaveParams(const std::string& fileName);    // パラメータ保存
+    static void LoadParams(const std::string& fileName);    // パラメータ読み込み
+    static void AssignRandomSpawnTimes();              // スポーンタイム割り当て（ランダム化）
+    static void PlayModeSpawn(float deltaTime);        // プレイモード・自動生成処理
+    static void ResetPlayMode();                       // プレイモードリセット
+
+    static std::vector<ObstacleParam> s_ParamSets;     // パラメータセット配列
+    static int s_CurrentParamIndex;                    // 現在編集中インデックス
     static ObstacleParam& RefParam() { return s_ParamSets[s_CurrentParamIndex]; }
-
-    static void EditCommonParams();
-    static void ShowEditerMenu();
-    static void TryManualSpawn();
-    static void TryAutoSpawn(float gameTime);
-    static void SaveParams(const std::string& fileName);    // パラメーターの保存
-    static void LoadParams(const std::string& fileName);    // パラメーターの読み込み
-    static void ApplyLoadedParams(float gameTime);          // 時間で障害物を出現させる
-
-    static bool IsAutoSpawnEnabled() { return s_AutoSpawnEnabled; }
-    static float GetAutoSpawnInterval() { return s_ObstacleSpawnInterval; }
-    static int GetAutoSpawnObstacleType() { return s_AutoSpawnObstacleType; }
-
-    static void PlayModeSpawn(float deltaTime);
-    static void ResetPlayMode();                       
-
-    static bool     s_PlayModeEnabled;    
-    static float    s_PlayModeElapsedTime;
+    static bool     s_PlayMode;                        // プレイモードフラグ
+    static float    s_PlayModeElapsedTime;             // プレイモード経過時間
 
 private:
-    static float        s_ObstacleLastSpawnTime;
-    static bool         s_AutoSpawnEnabled;
-    static float        s_ObstacleSpawnInterval;
-    static int          s_AutoSpawnObstacleType;
-    static int          s_ManualObstacleType;
-    static bool         s_LoadedParamsValid;
-    static float        s_LoadedSpawnEnableTime;
-    static bool         s_LoadedShown; // 一度出現したかどうか
-    static float        s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ;
-    static float        s_LoadedSpeedX, s_LoadedSpeedY, s_LoadedSpeedZ;
-    static int          s_LoadedType; // 0:Ball, 1:Bar
-    bool Spawned = false;
+    static int          s_LoadedType;                  // 今ロードした障害物タイプ（0:Ball, 1:Bar）
+    static bool         s_LoadedParamsValid;           // ロードしたパラメータが有効か
+    static bool         s_LoadedShown;                 // 一度表示済みか
+    static float        s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ; // 直近ロード位置
+    static float        s_LoadedSpeedX, s_LoadedSpeedY, s_LoadedSpeedZ; // 直近ロード速度
+    static float        s_ObstacleLastSpawnTime;       // 最後に生成した時刻
+    static float s_SpawnTimePresets[PARAM_SET_MAX];    // 出現時間のプリセット（初期値リスト）
+    static float s_AssignedSpawnTimes[PARAM_SET_MAX];  // 各セットに割り当てられた出現時間
 };

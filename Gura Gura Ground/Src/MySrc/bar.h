@@ -38,6 +38,8 @@ public:
 	// 描画処理
 	void Draw() override;
 
+	static void SetRotate(OBJ::Transform& rTF, DirectX::XMFLOAT3 Dir);
+
 	// パラメータの編集
 	void EditParam() override { int i = 0; }
 

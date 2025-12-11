@@ -50,31 +50,6 @@ namespace
 		}
 		ImGui::End();
 	}
-
-	// 進行方向に応じて向きを変更
-	void Unko(OBJ::Transform& rTF, XMFLOAT3 Dir)
-	{
-		// 回転方向を作成
-		btQuaternion RotateVec = {};
-
-		/* ちょっとひどいです */
-		if (Dir.x > 0.0f)
-		{
-			// 左右移動の場合、Z方向に回転
-			RotateVec.setEulerZYX(0.0f, 0.0f, 3.1415927f * 0.5f);
-		}
-		else
-		{
-			// 前後移動の場合、X方向に回転
-			RotateVec.setEulerZYX(3.1415927f * 0.5f, 0.0f, 0.0f);
-		}
-
-		// 方向を正規化
-		RotateVec.normalize();
-
-		// トランスフォームに回転を反映
-		rTF.Rot = { RotateVec.getX(), RotateVec.getY(), RotateVec.getZ(), RotateVec.getW() };
-	}
 }
 
 //============================================================================
@@ -151,7 +126,7 @@ void CBar::Appear()
 	TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };
 	SetDirection({ param.ObstacleSpeedX, param.ObstacleSpeedY, param.ObstacleSpeedZ });
 
-	Unko(TF, GetDirection());
+	SetRotate(TF, GetDirection());
 
 	// ワールドトランスフォームに反映
 	pRigidBody->SetWorldTransform(TF);
@@ -209,4 +184,29 @@ void CBar::Loop()
 
 	/* 位置を出力*/
 	Print_Pos(TF);
+}
+
+// 進行方向に応じて向きを変更
+void CBar::SetRotate(OBJ::Transform& rTF, XMFLOAT3 Dir)
+{
+	// 回転方向を作成
+	btQuaternion RotateVec = {};
+
+	/* ちょっとひどいです */
+	if (Dir.x > 0.0f)
+	{
+		// 左右移動の場合、Z方向に回転
+		RotateVec.setEulerZYX(0.0f, 0.0f, 3.1415927f * 0.5f);
+	}
+	else
+	{
+		// 前後移動の場合、X方向に回転
+		RotateVec.setEulerZYX(3.1415927f * 0.5f, 0.0f, 0.0f);
+	}
+
+	// 方向を正規化
+	RotateVec.normalize();
+
+	// トランスフォームに回転を反映
+	rTF.Rot = { RotateVec.getX(), RotateVec.getY(), RotateVec.getZ(), RotateVec.getW() };
 }

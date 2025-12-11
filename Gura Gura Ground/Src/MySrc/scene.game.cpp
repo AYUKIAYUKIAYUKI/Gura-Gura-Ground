@@ -118,6 +118,9 @@ CSceneGame::CSceneGame()
 	}
 
 	ObstacleEditer::LoadParams("Data\\JSON\\obscale_table.json");
+
+	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間の合わせる
+	g_GameTime = 0.0f;
 }
 
 //============================================================================
@@ -138,13 +141,13 @@ void CSceneGame::Update()
 	g_GameTime += deltaTime;
 
 	// 障害物スポーンメニュー表示
-	ObstacleEditer::ShowEditerMenu();
+	ObstacleEditer::EditerMenu();
+
+	// スポーン時間プリセットメニュー表示
+	ObstacleEditer::SpawnTimePresetEditor();
 
 	//プレイモード中の自動スポーン処理
 	ObstacleEditer::PlayModeSpawn(deltaTime);
-
-	// 自動スポーン判定
-	ObstacleEditer::TryAutoSpawn(g_GameTime);
 
 	// ゲームセットしたらシーン遷移
 	if (GameSet())
