@@ -190,7 +190,7 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 	// ギミックで最小と最大の位置を取得
 	for (auto ite : m_Obstacles)
 	{
-		if (ite->GetObsType() != OBS::OBSTACLE_TYPE::STATIONARY)
+		if (ite->GetObsType() != Obstacle::OBSTACLE_TYPE::STATIONARY)
 		{
 			continue;
 		}
@@ -235,7 +235,7 @@ void CCameraController::HasMovingGimmick()
 
 	for (auto ite : m_Obstacles)
 	{
-		if (ite->GetObsType() == OBS::OBSTACLE_TYPE::MOVING)
+		if (ite->GetObsType() == Obstacle::OBSTACLE_TYPE::MOVING)
 		{
 			m_IsMovingGimmickActive = true;
 		}

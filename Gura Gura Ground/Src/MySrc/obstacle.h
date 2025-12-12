@@ -13,12 +13,12 @@
 #include "API.physics.object.h"
 
 //****************************************************
-// 名前空間OBSを定義
+// 名前空間Obstacleを定義
 //****************************************************
-namespace OBS
+namespace Obstacle
 {
 	//****************************************************
-	// タイプ識別用の列挙型を定義
+	// 挙動識別用の列挙型を定義
 	//****************************************************
 	enum class OBSTACLE_TYPE : unsigned char
 	{
@@ -40,7 +40,7 @@ public:
 	//****************************************************
 	// special function
 	//****************************************************
-	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, OBS::OBSTACLE_TYPE ObsType); // デフォルトコンストラクタ
+	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObsType); // デフォルトコンストラクタ
 	~CObstacle() override;                       // デストラクタ
 
 	//****************************************************
@@ -59,8 +59,12 @@ public:
 	// パラメータの編集
 	virtual void EditParam() = 0;
 
-	// 種類取得
-	inline OBS::OBSTACLE_TYPE GetObsType() const { return m_ObsType; }
+	// 挙動種類取得
+	inline Obstacle::OBSTACLE_TYPE GetObsType() const { return m_ObsType; }
 private:
-	OBS::OBSTACLE_TYPE m_ObsType;	//　ギミックの種類
+
+	//****************************************************
+	// data
+	//****************************************************
+	Obstacle::OBSTACLE_TYPE m_ObsType;	//　ギミックの種類
 };
