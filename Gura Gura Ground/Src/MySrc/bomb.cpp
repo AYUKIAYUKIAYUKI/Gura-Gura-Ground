@@ -20,7 +20,7 @@
 // デフォルトコンストラクタ
 //============================================================================
 CBomb::CBomb(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CObstacle(Type, Layer)
+	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::STATIONARY)
 	, m_nTimer(0)
 {}
 
