@@ -13,8 +13,9 @@
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
-CObstacle::CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer)
+CObstacle::CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObstacleType)
 	: CPhysicsObject(Type, Layer)
+	, m_ObsType(ObstacleType)
 {}
 
 //============================================================================

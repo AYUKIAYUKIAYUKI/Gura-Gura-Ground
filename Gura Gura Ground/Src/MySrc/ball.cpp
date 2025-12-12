@@ -62,7 +62,7 @@ namespace
 // デフォルトコンストラクタ
 //============================================================================
 CBall::CBall(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CObstacle(Type, Layer)
+	: CObstacle(Type, Layer,Obstacle::OBSTACLE_TYPE::MOVING)
 	, m_Direction(useful::VEC3_ZERO_INIT)
 {}
 
