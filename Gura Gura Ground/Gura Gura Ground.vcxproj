@@ -33,6 +33,7 @@
     <ClCompile Include="Src\MySrc\cameracontroller.cpp" />
     <ClCompile Include="Src\MySrc\dust.cpp" />
     <ClCompile Include="Src\MySrc\effect.manager.cpp" />
+    <ClCompile Include="Src\MySrc\FallTetra.cpp" />
     <ClCompile Include="Src\MySrc\field.cpp" />
     <ClCompile Include="Src\MySrc\gimmick.manager.cpp" />
     <ClCompile Include="Src\MySrc\IronBall.cpp" />
@@ -98,6 +99,7 @@
     <ClInclude Include="Src\MySrc\cameracontroller.h" />
     <ClInclude Include="Src\MySrc\dust.h" />
     <ClInclude Include="Src\MySrc\effect.manager.h" />
+    <ClInclude Include="Src\MySrc\FallTetra.h" />
     <ClInclude Include="Src\MySrc\field.h" />
     <ClInclude Include="Src\MySrc\gimmick.manager.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
