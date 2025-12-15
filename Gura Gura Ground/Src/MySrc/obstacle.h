@@ -40,15 +40,16 @@ public:
 	//****************************************************
 	// special function
 	//****************************************************
-	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObstacleType); // デフォルトコンストラクタ
-	~CObstacle() override;                       // デストラクタ
+
+	// デフォルトコンストラクタ
+	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObstacleType);
+	
+	// デストラクタ	
+	~CObstacle() override;
 
 	//****************************************************
 	// function
 	//****************************************************
-
-	// コライダーのファクトリ
-	void FactoryCollider(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f) override;
 
 	// 更新処理
 	void Update() override;
@@ -56,16 +57,28 @@ public:
 	// 描画処理
 	void Draw() override;
 
+	// インスペクターの表示
+	virtual void ShowInspector();
+
 	// パラメータの編集
-	virtual void EditParam() = 0;
+	virtual void EditParam();
+
+	// 選択中の障害物をバインド
+	static void BindPickingObstacle(CObstacle* pObstacle);
+
+	// 選択中の障害物の更新
+	static void UpdatePickingObstacle();
 
 	// 挙動の種類取得
 	inline Obstacle::OBSTACLE_TYPE GetObsType() const { return m_ObsType; }
+
 private:
 
 	//****************************************************
 	// data
 	//****************************************************
-	Obstacle::OBSTACLE_TYPE m_ObsType;	//　ギミックの種類
+	Obstacle::OBSTACLE_TYPE m_ObsType; // ギミックの種類
 
+	// 選択中の障害物
+	static CObstacle* s_pPickingObstacle;
 };

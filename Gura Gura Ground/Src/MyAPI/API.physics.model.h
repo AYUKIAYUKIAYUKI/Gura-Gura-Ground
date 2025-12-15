@@ -1,6 +1,6 @@
 //============================================================================
 // 
-// バー [bar.h]
+// 物理モデル、ヘッダーファイル [physics.model.h]
 // Author : 福田歩希
 // 
 //============================================================================
@@ -10,27 +10,32 @@
 //****************************************************
 // インクルードファイル
 //****************************************************
-#include "obstacle.h"
+#include "API.physics.object.h"
+#include "API.model.gltf.h"
 
 //****************************************************
-// バークラスの定義
+// 物理モデルクラスの定義
 //****************************************************
-class CBar : public CObstacle
+class CPhysicsModel : public CPhysicsObject
 {
 public:
 
 	//****************************************************
 	// special function
 	//****************************************************
-	CBar(OBJ::TYPE Type, OBJ::LAYER Layer); // デフォルトコンストラクタ
-	~CBar() override;                       // デストラクタ
+
+	// デフォルトコンストラクタ
+	CPhysicsModel(OBJ::TYPE Type, OBJ::LAYER Layer);
+
+	// デストラクタ
+	~CPhysicsModel() override;
 
 	//****************************************************
 	// function
 	//****************************************************
 
-	// コライダーのファクトリ
-	void FactoryCollider(float fWidth, float fHeight, float fDepth) override;
+	// コライダーの生成
+	virtual void FactoryCollider(float fWidth, float fHeight, float fDepth);
 
 	// 更新処理
 	void Update() override;
@@ -38,27 +43,10 @@ public:
 	// 描画処理
 	void Draw() override;
 
-	// インスペクターの表示
-	void ShowInspector() override;
-
-	// パラメータの編集
-	void EditParam() override;
-
-	// 進行方向の設定
-	inline const DirectX::XMFLOAT3& GetDirection() const                             { return m_Direction; }
-	inline       void               SetDirection(const DirectX::XMFLOAT3& Direction) { m_Direction = Direction; }
-
 private:
-
-	//****************************************************
-	// function
-	//****************************************************
-	void Appear(); // 出現
-	void Action(); // 挙動
-	void Loop();   // 戻る
 
 	//****************************************************
 	// data
 	//****************************************************
-	DirectX::XMFLOAT3 m_Direction; // 進行方向
+	std::unique_ptr<CGltf> m_upModel; // glTFモデル
 };

@@ -100,7 +100,7 @@ namespace Collision
 	static CRigidBody* GetHitRigidBody(CRigidBody* pRigidBody0)
 	{
 		// オブジェクトのリストを取得
-		const auto& rObjList = CObjectManager::RefInstance().RefObjList();
+		const auto& rObjList = CObjectManager::RefInstance().RefListRaw();
 
 		for (const auto& rTypeList : rObjList)
 		{
@@ -141,7 +141,7 @@ namespace Collision
 	static CRigidBody* GetHitRigidBody(CGhost* pGhost)
 	{
 		// オブジェクトのリストを取得
-		const auto& rObjList = CObjectManager::RefInstance().RefObjList();
+		const auto& rObjList = CObjectManager::RefInstance().RefListRaw();
 
 		for (const auto& rTypeList : rObjList)
 		{
@@ -177,7 +177,7 @@ namespace Collision
 	static CRigidBody* GetHitRigidBody(CGhost* pGhost, CRigidBody* pNone)
 	{
 		// オブジェクトのリストを取得
-		const auto& rObjList = CObjectManager::RefInstance().RefObjList();
+		const auto& rObjList = CObjectManager::RefInstance().RefListRaw();
 
 		for (const auto& rTypeList : rObjList)
 		{
