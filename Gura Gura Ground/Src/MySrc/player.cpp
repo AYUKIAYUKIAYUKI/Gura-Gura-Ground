@@ -540,6 +540,7 @@ void CPlayer::Update()
 	{
 	   // ©g‚Ì€–Sƒtƒ‰ƒO‚ğ—§‚Ä‚é
 		SetDeath();
+		CCameraController::RefInstance().UnRegist(this);
 	}
 }
 
