@@ -28,6 +28,7 @@ public:
     };
 
     static const int PARAM_SET_MAX = 5;                // パラメータセット最大数
+    static const int SPAWN_PRESET_MAX = 10;
 
     static void EditCommonParams();                    // 共通パラメータ編集UI
     static void EditerMenu();                          // メイン編集ウィンドウ
@@ -52,6 +53,11 @@ private:
     static float        s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ; // 直近ロード位置
     static float        s_LoadedSpeedX, s_LoadedSpeedY, s_LoadedSpeedZ; // 直近ロード速度
     static float        s_ObstacleLastSpawnTime;       // 最後に生成した時刻
-    static float s_SpawnTimePresets[PARAM_SET_MAX];    // 出現時間のプリセット（初期値リスト）
-    static float s_AssignedSpawnTimes[PARAM_SET_MAX];  // 各セットに割り当てられた出現時間
+    static std::vector<float> s_SpawnTimePresets;
+    static std::vector<float> s_AssignedSpawnTimes;
+    static std::vector<int> s_AssignedSpawnParamIndices;
+    static std::vector<bool> s_SpawnedFlags;
+
+
+    static int s_SpawnTimePresetCount;
 };

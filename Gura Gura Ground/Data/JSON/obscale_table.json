@@ -1,6 +1,4 @@
 {
-    "auto_type": 0,
-    "interval": 3.0,
     "param_sets": [
         {
             "manual_type": 1,
@@ -13,16 +11,16 @@
         },
         {
             "manual_type": 0,
-            "spawnX": -14.0,
+            "spawnX": 0.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
-            "speedX": 3.0,
+            "speedX": 0.0,
             "speedY": 0.0,
             "speedZ": -5.0
         },
         {
             "manual_type": 1,
-            "spawnX": -4.0,
+            "spawnX": 0.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
             "speedX": 0.0,
@@ -31,16 +29,16 @@
         },
         {
             "manual_type": 0,
-            "spawnX": 14.0,
+            "spawnX": -10.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
-            "speedX": -3.0,
+            "speedX": 0.0,
             "speedY": 0.0,
             "speedZ": -5.0
         },
         {
             "manual_type": 0,
-            "spawnX": 0.0,
+            "spawnX": 10.0,
             "spawnY": 10.0,
             "spawnZ": 15.0,
             "speedX": 0.0,
@@ -48,12 +46,17 @@
             "speedZ": -5.0
         }
     ],
+    "preset_count": 9,
     "spawn_enable_time": 3.0,
     "spawn_time_presets": [
+        1.0,
         2.0,
-        4.0,
-        6.0,
-        8.0,
-        10.0
+        3.0,
+        16.799999237060547,
+        12.5,
+        9.100000381469727,
+        4.5,
+        3.5,
+        4.0
     ]
 }
