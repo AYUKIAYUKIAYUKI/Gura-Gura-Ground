@@ -11,16 +11,19 @@
 #include "tornado.h"
 
 // 物理挙動作成のため
+#include "API.world.h"
 #include "API.rigidbody.h"
-
-// 衝撃波の作成のため
-#include "bombshockwave.h"
 
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
 CTornado::CTornado(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CObstacle(Type, Layer, OBS::OBSTACLE_TYPE::PERIMETER)
+	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::PERIMETER)
+	, m_StartPos(useful::VEC3_ZERO_INIT)
+	, m_MoveDir(useful::VEC3_ZERO_INIT)
+	, m_nTimer(0)
+	, m_Width(0.0f)
+	, m_Depth(0.0f)
 {}
 
 //============================================================================
@@ -34,14 +37,14 @@ CTornado::~CTornado()
 //============================================================================
 void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
-	// デフォルトのリジッドボディの生成
-	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::CYLINDER, fWidth, fHeight, fDepth));
+	// 竜巻用のリジッドボディの作成
+	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
 
 	// コライダーをリジッドボディにキャスト
 	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
 
-	// 質量を設定
-	pRB->SetMass(1000.0f);
+	// Y軸以外の回転をロック
+	pRB->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
 }
 
 //============================================================================
@@ -49,6 +52,9 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //============================================================================
 void CTornado::Update()
 {
+	// 移動方向を設定
+	SetMoveDir();
+
 	// 挙動
 	Action();
 
@@ -76,5 +82,37 @@ void CTornado::EditParam()
 //============================================================================
 void CTornado::Action()
 {
+	// 進行方向をコピー
+	btVector3 MoveDir = { m_MoveDir.x,m_MoveDir.y,m_MoveDir.z };
 
+	// リジッドボディの取得
+	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
+
+	// 現在の加速度をコピー
+	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
+
+	// リジッドボディのアクティブ化
+	pRB->SetActive();
+
+	// 移動方向：Y軸：現在の重力速度を維持
+	MoveDir.setY(rCurrentVel.getY());
+
+	// 新しい加速度をセット
+	pRB->SetLinearVelocity(MoveDir);
+}
+
+//============================================================================
+// 移動方向を設定
+//============================================================================
+void CTornado::SetMoveDir()
+{
+
+	if (GetTransform().Pos.x <= m_StartPos.x + m_Width)
+	{
+		m_MoveDir = { 4.0f ,0.0f ,0.0f };
+	}
+	else
+	{
+		m_MoveDir = { 0.0f ,0.0f ,0.0f };
+	}
 }

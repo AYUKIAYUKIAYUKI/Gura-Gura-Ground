@@ -28,6 +28,7 @@
 #include "bar.h"
 #include "bomb.h"
 #include "cameracontroller.h"
+#include "tornado.h"
 
 //****************************************************
 // 仮
@@ -109,33 +110,17 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(Player);
 	}
 
-	// ボールの生成
-	CObject::Create<CBall>(
-		[&fUnkoSpan](CBall* p) -> bool
-		{
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
-
-	// バーの生成
-	CObject::Create<CBar>(
-		[&fUnkoSpan](CBar* p) -> bool
-		{
-			p->FactoryCollider(1.5f, 15.0f, 1.5f);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
-
-	// ボムの生成
-	CObject::Create<CBomb>(
-		[&fUnkoSpan](CBomb* p) -> bool
+	// 竜巻の生成
+	CObject::Create<CTornado>(
+		[&fUnkoSpan](CTornado* p) -> bool
 		{
 			OBJ::Transform TF = p->GetTransform();
-			TF.Pos = { 0.0f, 20.0f, 0.0f };
+			TF.Pos = { -30.0f, 0.0f, 30.0f };
 			p->SetTransform(TF);
+			p->SetStartPos(TF.Pos);
 			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			p->SetTimer(300);
+			p->SetDepth(30.0f);
+			p->SetWidth(30.0f);
 			return true;
 		},
 		OBJ::TYPE::OBSTACLE);
