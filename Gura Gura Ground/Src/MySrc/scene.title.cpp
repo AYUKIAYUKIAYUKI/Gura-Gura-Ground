@@ -23,7 +23,6 @@
 #include "API.object.manager.h"
 #include "API.texture.manager.h"
 #include "API.hud.h"
-#include "API.fullscreen.2D.h"
 
 /* デバッグ */
 namespace

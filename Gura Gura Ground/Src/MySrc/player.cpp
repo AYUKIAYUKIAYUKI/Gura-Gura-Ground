@@ -9,9 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "player.h"
-#include "API.rigidbody.h"
 #include "API.input.manager.h"
-#include "API.world.h"
 
 // 当たり判定用
 #include "API.object.manager.h"

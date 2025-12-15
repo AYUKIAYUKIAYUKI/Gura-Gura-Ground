@@ -21,7 +21,6 @@
 #include "API.object.manager.h"
 #include "field.h"
 #include "player.h"
-#include "API.world.h"
 
 /* ˆêŸ¶¬ */
 #include "ball.h"
