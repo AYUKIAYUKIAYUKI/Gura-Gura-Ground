@@ -47,6 +47,9 @@ public:
 	// 描画処理
 	void Draw() override;
 
+	// インスペクターの表示
+	void ShowInspector() override;
+
 	// パラメータの編集
 	void EditParam() override;
 

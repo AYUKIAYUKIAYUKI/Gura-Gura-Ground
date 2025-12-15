@@ -48,9 +48,9 @@ namespace OBJ
 	//****************************************************
 	struct Transform
 	{
-		DirectX::XMFLOAT3 Size  = { 1.0f, 1.0f, 1.0f };
-		DirectX::XMFLOAT4 Rot   = { 0.0f, 0.0f, 0.0f, 1.0f };
-		DirectX::XMFLOAT3 Pos   = { 0.0f, 0.0f, 0.0f };
+		DirectX::XMFLOAT3 Size = { 1.0f, 1.0f, 1.0f };
+		DirectX::XMFLOAT4 Rot  = { 0.0f, 0.0f, 0.0f, 1.0f };
+		DirectX::XMFLOAT3 Pos  = { 0.0f, 0.0f, 0.0f };
 		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
 	};
 
@@ -141,14 +141,14 @@ public:
 
 	// ê∂ê¨èàóù
 	template <DerivedFromObject T>
-	static T* Create(OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
+	[[ deprecated("égópã÷é~") ]] static T* Create(OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
 
 #if CONCEPT_É√ || CONCEPT_Éœ
 	template <DerivedFromObject T, ObjectFactoryFunction U>
 	static T* Create(U&& fpFactory, OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
 #else
 	template <DerivedFromObject T, typename U>
-	static T* Create(U&& fpFactory, OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
+	[[ deprecated("égópã÷é~") ]] static T* Create(U&& fpFactory, OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
 #endif
 
 	//****************************************************

@@ -77,7 +77,7 @@ private:
 	// data
 	//****************************************************
 	std::unique_ptr<StateMachine> m_upStateMachine;       // 状態管理
-	CShockWave*                   m_pShockWave;           // 衝撃波
+	std::weak_ptr<CShockWave>     m_wpShockWave;          // 衝撃波
 	unsigned char                 m_wIdxPlayer;           // プレイヤーのインデックス
 	int                           m_nLostControlDuration; // 操作不能期間
 	int                           m_nStepCounter;         // 進行カウンター

@@ -47,14 +47,10 @@ public:
 	// 期間の設定
 	inline void SetDuration(int nDuration) { m_nDuration = nDuration; }
 
-	// プレイヤーの設定
-	inline void SetPlayer(CPlayer* pPlayer) { m_pPlayer = pPlayer; }
-
 private:
 
 	//****************************************************
 	// data
 	//****************************************************
-	CPlayer* m_pPlayer;   // プレイヤーの
 	int      m_nDuration; // 期間
 };

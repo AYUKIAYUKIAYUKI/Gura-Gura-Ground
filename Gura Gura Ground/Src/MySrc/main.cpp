@@ -93,9 +93,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hInstancePre
 						// 物理ワールドの更新
 						CWorld::RefInstance().Update();
 
-						// オブジェクトリストの更新
-						CObjectManager::RefInstance().UpdateAllObject();
-						CObjectManager::RefInstance().LateUpdateAllObject();
+						// オブジェクトの更新
+						CObjectManager::RefInstance().Update();
 
 						// エフェクトマネージャーの更新
 						//CEffectManager::RefInstance().Update();
@@ -105,8 +104,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hInstancePre
 				CRenderer::RefInstance().Draw(
 					[]() -> void
 					{
-						// オブジェクトリストの描画
-						CObjectManager::RefInstance().DrawAllObject();
+						// オブジェクトの描画
+						CObjectManager::RefInstance().Draw();
 
 						// エフェクトマネージャーの描画
 						//CEffectManager::RefInstance().Draw();

@@ -30,7 +30,7 @@ public:
 	//****************************************************
 
 	// コライダーのファクトリ
-	void FactoryCollider(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f) override;
+	void FactoryCollider(float fWidth, float fHeight, float fDepth) override;
 
 	// 更新処理
 	void Update() override;
@@ -38,8 +38,11 @@ public:
 	// 描画処理
 	void Draw() override;
 
+	// インスペクターの表示
+	void ShowInspector() override;
+
 	// パラメータの編集
-	void EditParam() override { int i = 0; }
+	void EditParam() override;
 
 	// 進行方向の設定
 	inline const DirectX::XMFLOAT3& GetDirection() const                             { return m_Direction; }

@@ -13,15 +13,11 @@
 // コライダーの作成用
 #include "API.collision.h"
 
-// 衝撃波の登録情報を削除したい
-#include "player.h"
-
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
 CShockWave::CShockWave(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CPhysicsObject(Type, Layer)
-	, m_pPlayer(nullptr)
 	, m_nDuration(0)
 {}
 
@@ -51,7 +47,6 @@ void CShockWave::Update()
 	if (m_nDuration < 0)
 	{
 		SetDeath();
-		m_pPlayer->DeleteShockWave();
 	}
 
 	// WVP行列の更新
