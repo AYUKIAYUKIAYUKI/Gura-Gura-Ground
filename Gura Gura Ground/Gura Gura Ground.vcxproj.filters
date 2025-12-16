@@ -127,14 +127,11 @@
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
     <ClCompile Include="Src\MySrc\bomb.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
     <ClCompile Include="Src\MySrc\bombshockwave.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
-    <ClCompile Include="Src\MySrc\tornado.cpp">
-      <Filter>ソース ファイル</Filter>
-
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\MySrc\main.h">
@@ -299,14 +296,12 @@
     <ClInclude Include="Src\MySrc\ball.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
-    <ClInclude Include="Src\MySrc\bomb.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Src\MySrc\bombshockwave.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
-    <ClInclude Include="Src\MySrc\tornado.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Src\MySrc\bomb.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp">

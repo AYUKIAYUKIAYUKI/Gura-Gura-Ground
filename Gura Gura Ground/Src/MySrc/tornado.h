@@ -42,10 +42,6 @@ public:
 	// パラメータの編集
 	void EditParam() override;
 
-	// タイマーの操作用
-	inline int  GetTimer() const { return m_nTimer; }
-	inline void SetTimer(int nTimer) { m_nTimer = nTimer; }
-
 	// 最初の位置の設定
 	inline void SetStartPos(DirectX::XMFLOAT3 StartPos) { m_StartPos = StartPos; }
 
@@ -59,7 +55,6 @@ private:
 	//****************************************************
 	// function
 	//****************************************************
-	void Action();		// 挙動
 	void SetMoveDir();	// 移動方向を設定
 
 	//****************************************************
@@ -67,7 +62,8 @@ private:
 	//****************************************************
 	DirectX::XMFLOAT3 m_StartPos;	// 移動を開始する位置
 	DirectX::XMFLOAT3 m_MoveDir;	// 移動方向
+	int m_NowEdge;					// 現在の辺
+	float m_edgeProgress;			// 現在の辺の進行度
 	float m_Width;					// 横幅
 	float m_Depth;					// 縦幅
-	int m_nTimer;					// タイマー
 };

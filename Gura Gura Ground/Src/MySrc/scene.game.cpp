@@ -110,39 +110,19 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
-	// ボールの生成
-	CObjectManager::CreateRaw<CBall>(
-		[&fUnkoSpan](CBall* p) -> bool
-		{		{
+	
 	// 竜巻の生成
-	CObject::Create<CTornado>(
-		[&fUnkoSpan](CTornado* p) -> bool
+	CObjectManager::CreateRaw<CTornado>(
+		[&fSpanField,fUnkoSpan](CTornado* p) -> bool
 		{
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
-
-	// バーの生成
-	CObjectManager::CreateRaw<CBar>(
-		[&fUnkoSpan](CBar* p) -> bool
-		{
-			p->FactoryCollider(1.5f, 15.0f, 1.5f);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
-
-	// ボムの生成
-	CObjectManager::CreateRaw<CBomb>(
-		[&fUnkoSpan](CBomb* p) -> bool
-		{
+			float Pos = fSpanField + 10.0f;
 			OBJ::Transform TF = p->GetTransform();
-			TF.Pos = { -30.0f, 0.0f, 30.0f };
+			TF.Pos = { -Pos, 0.0f, Pos };
 			p->SetTransform(TF);
 			p->SetStartPos(TF.Pos);
 			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			p->SetDepth(30.0f);
-			p->SetWidth(30.0f);
+			p->SetDepth(Pos * 2.0f);
+			p->SetWidth(Pos * 2.0f);
 			return true;
 		},
 		OBJ::TYPE::OBSTACLE);
