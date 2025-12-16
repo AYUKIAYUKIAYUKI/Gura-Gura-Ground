@@ -27,6 +27,7 @@
 #include "ball.h"
 #include "bar.h"
 #include "bomb.h"
+#include "pendulum.h"
 #include "cameracontroller.h"
 
 //****************************************************
@@ -139,6 +140,16 @@ CSceneGame::CSceneGame()
 			return true;
 		},
 		OBJ::TYPE::OBSTACLE);
+
+	// êUÇËéqÇÃê∂ê¨
+	CObject::Create<CPendulum>(
+		[&fUnkoSpan](CPendulum* p) -> bool
+		{
+			p->FactoryCollider(4.0f, 4.0f, 4.0f);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);
+
 }
 
 //============================================================================
