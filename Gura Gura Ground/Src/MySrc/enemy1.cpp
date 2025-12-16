@@ -19,15 +19,22 @@
 //================================================
 //必要なインクルード
 #include <API.gltf.manager.h>
-#include <any.h>
 #include "API.object.manager.h"
+
+//================================================
+//名前空間（無名）
+namespace
+{
+	btVector3 INIT = { 0.0f, 0.0f, 0.0f };//btVector3用初期化マクロ
+}
 
 
 //======================================
 //コンストラクタ
 //======================================
 CEnemy1::CEnemy1(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsObject(Type, Layer),
-m_nRecasttime(MAX_RECASTTIME_IN), m_bJump(true), m_bTop(false)
+m_pPlayer({}), m_pShockWave(nullptr), m_nRecasttime(MAX_RECASTTIME), m_bJump(true)
+, m_bGoDown(false), m_btOldVel(INIT)
 {
 	searchPlayer();  //プレイヤーを探す(初めにプレイヤーが生成されてるのが条件)
 }
@@ -37,15 +44,8 @@ m_nRecasttime(MAX_RECASTTIME_IN), m_bJump(true), m_bTop(false)
 //======================================
 CEnemy1::~CEnemy1()
 {
-	std::vector<CPlayer*>().swap(m_pPlayer); //解放処理(clear関数だけではデストラクタが呼ばれず？メモリ解放ができない)
-}
-
-//======================================
-//初期化処理
-//======================================
-bool CEnemy1::Initialize()
-{
-	return true;
+	std::vector<CPlayer*>().swap(m_pPlayer); //解放処理
+	m_pShockWave = nullptr;
 }
 
 //============================================================================
@@ -60,8 +60,7 @@ void CEnemy1::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	CRigidBody* pRB =DownCast<CRigidBody>(GetCollider());
 
 	// Y軸以外の回転をロック
-	pRB->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
-	
+	pRB->SetAngularFactor(INIT);
 }
 
 
@@ -100,7 +99,7 @@ void CEnemy1::Update()
 }
 
 //======================================
-//プレイヤーの情報を消す ->ゆうきのやつがいいかも（TYPEを追加しないと無理）
+//プレイヤーの情報を消す ->ゆうきのやつがいいかも
 //======================================
 void CEnemy1::DeletePlayerInfo()
 {
@@ -136,7 +135,7 @@ void CEnemy1::DeleteSelf()
 }
 
 //======================================
-//各情報を計算する処理
+//プレイヤーに対する各情報を計算する処理
 //======================================
 void CEnemy1::Calculation()
 {
@@ -160,7 +159,7 @@ void CEnemy1::Calculation()
 	size_t min_index = std::distance(fvSaveDistance.begin(), min_iterator);             //最小値を持つ番号取得
 
 	//行動処理を呼ぶ
-	Action(m_pPlayer[min_index], fvAngle[min_index]); 
+	Action(m_pPlayer[min_index], fvAngle[min_index]);  //一番近いプレイヤー
 }
 
 //======================================
@@ -170,7 +169,6 @@ void CEnemy1::Action(CPlayer* pPlayer, float fAngle)
 {
 	auto PlayerPos = pPlayer->GetTransform().Pos;   //プレイヤーの位置
 	auto SelfPos = GetTransform().Pos;              //自身の位置 
-
 	const float RADIUS = 5.0f;                      //範囲
 
 	//当たり判定
@@ -180,13 +178,29 @@ void CEnemy1::Action(CPlayer* pPlayer, float fAngle)
 	}
 	else
 	{
-		ActionOutColi(fAngle);
+		//リキャストタイムが規定値以上の時（リキャストタイム終了）
+		if (m_nRecasttime >= MAX_RECASTTIME)
+		{
+			MoveAtPlayer(fAngle, MOVE); //プレイヤーへ移動させる
+		}
 	}
 
 	//頂点に達した時（ジャンプ時の最高到達点）
-	//Top(SelfPos);
+	if (!m_bJump)
+	{
+		//疑似的に到達点を設定
+		if (SelfPos.y >= TOP_POS_Y)
+		{
+			HipDrap();
+		}
 
-	StopAir();
+		//ジャンプ後に呼ぶ事でリキャストタイムをインクリメントさせる=空中時間の考慮を無視
+		InJump();
+	}
+
+	//リキャストタイムが規定値に達した時
+	if (m_nRecasttime >= MAX_RECASTTIME)
+		m_bJump = true;
 }
 
 //======================================
@@ -197,40 +211,9 @@ void CEnemy1::ActionInColi()
 	//ジャンプしてない
 	if (m_bJump)
 	{
-		m_nRecasttime = 0; //リキャストタイムの初期化
-		m_bJump = false;   //jump不可能
+		m_nRecasttime = 0; 
+		m_bJump = false;  
 		Jump();            //ジャンプ処理を呼ぶ
-	}
-
-	//仮にジャンプした後にプレイヤーが範囲内に居座った時
-	else
-	{
-		++m_nRecasttime;
-
-		//リキャストタイムが規定値以上の時（リキャストタイム終了）
-		if (m_nRecasttime > MAX_RECASTTIME_IN)
-		{
-			m_bJump = true;  //jump可能
-		}
-	}
-}
-
-//======================================
-//行動時範囲内にいない時の処理
-//======================================
-void CEnemy1::ActionOutColi(float fAngle)
-{
-	//リキャストタイムが規定値以上の時（リキャストタイム終了）
-	if (m_nRecasttime >= MAX_RECASTTIME)
-	{
-		m_bJump = true;
-		MoveAtPlayer(fAngle, MOVE); //プレイヤーへ移動させる
-	}
-
-	//ジャンプした
-	else if (!m_bJump)
-	{
-		++m_nRecasttime;
 	}
 }
 
@@ -239,15 +222,17 @@ void CEnemy1::ActionOutColi(float fAngle)
 //======================================
 void CEnemy1::Jump()
 {
-	const float Adjsut = 0.15f;
-
-	btVector3 btJumpVec = { 0.0f, JUMPPOWER, 0.0f };
-
 	//リジットボディを取得
 	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
 
 	// 現在の加速度を参照
 	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
+
+	//調整値
+	const float Adjsut = 0.15f;
+
+	//位置情報設定用
+	btVector3 btJumpVec = { 0.0f, JUMPPOWER, 0.0f };
 
 	// ジャンプ力：XZ軸：現在の移動方向を逓減して反映
 	btJumpVec.setX(rCurrentVel.getX() * Adjsut);
@@ -261,13 +246,37 @@ void CEnemy1::Jump()
 }
 
 //======================================
+//ジャンプ中の処理
+//======================================
+void CEnemy1::InJump()
+{
+	// リジッドボディの取得
+	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
+
+	// 現在の加速度をコピー
+	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
+
+	// 下降判定
+	if (!m_bGoDown && rCurrentVel.getY() < 0.0f && m_btOldVel.getY() > 0.0f)
+	{
+		m_bGoDown = true;
+	}
+
+	//下降中に何かに当たった時
+	if (m_bGoDown && Collision::GetHitRigidBody(pRB))
+	{
+		++m_nRecasttime;
+	}
+
+	// 現在の加速度情報を次フレームへ持ち越し
+	m_btOldVel = rCurrentVel;
+}
+
+//======================================
 //hipDrop処理
 //======================================
 void CEnemy1::HipDrap()
 {
-	// ドロップ力
-	btVector3 btDropVec = { 0.0f, -JUMPPOWER, 0.0f };
-
 	//リジットボディを取得
 	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
 
@@ -276,6 +285,9 @@ void CEnemy1::HipDrap()
 
 	// アクティブに変更
 	pRB->SetActive();
+
+	// ドロップ力
+	btVector3 btDropVec = { 0.0f, -JUMPPOWER, 0.0f };
 
 	// ドロップ力を反映
 	pRB->SetImpulse(btDropVec);
@@ -305,63 +317,18 @@ void CEnemy1::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3
 }
 
 //======================================
-//空中停止処理(未定)
-//======================================
-void CEnemy1::StopAir()
-{
-	auto SelfPos = GetTransform().Pos;
-	btVector3 Pos;
-
-	//飛んでいる最中
-	if (!m_bJump)
-	{
-		//リジットボディを取得
-		CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
-
-		//自身のY軸の位置が規定値に達した時
-		if (SelfPos.y >= TOP_POS_Y&&!m_bTop)
-		{
-			btVector3   MoveDir = { 0.0f,0.0f,0.0f };                //位置情報設定用
-
-			pRB = DownCast<CRigidBody>(GetCollider());
-
-			Pos = pRB->GetLinearVelocity();
-
-			pRB->SetLinearVelocity(MoveDir);
-
-			m_bTop = true;
-		}
-
-		if (m_bTop)
-		{
-			++m_nTopTimer;
-
-			if (m_nTopTimer > 60)
-			{
-				m_nTopTimer = 0;
-				m_bTop = false;
-
-				pRB->SetLinearVelocity(Pos);
-				HipDrap();
-			}
-		
-		}
-
-	}
-}
-
-//======================================
 //プレイヤーの方へ移動する処理
 //======================================
 void CEnemy1::MoveAtPlayer(float Angle, float speed)
 {
-	btVector3   MoveDir = { 0.0f,0.0f,0.0f };                //位置情報設定用
-
 	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());   //リジットボディを取得
 
 	const btVector3& rCurrentVel = pRB->GetLinearVelocity(); //現在の加速度を参照
 
 	pRB->SetActive();                                        //アクティブ化
+
+	 //位置情報設定用
+	btVector3   MoveDir = INIT;
 
 	//各位置の設定
 	MoveDir.setX(sinf(Angle) * speed);  
@@ -374,37 +341,15 @@ void CEnemy1::MoveAtPlayer(float Angle, float speed)
 }
 
 //======================================
-//頂点に達した時の処理
-//======================================
-void CEnemy1::Top(XMFLOAT3 SelfPos)
-{
-	if (!m_bJump)
-	{
-		//疑似的に到達点を設定
-		if (SelfPos.y >= TOP_POS_Y)
-		{
-			HipDrap();
-		}
-	}
-}
-
-//======================================
 //当たり判定チェック処理
 //======================================
 bool CEnemy1::CheckCollision(const XMFLOAT3& c1, const XMFLOAT3& c2,float Radius)
 {
-	//各場所から値を算出
-	float lengthX = c1.x - c2.x;
-	float lengthY = c1.y - c2.y;
-	float lengthZ = c1.z - c2.z;
-
-	float centerDistance = sqrtf(lengthX * lengthX + lengthY * lengthY + lengthZ * lengthZ);
-
-	//半径の和
-	float radiusSum =Radius;
+	//距離を算出
+	auto centerDistance = CheckDistance(c1, c2);
 
 	//中心点の距離より半径の和のほうが大きい
-	if (centerDistance <= radiusSum)
+	if (centerDistance <= Radius)
 	{
 		return true; //二つの円が当たっている
 	}
@@ -421,6 +366,7 @@ float CEnemy1::CheckDistance(const XMFLOAT3& c1, const XMFLOAT3& c2)
 	float lengthX = c1.x - c2.x;
 	float lengthY = c1.y - c2.y;
 	float lengthZ = c1.z - c2.z;
+
 	float centerDistance = sqrtf(lengthX * lengthX + lengthY * lengthY + lengthZ * lengthZ);
 
 	return  centerDistance; //対角線の値を返す

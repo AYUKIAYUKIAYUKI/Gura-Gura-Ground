@@ -16,7 +16,7 @@
 //インクルード
 #include "API.physics.object.h"
 #include "API.rigidbody.h"
-
+#include "API.collision.h"
 
 //===================================================
 //名前空間の使用
@@ -36,7 +36,6 @@ class CEnemy1 :public CPhysicsObject
 {
 public:
 	
-
 	/**
 	 * @briefコンストラクタ
 	 */
@@ -49,11 +48,6 @@ public:
 
 	// コライダーのファクトリ
 	void FactoryCollider(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f) override;
-
-	/**
-	 * @brief 初期化処理
-	 */
-	bool Initialize();
 
 	/**
 	 * @brief 更新処理
@@ -71,7 +65,7 @@ public:
 	void searchPlayer();
 
 	/**
-	 * @brief  各情報を計算する処理（位置や向きなど）
+	 * @brief  プレイヤーに対する各情報を計算する処理（位置や向きなど）
 	 */
 	void Calculation();
 
@@ -92,28 +86,19 @@ public:
 	void ActionInColi();
 
 	/**
-	 * @brief 行動時範囲内にいない時の処理関数
-	 * @param [in] 向き
-	 */
-	void ActionOutColi(float fAngle);
-
-	/**
 	 * @brief 飛ぶ処理
 	 */
 	void Jump();
 
 	/**
+	 * @brief 飛んでる処理
+	 */
+	void InJump();
+
+	/**
 	 * @brief ヒップドロップ処理
 	 */
 	void HipDrap();
-
-	/**
-	 * @brief 頂点に達した時の処理
-	 * @param [in]自身の位置情報
-	 */
-	void Top(XMFLOAT3 selfpos);
-
-	void StopAir();
 
 	// 衝撃波の作成
 	void CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration);
@@ -142,23 +127,22 @@ public:
 
 private:
 
-	//変数が多いから減らせるように調整したい
+	//プレイヤーから引継ぎ
+	CShockWave* m_pShockWave; // 衝撃波
 
-	CShockWave* m_pShockWave;          // 衝撃波
+	bool m_bGoDown;           //下降中かどうかの判定
+	btVector3 m_btOldVel;     //過去の加速度
 
 	//===================================================
 	//オリジナル要素
-	std::vector<CPlayer*>m_pPlayer;    //プレイヤーの情報を取得する用
-	int m_nRecasttime;                 //行動までのリキャストタイム
-	bool m_bJump;                      //ジャンプするかどうかの判定用
-   
-	int m_nTopTimer = 0;
-	bool m_bTop;
+	std::vector<CPlayer*>m_pPlayer;  //プレイヤーの情報を取得する用
+	int m_nRecasttime;               //行動までのリキャストタイム
+	bool m_bJump;                    //ジャンプするかどうかの判定用(true=ジャンプ可能)
+
 
 	//===================================================
 	//マクロ定義
 	static constexpr int MAX_RECASTTIME = 120;         //リキャストタイムの最大値
-	static constexpr int MAX_RECASTTIME_IN = 180;      //範囲内に居続けた時のリキャストタイムの最大値
 	static constexpr float MOVE = 3.0f;                //自身の移動値
 	static constexpr float JUMPPOWER = 10.0f;          //自身のジャンプ力(落下速度も兼ねている)
 	static constexpr float TOP_POS_Y = JUMPPOWER*1.1f; //自身のジャンプ時の頂点
