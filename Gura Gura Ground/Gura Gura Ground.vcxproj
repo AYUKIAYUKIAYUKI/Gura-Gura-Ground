@@ -52,6 +52,7 @@
     <ClCompile Include="Src\MySrc\scene.select.cpp" />
     <ClCompile Include="Src\MySrc\shockwave.cpp" />
     <ClCompile Include="Src\MySrc\scene.title.cpp" />
+    <ClCompile Include="Src\MySrc\tornado.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\External\ImGui\imconfig.h" />
@@ -110,6 +111,7 @@
     <ClInclude Include="Src\MySrc\scene.select.h" />
     <ClInclude Include="Src\MySrc\shockwave.h" />
     <ClInclude Include="Src\MySrc\scene.title.h" />
+    <ClInclude Include="Src\MySrc\tornado.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp" />
