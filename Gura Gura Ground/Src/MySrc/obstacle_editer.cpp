@@ -197,7 +197,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                     switch (sub.ManualObstacleType)
                     {
                     case 0: // Ball
-                        CObject::Create<CBall>(
+                        CObjectManager::CreateRaw<CBall>(
                             [sub, subIdx, paramSetIdx](CBall* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
@@ -212,7 +212,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                             }, OBJ::TYPE::OBSTACLE);
                         break;
                     case 1: // Bar
-                        CObject::Create<CBar>(
+                        CObjectManager::CreateRaw<CBar>(
                             [sub, subIdx, paramSetIdx](CBar* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
@@ -266,7 +266,7 @@ void ObstacleEditer::TryManualSpawn()
         switch (sub.ManualObstacleType)
         {
         case 0: // Ball
-            CObject::Create<CBall>(
+            CObjectManager::CreateRaw<CBall>(
                 [sub, subIdx, thisSetIdx](CBall* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);
@@ -282,7 +282,7 @@ void ObstacleEditer::TryManualSpawn()
                 OBJ::TYPE::OBSTACLE);
             break;
         case 1: // Bar
-            CObject::Create<CBar>(
+            CObjectManager::CreateRaw<CBar>(
                 [sub, subIdx, thisSetIdx](CBar* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);

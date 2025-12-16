@@ -26,10 +26,11 @@
     <ClCompile Include="Src\External\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Src\External\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Src\External\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="Src\MySrc\any.cpp" />
     <ClCompile Include="Src\MySrc\ball.cpp" />
     <ClCompile Include="Src\MySrc\bar.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
+    <ClCompile Include="Src\MySrc\bomb.cpp" />
+    <ClCompile Include="Src\MySrc\bombshockwave.cpp" />
     <ClCompile Include="Src\MySrc\cameracontroller.cpp" />
     <ClCompile Include="Src\MySrc\dust.cpp" />
     <ClCompile Include="Src\MySrc\effect.manager.cpp" />
@@ -51,7 +52,6 @@
     <ClCompile Include="Src\MySrc\scene.game.cpp" />
     <ClCompile Include="Src\MySrc\scene.select.cpp" />
     <ClCompile Include="Src\MySrc\shockwave.cpp" />
-    <ClCompile Include="Src\MySrc\state.cpp" />
     <ClCompile Include="Src\MySrc\scene.title.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -92,10 +92,11 @@
     <ClInclude Include="Src\MyAPI\API.vertexshader.manager.h" />
     <ClInclude Include="Src\MyAPI\API.window.h" />
     <ClInclude Include="Src\MyAPI\API.world.h" />
-    <ClInclude Include="Src\MySrc\any.h" />
     <ClInclude Include="Src\MySrc\ball.h" />
     <ClInclude Include="Src\MySrc\bar.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
+    <ClInclude Include="Src\MySrc\bomb.h" />
+    <ClInclude Include="Src\MySrc\bombshockwave.h" />
     <ClInclude Include="Src\MySrc\cameracontroller.h" />
     <ClInclude Include="Src\MySrc\dust.h" />
     <ClInclude Include="Src\MySrc\effect.manager.h" />
@@ -110,7 +111,6 @@
     <ClInclude Include="Src\MySrc\pch.h" />
     <ClInclude Include="Src\MySrc\scene.select.h" />
     <ClInclude Include="Src\MySrc\shockwave.h" />
-    <ClInclude Include="Src\MySrc\state.h" />
     <ClInclude Include="Src\MySrc\scene.title.h" />
   </ItemGroup>
   <ItemGroup>
@@ -241,7 +241,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)Lib\_Debug\DirectXTK.lib;$(SolutionDir)Lib\_Debug\BulletCollision_Debug.lib;$(SolutionDir)Lib\_Debug\BulletDynamics_Debug.lib;$(SolutionDir)Lib\_Debug\DirectXTex.lib;$(SolutionDir)Lib\_Debug\LinearMath_Debug.lib;$(SolutionDir)Lib\_Debug\lua54.lib;$(SolutionDir)Lib\_Debug\3E8ED147825_Debug.lib;$(SolutionDir)Lib\_Debug\Effekseer.lib;$(SolutionDir)Lib\_Debug\EffekseerRendererDX11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Lib\_Debug\BulletCollision_Debug.lib;$(SolutionDir)Lib\_Debug\BulletDynamics_Debug.lib;$(SolutionDir)Lib\_Debug\DirectXTex.lib;$(SolutionDir)Lib\_Debug\DirectXTK.lib;$(SolutionDir)Lib\_Debug\LinearMath_Debug.lib;$(SolutionDir)Lib\_Debug\lua54.lib;$(SolutionDir)Lib\_Debug\3E8ED147825_Debug.lib;$(SolutionDir)Lib\_Debug\Effekseer.lib;$(SolutionDir)Lib\_Debug\EffekseerRendererDX11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -265,7 +265,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)Lib\_Release\BulletCollision.lib;$(SolutionDir)Lib\_Release\BulletDynamics.lib;$(SolutionDir)Lib\_Release\DirectXTex.lib;$(SolutionDir)Lib\_Release\DirectXTK.lib;$(SolutionDir)Lib\_Release\LinearMath.lib;$(SolutionDir)Lib\_Release\3E8ED147825_Release.lib;$(SolutionDir)Lib\_Release\Effekseer.lib;$(SolutionDir)Lib\_Release\EffekseerRendererDX11\lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Lib\_Release\BulletCollision.lib;$(SolutionDir)Lib\_Release\BulletDynamics.lib;$(SolutionDir)Lib\_Release\DirectXTex.lib;$(SolutionDir)Lib\_Release\DirectXTK.lib;$(SolutionDir)Lib\_Release\LinearMath.lib;$(SolutionDir)Lib\_Release\3E8ED147825_Release.lib;$(SolutionDir)Lib\_Release\Effekseer.lib;$(SolutionDir)Lib\_Release\EffekseerRendererDX11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

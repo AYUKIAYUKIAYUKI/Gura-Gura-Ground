@@ -5,14 +5,15 @@
 // 
 //============================================================================
 
-#pragma once
-
 //****************************************************
 // インクルードファイル
 //****************************************************
 #include "dust.h"
 #include "API.rigidbody.h"
 #include "API.world.h"
+
+// オブジェクト生成のため
+#include "API.object.manager.h"
 
 //============================================================================
 // デフォルトコンストラクタ
@@ -82,7 +83,7 @@ void CDust::GenerateSpread(const DirectX::XMFLOAT3& Pos, int nNum)
 {
 	for (int nGenerateNum = 0; nGenerateNum < nNum; ++nGenerateNum)
 	{
-		CObject::Create<CDust>([&Pos](CDust* pObj) -> bool
+		CObjectManager::CreateRaw<CDust>([&Pos](CDust* pObj) -> bool
 			{
 				const DirectX::XMFLOAT3 GeneratePos =
 				{
@@ -119,7 +120,7 @@ void CDust::GenerateSpread(const DirectX::XMFLOAT3& Pos, int nNum)
 //============================================================================
 void CDust::GenerateLinear(const DirectX::XMFLOAT3& Pos, const DirectX::XMFLOAT3& Dir)
 {
-	CObject::Create<CDust>([&Pos, &Dir](CDust* pObj) -> bool
+	CObjectManager::CreateRaw<CDust>([&Pos, &Dir](CDust* pObj) -> bool
 		{
 			const DirectX::XMFLOAT3 GeneratePos =
 			{

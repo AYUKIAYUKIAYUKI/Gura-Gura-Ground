@@ -9,9 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "player.h"
-#include "API.rigidbody.h"
 #include "API.input.manager.h"
-#include "API.world.h"
 
 // 当たり判定用
 #include "API.object.manager.h"
@@ -22,6 +20,8 @@
 // 塵発生用
 #include "dust.h"
 
+#include "cameracontroller.h"
+
 //****************************************************
 // 無名名前空間の定義
 //****************************************************
@@ -31,17 +31,13 @@ namespace
 	int g_nStopCounter = 10;
 
 	// 運動神経
-	float g_fXZAxis_Speed = 8.0f;
-	float g_fYAxis_Jump   = 8.0f;
-
-	// 着地の近似値
-	float fLandEpsilon = 0.003f;
+	float g_fXZAxis_Speed = 9.0f;
+	float g_fYAxis_Jump   = 13.5f;
 
 	// デバッグ用
 	void DebugGui()
 	{
 		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
-		ImGui::DragFloat("Land Epsilon", &fLandEpsilon, 0.001f, 0.001f, 0.1f);
 		ImGui::DragInt("Stop Counter", &g_nStopCounter, 1);
 		ImGui::Separator();
 		ImGui::End();
@@ -198,17 +194,15 @@ void StateDefault::Execute(CPlayer::StateMachine& rStateMachine)
 		const float fSpeed  = g_fXZAxis_Speed;
 		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
-		// アクティブ化
-		pRB->SetActive();
-
-		// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
+		// 移動方向：XZ軸：方向の単位ベクトルに速度を掛けたものを設定
 		MoveDir.setX(sinf(opDir.value()) * fSpeed);
 		MoveDir.setZ(cosf(opDir.value()) * fSpeed);
 
 		// 移動方向：Y軸：現在の重力速度を維持
 		MoveDir.setY(rCurrentVel.getY() + 0.02f); // ちょい浮遊
 
-		// 新しい加速度をセット
+		// 線形速度を上書き
+		pRB->SetActive();
 		pRB->SetLinearVelocity(MoveDir);
 
 		// 塵の進行更新
@@ -219,17 +213,10 @@ void StateDefault::Execute(CPlayer::StateMachine& rStateMachine)
 	if (CInputManager::RefInstance().GetTrackerGamePad(rStateMachine.m_rPalyer.GetIdxPlayer()).a == DirectX::GamePad::ButtonStateTracker::PRESSED)
 	{
 		// ジャンプ力
-		float     fAntiAir  = 0.25f;
 		btVector3 btJumpVec = { 0.0f, g_fYAxis_Jump, 0.0f };
 
-		// アクティブ化
+		// ジャンプ力を衝撃として加える
 		pRB->SetActive();
-
-		// ジャンプ力：XZ軸：現在の移動方向を逓減して反映
-		btJumpVec.setX(rCurrentVel.getX() * fAntiAir);
-		btJumpVec.setZ(rCurrentVel.getZ() * fAntiAir);
-
-		// ジャンプ力を反映
 		pRB->SetImpulse(btJumpVec);
 
 		// ジャンプ状態に変更
@@ -260,6 +247,12 @@ void StateJump::Execute(CPlayer::StateMachine& rStateMachine)
 		m_bGoDown = true;
 	}
 
+	// 下降判定取り消し
+	if (m_bGoDown && rCurrentVel.getY() < -8.0f && m_btOldVel.getY() < -8.0f)
+	{
+		m_bGoDown = false;
+	}
+
 	// 割り当てが該当するゲームパッドの方向入力を取得
 	const std::optional<float>& opDir = CInputManager::RefInstance().ConvertInputToMoveDirection(rStateMachine.m_rPalyer.GetIdxPlayer());
 
@@ -268,7 +261,7 @@ void StateJump::Execute(CPlayer::StateMachine& rStateMachine)
 	{
 		// 移動速度スケール
 		const float fAirSpeed = g_fXZAxis_Speed;
-		btVector3   MoveDir   = { 0.0f, 0.0f, 0.0f };
+		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
 		// アクティブ化
 		pRB->SetActive();
@@ -278,11 +271,51 @@ void StateJump::Execute(CPlayer::StateMachine& rStateMachine)
 		MoveDir.setZ(cosf(opDir.value()) * fAirSpeed);
 
 		// 移動方向：Y軸：現在の重力速度を維持
-		MoveDir.setY(rCurrentVel.getY());
+		MoveDir.setY(0.0f);
 
 		// 新しい加速度をセット
-		pRB->SetLinearVelocity(MoveDir);
+		pRB->SetForce(MoveDir);
 	}
+	//else
+	//{
+	btVector3 MoveDir = { 0.0f, 0.0f, 0.0f };
+
+	// アクティブ化
+	pRB->SetActive();
+
+	// 加速度：XZ軸：取得
+	float fCurrentX = rCurrentVel.getX();
+	float fCurrentZ = rCurrentVel.getZ();
+
+	// 加速度：XZ軸：減衰
+	useful::ExponentialDecay(fCurrentX, 0.0f, 0.025f);
+	useful::ExponentialDecay(fCurrentZ, 0.0f, 0.025f);
+
+	// 移動方向：XZ軸
+	MoveDir.setX(fCurrentX);
+	MoveDir.setZ(fCurrentZ);
+
+	// 移動方向：Y軸：現在の重力速度を維持
+	MoveDir.setY(rCurrentVel.getY());
+
+	// 新しい加速度をセット
+	pRB->SetLinearVelocity(MoveDir);
+	//}
+
+	// フィールドを取得のリストを取得
+	const auto& rFieldList = CObjectManager::RefInstance().RefListRaw(OBJ::TYPE::FIELD);
+
+	// 抜き出したオブジェクトをフィールドにキャストする
+	CField* pField = useful::DownCast<CField>(rFieldList.front());
+
+	// フィールドのコライダーをリジッドボディにキャスト
+	CRigidBody* const pFieldRB = useful::DownCast<CRigidBody>(pField->GetCollider());
+
+	// コールバックを作成
+	Collision::MyContactCallbackRigidBodyAndRigidBody CallBack(pRB, pFieldRB);
+
+	// 衝突検出に各リジッドボディ、コールバックを渡す
+	CWorld::RefInstance().RefDynamicsWorldConst()->contactPairTest(pRB->GetRigidBody(), pFieldRB->GetRigidBody(), CallBack);
 
 	// 状態変更
 	if (m_bGoDown && CInputManager::RefInstance().GetTrackerGamePad(rStateMachine.m_rPalyer.GetIdxPlayer()).a == DirectX::GamePad::ButtonStateTracker::PRESSED)
@@ -293,9 +326,9 @@ void StateJump::Execute(CPlayer::StateMachine& rStateMachine)
 		// 下降判定後、ジャンプ状態中に追加入力でドロップ状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDrop>());
 	}
-	else if (m_bGoDown && Collision::GetHitRigidBody(pRB))
+	else if (CallBack.m_bHit)
 	{
-		// 下降判定中に何かに剛体に接触していたら通常状態に変更
+		// 地面に着地していたら通常状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
 	}
 
@@ -350,7 +383,7 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 		pRB->SetActive();
 
 		// ドロップ力を反映
-		pRB->SetImpulse(btDropVec * 3.0f);
+		pRB->SetImpulse(btDropVec * 2.0f);
 
 		// 衝撃波の作成
 		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::SPHERE, { 2.0f, 2.0f, 2.0f }, 1);
@@ -360,7 +393,7 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	if (Collision::GetHitRigidBody(pRB))
 	{
 		// 衝撃波の作成
-		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 7.0f, 1.0f, 7.0f }, 10);
+		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 6.0f, 1.0f, 6.0f }, 10);
 
 		// 通常状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
@@ -378,7 +411,7 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CPhysicsObject(Type, Layer)
 	, m_upStateMachine(std::make_unique<StateMachine>(*this))
-	, m_pShockWave(nullptr)
+	, m_wpShockWave()
 	, m_wIdxPlayer(0)
 	, m_nLostControlDuration(0)
 	, m_nStepCounter(0)
@@ -401,6 +434,12 @@ void CPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	// コライダーをリジッドボディにキャスト
 	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
 
+	// 重力の設定
+	pRB->SetGravity({ 0.0f, -25.0f, 0.0f });
+
+	// 摩擦力を設定
+	pRB->SetFriction(3.0f);
+
 	// Y軸以外の回転をロック
 	pRB->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
 }
@@ -410,28 +449,21 @@ void CPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //============================================================================
 void CPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
 {
-	// 衝撃波の作成
-	m_pShockWave = CObject::Create<CShockWave>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+	// 衝撃波の作成と、弱参照の設定
+	m_wpShockWave = CObjectManager::CreateShare<CShockWave>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
 
-	// プレイヤーの登録
-	m_pShockWave->SetPlayer(this);
+	/* 別にこんな方法である意味がない */
+	if (std::shared_ptr<CShockWave> spShockWave = m_wpShockWave.lock())
+	{
+		// プレイヤーのトランスフォームを出現位置に設定
+		spShockWave->SetTransform(GetTransform());
 
-	// プレイヤーのトランスフォームを出現位置に設定
-	m_pShockWave->SetTransform(GetTransform());
+		// ゴーストの作成
+		spShockWave->FactoryCollider(Type, Size.x, Size.y, Size.z);
 
-	// ゴーストの作成
-	m_pShockWave->FactoryCollider(Type, Size.x, Size.y, Size.z);
-
-	// 衝撃波の作成
-	m_pShockWave->SetDuration(nDuration);
-}
-
-//============================================================================
-// 衝撃波の削除
-//============================================================================
-void CPlayer::DeleteShockWave()
-{
-	m_pShockWave = nullptr;
+		// 衝撃波の作成
+		spShockWave->SetDuration(nDuration);
+	}
 }
 
 //============================================================================
@@ -459,25 +491,24 @@ void CPlayer::Update()
 	// コライダーをリジッドボディにキャスト
 	CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
 
-	/* 衝撃波のみ特殊処理 */
-	if (m_pShockWave)
+	/* 衝撃波の残存時のみ特別な処理 */
+	if (std::shared_ptr<CShockWave> spShockWave = m_wpShockWave.lock())
 	{
 		// 衝撃波のコライダーをゴーストにキャスト
-		CGhost* pShockwaveGhost = useful::DownCast<CGhost>(m_pShockWave->GetCollider());
+		CGhost* pShockwaveGhost = useful::DownCast<CGhost>(spShockWave->GetCollider());
 
 		// オブジェクトのリストを取得
-		const auto& rObjList = CObjectManager::RefInstance().RefObjList();
+		const auto& rObjList = CObjectManager::RefInstance().RefListShare();
 
 		for (const auto& rTypeList : rObjList)
 		{
 			for (const auto& rIt : rTypeList)
 			{
-				CPhysicsObject* pPhysicsObject = dynamic_cast<CPhysicsObject*>(rIt);
-
 				// 物理オブジェクトにキャスト可能なら
-				if (pPhysicsObject)
+				if (std::shared_ptr<CPhysicsObject> spPhysicsObject = std::dynamic_pointer_cast<CPhysicsObject>(rIt))
 				{
-					CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(pPhysicsObject->GetCollider());
+					// リジッドボディを取得
+					CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(spPhysicsObject->GetCollider());
 
 					// 自分との判定は行わない
 					if (pRB == pRigidBody)
@@ -488,8 +519,7 @@ void CPlayer::Update()
 					// リジッドボディを持っていたら
 					if (pRigidBody)
 					{
-						pRigidBody->SetActive();
-						Collision::BumperPush(pShockwaveGhost, pRigidBody, 3.0f);
+						Collision::BumperPush(pShockwaveGhost, pRigidBody, 5.0f);
 					}
 				}
 			}
@@ -508,7 +538,7 @@ void CPlayer::Update()
 	{
 	   // 自身の死亡フラグを立てる
 		SetDeath();
-		CDust::GenerateSpread(Pos, 20);
+		CCameraController::RefInstance().UnRegist(this);
 	}
 }
 

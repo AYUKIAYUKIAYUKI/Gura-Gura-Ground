@@ -56,7 +56,7 @@ namespace
 // デフォルトコンストラクタ
 //============================================================================
 CBar::CBar(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CObstacle(Type, Layer)
+	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::MOVING)
 	, m_Direction(VEC3_ZERO_INIT)
 {}
 
@@ -107,6 +107,26 @@ void CBar::Draw()
 	// 物理オブジェクト用の描画：モデルの描画
 	CPhysicsObject::Draw();
 }
+
+
+//============================================================================
+// インスペクターの表示
+//============================================================================
+void CBar::ShowInspector()
+{
+	// バーのパラメータ出力
+	useful::MIS::MyImGuiShortcut_BeginWindow("Bar Param");
+	ImGui::Text("Direction X: %.2f", m_Direction.x);
+	ImGui::Text("Direction Y: %.2f", m_Direction.y);
+	ImGui::Text("Direction Z: %.2f", m_Direction.z);
+	ImGui::End();
+}
+
+//============================================================================
+// パラメータの編集
+//============================================================================
+void CBar::EditParam()
+{}
 
 //============================================================================
 // 出現

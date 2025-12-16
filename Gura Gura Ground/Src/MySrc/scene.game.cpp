@@ -21,11 +21,12 @@
 #include "API.object.manager.h"
 #include "field.h"
 #include "player.h"
-#include "API.world.h"
 
 /* 一次生成 */
 #include "ball.h"
 #include "bar.h"
+#include "bomb.h"
+#include "cameracontroller.h"
 
 #include "obstacle_editer.h"
 
@@ -59,9 +60,9 @@ namespace
 	bool GameSet()
 	{
 		// プレイヤーのリストを取得
-		const auto& rPlayerList = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::PLAYER);
+		const auto& rPlayerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 
-		// 一体もプレイヤーが存在しないなら
+		// 一体もプレイヤーが存在しないなら (本当はそうでは無い)
 		if (rPlayerList.size() < 1)
 		{
 			return true;
@@ -76,11 +77,15 @@ namespace
 //============================================================================
 CSceneGame::CSceneGame()
 {
+	// コリジョン描画の切り替え
 	CCollider::SwitchRenderCollision();
+
+	// 初期設定
+	CCameraController::RefInstance().Initialize();
 
 	// 地面を生成
 	float fSpanField = 15.0f;
-	CObject::Create<CField>(
+	CObjectManager::CreateRaw<CField>(
 		[&fSpanField](CField* p) -> bool
 		{
 			p->SetTransform(
@@ -106,7 +111,7 @@ CSceneGame::CSceneGame()
 		if (i % 2 == 0) g_BoxTF.Pos.z *= -1.0f;
 		if (i % 2 == 1) g_BoxTF.Pos.x *= -1.0f;
 
-		CObject::Create<CPlayer>(
+		auto spPlayer = CObjectManager::CreateShare<CPlayer>(
 			[&i](CPlayer* p) -> bool
 			{
 				p->SetIdxPlayer(i);
@@ -115,12 +120,41 @@ CSceneGame::CSceneGame()
 				return true;
 			},
 			OBJ::TYPE::PLAYER);
+
+		// プレイヤー登録
+		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
 	ObstacleEditer::LoadParams("Data\\JSON\\obscale_table.json");
-
+	// ボールの生成
+	CObjectManager::CreateRaw<CBall>(
+		[&fUnkoSpan](CBall* p) -> bool
+		{
+			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);
 	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
-	g_GameTime = 0.0f;
+	g_GameTime = 0.0f;	// バーの生成
+	CObjectManager::CreateRaw<CBar>(
+		[&fUnkoSpan](CBar* p) -> bool
+		{
+			p->FactoryCollider(1.5f, 15.0f, 1.5f);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);
+	// ボムの生成
+	CObjectManager::CreateRaw<CBomb>(
+		[&fUnkoSpan](CBomb* p) -> bool
+		{
+			OBJ::Transform TF = p->GetTransform();
+			TF.Pos = { 0.0f, 20.0f, 0.0f };
+			p->SetTransform(TF);
+			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+			p->SetTimer(300);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);
 }
 
 //============================================================================
@@ -148,8 +182,7 @@ void CSceneGame::Update()
 
 	//プレイモード中の自動スポーン処理
 	ObstacleEditer::PlayModeSpawn(deltaTime);
-
-	// ゲームセットしたらシーン遷移
+	CCameraController::RefInstance().Update();	// ゲームセットしたらシーン遷移
 	if (GameSet())
 	{
 		Change();
@@ -162,9 +195,8 @@ void CSceneGame::Update()
 //============================================================================
 void CSceneGame::Change()
 {
-	//// 全オブジェクトに死亡フラグを立てる
-	//CObjectManager::RefInstance().SetDeathAllObject();
-
-	//// タイトルシーンへ
-	//CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	// 全オブジェクトに死亡フラグを立てる
+	CObjectManager::RefInstance().SetDeathAll();
+	// タイトルシーンへ
+	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }
