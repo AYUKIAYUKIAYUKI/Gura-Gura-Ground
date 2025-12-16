@@ -56,3 +56,16 @@ T& CSingleton<T>::RefInstance()
 
 	return *s_upInstance;
 }
+
+//============================================================================
+// –¾Ž¦“I‚È”jŠü
+//============================================================================
+template <typename T>
+void CSingleton<T>::ExplicitRelease()
+{
+	if (s_upInstance)
+	{
+		s_upInstance->Finalize();
+		s_upInstance.reset();
+	}
+}

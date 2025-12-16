@@ -51,11 +51,11 @@ void CBombShockWave::Update()
 	CGhost* pGhost = useful::DownCast<CGhost>(GetCollider());
 
 	// オブジェクトのリストを取得
-	const auto& rObjList = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::PLAYER);
+	const auto& rObjList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 
 	for (const auto& rIt : rObjList)
 	{
-		CPlayer* pPlayer = dynamic_cast<CPlayer*>(rIt);
+		CPlayer* pPlayer = dynamic_cast<CPlayer*>(rIt.get());
 
 		// プレイヤーにキャスト可能
 		if (pPlayer)

@@ -58,7 +58,7 @@ CSceneSelect::CSceneSelect()
 	, m_pCursor(nullptr)
 {
 	// サンシャインエフェクトの生成
-	auto pfst = CObject::Create<CFullScreen2D>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+	auto pfst = CObjectManager::CreateRaw<CFullScreen2D>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
 	auto rcpVS = CVertexShaderManager::RefInstance().RefRegistry().BindAtKey("FullScreen.2D");
 	pfst->SetVertexShader(rcpVS);
 	auto rcpPS = CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Sunshine");
@@ -74,7 +74,7 @@ CSceneSelect::CSceneSelect()
 	m_vBeamLightQue.push_back({ fC, {  0.0f,           fOffsetY_Light } });
 
 	// カーソルの生成
-	auto pCursor = CObject::Create<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+	auto pCursor = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
 	pCursor->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Cursor"));
 	m_pCursor = pCursor;
 }
@@ -111,7 +111,7 @@ void CSceneSelect::Update()
 void CSceneSelect::Change()
 {
 	// 全オブジェクトに死亡フラグを立てる
-	CObjectManager::RefInstance().SetDeathAllObject();
+	CObjectManager::RefInstance().SetDeathAll();
 
 	// ゲームシーンへ
 	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneGame>());
@@ -167,7 +167,7 @@ void CSceneSelect::WhileEvent_QueInstantiateLight()
 		m_nCommonCnt = 0;
 
 		// ビームライトを生成
-		auto pfsbl = CObject::Create<CBeamLight>(OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
+		auto pfsbl = CObjectManager::CreateRaw<CBeamLight>(OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
 
 		// 位置設定
 		const DirectX::XMFLOAT2& Pos = m_vBeamLightQue[Size].second;

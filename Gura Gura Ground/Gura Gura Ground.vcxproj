@@ -26,7 +26,6 @@
     <ClCompile Include="Src\External\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Src\External\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Src\External\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="Src\MySrc\any.cpp" />
     <ClCompile Include="Src\MySrc\ball.cpp" />
     <ClCompile Include="Src\MySrc\bar.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
@@ -53,7 +52,6 @@
     <ClCompile Include="Src\MySrc\scene.game.cpp" />
     <ClCompile Include="Src\MySrc\scene.select.cpp" />
     <ClCompile Include="Src\MySrc\shockwave.cpp" />
-    <ClCompile Include="Src\MySrc\state.cpp" />
     <ClCompile Include="Src\MySrc\scene.title.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -94,7 +92,6 @@
     <ClInclude Include="Src\MyAPI\API.vertexshader.manager.h" />
     <ClInclude Include="Src\MyAPI\API.window.h" />
     <ClInclude Include="Src\MyAPI\API.world.h" />
-    <ClInclude Include="Src\MySrc\any.h" />
     <ClInclude Include="Src\MySrc\ball.h" />
     <ClInclude Include="Src\MySrc\bar.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
@@ -114,7 +111,6 @@
     <ClInclude Include="Src\MySrc\pch.h" />
     <ClInclude Include="Src\MySrc\scene.select.h" />
     <ClInclude Include="Src\MySrc\shockwave.h" />
-    <ClInclude Include="Src\MySrc\state.h" />
     <ClInclude Include="Src\MySrc\scene.title.h" />
   </ItemGroup>
   <ItemGroup>
