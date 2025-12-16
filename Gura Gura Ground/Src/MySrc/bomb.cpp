@@ -16,6 +16,7 @@
 
 // 衝撃波の作成のため
 #include "bombshockwave.h"
+#include <obstacle_editer.h>
 
 //============================================================================
 // デフォルトコンストラクタ
@@ -50,6 +51,16 @@ void CBomb::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// 弾性力を設定
 	pRB->SetRestitution(0.25f);
+
+	// パラメータ参照
+	const auto& param = ObstacleEditer::s_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
+	OBJ::Transform TF = {};
+
+	TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };
+	SetTimer(param.BombTimer);
+
+	// 位置セット
+	pRB->SetWorldTransform(TF);
 }
 
 //============================================================================

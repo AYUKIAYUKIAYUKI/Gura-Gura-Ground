@@ -11,6 +11,7 @@
 #include "API.object.manager.h"
 #include <API.rigidbody.h>
 #include <random>
+#include <bomb.h>
 
 using json = nlohmann::json;
 
@@ -27,7 +28,7 @@ std::vector<std::pair<int, int>> ObstacleEditer::s_AssignedSpawnParamIndices = {
 std::vector<ObstacleEditer::ObstacleParam> ObstacleEditer::s_ParamSets(ObstacleEditer::PARAM_SET_MAX);
 std::vector<bool> ObstacleEditer::s_SpawnedFlags = {};
 
-static const char* s_ObstacleTypeNames[] = { "Ball", "Bar" };
+static const char* s_ObstacleTypeNames[] = { "Ball", "Bar", "Bomb" };
 
 //============================================================================
 // 障害物パラメーター編集処理
@@ -64,6 +65,11 @@ void ObstacleEditer::EditCommonParams()
         ImGui::DragFloat("Speed X", &obs.ObstacleSpeedX, 0.1f, -20.0f, 20.0f);
         ImGui::DragFloat("Speed Y", &obs.ObstacleSpeedY, 0.1f, -20.0f, 20.0f);
         ImGui::DragFloat("Speed Z", &obs.ObstacleSpeedZ, 0.1f, -20.0f, 20.0f);
+
+        if (obs.ManualObstacleType == 2) 
+        {
+            ImGui::DragInt("Bomb Timer", &obs.BombTimer, 1.0f, 1, 1000);
+        }
 
         // 個別削除ボタン
         if (ImGui::Button("Remove")) 
@@ -227,6 +233,20 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 return true;
                             }, OBJ::TYPE::OBSTACLE);
                         break;
+                    case 2: // Bomb
+                        CObjectManager::CreateRaw<CBomb>(
+                            [sub, subIdx, paramSetIdx](CBomb* p) -> bool
+                            {
+                                p->SetParamSetIndex(paramSetIdx);
+                                p->SetSubParamIndex(static_cast<int>(subIdx));
+                                p->FactoryCollider(3.0f, 3.0f, 3.0f); // Bombのサイズ
+                                OBJ::Transform TF = {};
+                                TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                                p->SetTransform(TF);
+                                p->SetTimer(sub.BombTimer); // タイマー値セット
+                                return true;
+                            }, OBJ::TYPE::OBSTACLE);
+                        break;
                 }
                     }
                 s_SpawnedFlags[i] = true;
@@ -298,6 +318,20 @@ void ObstacleEditer::TryManualSpawn()
                 },
                 OBJ::TYPE::OBSTACLE);
             break;
+        case 2: // Bomb
+            CObjectManager::CreateRaw<CBomb>(
+                [sub, subIdx, thisSetIdx](CBomb* p) -> bool
+                {
+                    p->SetParamSetIndex(thisSetIdx);
+                    p->SetSubParamIndex(static_cast<int>(subIdx));
+                    p->FactoryCollider(3.0f, 3.0f, 3.0f); // Bombのサイズ
+                    OBJ::Transform TF = {};
+                    TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                    p->SetTransform(TF);
+                    p->SetTimer(sub.BombTimer); // タイマー値セット
+                    return true;
+                }, OBJ::TYPE::OBSTACLE);
+            break;
         }
     }
 }
@@ -325,6 +359,7 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
             jSub["speedY"] = sub.ObstacleSpeedY;
             jSub["speedZ"] = sub.ObstacleSpeedZ;
             jSub["manual_type"] = sub.ManualObstacleType;
+            jSub["bomb_timer"] = sub.BombTimer;
             jParamSet["sub_params"].push_back(jSub);
         }
 
@@ -378,6 +413,7 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
                         sub.ObstacleSpeedY = jSub.value("speedY", 0.0f);
                         sub.ObstacleSpeedZ = jSub.value("speedZ", -5.0f);
                         sub.ManualObstacleType = jSub.value("manual_type", 0);
+                        sub.BombTimer = jSub.value("bomb_timer", 300);
                         sub.Spawned = false;
                         s_ParamSets[i].subParams.push_back(sub);
                     }

@@ -3,6 +3,7 @@
         {
             "sub_params": [
                 {
+                    "bomb_timer": 300,
                     "manual_type": 1,
                     "spawnX": -7.0,
                     "spawnY": 10.0,
@@ -12,8 +13,9 @@
                     "speedZ": -5.0
                 },
                 {
-                    "manual_type": 0,
-                    "spawnX": 0.0,
+                    "bomb_timer": 300,
+                    "manual_type": 2,
+                    "spawnX": 7.199999809265137,
                     "spawnY": 10.0,
                     "spawnZ": 15.0,
                     "speedX": 0.0,
@@ -25,6 +27,7 @@
         {
             "sub_params": [
                 {
+                    "bomb_timer": 300,
                     "manual_type": 0,
                     "spawnX": 5.199999809265137,
                     "spawnY": 10.0,
@@ -34,6 +37,7 @@
                     "speedZ": -5.0
                 },
                 {
+                    "bomb_timer": 300,
                     "manual_type": 0,
                     "spawnX": -12.0,
                     "spawnY": 10.0,
@@ -47,6 +51,7 @@
         {
             "sub_params": [
                 {
+                    "bomb_timer": 300,
                     "manual_type": 0,
                     "spawnX": -12.600000381469727,
                     "spawnY": 10.0,
@@ -56,6 +61,7 @@
                     "speedZ": 0.0
                 },
                 {
+                    "bomb_timer": 300,
                     "manual_type": 0,
                     "spawnX": 12.600000381469727,
                     "spawnY": 10.0,
@@ -69,6 +75,7 @@
         {
             "sub_params": [
                 {
+                    "bomb_timer": 300,
                     "manual_type": 1,
                     "spawnX": 9.0,
                     "spawnY": 10.0,
@@ -78,6 +85,7 @@
                     "speedZ": -5.0
                 },
                 {
+                    "bomb_timer": 300,
                     "manual_type": 1,
                     "spawnX": -9.0,
                     "spawnY": 10.0,
@@ -91,6 +99,7 @@
         {
             "sub_params": [
                 {
+                    "bomb_timer": 300,
                     "manual_type": 1,
                     "spawnX": -8.0,
                     "spawnY": 10.0,
@@ -100,6 +109,7 @@
                     "speedZ": -5.0
                 },
                 {
+                    "bomb_timer": 300,
                     "manual_type": 1,
                     "spawnX": 8.0,
                     "spawnY": 10.0,
@@ -109,6 +119,7 @@
                     "speedZ": 5.0
                 },
                 {
+                    "bomb_timer": 300,
                     "manual_type": 0,
                     "spawnX": 0.0,
                     "spawnY": 10.0,
@@ -118,6 +129,7 @@
                     "speedZ": -5.0
                 },
                 {
+                    "bomb_timer": 300,
                     "manual_type": 0,
                     "spawnX": 0.0,
                     "spawnY": 10.0,
@@ -136,6 +148,11 @@
         4.0,
         6.0,
         8.0,
-        10.0
+        10.0,
+        5.0,
+        5.0,
+        5.0,
+        5.0,
+        5.0
     ]
 }

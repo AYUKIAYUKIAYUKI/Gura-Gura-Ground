@@ -125,36 +125,9 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
-	ObstacleEditer::LoadParams("Data\\JSON\\obscale_table.json");
-	// ボールの生成
-	CObjectManager::CreateRaw<CBall>(
-		[&fUnkoSpan](CBall* p) -> bool
-		{
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
+	ObstacleEditer::LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
 	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
-	g_GameTime = 0.0f;	// バーの生成
-	CObjectManager::CreateRaw<CBar>(
-		[&fUnkoSpan](CBar* p) -> bool
-		{
-			p->FactoryCollider(1.5f, 15.0f, 1.5f);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
-	// ボムの生成
-	CObjectManager::CreateRaw<CBomb>(
-		[&fUnkoSpan](CBomb* p) -> bool
-		{
-			OBJ::Transform TF = p->GetTransform();
-			TF.Pos = { 0.0f, 20.0f, 0.0f };
-			p->SetTransform(TF);
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			p->SetTimer(300);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
+	g_GameTime = 0.0f;
 }
 
 //============================================================================
@@ -195,8 +168,8 @@ void CSceneGame::Update()
 //============================================================================
 void CSceneGame::Change()
 {
-	// 全オブジェクトに死亡フラグを立てる
-	CObjectManager::RefInstance().SetDeathAll();
-	// タイトルシーンへ
-	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	//// 全オブジェクトに死亡フラグを立てる
+	//CObjectManager::RefInstance().SetDeathAll();
+	//// タイトルシーンへ
+	//CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }

@@ -25,6 +25,7 @@ public:
         float ObstacleSpawnX = 0.0f;                   // 生成位置X
         float ObstacleSpawnY = 10.0f;                  // 生成位置Y
         float ObstacleSpawnZ = 15.0f;                  // 生成位置Z
+        int BombTimer = 300;                           // タイマー値(ボム用)
     };
 
     struct ObstacleParam {
