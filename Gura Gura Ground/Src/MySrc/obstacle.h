@@ -43,12 +43,6 @@ public:
 	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObsType); // デフォルトコンストラクタ
 	~CObstacle() override;                       // デストラクタ
 
-	// デフォルトコンストラクタ
-	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObstacleType);
-	
-	// デストラクタ	
-	~CObstacle() override;
-
 	//****************************************************
 	// function
 	//****************************************************
@@ -83,13 +77,4 @@ private:
 
 	// 選択中の障害物
 	static CObstacle* s_pPickingObstacle;
-
-	// 挙動種類取得
-	inline Obstacle::OBSTACLE_TYPE GetObsType() const { return m_ObsType; }
-private:
-
-	//****************************************************
-	// data
-	//****************************************************
-	Obstacle::OBSTACLE_TYPE m_ObsType;	//　ギミックの種類
 };

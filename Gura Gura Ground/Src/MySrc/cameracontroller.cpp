@@ -215,7 +215,7 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 void CCameraController::GetObstacles()
 {
 	// è·äQï®ÉäÉXÉgéÊìæ
-	auto List = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::OBSTACLE);
+	auto List = CObjectManager::RefInstance().RefListRaw(OBJ::TYPE::OBSTACLE);
 
 	for (auto ite : List)
 	{
