@@ -21,13 +21,13 @@
 #include "API.object.manager.h"
 #include "field.h"
 #include "player.h"
-#include "API.world.h"
 
 /* 一次生成 */
 #include "ball.h"
 #include "bar.h"
 #include "bomb.h"
 #include "cameracontroller.h"
+#include "tornado.h"
 
 //****************************************************
 // 仮
@@ -49,9 +49,9 @@ namespace
 	bool GameSet()
 	{
 		// プレイヤーのリストを取得
-		const auto& rPlayerList = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::PLAYER);
+		const auto& rPlayerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 
-		// 一体もプレイヤーが存在しないなら
+		// 一体もプレイヤーが存在しないなら (本当はそうでは無い)
 		if (rPlayerList.size() < 1)
 		{
 			return true;
@@ -66,6 +66,7 @@ namespace
 //============================================================================
 CSceneGame::CSceneGame()
 {
+	// コリジョン描画の切り替え
 	CCollider::SwitchRenderCollision();
 
 	// 初期設定
@@ -73,7 +74,7 @@ CSceneGame::CSceneGame()
 
 	// 地面を生成
 	float fSpanField = 15.0f;
-	CObject::Create<CField>(
+	CObjectManager::CreateRaw<CField>(
 		[&fSpanField](CField* p) -> bool
 		{
 			p->SetTransform(
@@ -99,7 +100,7 @@ CSceneGame::CSceneGame()
 		if (i % 2 == 0) g_BoxTF.Pos.z *= -1.0f;
 		if (i % 2 == 1) g_BoxTF.Pos.x *= -1.0f;
 
-		auto* Player = CObject::Create<CPlayer>(
+		auto spPlayer = CObjectManager::CreateShare<CPlayer>(
 			[&i](CPlayer* p) -> bool
 			{
 				p->SetIdxPlayer(i);
@@ -110,28 +111,25 @@ CSceneGame::CSceneGame()
 			OBJ::TYPE::PLAYER);
 
 		// プレイヤー登録
-		CCameraController::RefInstance().Regist(Player);
+		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
-	// ボールの生成
-	/*CObject::Create<CBall>(
-		[&fUnkoSpan](CBall* p) -> bool
+	
+	// 竜巻の生成
+	CObjectManager::CreateRaw<CTornado>(
+		[&fSpanField,fUnkoSpan](CTornado* p) -> bool
 		{
+			float Pos = fSpanField + 10.0f;
+			OBJ::Transform TF = p->GetTransform();
+			TF.Pos = { -Pos, 0.0f, Pos };
+			p->SetTransform(TF);
+			p->SetStartPos(TF.Pos);
 			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+			p->SetDepth(Pos * 2.0f);
+			p->SetWidth(Pos * 2.0f);
 			return true;
 		},
-		OBJ::TYPE::OBSTACLE);*/
-	
-	// バーの生成
-	/*CObject::Create<CBar>(
-		[&fUnkoSpan](CBar* p) -> bool
-		{
-			p->FactoryCollider(1.5f, 15.0f, 1.5f);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);*/
-
-	
+		OBJ::TYPE::OBSTACLE);
 }
 
 //============================================================================
@@ -199,7 +197,7 @@ void CSceneGame::Update()
 void CSceneGame::Change()
 {
 	// 全オブジェクトに死亡フラグを立てる
-	CObjectManager::RefInstance().SetDeathAllObject();
+	CObjectManager::RefInstance().SetDeathAll();
 
 	// タイトルシーンへ
 	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());

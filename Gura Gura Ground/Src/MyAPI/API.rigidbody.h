@@ -64,8 +64,9 @@ public:
 	bool GetActive() const;
 	void SetActive() const;
 
-	// 重力の設定
-	void SetGravity(const btVector3& rGravity) const;
+	// 重力の操作用
+	const btVector3& GetGravity()                          const;
+	void             SetGravity(const btVector3& rGravity) const;
 
 	// 加速度減衰の設定
 	void SetDamping(float fLinear, float fRotate) const;
