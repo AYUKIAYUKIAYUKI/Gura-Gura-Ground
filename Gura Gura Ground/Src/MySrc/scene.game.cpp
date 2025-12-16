@@ -142,7 +142,7 @@ CSceneGame::CSceneGame()
 		OBJ::TYPE::OBSTACLE);
 
 	// U‚èq‚Ì¶¬
-	CObject::Create<CPendulum>(
+	CObjectManager::CreateRaw<CPendulum>(
 		[&fUnkoSpan](CPendulum* p) -> bool
 		{
 			p->FactoryCollider(4.0f, 4.0f, 4.0f);

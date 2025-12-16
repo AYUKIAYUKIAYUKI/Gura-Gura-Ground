@@ -65,7 +65,7 @@ namespace
 // デフォルトコンストラクタ
 //============================================================================
 CPendulum::CPendulum(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CObstacle(Type, Layer)
+	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::PERIMETER)
 	, m_Direction(VEC3_ZERO_INIT)
 	, m_Time(0.0f)
 {}
