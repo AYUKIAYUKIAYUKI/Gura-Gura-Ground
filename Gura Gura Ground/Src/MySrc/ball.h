@@ -45,6 +45,11 @@ public:
 	inline const DirectX::XMFLOAT3& GetDirection() const                             { return m_Direction; }
 	inline       void               SetDirection(const DirectX::XMFLOAT3& Direction) { m_Direction = Direction; }
 
+	void SetParamSetIndex(int idx) { m_ParamSetIndex = idx; }
+	void SetSubParamIndex(int idx) { m_SubParamIndex = idx; }
+	int  GetParamSetIndex() const { return m_ParamSetIndex; }
+	int  GetSubParamIndex() const { return m_SubParamIndex; }
+
 private:
 
 	//****************************************************
@@ -58,4 +63,6 @@ private:
 	// data
 	//****************************************************
 	DirectX::XMFLOAT3 m_Direction; // is•ûŒü
+	int m_ParamSetIndex = 0;   // ‚Ç‚ÌParamSet‚©
+	int m_SubParamIndex = 0;   // ‚»‚Ì’†‚Ì‰½”Ô–Ú‚©
 };

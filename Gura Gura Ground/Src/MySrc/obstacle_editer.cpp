@@ -14,19 +14,15 @@
 
 using json = nlohmann::json;
 
-int ObstacleEditer::s_LoadedType = 0; // 0:Ball, 1:Bar
 int ObstacleEditer::s_CurrentParamIndex = 0;
 bool ObstacleEditer::s_PlayMode = false; //プレイモードかどうか
-bool ObstacleEditer::s_LoadedParamsValid = false;
-bool  ObstacleEditer::s_LoadedShown = false;
 float ObstacleEditer::s_LoadedSpawnX = 0.0f, ObstacleEditer::s_LoadedSpawnY = 0.0f, ObstacleEditer::s_LoadedSpawnZ = 0.0f;
 float ObstacleEditer::s_LoadedSpeedX = 0.0f, ObstacleEditer::s_LoadedSpeedY = 0.0f, ObstacleEditer::s_LoadedSpeedZ = 0.0f;
 float ObstacleEditer::s_PlayModeElapsedTime = 0.0f;
 int ObstacleEditer::s_SpawnTimePresetCount = ObstacleEditer::SPAWN_PRESET_MAX;
 std::vector<float> ObstacleEditer::s_AssignedSpawnTimes(ObstacleEditer::PARAM_SET_MAX, 5.0f);
 std::vector<float> ObstacleEditer::s_SpawnTimePresets(ObstacleEditer::SPAWN_PRESET_MAX, 5.0f);
-float ObstacleEditer::s_ObstacleLastSpawnTime = 0.0f;
-std::vector<int> ObstacleEditer::s_AssignedSpawnParamIndices = {};
+std::vector<std::pair<int, int>> ObstacleEditer::s_AssignedSpawnParamIndices = {};
 
 std::vector<ObstacleEditer::ObstacleParam> ObstacleEditer::s_ParamSets(ObstacleEditer::PARAM_SET_MAX);
 std::vector<bool> ObstacleEditer::s_SpawnedFlags = {};
@@ -38,15 +34,47 @@ static const char* s_ObstacleTypeNames[] = { "Ball", "Bar" };
 //============================================================================
 void ObstacleEditer::EditCommonParams()
 {
-    auto& param = RefParam();
-    ImGui::Text("Obstacle Param");
-    ImGui::Combo("Obstacle Type", &param.ManualObstacleType, s_ObstacleTypeNames, IM_ARRAYSIZE(s_ObstacleTypeNames));
-    ImGui::DragFloat("Spawn Pos X", &param.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
-    ImGui::DragFloat("Spawn Pos Y", &param.ObstacleSpawnY, 0.1f, 5.0f, 100.0f);
-    ImGui::DragFloat("Spawn Pos Z", &param.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
-    ImGui::DragFloat("Spawm Speed X", &param.ObstacleSpeedX, 0.1f, -20.0f, 20.0f);
-    ImGui::DragFloat("Spawm Speed Y", &param.ObstacleSpeedY, 0.1f, -20.0f, 20.0f);
-    ImGui::DragFloat("Spawm Speed Z", &param.ObstacleSpeedZ, 0.1f, -20.0f, 20.0f);
+    auto& paramSet = RefParam();
+
+    // 新規追加ボタン
+    if (ImGui::Button("Add Obstacle")) 
+    {
+        paramSet.subParams.push_back(SubObstacleParam{}); // デフォルト値で追加
+    }
+
+    // 障害物(subParams)の一覧UI
+    for (size_t i = 0; i < paramSet.subParams.size(); ++i) 
+    {
+        ImGui::Separator();
+        ImGui::PushID(static_cast<int>(i));
+
+        SubObstacleParam& obs = paramSet.subParams[i];
+
+        ImGui::Text("Obstacle %zu", i + 1);
+
+        // タイプ
+        ImGui::Combo("Type", &obs.ManualObstacleType, s_ObstacleTypeNames, IM_ARRAYSIZE(s_ObstacleTypeNames));
+
+        // 座標
+        ImGui::DragFloat("Spawn Pos X", &obs.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
+        ImGui::DragFloat("Spawn Pos Y", &obs.ObstacleSpawnY, 0.1f, 5.0f, 100.0f);
+        ImGui::DragFloat("Spawn Pos Z", &obs.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
+
+        // 速度
+        ImGui::DragFloat("Speed X", &obs.ObstacleSpeedX, 0.1f, -20.0f, 20.0f);
+        ImGui::DragFloat("Speed Y", &obs.ObstacleSpeedY, 0.1f, -20.0f, 20.0f);
+        ImGui::DragFloat("Speed Z", &obs.ObstacleSpeedZ, 0.1f, -20.0f, 20.0f);
+
+        // 個別削除ボタン
+        if (ImGui::Button("Remove")) 
+        {
+            paramSet.subParams.erase(paramSet.subParams.begin() + i);
+            ImGui::PopID();
+            break;
+        }
+
+        ImGui::PopID();
+    }
 }
 
 //============================================================================
@@ -90,67 +118,61 @@ void ObstacleEditer::SpawnTimePresetEditor()
 {
     if (ImGui::Begin("SpawnTime Preset Editor"))
     {
-        //プリセット数の編集
         ImGui::Text("PresetCount"); ImGui::SameLine();
 
-        //プリセット数を1以上に制限して減少
         if (ImGui::Button("-##PresetCount"))
         {
             if (s_SpawnTimePresetCount > 1)
+            {
                 s_SpawnTimePresetCount--;
+            }
         }
 
         ImGui::SameLine();
         ImGui::Text("%d", s_SpawnTimePresetCount); ImGui::SameLine();
 
-        //プリセット数を最大値以内で増加
         if (ImGui::Button("+##PresetCount"))
         {
             if (s_SpawnTimePresetCount < SPAWN_PRESET_MAX)
+            {
                 s_SpawnTimePresetCount++;
+            }
         }
 
-        // 追加分の出現時間を1.0fで初期化させる
-        if ((int)s_SpawnTimePresets.size() < s_SpawnTimePresetCount)
-        {
-            s_SpawnTimePresets.resize(s_SpawnTimePresetCount, 1.0f);
-        }
-
-        // 余分な要素を切り詰める
-        else if ((int)s_SpawnTimePresets.size() > s_SpawnTimePresetCount)
-        {
-            s_SpawnTimePresets.resize(s_SpawnTimePresetCount);
-        }
-
-        // 出現する時間を編集
         for (int i = 0; i < s_SpawnTimePresetCount; ++i)
         {
             char label[32];
-            snprintf(label, sizeof(label), "SpawmTime %d", i + 1);
+            snprintf(label, sizeof(label), "SpawnTime %d", i + 1);
             ImGui::DragFloat(label, &s_SpawnTimePresets[i], 0.1f, 0.0f, 100.0f);
         }
 
-        //出現パラメーターのランダム抽選
         if (ImGui::Button("Assign Random SpawnTimes"))
         {
             AssignRandomSpawnTimes();
         }
 
-        //各パラメーターの表示
         for (int i = 0; i < s_SpawnTimePresetCount; ++i)
         {
-            int paramIdx = s_AssignedSpawnParamIndices.size() > i ? s_AssignedSpawnParamIndices[i] : 0;
-            const auto& param = s_ParamSets[paramIdx];
-            ImGui::Text("Time %d : %.2f (Param %d, Type:%s Pos: %.1f %.1f %.1f)",
-                i, s_AssignedSpawnTimes.size() > i ? s_AssignedSpawnTimes[i] : 0.0f,
-                paramIdx + 1,
-                (param.ManualObstacleType == 0 ? "Ball" : "Bar"),
-                param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ);
+            if (i < s_AssignedSpawnParamIndices.size())
+            {
+                int paramSetIndex = s_AssignedSpawnParamIndices[i].first;
+                int subParamIndex = s_AssignedSpawnParamIndices[i].second;
+                if (paramSetIndex < (int)s_ParamSets.size() && subParamIndex < (int)s_ParamSets[paramSetIndex].subParams.size()) {
+                    const auto& param = s_ParamSets[paramSetIndex].subParams[subParamIndex];
+                    ImGui::Text("Time %d : %.2f (Set %d, Item %d, Type:%s Pos: %.1f %.1f %.1f)",
+                        i,
+                        s_AssignedSpawnTimes[i],
+                        paramSetIndex + 1,
+                        subParamIndex + 1,
+                        (param.ManualObstacleType == 0 ? "Ball" : "Bar"),
+                        param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ
+                    );
+                }
+            }
         }
     }
     ImGui::End();
 }
-
 
 //============================================================================
 //プレイモード中の自動スポーン処理
@@ -162,46 +184,51 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
         s_PlayModeElapsedTime += deltaTime;
         for (int i = 0; i < s_SpawnTimePresetCount; ++i)
         {
-            int paramIdx = s_AssignedSpawnParamIndices[i];
-            auto& param = s_ParamSets[paramIdx];
+            int paramSetIdx = s_AssignedSpawnParamIndices[i].first;
             float assignedSpawnTime = s_AssignedSpawnTimes[i];
+
             if (!s_SpawnedFlags[i] && s_PlayModeElapsedTime >= assignedSpawnTime)
             {
-                switch (param.ManualObstacleType)
+                auto& paramSet = s_ParamSets[paramSetIdx];
+                for (size_t subIdx = 0; subIdx < paramSet.subParams.size(); ++subIdx)
                 {
-                case 0: // Ball
-                    CObject::Create<CBall>(
-                        [param](CBall* p) -> bool
-                        {
-                            p->FactoryCollider(3.0f, 3.0f, 3.0f);
+                    const auto& sub = paramSet.subParams[subIdx];
 
-                            const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
-
-                            OBJ::Transform TF = {};
-                            TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };
-                            p->SetDirection({ param.ObstacleSpeedX, param.ObstacleSpeedY, param.ObstacleSpeedZ });
-
-                            pRigidBody->SetWorldTransform(TF);
-
-                            return true;
-                        }, OBJ::TYPE::OBSTACLE);
-
-                    break;
-                case 1: // Bar
-                    CObject::Create<CBar>(
-                        [param](CBar* p) -> bool
-                        {
-                            p->FactoryCollider(1.5f, 15.0f, 1.5f);
-                            const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
-                            OBJ::Transform TF = {};
-                            TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };
-                            CBar::SetRotate(TF, { param.ObstacleSpeedX, param.ObstacleSpeedY, param.ObstacleSpeedZ });
-                            pRigidBody->SetWorldTransform(TF);
-                            p->SetDirection({ param.ObstacleSpeedX, param.ObstacleSpeedY, param.ObstacleSpeedZ });
-                            return true;
-                        }, OBJ::TYPE::OBSTACLE);
-                    break;
+                    switch (sub.ManualObstacleType)
+                    {
+                    case 0: // Ball
+                        CObject::Create<CBall>(
+                            [sub, subIdx, paramSetIdx](CBall* p) -> bool
+                            {
+                                p->SetParamSetIndex(paramSetIdx);
+                                p->SetSubParamIndex(static_cast<int>(subIdx));
+                                p->FactoryCollider(3.0f, 3.0f, 3.0f);
+                                const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
+                                OBJ::Transform TF = {};
+                                TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                                p->SetDirection({ sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
+                                pRigidBody->SetWorldTransform(TF);
+                                return true;
+                            }, OBJ::TYPE::OBSTACLE);
+                        break;
+                    case 1: // Bar
+                        CObject::Create<CBar>(
+                            [sub, subIdx, paramSetIdx](CBar* p) -> bool
+                            {
+                                p->SetParamSetIndex(paramSetIdx);
+                                p->SetSubParamIndex(static_cast<int>(subIdx));
+                                p->FactoryCollider(1.5f, 15.0f, 1.5f);
+                                const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
+                                OBJ::Transform TF = {};
+                                TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                                CBar::SetRotate(TF, { sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
+                                pRigidBody->SetWorldTransform(TF);
+                                p->SetDirection({ sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
+                                return true;
+                            }, OBJ::TYPE::OBSTACLE);
+                        break;
                 }
+                    }
                 s_SpawnedFlags[i] = true;
             }
         }
@@ -215,9 +242,14 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 void ObstacleEditer::ResetPlayMode()
 {
     s_PlayModeElapsedTime = 0.0f;
-    for (auto& param : s_ParamSets) param.Spawned = false;
-
-    AssignRandomSpawnTimes();
+    for (auto& paramSet : s_ParamSets) 
+    {
+        for (auto& sub : paramSet.subParams) 
+        {
+            sub.Spawned = false;
+        }
+    }
+    AssignRandomSpawnTimes(); // 割当し直す
 }
 
 //============================================================================
@@ -225,28 +257,48 @@ void ObstacleEditer::ResetPlayMode()
 //============================================================================
 void ObstacleEditer::TryManualSpawn()
 {
-    const auto& param = RefParam();
-    int type = param.ManualObstacleType;
-    switch (type)
+    const auto& paramSet = RefParam();
+    int thisSetIdx = s_CurrentParamIndex;  // 現在のパラメータセット番号を保持
+
+    for (size_t subIdx = 0; subIdx < paramSet.subParams.size(); ++subIdx)
     {
-    case 0: // Ball
-        CObject::Create<CBall>(
-            [](CBall* p) -> bool
-            {
-                p->FactoryCollider(3.0f, 3.0f, 3.0f);
-                return true;
-            },
-            OBJ::TYPE::OBSTACLE);
-        break;
-    case 1: // Bar
-        CObject::Create<CBar>(
-            [](CBar* p) -> bool
-            {
-                p->FactoryCollider(1.5f, 15.0f, 1.5f);
-                return true;
-            },
-            OBJ::TYPE::OBSTACLE);
-        break;
+        const auto& sub = paramSet.subParams[subIdx];
+        switch (sub.ManualObstacleType)
+        {
+        case 0: // Ball
+            CObject::Create<CBall>(
+                [sub, subIdx, thisSetIdx](CBall* p) -> bool
+                {
+                    p->SetParamSetIndex(thisSetIdx);
+                    p->SetSubParamIndex((int)subIdx);
+                    p->FactoryCollider(3.0f, 3.0f, 3.0f);
+                    const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
+                    OBJ::Transform TF = {};
+                    TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                    p->SetDirection({ sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
+                    pRigidBody->SetWorldTransform(TF);
+                    return true;
+                },
+                OBJ::TYPE::OBSTACLE);
+            break;
+        case 1: // Bar
+            CObject::Create<CBar>(
+                [sub, subIdx, thisSetIdx](CBar* p) -> bool
+                {
+                    p->SetParamSetIndex(thisSetIdx);
+                    p->SetSubParamIndex((int)subIdx);
+                    p->FactoryCollider(1.5f, 15.0f, 1.5f);
+                    const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
+                    OBJ::Transform TF = {};
+                    TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                    CBar::SetRotate(TF, { sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
+                    pRigidBody->SetWorldTransform(TF);
+                    p->SetDirection({ sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
+                    return true;
+                },
+                OBJ::TYPE::OBSTACLE);
+            break;
+        }
     }
 }
 
@@ -255,35 +307,42 @@ void ObstacleEditer::TryManualSpawn()
 //============================================================================
 void ObstacleEditer::SaveParams(const std::string& fileName)
 {
-    json js;
+    nlohmann::json jsRoot;
+    jsRoot["param_sets"] = nlohmann::json::array();
 
-    // 各パラメータセットを配列で保存
-    js["param_sets"] = json::array();
-    for (int i = 0; i < PARAM_SET_MAX; ++i)
+    for (const auto& paramSet : s_ParamSets)
     {
-        const auto& param = s_ParamSets[i];
-        json jp;
-        jp["spawnX"] = param.ObstacleSpawnX;
-        jp["spawnY"] = param.ObstacleSpawnY;
-        jp["spawnZ"] = param.ObstacleSpawnZ;
-        jp["speedX"] = param.ObstacleSpeedX;
-        jp["speedY"] = param.ObstacleSpeedY;
-        jp["speedZ"] = param.ObstacleSpeedZ;
-        jp["manual_type"] = param.ManualObstacleType;
-        js["param_sets"].push_back(jp);
+        nlohmann::json jParamSet;
+        jParamSet["sub_params"] = nlohmann::json::array();
+
+        for (const auto& sub : paramSet.subParams)
+        {
+            nlohmann::json jSub;
+            jSub["spawnX"] = sub.ObstacleSpawnX;
+            jSub["spawnY"] = sub.ObstacleSpawnY;
+            jSub["spawnZ"] = sub.ObstacleSpawnZ;
+            jSub["speedX"] = sub.ObstacleSpeedX;
+            jSub["speedY"] = sub.ObstacleSpeedY;
+            jSub["speedZ"] = sub.ObstacleSpeedZ;
+            jSub["manual_type"] = sub.ManualObstacleType;
+            jParamSet["sub_params"].push_back(jSub);
+        }
+
+        jsRoot["param_sets"].push_back(jParamSet);
     }
 
-    js["spawn_time_presets"] = json::array();
-    for (int i = 0; i < s_SpawnTimePresetCount; ++i) // 最大値まで保存
+    // 生成時間プリセットやプレイモード関連の保存
+    jsRoot["spawn_time_presets"] = nlohmann::json::array();
+    for (float t : s_SpawnTimePresets)
     {
-        js["spawn_time_presets"].push_back(s_SpawnTimePresets[i]);
+        jsRoot["spawn_time_presets"].push_back(t);
     }
 
-    js["spawn_enable_time"] = 3.0f;
-    js["preset_count"] = s_SpawnTimePresetCount;
+    jsRoot["spawn_enable_time"] = 3.0f;
+    jsRoot["preset_count"] = s_SpawnTimePresetCount;
 
     std::ofstream ofs(fileName);
-    ofs << js.dump(4);
+    ofs << jsRoot.dump(4);
     ofs.close();
 }
 
@@ -295,49 +354,50 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
 {
     std::ifstream ifs(fileName);
     if (!ifs) return;
-    json js;
-    ifs >> js;
+    nlohmann::json jsRoot;
+    ifs >> jsRoot;
 
-    // 最大保存数だけ読みこみ
-    if (js.contains("param_sets") && js["param_sets"].is_array()) 
+    // param_setsを読みこむ
+    if (jsRoot.contains("param_sets") && jsRoot["param_sets"].is_array())
     {
-        for (int i = 0; i < PARAM_SET_MAX; ++i) 
+        for (size_t i = 0; i < s_ParamSets.size(); ++i)
         {
-            if (i < js["param_sets"].size()) 
+            s_ParamSets[i].subParams.clear();
+            if (i < jsRoot["param_sets"].size())
             {
-                auto& param = s_ParamSets[i];
-                auto jp = js["param_sets"][i];
-                param.ObstacleSpawnX = jp.value("spawnX", 0.0f);
-                param.ObstacleSpawnY = jp.value("spawnY", 10.0f);
-                param.ObstacleSpawnZ = jp.value("spawnZ", 15.0f);
-                param.ObstacleSpeedX = jp.value("speedX", 0.0f);
-                param.ObstacleSpeedY = jp.value("speedY", 0.0f);
-                param.ObstacleSpeedZ = jp.value("speedZ", -5.0f);
-                param.ManualObstacleType = jp.value("manual_type", 0);
-                param.Spawned = false;
+                const auto& jParamSet = jsRoot["param_sets"][i];
+                if (jParamSet.contains("sub_params") && jParamSet["sub_params"].is_array())
+                {
+                    for (const auto& jSub : jParamSet["sub_params"])
+                    {
+                        SubObstacleParam sub;
+                        sub.ObstacleSpawnX = jSub.value("spawnX", 0.0f);
+                        sub.ObstacleSpawnY = jSub.value("spawnY", 10.0f);
+                        sub.ObstacleSpawnZ = jSub.value("spawnZ", 15.0f);
+                        sub.ObstacleSpeedX = jSub.value("speedX", 0.0f);
+                        sub.ObstacleSpeedY = jSub.value("speedY", 0.0f);
+                        sub.ObstacleSpeedZ = jSub.value("speedZ", -5.0f);
+                        sub.ManualObstacleType = jSub.value("manual_type", 0);
+                        sub.Spawned = false;
+                        s_ParamSets[i].subParams.push_back(sub);
+                    }
+                }
             }
         }
     }
 
-    if (js.contains("preset_count")) {
-        int preset_count = js["preset_count"].get<int>();
-        if (preset_count >= 1 && preset_count <= SPAWN_PRESET_MAX) {
-            s_SpawnTimePresetCount = preset_count;
-        }
-    }
-    else {
-        s_SpawnTimePresetCount = SPAWN_PRESET_MAX;
-    }
+    // プリセット数/生成時間
+    s_SpawnTimePresetCount = jsRoot.value("preset_count", s_SpawnTimePresetCount);
 
-    if (js.contains("spawn_time_presets") && js["spawn_time_presets"].is_array())
+    if (jsRoot.contains("spawn_time_presets") && jsRoot["spawn_time_presets"].is_array())
     {
-        int arrSize = js["spawn_time_presets"].size();
+        int arrSize = jsRoot["spawn_time_presets"].size();
         for (int i = 0; i < arrSize && i < SPAWN_PRESET_MAX; ++i)
         {
-            s_SpawnTimePresets[i] = js["spawn_time_presets"][i].get<float>();
+            s_SpawnTimePresets[i] = jsRoot["spawn_time_presets"][i].get<float>();
         }
     }
-    AssignRandomSpawnTimes(); // 読み込み後にランダムで割り当てる
+    AssignRandomSpawnTimes();
 }
 
 //============================================================================
@@ -345,7 +405,7 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
 //============================================================================
 void ObstacleEditer::AssignRandomSpawnTimes()
 {
-    // ベクトルのサイズ調整
+    // 各割当配列をプリセット数でリサイズする
     if ((int)s_SpawnedFlags.size() != s_SpawnTimePresetCount)
     {
         s_SpawnedFlags.resize(s_SpawnTimePresetCount);
@@ -359,29 +419,34 @@ void ObstacleEditer::AssignRandomSpawnTimes()
         s_AssignedSpawnParamIndices.resize(s_SpawnTimePresetCount);
     }
 
-    // フラグ初期化
-    for (int i = 0; i < s_SpawnTimePresetCount; ++i)
+    // すべての(ParamSetIdx, subParamIdx)ペアをリスト化
+    std::vector<std::pair<int, int>> allPairs;
+    for (int paramSetIdx = 0; paramSetIdx < (int)s_ParamSets.size(); ++paramSetIdx)
     {
-        s_SpawnedFlags[i] = false;
+        const auto& paramSet = s_ParamSets[paramSetIdx];
+        for (int subParamIdx = 0; subParamIdx < (int)paramSet.subParams.size(); ++subParamIdx)
+        {
+            allPairs.emplace_back(paramSetIdx, subParamIdx);
+        }
     }
 
-    // 割り当て順をランダムにシャッフル
-    std::vector<int> indices(s_SpawnTimePresetCount);
-    for (int i = 0; i < s_SpawnTimePresetCount; ++i)
+    // 出現候補が無い場合は何もしない
+    if (allPairs.empty())
     {
-        indices[i] = i;
+        return;
     }
 
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(indices.begin(), indices.end(), g);
+    // 順番をランダムシャッフル
+    std::random_device randomDevice;
+    std::mt19937 rngEngine(randomDevice());
+    std::shuffle(allPairs.begin(), allPairs.end(), rngEngine);
 
-    std::uniform_int_distribution<> distParam(0, PARAM_SET_MAX - 1);
-
-    // プリセット値をランダムな順序でs_AssignedSpawnTimesへ格納
-    for (int i = 0; i < s_SpawnTimePresetCount; ++i)
+    // プリセット数分だけ負荷
+    for (int presetIndex = 0; presetIndex < s_SpawnTimePresetCount; ++presetIndex)
     {
-        s_AssignedSpawnTimes[i] = s_SpawnTimePresets[indices[i]];
-        s_AssignedSpawnParamIndices[i] = distParam(g);
+        const auto& paramIndexPair = allPairs[presetIndex % allPairs.size()];
+        s_AssignedSpawnParamIndices[presetIndex] = paramIndexPair;
+        s_AssignedSpawnTimes[presetIndex] = s_SpawnTimePresets[presetIndex % s_SpawnTimePresets.size()];
+        s_SpawnedFlags[presetIndex] = false;
     }
 }

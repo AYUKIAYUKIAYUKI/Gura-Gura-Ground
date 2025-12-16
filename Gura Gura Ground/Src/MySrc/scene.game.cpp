@@ -119,7 +119,7 @@ CSceneGame::CSceneGame()
 
 	ObstacleEditer::LoadParams("Data\\JSON\\obscale_table.json");
 
-	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間の合わせる
+	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
 	g_GameTime = 0.0f;
 }
 
@@ -162,9 +162,9 @@ void CSceneGame::Update()
 //============================================================================
 void CSceneGame::Change()
 {
-	// 全オブジェクトに死亡フラグを立てる
-	CObjectManager::RefInstance().SetDeathAllObject();
+	//// 全オブジェクトに死亡フラグを立てる
+	//CObjectManager::RefInstance().SetDeathAllObject();
 
-	// タイトルシーンへ
-	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	//// タイトルシーンへ
+	//CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }

@@ -115,7 +115,7 @@ void CBar::Appear()
 {
 	// コライダーをリジッドボディにキャスト
 	const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(GetCollider());
-	const auto& param = ObstacleEditer::RefParam();
+	const auto& param = ObstacleEditer::s_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
 
 	// 設定用のトランスフォーム
 	OBJ::Transform TF = {};

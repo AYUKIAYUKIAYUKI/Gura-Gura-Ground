@@ -1,62 +1,141 @@
 {
     "param_sets": [
         {
-            "manual_type": 1,
-            "spawnX": -17.799999237060547,
-            "spawnY": 10.0,
-            "spawnZ": -4.199999809265137,
-            "speedX": 4.0,
-            "speedY": 0.0,
-            "speedZ": 0.0
+            "sub_params": [
+                {
+                    "manual_type": 1,
+                    "spawnX": -7.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 18.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                },
+                {
+                    "manual_type": 0,
+                    "spawnX": 0.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 15.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                }
+            ]
         },
         {
-            "manual_type": 0,
-            "spawnX": 0.0,
-            "spawnY": 10.0,
-            "spawnZ": 15.0,
-            "speedX": 0.0,
-            "speedY": 0.0,
-            "speedZ": -5.0
+            "sub_params": [
+                {
+                    "manual_type": 0,
+                    "spawnX": 5.199999809265137,
+                    "spawnY": 10.0,
+                    "spawnZ": 15.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                },
+                {
+                    "manual_type": 0,
+                    "spawnX": -12.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 15.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                }
+            ]
         },
         {
-            "manual_type": 1,
-            "spawnX": 0.0,
-            "spawnY": 10.0,
-            "spawnZ": 15.0,
-            "speedX": 0.0,
-            "speedY": 0.0,
-            "speedZ": -5.0
+            "sub_params": [
+                {
+                    "manual_type": 0,
+                    "spawnX": -12.600000381469727,
+                    "spawnY": 10.0,
+                    "spawnZ": 10.0,
+                    "speedX": 5.0,
+                    "speedY": 0.0,
+                    "speedZ": 0.0
+                },
+                {
+                    "manual_type": 0,
+                    "spawnX": 12.600000381469727,
+                    "spawnY": 10.0,
+                    "spawnZ": -10.0,
+                    "speedX": -5.0,
+                    "speedY": 0.0,
+                    "speedZ": 0.0
+                }
+            ]
         },
         {
-            "manual_type": 0,
-            "spawnX": -10.0,
-            "spawnY": 10.0,
-            "spawnZ": 15.0,
-            "speedX": 0.0,
-            "speedY": 0.0,
-            "speedZ": -5.0
+            "sub_params": [
+                {
+                    "manual_type": 1,
+                    "spawnX": 9.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 18.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                },
+                {
+                    "manual_type": 1,
+                    "spawnX": -9.0,
+                    "spawnY": 10.0,
+                    "spawnZ": -18.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": 5.0
+                }
+            ]
         },
         {
-            "manual_type": 0,
-            "spawnX": 10.0,
-            "spawnY": 10.0,
-            "spawnZ": 15.0,
-            "speedX": 0.0,
-            "speedY": 0.0,
-            "speedZ": -5.0
+            "sub_params": [
+                {
+                    "manual_type": 1,
+                    "spawnX": -8.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 15.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                },
+                {
+                    "manual_type": 1,
+                    "spawnX": 8.0,
+                    "spawnY": 10.0,
+                    "spawnZ": -15.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": 5.0
+                },
+                {
+                    "manual_type": 0,
+                    "spawnX": 0.0,
+                    "spawnY": 10.0,
+                    "spawnZ": -2.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                },
+                {
+                    "manual_type": 0,
+                    "spawnX": 0.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 2.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": 5.0
+                }
+            ]
         }
     ],
-    "preset_count": 9,
+    "preset_count": 5,
     "spawn_enable_time": 3.0,
     "spawn_time_presets": [
-        1.0,
         2.0,
-        3.0,
-        16.799999237060547,
-        12.5,
-        9.100000381469727,
-        4.5,
-        3.5,
-        4.0
+        4.0,
+        6.0,
+        8.0,
+        10.0
     ]
 }
