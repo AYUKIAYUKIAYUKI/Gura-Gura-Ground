@@ -11,6 +11,7 @@
 // インクルードファイル
 //****************************************************
 #include "obstacle.h"
+#include "obstacle_editer.h"
 
 //****************************************************
 // ボールクラスの定義
@@ -68,4 +69,5 @@ private:
 	DirectX::XMFLOAT3 m_Direction; // 進行方向
 	int m_ParamSetIndex = 0;   // どのParamSetか
 	int m_SubParamIndex = 0;   // その中の何番目か
+	ObstacleEditer m_ObstacleEditer;
 };

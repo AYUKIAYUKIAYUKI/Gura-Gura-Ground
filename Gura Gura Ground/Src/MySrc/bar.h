@@ -11,6 +11,7 @@
 // インクルードファイル
 //****************************************************
 #include "obstacle.h"
+#include "obstacle_editer.h"
 
 //****************************************************
 // バークラスの定義
@@ -69,4 +70,5 @@ private:
 
 	int m_ParamSetIndex = 0;   // どのParamSetか
 	int m_SubParamIndex = 0;   // その中の何番目か
+	ObstacleEditer m_ObstacleEditer;
 };

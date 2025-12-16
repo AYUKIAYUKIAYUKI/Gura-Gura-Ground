@@ -28,7 +28,6 @@
 #include "bomb.h"
 #include "cameracontroller.h"
 
-#include "obstacle_editer.h"
 
 //****************************************************
 // 仮
@@ -125,7 +124,7 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
-	ObstacleEditer::LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
+	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
 	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
 	g_GameTime = 0.0f;
 }
@@ -148,13 +147,13 @@ void CSceneGame::Update()
 	g_GameTime += deltaTime;
 
 	// 障害物スポーンメニュー表示
-	ObstacleEditer::EditerMenu();
+	m_ObstacleEditer.EditerMenu();
 
 	// スポーン時間プリセットメニュー表示
-	ObstacleEditer::SpawnTimePresetEditor();
+	m_ObstacleEditer.SpawnTimePresetEditor();
 
 	//プレイモード中の自動スポーン処理
-	ObstacleEditer::PlayModeSpawn(deltaTime);
+	m_ObstacleEditer.PlayModeSpawn(deltaTime);
 	CCameraController::RefInstance().Update();	// ゲームセットしたらシーン遷移
 	if (GameSet())
 	{

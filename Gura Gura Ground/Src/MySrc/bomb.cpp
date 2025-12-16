@@ -53,7 +53,7 @@ void CBomb::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	pRB->SetRestitution(0.25f);
 
 	// パラメータ参照
-	const auto& param = ObstacleEditer::s_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
+	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
 	OBJ::Transform TF = {};
 
 	TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };

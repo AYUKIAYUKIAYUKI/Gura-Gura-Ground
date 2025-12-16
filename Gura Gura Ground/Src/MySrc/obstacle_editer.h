@@ -25,6 +25,9 @@ public:
         float ObstacleSpawnX = 0.0f;                   // 生成位置X
         float ObstacleSpawnY = 10.0f;                  // 生成位置Y
         float ObstacleSpawnZ = 15.0f;                  // 生成位置Z
+        float ColliderWidth = 3.0f;
+        float ColliderHeight = 3.0f;
+        float ColliderDepth = 3.0f;
         int BombTimer = 300;                           // タイマー値(ボム用)
     };
 
@@ -35,22 +38,21 @@ public:
     static const int PARAM_SET_MAX = 5;                // パラメータセット最大数
     static const int SPAWN_PRESET_MAX = 10;
 
-    static void EditCommonParams();                    // 共通パラメータ編集UI
-    static void EditerMenu();                          // メイン編集ウィンドウ
-    static void SpawnTimePresetEditor();               // スポーンタイムプリセット編集
-    static void TryManualSpawn();                      // 手動生成
-    static void SaveParams(const std::string& fileName);    // パラメータ保存
-    static void LoadParams(const std::string& fileName);    // パラメータ読み込み
-    static void AssignRandomSpawnTimes();              // スポーンタイム割り当て（ランダム化）
-    static void PlayModeSpawn(float deltaTime);        // プレイモード・自動生成処理
-    static void ResetPlayMode();                       // プレイモードリセット
+    void EditCommonParams();                    // 共通パラメータ編集UI
+    void EditerMenu();                          // メイン編集ウィンドウ
+    void SpawnTimePresetEditor();               // スポーンタイムプリセット編集
+    void TryManualSpawn();                      // 手動生成
+    void SaveParams(const std::string& fileName);    // パラメータ保存
+    void LoadParams(const std::string& fileName);    // パラメータ読み込み
+    void AssignRandomSpawnTimes();              // スポーンタイム割り当て（ランダム化）
+    void PlayModeSpawn(float deltaTime);        // プレイモード・自動生成処理
+    void ResetPlayMode();                       // プレイモードリセット
 
-    static int s_CurrentParamIndex;                    // 現在編集中インデックス
-    static bool s_PlayMode;                        // プレイモードフラグ
-    static float s_PlayModeElapsedTime;             // プレイモード経過時間
-    static std::vector<ObstacleParam> s_ParamSets;     // パラメータセット配列
-    static ObstacleParam& RefParam() { return s_ParamSets[s_CurrentParamIndex]; }
-
+    bool m_PlayMode;                        // プレイモードフラグ
+    float m_PlayModeElapsedTime;             // プレイモード経過時間
+    static int m_CurrentParamIndex;                    // 現在編集中インデックス
+    static std::vector<ObstacleParam> m_ParamSets;     // パラメータセット配列
+    static ObstacleParam& RefParam() { return m_ParamSets[m_CurrentParamIndex]; }
 private:
     static int s_SpawnTimePresetCount;
     static float s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ; // 直近ロード位置
