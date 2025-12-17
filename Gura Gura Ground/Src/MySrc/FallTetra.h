@@ -11,9 +11,11 @@
 // インクルードファイル
 //****************************************************
 #include "obstacle.h"
+#include "API.rigidbody.h"
 
 //前方宣言
 class Tetra_State;
+
 
 //****************************************************
 // ドッスン(落下四面体)クラスの定義
@@ -44,23 +46,24 @@ public:
 	// パラメータの編集
 	void EditParam() override { int i = 0; }
 
-	inline void ChangeState(std::shared_ptr<Tetra_State> NextState) {
-		if (m_State != nullptr)NextState = nullptr;
-		m_State = NextState;
-	}
+	void ChangeState(std::shared_ptr<Tetra_State> NextState);
+
+	inline DirectX::XMFLOAT3 GetInitalGravity() { return m_InitalGravity; }
+	inline DirectX::XMFLOAT3 GetInitalPosition() { return m_InitalPosition; }
+
 private:
 
 	//****************************************************
 	// function
 	//****************************************************
-	void Appear() {};
 
 
 	//****************************************************
 	// data
 	//****************************************************
 	std::shared_ptr<Tetra_State> m_State;
-
+	DirectX::XMFLOAT3 m_InitalPosition;
+	DirectX::XMFLOAT3 m_InitalGravity;
 };
 
 //****************************************************
@@ -69,13 +72,14 @@ private:
 class Tetra_State
 {		//ステート基底
 public:
+	Tetra_State([[maybe_unused]] CFallTetra* p = nullptr) {};
 	virtual void Action([[maybe_unused]]CFallTetra* p) = 0;
 };
 
 class TetraState_Wait:public Tetra_State
 {		//空中で待機ステート
 public:
-	TetraState_Wait(DirectX::XMFLOAT3 pos) :m_Timer(0) { m_DefaultPos = pos; }
+	TetraState_Wait([[maybe_unused]] CFallTetra* p);
 	void Action([[maybe_unused]] CFallTetra* p)override;
 private:
 	DirectX::XMFLOAT3 m_DefaultPos;
@@ -85,6 +89,8 @@ private:
 class TetraState_Fall :public Tetra_State
 {		//落下状態ステート
 public:
-	TetraState_Fall(CFallTetra* p);
+	TetraState_Fall([[maybe_unused]] CFallTetra* p);
 	void Action([[maybe_unused]] CFallTetra* p)override;
+private:
+	int m_Grace;
 };

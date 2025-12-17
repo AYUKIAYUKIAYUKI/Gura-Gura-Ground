@@ -35,7 +35,7 @@ namespace
 
 	// 高度
 	float g_fAxisY_Spawn = 15.0f; // スポーン高度
-	float g_fAxisY_Despawn = 3.0f;  // デスポーン高度
+	float g_fAxisY_Despawn = 8.0f;  // デスポーン高度
 
 	// その他設定値
 	const int ViverateValue = 200;
@@ -95,6 +95,10 @@ void CFallTetra::FactoryCollider(float fWidth, float fHeight, float fDepth)
 		
 	// コライダーをリジッドボディにキャスト
 	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
+	btVector3 Gravity = pRB->GetRigidBody()->getGravity();
+	m_InitalGravity.x = Gravity.x();
+	m_InitalGravity.y = Gravity.y();
+	m_InitalGravity.z = Gravity.z();
 
 	// 質量を設定
 	pRB->SetMass(1.0f);
@@ -107,9 +111,9 @@ void CFallTetra::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	transform.Size = SizeVec;
 	pRB->SetWorldTransform(transform);
 	pRB->SetGravity({ 0.0f,0.0f,0.0f });
+	m_InitalPosition = { Vec2.x,g_fAxisY_Spawn,Vec2.y };
+	ChangeState(std::make_shared<TetraState_Wait>(this));
 
-	// 出現
-	Appear();
 }
 
 //============================================================================
@@ -119,9 +123,6 @@ void CFallTetra::Update()
 {
 	// 挙動
 	m_State->Action(this);
-
-	//// 戻る
-	//Loop();
 
 	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
 	CPhysicsObject::Update();
@@ -136,50 +137,69 @@ void CFallTetra::Draw()
 	CPhysicsObject::Draw();
 }
 
+void CFallTetra::ChangeState(std::shared_ptr<Tetra_State> NextState) {
+	if (m_State == nullptr)m_State = std::make_shared<TetraState_Wait>(this);
+	m_State = NextState;
+}
 
 //============================================================================
 // 待機ステートの挙動
 //============================================================================
 
+TetraState_Wait::TetraState_Wait([[maybe_unused]] CFallTetra* p) :m_Timer(120), m_DefaultPos({0.0f,0.0f,0.0f})
+{
+	m_DefaultPos = p->GetInitalPosition();
+}
+
+
 void TetraState_Wait::Action([[maybe_unused]] CFallTetra* p)
 {
 	if (m_Timer < 0)
 	{
-		p->ChangeState(std::make_shared<TetraState_Fall>(this));
+		p->ChangeState(std::make_shared<TetraState_Fall>(p));
 		return;
 	}
-	++m_Timer;
+	--m_Timer;
 	// コライダーをリジッドボディにキャスト
 	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(p->GetCollider());
 
-	// 質量を設定
-	pRB->SetMass(1.0f);
+
 	OBJ::Transform transform{};
 	DirectX::XMFLOAT2 Vec2;
-	Vec2.x = (SimpleUseful::GetRandomMT(-ViverateValue, ViverateValue)) * 0.01f;
-	Vec2.y = (SimpleUseful::GetRandomMT(-ViverateValue, ViverateValue)) * 0.01f;
+	Vec2.x = (SimpleUseful::GetRandomMT(-ViverateValue, ViverateValue)) * 0.001f;
+	Vec2.y = (SimpleUseful::GetRandomMT(-ViverateValue, ViverateValue)) * 0.001f;
 
-	transform.Pos = { Vec2.x,ViverateValue,Vec2.y };
+	transform.Pos = { m_DefaultPos.x + Vec2.x,g_fAxisY_Spawn,m_DefaultPos.z + Vec2.y };
 	transform.Size = SizeVec;
 	pRB->SetWorldTransform(transform);
 }
 
-TetraState_Fall::TetraState_Fall(CFallTetra* p)
+TetraState_Fall::TetraState_Fall(CFallTetra* p) : m_Grace(20)
 {
 	// コライダーをリジッドボディにキャスト
 	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(p->GetCollider());
-	pRB->SetGravity({ 0.0f,-6.0f,0.0f });
+	DirectX::XMFLOAT3 gravity = { p->GetInitalGravity().x ,p->GetInitalGravity().y,p->GetInitalGravity().z };
+	pRB->SetGravity({ gravity.x,gravity.y,gravity.z});
 }
 
 void TetraState_Fall::Action([[maybe_unused]] CFallTetra* p)
 {
 	// コライダーをリジッドボディにキャスト
-	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(p->GetCollider());
-	if (pRB->GetLinearVelocity().getY() <= 0)
+	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(p->GetCollider());
+	pRB->GetRigidBody()->applyCentralForce({ 0.0f,-120.0f,0.0f });
+	pRB->SetActive();
+	btVector3 vel = pRB->GetRigidBody()->getLinearVelocity();
+	btScalar velY = vel.getY();
+	if (m_Grace > 0)
 	{
-		// 現在のワールドトランスフォームを取得
-		OBJ::Transform TF = {};
-		pRB->GetWorldTransform(TF);
+		--m_Grace;
+		return;
+	}
+	// 現在のワールドトランスフォームを取得
+	OBJ::Transform TF = {};
+	pRB->GetWorldTransform(TF);
+	if (velY < 0.01f && velY > -0.01f)
+	{
 		// 塵：拡散発生
 		CDust::GenerateSpread(TF.Pos, 10);
 		p->SetDeath();
