@@ -38,11 +38,6 @@ namespace
 	const int nNumB = 4;
 	const float fInitDist = 10.0f;
 
-	bool CreateBar = false;
-	bool CreateBomb = false;
-	bool CreateTornado = false;
-	int Count = 0;
-
 	// ƒOƒ[ƒoƒ‹
 	OBJ::Transform g_BoxTF = { { 0.5f, 0.5f, 0.5f }, {0.0f, 0.0f, 0.0f, 1.0f}, {-fInitDist, 25.0f, -fInitDist} };
 
@@ -115,12 +110,12 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
-	
+
 	// —³Šª‚Ì¶¬
 	CObjectManager::CreateRaw<CTornado>(
-		[&fSpanField,fUnkoSpan](CTornado* p) -> bool
+		[&fSpanField, fUnkoSpan](CTornado* p) -> bool
 		{
-			float Pos = fSpanField + 5.0f;
+			float Pos = fSpanField + 10.0f;
 			OBJ::Transform TF = p->GetTransform();
 			TF.Pos = { -Pos, 0.0f, Pos };
 			p->SetTransform(TF);
