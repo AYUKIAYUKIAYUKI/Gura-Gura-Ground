@@ -110,10 +110,10 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
-	
+
 	// —³Šª‚Ì¶¬
 	CObjectManager::CreateRaw<CTornado>(
-		[&fSpanField,fUnkoSpan](CTornado* p) -> bool
+		[&fSpanField, fUnkoSpan](CTornado* p) -> bool
 		{
 			float Pos = fSpanField + 10.0f;
 			OBJ::Transform TF = p->GetTransform();

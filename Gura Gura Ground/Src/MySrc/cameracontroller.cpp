@@ -12,14 +12,18 @@
 #include "API.renderer.h"
 #include "API.camera.h"
 #include "player.h"
+#include "API.object.manager.h"
+#include "obstacle.h"
 
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
 CCameraController::CCameraController()
 	: m_Camera(nullptr)
-	, m_PlayersCenterPos({0.0f,0.0f,0.0f})
+	, m_CameraTargetPos({0.0f,0.0f,0.0f})
 	, m_BaseCameraDistance(0.0f)
+	, m_IsMovingGimmickActive(false)
+	, m_IsPerimeterGimmickActive(false)
 {
 	
 }
@@ -39,13 +43,24 @@ bool CCameraController::Initialize()
 {
 	// 初期化
 	m_Players.clear();
+	m_Obstacles.clear();
 
 	// カメラの情報取得
 	m_Camera = nullptr;
 	m_Camera = CRenderer::RefInstance().GetCamera();
 
+	// ギミック出現してない
+	m_IsMovingGimmickActive = false;
+	m_IsPerimeterGimmickActive = false;
+
 	// 基準の距離
-	m_BaseCameraDistance = 24.0f;
+	m_BaseCameraDistance = 30.0f;
+
+	//最大の距離
+	m_MaxCameraDistance = m_Camera->GetDistance();
+
+	// カメラの最初の位置
+	m_FirstCameraPos = m_Camera->GetPos();
 
 	return true;
 }
@@ -61,8 +76,26 @@ void CCameraController::Finalize()
 //============================================================================
 void CCameraController::Update()
 {
-	// カメラ移動
-	CameraMove();
+	// ギミックを取得
+	GetObstacles();
+
+	// 外周を移動するギミックがあるか
+	HasPerimeterGimmick();
+
+	if (!m_IsPerimeterGimmickActive)
+	{
+		// 移動ギミックがあるか判定
+		HasMovingGimmick();
+
+		if (!m_IsMovingGimmickActive)
+		{
+			// カメラの注視点位置設定
+			CalculateCenter();
+		}
+	}
+	
+	// カメラの変更位置を設定
+	m_Camera->SetPosTarget(m_CameraTargetPos);
 }
 
 //============================================================================
@@ -91,26 +124,9 @@ void CCameraController::UnRegist(CPlayer* player)
 }
 
 //============================================================================
-// カメラ移動
+// 中心位置を計算
 //============================================================================
-void CCameraController::CameraMove()
-{
-	if (m_Players.empty())
-	{
-		return;
-	}
-
-	// カメラの注視点位置設定
-	CalculatePlayersCenter();
-
-	// カメラの変更位置を設定
-	m_Camera->SetPosTarget(m_PlayersCenterPos);
-}
-
-//============================================================================
-// プレイヤーの中心位置を計算
-//============================================================================
-void CCameraController::CalculatePlayersCenter()
+void CCameraController::CalculateCenter()
 {
 	using namespace useful;
 
@@ -119,31 +135,41 @@ void CCameraController::CalculatePlayersCenter()
 	DirectX::XMFLOAT3 CenterPos = { 0.0f,0.0f, 0.0f };		// 中央位置
 	DirectX::XMFLOAT3 Size = { 0.0f,0.0f, 0.0f };			// 幅
 
-	// プレイヤー全てで最小最大の位置を取得
-	GetPlayersBounds(MinPlayersPos, MaxPlayersPos);
+	// プレイヤーと定点のギミックから最小最大位置取得
+	GetPlayersAndObstaclesBounds(MinPlayersPos, MaxPlayersPos);
 
 	// 中心位置を求める
-	CenterPos = (MaxPlayersPos + MinPlayersPos) / 2;
-
-	// プレイヤーの広がりを計算
-	float SpreadX = MaxPlayersPos.x - MinPlayersPos.x;
+	CenterPos = (MaxPlayersPos + MinPlayersPos) * 0.5f;
 
 	// 高さの設定
 	CenterPos.y = m_Camera->GetPos().y;
 
-	// 距離を計算
+	// 中心位置に設定
+	m_CameraTargetPos = CenterPos;
+
+	// 距離設定
+	m_Camera->SetDistanceTarget(m_MaxCameraDistance);
+
+	//// プレイヤーの広がりを計算
+	//float SpreadX = MaxPlayersPos.x - MinPlayersPos.x;
+
+	//// 距離を計算
 	//float Distance = (m_BaseCameraDistance + (SpreadX * 0.7f));
 
-	// 中心位置に設定
-	m_PlayersCenterPos = CenterPos;
+	//// 遠すぎ
+	//if (Distance > m_MaxCameraDistance)
+	//{
+	//	Distance = m_MaxCameraDistance;
+	//}
 
+	//// 距離設定
 	//m_Camera->SetDistanceTarget(Distance);
 }
 
 //============================================================================
-// プレイヤー全てで最小最大の位置を取得
+// プレイヤーと定点のギミックから最小最大位置取得
 //============================================================================
-void CCameraController::GetPlayersBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max)
+void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOAT3& max)
 {
 	using namespace useful;
 
@@ -162,29 +188,107 @@ void CCameraController::GetPlayersBounds(DirectX::XMFLOAT3& min, DirectX::XMFLOA
 		}
 
 		// X座標の最小最大
-		if (ite->GetTransform().Pos.x <= MinPlayersPos.x)
-		{
-			MinPlayersPos.x = ite->GetTransform().Pos.x;
-		}
-		if (MaxPlayersPos.x <= ite->GetTransform().Pos.x)
-		{
-			MaxPlayersPos.x = ite->GetTransform().Pos.x;
-		}
-
+		MaxPlayersPos.x = max(MaxPlayersPos.x, ite->GetTransform().Pos.x);
+		MinPlayersPos.x = min(MinPlayersPos.x, ite->GetTransform().Pos.x);
+		
 		// Z座標の最小最大
-		if (ite->GetTransform().Pos.z <= MinPlayersPos.z)
-		{
-			MinPlayersPos.z = ite->GetTransform().Pos.z;
-		}
-		if (MaxPlayersPos.z <= ite->GetTransform().Pos.z)
-		{
-			MaxPlayersPos.z = ite->GetTransform().Pos.z;
-		}
+		MaxPlayersPos.z = max(MaxPlayersPos.z, ite->GetTransform().Pos.z);
+		MinPlayersPos.z = min(MinPlayersPos.z, ite->GetTransform().Pos.z);
 
 		Count++;
+	}
+
+	// ギミックで最小と最大の位置を取得
+	for (auto ite : m_Obstacles)
+	{
+		if (ite->GetObsType() != Obstacle::OBSTACLE_TYPE::STATIONARY)
+		{
+			continue;
+		}
+
+		// X座標の最小最大
+		MaxPlayersPos.x = max(MaxPlayersPos.x, ite->GetTransform().Pos.x);
+		MinPlayersPos.x = min(MinPlayersPos.x, ite->GetTransform().Pos.x);
+
+		// Z座標の最小最大
+		MaxPlayersPos.z = max(MaxPlayersPos.z, ite->GetTransform().Pos.z);
+		MinPlayersPos.z = min(MinPlayersPos.z, ite->GetTransform().Pos.z);
 	}
 
 	// 位置を設定
 	min = MinPlayersPos;
 	max = MaxPlayersPos;
+}
+
+//============================================================================
+// ギミックを取得
+//============================================================================
+void CCameraController::GetObstacles()
+{
+	// 障害物リスト取得
+	auto List = CObjectManager::RefInstance().RefListRaw(OBJ::TYPE::OBSTACLE);
+
+	for (auto ite : List)
+	{
+		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite);
+
+		m_Obstacles.push_back(Obstacle);
+	}
+}
+
+//============================================================================
+// ギミックがあるか判定
+//============================================================================
+void CCameraController::HasMovingGimmick()
+{
+	// 判定を戻す
+	m_IsMovingGimmickActive = false;
+
+	for (auto ite : m_Obstacles)
+	{
+		if (ite->GetObsType() == Obstacle::OBSTACLE_TYPE::MOVING)
+		{
+			m_IsMovingGimmickActive = true;
+		}
+	}
+
+	// 動くギミックない
+	if (m_IsMovingGimmickActive)
+	{
+		// 最初の位置に戻る
+		m_CameraTargetPos = m_FirstCameraPos;
+
+		// 距離設定
+		m_Camera->SetDistanceTarget(m_MaxCameraDistance);
+	}
+}
+
+//============================================================================
+// 外周移動ギミック
+//============================================================================
+void CCameraController::HasPerimeterGimmick()
+{
+	// カメラの距離
+	constexpr float Distance = 50.0f;
+
+	// 判定を戻す
+	m_IsPerimeterGimmickActive = false;
+
+	for (auto ite : m_Obstacles)
+	{
+		if (ite->GetObsType() == Obstacle::OBSTACLE_TYPE::PERIMETER)
+		{
+			m_IsPerimeterGimmickActive = true;
+		}
+	}
+
+	// 外周移動ギミックない
+	if (m_IsPerimeterGimmickActive)
+	{
+		// 最初の位置に戻る
+		m_CameraTargetPos = m_FirstCameraPos;
+
+		// 距離設定
+		m_Camera->SetDistanceTarget(Distance);
+	}
 }
