@@ -23,6 +23,7 @@ CCameraController::CCameraController()
 	, m_CameraTargetPos({0.0f,0.0f,0.0f})
 	, m_BaseCameraDistance(0.0f)
 	, m_IsMovingGimmickActive(false)
+	, m_IsPerimeterGimmickActive(false)
 {
 	
 }
@@ -50,6 +51,7 @@ bool CCameraController::Initialize()
 
 	// ギミック出現してない
 	m_IsMovingGimmickActive = false;
+	m_IsPerimeterGimmickActive = false;
 
 	// 基準の距離
 	m_BaseCameraDistance = 30.0f;
@@ -77,15 +79,21 @@ void CCameraController::Update()
 	// ギミックを取得
 	GetObstacles();
 
-	// 移動ギミックがあるか判定
-	HasMovingGimmick();
+	// 外周を移動するギミックがあるか
+	HasPerimeterGimmick();
 
-	if (!m_IsMovingGimmickActive)
+	if (!m_IsPerimeterGimmickActive)
 	{
-		// カメラの注視点位置設定
-		CalculateCenter();
-	}
+		// 移動ギミックがあるか判定
+		HasMovingGimmick();
 
+		if (!m_IsMovingGimmickActive)
+		{
+			// カメラの注視点位置設定
+			CalculateCenter();
+		}
+	}
+	
 	// カメラの変更位置を設定
 	m_Camera->SetPosTarget(m_CameraTargetPos);
 }
@@ -138,6 +146,9 @@ void CCameraController::CalculateCenter()
 
 	// 中心位置に設定
 	m_CameraTargetPos = CenterPos;
+
+	// 距離設定
+	m_Camera->SetDistanceTarget(m_MaxCameraDistance);
 
 	//// プレイヤーの広がりを計算
 	//float SpreadX = MaxPlayersPos.x - MinPlayersPos.x;
@@ -246,5 +257,38 @@ void CCameraController::HasMovingGimmick()
 	{
 		// 最初の位置に戻る
 		m_CameraTargetPos = m_FirstCameraPos;
+
+		// 距離設定
+		m_Camera->SetDistanceTarget(m_MaxCameraDistance);
+	}
+}
+
+//============================================================================
+// 外周移動ギミック
+//============================================================================
+void CCameraController::HasPerimeterGimmick()
+{
+	// カメラの距離
+	constexpr float Distance = 50.0f;
+
+	// 判定を戻す
+	m_IsPerimeterGimmickActive = false;
+
+	for (auto ite : m_Obstacles)
+	{
+		if (ite->GetObsType() == Obstacle::OBSTACLE_TYPE::PERIMETER)
+		{
+			m_IsPerimeterGimmickActive = true;
+		}
+	}
+
+	// 外周移動ギミックない
+	if (m_IsPerimeterGimmickActive)
+	{
+		// 最初の位置に戻る
+		m_CameraTargetPos = m_FirstCameraPos;
+
+		// 距離設定
+		m_Camera->SetDistanceTarget(Distance);
 	}
 }

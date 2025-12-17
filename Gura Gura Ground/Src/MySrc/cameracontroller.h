@@ -74,6 +74,9 @@ private:
 	// ギミックがあるか判定
 	void HasMovingGimmick();
 
+	// 外周移動ギミック
+	void HasPerimeterGimmick();
+
 	//****************************************************
 	// data
 	//****************************************************
@@ -85,4 +88,5 @@ private:
 	float m_BaseCameraDistance;				// カメラ基本の距離
 	float m_MaxCameraDistance;				// カメラの最大の距離
 	bool m_IsMovingGimmickActive;			// 特定方向に移動するギミックが出現しているか
+	bool m_IsPerimeterGimmickActive;		// 外周を移動するギミックが出現しているか
 };

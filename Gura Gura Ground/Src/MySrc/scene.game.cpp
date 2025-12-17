@@ -40,6 +40,7 @@ namespace
 
 	bool CreateBar = false;
 	bool CreateBomb = false;
+	bool CreateTornado = false;
 	int Count = 0;
 
 	// ƒOƒ[ƒoƒ‹
@@ -119,7 +120,7 @@ CSceneGame::CSceneGame()
 	CObjectManager::CreateRaw<CTornado>(
 		[&fSpanField,fUnkoSpan](CTornado* p) -> bool
 		{
-			float Pos = fSpanField + 10.0f;
+			float Pos = fSpanField + 5.0f;
 			OBJ::Transform TF = p->GetTransform();
 			TF.Pos = { -Pos, 0.0f, Pos };
 			p->SetTransform(TF);
