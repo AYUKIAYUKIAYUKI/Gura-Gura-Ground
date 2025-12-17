@@ -113,14 +113,15 @@ CSceneGame::CSceneGame()
 
 	// —³Šª‚Ì¶¬
 	CObjectManager::CreateRaw<CTornado>(
-		[&fSpanField, fUnkoSpan](CTornado* p) -> bool
+		[&fSpanField](CTornado* p) -> bool
 		{
-			float Pos = fSpanField + 10.0f;
+			float Size = 30.0f;
+			float Pos = fSpanField + 5.0f;
 			OBJ::Transform TF = p->GetTransform();
 			TF.Pos = { -Pos, 0.0f, Pos };
 			p->SetTransform(TF);
 			p->SetStartPos(TF.Pos);
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+			p->FactoryCollider(Size, 1.0f, Size);
 			p->SetDepth(Pos * 2.0f);
 			p->SetWidth(Pos * 2.0f);
 			return true;

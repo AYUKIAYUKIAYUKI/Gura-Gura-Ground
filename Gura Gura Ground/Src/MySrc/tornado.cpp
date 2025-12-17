@@ -12,7 +12,7 @@
 
 // 物理挙動作成のため
 #include "API.world.h"
-#include "API.rigidbody.h"
+#include "API.ghost.h"
 
 //============================================================================
 // デフォルトコンストラクタ
@@ -39,13 +39,7 @@ CTornado::~CTornado()
 void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
 	// 竜巻用のリジッドボディの作成
-	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
-
-	// コライダーをリジッドボディにキャスト
-	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
-
-	// Y軸以外の回転をロック
-	pRB->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
+	SetCollider(CGhost::CreateGhost(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
 }
 
 //============================================================================
@@ -53,8 +47,17 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //============================================================================
 void CTornado::Update()
 {
+	// 移動前の辺
+	int OldEdge = m_NowEdge;
+
 	// 移動方向を設定
 	SetMoveDir();
+
+	if (OldEdge == 3
+		&& m_NowEdge == 0)
+	{// 一周した
+		SetDeath();
+	}
 
 	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
 	CPhysicsObject::Update();
@@ -97,13 +100,10 @@ void CTornado::SetMoveDir()
 	DirectX::XMFLOAT3 EndPos = TargetPositions[(m_NowEdge + 1) % NUM_EDGES];// 最後の位置
 
 	// コライダーをリジッドボディにキャスト
-	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
-
-	// リジッドボディのアクティブ化
-	pRB->SetActive();
+	const CGhost* const pGhost = dynamic_cast<CGhost*>(GetCollider());
 
 	// 設定用のトランスフォーム
-	OBJ::Transform TF = pRB->GetWorldTransform();
+	OBJ::Transform TF = GetTransform();
 
 	// 辺の移動ベクトルを計算
 	DirectX::XMFLOAT3 delta = { EndPos.x - StartPos.x, 0.0f,EndPos.z - StartPos.z };
@@ -127,5 +127,5 @@ void CTornado::SetMoveDir()
 	TF.Pos.z = StartPos.z + delta.z * m_edgeProgress;
 
 	// ワールドトランスフォームに反映
-	pRB->SetWorldTransform(TF);
+	SetTransform(TF);
 }
