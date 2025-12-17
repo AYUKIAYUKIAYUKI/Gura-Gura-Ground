@@ -27,6 +27,7 @@
 #include "bar.h"
 #include "bomb.h"
 #include "cameracontroller.h"
+#include "tornado.h"
 
 
 //****************************************************
@@ -124,10 +125,25 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
+
 	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
 	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
 	g_GameTime = 0.0f;
-}
+	// 竜巻の生成
+	CObjectManager::CreateRaw<CTornado>(
+		[&fSpanField, fUnkoSpan](CTornado* p) -> bool
+		{
+			float Pos = fSpanField + 10.0f;
+			OBJ::Transform TF = p->GetTransform();
+			TF.Pos = { -Pos, 0.0f, Pos };
+			p->SetTransform(TF);
+			p->SetStartPos(TF.Pos);
+			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+			p->SetDepth(Pos * 2.0f);
+			p->SetWidth(Pos * 2.0f);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);}
 
 //============================================================================
 // デストラクタ

@@ -20,9 +20,9 @@ CObstacle* CObstacle::s_pPickingObstacle = nullptr;
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
-CObstacle::CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObstacleType)
+CObstacle::CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObsType)
 	: CPhysicsObject(Type, Layer)
-	, m_ObsType(ObstacleType)
+	, m_ObsType(ObsType)
 {}
 
 //============================================================================

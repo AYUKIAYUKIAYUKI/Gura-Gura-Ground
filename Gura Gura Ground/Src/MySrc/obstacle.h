@@ -40,12 +40,8 @@ public:
 	//****************************************************
 	// special function
 	//****************************************************
-
-	// デフォルトコンストラクタ
-	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObstacleType);
-	
-	// デストラクタ	
-	~CObstacle() override;
+	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObsType); // デフォルトコンストラクタ
+	~CObstacle() override;                       // デストラクタ
 
 	//****************************************************
 	// function
