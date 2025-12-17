@@ -68,6 +68,7 @@ void ObstacleEditer::EditCommonParams()
         ImGui::DragFloat("Collider Height", &obs.ColliderHeight, 0.1f, 0.1f, 100.0f);
         ImGui::DragFloat("Collider Depth", &obs.ColliderDepth, 0.1f, 0.1f, 100.0f);
 
+        //爆弾が設定されている場合の追加の設定項目
         if (obs.ManualObstacleType == 2) 
         {
             ImGui::DragInt("Bomb Timer", &obs.BombTimer, 1.0f, 1, 1000);
@@ -145,6 +146,12 @@ void ObstacleEditer::SpawnTimePresetEditor()
             {
                 s_SpawnTimePresetCount++;
             }
+        }
+
+        //出現時間プリセットの数が変更されたら出現時間の分もリサイズする
+        if ((int)s_AssignedSpawnTimes.size() != s_SpawnTimePresetCount)
+        {
+            s_AssignedSpawnTimes.resize(s_SpawnTimePresetCount, 5.0f);
         }
 
         for (int i = 0; i < s_SpawnTimePresetCount; ++i)
@@ -271,7 +278,6 @@ void ObstacleEditer::ResetPlayMode()
             sub.Spawned = false;
         }
     }
-    AssignRandomSpawnTimes(); // 割当し直す
 }
 
 //============================================================================
@@ -394,8 +400,8 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
 {
     //各種変数の初期化
     m_CurrentParamIndex = 0;
-    m_PlayMode = false;
     m_PlayModeElapsedTime = 0.0f;
+    m_PlayMode = false;
 
     m_ParamSets.clear();
     m_ParamSets.resize(PARAM_SET_MAX);
@@ -462,16 +468,18 @@ void ObstacleEditer::AssignRandomSpawnTimes()
     {
         s_SpawnedFlags.resize(s_SpawnTimePresetCount);
     }
+
     if ((int)s_AssignedSpawnTimes.size() != s_SpawnTimePresetCount)
     {
         s_AssignedSpawnTimes.resize(s_SpawnTimePresetCount);
     }
+
     if ((int)s_AssignedSpawnParamIndices.size() != s_SpawnTimePresetCount)
     {
         s_AssignedSpawnParamIndices.resize(s_SpawnTimePresetCount);
     }
 
-    // すべての(ParamSetIdx, subParamIdx)ペアをリスト化
+    // すべてのParamSetIdx, subParamIdxペアをリスト化する
     std::vector<std::pair<int, int>> allPairs;
     for (int paramSetIdx = 0; paramSetIdx < (int)m_ParamSets.size(); ++paramSetIdx)
     {
@@ -488,17 +496,41 @@ void ObstacleEditer::AssignRandomSpawnTimes()
         return;
     }
 
-    // 順番をランダムシャッフル
-    std::random_device randomDevice;
-    std::mt19937 rngEngine(randomDevice());
-    std::shuffle(allPairs.begin(), allPairs.end(), rngEngine);
+    // 乱数生成の準備
+    std::random_device randomdevice;
+    std::mt19937 randomnengine(randomdevice());
 
-    // プリセット数分だけ負荷
+    // 選択履歴
+    std::pair<int, int> lastPair = { -1, -1 };
+    int lastParamSetIdx = -1;
+
     for (int presetIndex = 0; presetIndex < s_SpawnTimePresetCount; ++presetIndex)
     {
-        const auto& paramIndexPair = allPairs[presetIndex % allPairs.size()];
-        s_AssignedSpawnParamIndices[presetIndex] = paramIndexPair;
-        s_AssignedSpawnTimes[presetIndex] = s_SpawnTimePresets[presetIndex % s_SpawnTimePresets.size()];
+        std::pair<int, int> selectedPair;
+        bool isValidSelection = false;
+
+        // 一度選択されたペアまたはセットは連続しないよう選択する
+        while (!isValidSelection)
+        {
+            std::uniform_int_distribution<int> dist(0, (int)allPairs.size() - 1);
+            selectedPair = allPairs[dist(randomnengine)];
+
+            // 同じペアまたは同じセットが連続しないようにする
+            isValidSelection = (selectedPair != lastPair) && (selectedPair.first != lastParamSetIdx);
+        }
+
+        // 選択されたペアを保存
+        s_AssignedSpawnParamIndices[presetIndex] = selectedPair;
+
+        // 該当するプリセット時間を適用
+        int presetTimeIndex = presetIndex % s_SpawnTimePresets.size();
+        s_AssignedSpawnTimes[presetIndex] = s_SpawnTimePresets[presetTimeIndex];
+
+        // スポーンフラグを初期化させる
         s_SpawnedFlags[presetIndex] = false;
+
+        // 現在のペアとセットインデックスを次回のために記憶する
+        lastPair = selectedPair;
+        lastParamSetIdx = selectedPair.first;
     }
 }
