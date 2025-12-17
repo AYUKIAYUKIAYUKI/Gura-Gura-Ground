@@ -36,14 +36,14 @@ void ObstacleEditer::EditCommonParams()
 {
     auto& paramSet = RefParam();
 
-    // 新規追加ボタン
-    if (ImGui::Button("Add Obstacle")) 
+    // 障害物を追加
+    if (ImGui::Button("Add Obstacle"))
     {
-        paramSet.subParams.push_back(SubObstacleParam{}); // デフォルト値で追加
+        paramSet.subParams.push_back(SubObstacleParam{});
     }
 
     // 障害物(subParams)の一覧UI
-    for (size_t i = 0; i < paramSet.subParams.size(); ++i) 
+    for (size_t i = 0; i < paramSet.subParams.size(); ++i)
     {
         ImGui::Separator();
         ImGui::PushID(static_cast<int>(i));
@@ -52,15 +52,20 @@ void ObstacleEditer::EditCommonParams()
 
         ImGui::Text("Obstacle %zu", i + 1);
 
-        // タイプ
-        ImGui::Combo("Type", &obs.ManualObstacleType, s_ObstacleTypeNames, IM_ARRAYSIZE(s_ObstacleTypeNames));
+        // タイプ選択
+        int currentType = static_cast<int>(obs.ManualObstacleType); // OBS_TYPE を整数型へ変換
+        const char* typeNames[] = { "None", "Ball", "Bar", "Bomb" };
+        if (ImGui::Combo("Type", &currentType, typeNames, static_cast<int>(OBS_TYPE::MAX)))
+        {
+            obs.ManualObstacleType = static_cast<OBS_TYPE>(currentType); // 整数型から OBS_TYPE型へ再キャストする
+        }
 
-        // 座標
+        // 出現位置
         ImGui::DragFloat("Spawn Pos X", &obs.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
         ImGui::DragFloat("Spawn Pos Y", &obs.ObstacleSpawnY, 0.1f, 5.0f, 100.0f);
         ImGui::DragFloat("Spawn Pos Z", &obs.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
 
-        // 速度
+        // 移動速度
         ImGui::DragFloat("Speed X", &obs.ObstacleSpeedX, 0.1f, -20.0f, 20.0f);
         ImGui::DragFloat("Speed Y", &obs.ObstacleSpeedY, 0.1f, -20.0f, 20.0f);
         ImGui::DragFloat("Speed Z", &obs.ObstacleSpeedZ, 0.1f, -20.0f, 20.0f);
@@ -68,14 +73,13 @@ void ObstacleEditer::EditCommonParams()
         ImGui::DragFloat("Collider Height", &obs.ColliderHeight, 0.1f, 0.1f, 100.0f);
         ImGui::DragFloat("Collider Depth", &obs.ColliderDepth, 0.1f, 0.1f, 100.0f);
 
-        //爆弾が設定されている場合の追加の設定項目
-        if (obs.ManualObstacleType == 2) 
+        if (obs.ManualObstacleType == OBS_TYPE::BOMB)
         {
             ImGui::DragInt("Bomb Timer", &obs.BombTimer, 1.0f, 1, 1000);
         }
 
-        // 個別削除ボタン
-        if (ImGui::Button("Remove")) 
+        // 削除ボタン
+        if (ImGui::Button("Remove"))
         {
             paramSet.subParams.erase(paramSet.subParams.begin() + i);
             ImGui::PopID();
@@ -92,22 +96,17 @@ void ObstacleEditer::EditCommonParams()
 void ObstacleEditer::EditerMenu()
 {
     useful::MIS::MyImGuiShortcut_BeginWindow("Obstacle Settings");
-    const char* paramSetLabels[PARAM_SET_MAX] = { "Param 1", "Param 2", "Param 3", "Param 4", "Param 5" };
-    ImGui::Combo("Param Set", &m_CurrentParamIndex, paramSetLabels, PARAM_SET_MAX);
 
-    // 選択中パラメータセットのパラメータを表示・編集
-    EditCommonParams();
+    ImGui::Text("Obstacle Menu");
 
     bool lastPlayMode = m_PlayMode;
     ImGui::Checkbox("Play Mode", &m_PlayMode);
-    if (!m_PlayMode && lastPlayMode) 
+    if (!m_PlayMode && lastPlayMode)
     {
         ResetPlayMode();
     }
 
-    ImGui::Separator();
-
-    if (ImGui::Button("Spawn Obstacle"))
+    if (ImGui::Button("Test Spawn Obstacle"))
     {
         TryManualSpawn();
     }
@@ -116,6 +115,14 @@ void ObstacleEditer::EditerMenu()
     {
         SaveParams("Data\\JSON\\obscale_table.json");
     }
+
+    ImGui::Text("Obstacle Param Edit");
+
+    const char* paramSetLabels[PARAM_SET_MAX] = { "Param 1", "Param 2", "Param 3", "Param 4", "Param 5" };
+    ImGui::Combo("Param Set", &m_CurrentParamIndex, paramSetLabels, PARAM_SET_MAX);
+
+    // 選択中パラメータセットのパラメータを表示・編集
+    EditCommonParams();
 
     ImGui::End();
 }
@@ -127,6 +134,8 @@ void ObstacleEditer::SpawnTimePresetEditor()
 {
     if (ImGui::Begin("SpawnTime Preset Editor"))
     {
+        ImGui::Text("Game Time: %.2f sec", m_PlayModeElapsedTime);
+
         ImGui::Text("PresetCount"); ImGui::SameLine();
 
         if (ImGui::Button("-##PresetCount"))
@@ -174,12 +183,13 @@ void ObstacleEditer::SpawnTimePresetEditor()
                 int subParamIndex = s_AssignedSpawnParamIndices[i].second;
                 if (paramSetIndex < (int)m_ParamSets.size() && subParamIndex < (int)m_ParamSets[paramSetIndex].subParams.size()) {
                     const auto& param = m_ParamSets[paramSetIndex].subParams[subParamIndex];
+                    const char* typeNames[] = { "None", "Ball", "Bar", "Bomb" };
                     ImGui::Text("Time %d : %.2f (Set %d, Item %d, Type:%s Pos: %.1f %.1f %.1f)",
                         i,
                         s_AssignedSpawnTimes[i],
                         paramSetIndex + 1,
                         subParamIndex + 1,
-                        (param.ManualObstacleType == 0 ? "Ball" : "Bar"),
+                        typeNames[(int)param.ManualObstacleType],
                         param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ
                     );
                 }
@@ -211,9 +221,8 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 
                     switch (sub.ManualObstacleType)
                     {
-                    case 0: // Ball
-                        CObjectManager::CreateRaw<CBall>(
-                            [sub, subIdx, paramSetIdx](CBall* p) -> bool
+                    case OBS_TYPE::BALL:
+                        CObjectManager::CreateRaw<CBall>([sub, subIdx, paramSetIdx](CBall* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -226,9 +235,8 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 return true;
                             }, OBJ::TYPE::OBSTACLE);
                         break;
-                    case 1: // Bar
-                        CObjectManager::CreateRaw<CBar>(
-                            [sub, subIdx, paramSetIdx](CBar* p) -> bool
+                    case OBS_TYPE::BAR:
+                        CObjectManager::CreateRaw<CBar>([sub, subIdx, paramSetIdx](CBar* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -242,9 +250,8 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 return true;
                             }, OBJ::TYPE::OBSTACLE);
                         break;
-                    case 2: // Bomb
-                        CObjectManager::CreateRaw<CBomb>(
-                            [sub, subIdx, paramSetIdx](CBomb* p) -> bool
+                    case OBS_TYPE::BOMB:
+                        CObjectManager::CreateRaw<CBomb>([sub, subIdx, paramSetIdx](CBomb* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -256,14 +263,13 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 return true;
                             }, OBJ::TYPE::OBSTACLE);
                         break;
-                }
                     }
+                }
                 s_SpawnedFlags[i] = true;
             }
         }
     }
 }
-
 
 //============================================================================
 // プレイモード中の経過時間リセット＆スポーンフラグをリセット
@@ -271,12 +277,11 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 void ObstacleEditer::ResetPlayMode()
 {
     m_PlayModeElapsedTime = 0.0f;
-    for (auto& paramSet : m_ParamSets) 
+
+    // スポーンフラグを初期化させる
+    for (int presetIndex = 0; presetIndex < s_SpawnTimePresetCount; ++presetIndex)
     {
-        for (auto& sub : paramSet.subParams) 
-        {
-            sub.Spawned = false;
-        }
+        s_SpawnedFlags[presetIndex] = false;
     }
 }
 
@@ -293,9 +298,8 @@ void ObstacleEditer::TryManualSpawn()
         const auto& sub = paramSet.subParams[subIdx];
         switch (sub.ManualObstacleType)
         {
-        case 0: // Ball
-            CObjectManager::CreateRaw<CBall>(
-                [sub, subIdx, thisSetIdx](CBall* p) -> bool
+        case OBS_TYPE::BALL:
+            CObjectManager::CreateRaw<CBall>([sub, subIdx, thisSetIdx](CBall* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex((int)subIdx);
@@ -309,9 +313,8 @@ void ObstacleEditer::TryManualSpawn()
                 },
                 OBJ::TYPE::OBSTACLE);
             break;
-        case 1: // Bar
-            CObjectManager::CreateRaw<CBar>(
-                [sub, subIdx, thisSetIdx](CBar* p) -> bool
+        case OBS_TYPE::BAR:
+            CObjectManager::CreateRaw<CBar>([sub, subIdx, thisSetIdx](CBar* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex((int)subIdx);
@@ -326,9 +329,8 @@ void ObstacleEditer::TryManualSpawn()
                 },
                 OBJ::TYPE::OBSTACLE);
             break;
-        case 2: // Bomb
-            CObjectManager::CreateRaw<CBomb>(
-                [sub, subIdx, thisSetIdx](CBomb* p) -> bool
+        case OBS_TYPE::BOMB:
+            CObjectManager::CreateRaw<CBomb>([sub, subIdx, thisSetIdx](CBomb* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -434,9 +436,9 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
                         sub.ColliderWidth = jSub.value("collider_width", 3.0f);
                         sub.ColliderHeight = jSub.value("collider_height", 3.0f);
                         sub.ColliderDepth = jSub.value("collider_depth", 3.0f);
-                        sub.ManualObstacleType = jSub.value("manual_type", 0);
+                        int manualTypeValue = jSub.value("manual_type", static_cast<int>(OBS_TYPE::NONE)); //OBS_TYPEに変換する
+                        sub.ManualObstacleType = static_cast<OBS_TYPE>(manualTypeValue);
                         sub.BombTimer = jSub.value("bomb_timer", 300);
-                        sub.Spawned = false;
                         m_ParamSets[i].subParams.push_back(sub);
                     }
                 }

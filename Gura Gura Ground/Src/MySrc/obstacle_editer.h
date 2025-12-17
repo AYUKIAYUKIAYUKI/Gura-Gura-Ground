@@ -16,18 +16,26 @@ public:
     //========================
     // 障害物パラメータセット
     //========================
+    enum class OBS_TYPE : unsigned char
+    {
+        NONE = 0, // 無し
+        BALL,     // ボール
+        BAR,      // 棒
+        BOMB,     // ボム
+        MAX
+    };
+
     struct SubObstacleParam {
-        int  ManualObstacleType = 0;                   // 障害物タイプ(0:Ball, 1:Bar)
-        bool Spawned = false;                          // 生成済みフラグ
+        OBS_TYPE ManualObstacleType = OBS_TYPE::NONE;  // 障害物タイプ(0:B
         float ObstacleSpeedX = 0.0f;                   // 初速度X
         float ObstacleSpeedY = 0.0f;                   // 初速度Y
         float ObstacleSpeedZ = -5.0f;                  // 初速度Z
         float ObstacleSpawnX = 0.0f;                   // 生成位置X
         float ObstacleSpawnY = 10.0f;                  // 生成位置Y
         float ObstacleSpawnZ = 15.0f;                  // 生成位置Z
-        float ColliderWidth = 3.0f;
-        float ColliderHeight = 3.0f;
-        float ColliderDepth = 3.0f;
+        float ColliderWidth = 3.0f;                    // コライダー横サイズ
+        float ColliderHeight = 3.0f;                   // コライダー縦サイズ
+        float ColliderDepth = 3.0f;                    // コライダーサイズ深さ
         int BombTimer = 300;                           // タイマー値(ボム用)
     };
 
@@ -55,10 +63,10 @@ public:
     static ObstacleParam& RefParam() { return m_ParamSets[m_CurrentParamIndex]; }
 private:
     static int s_SpawnTimePresetCount;
-    static float s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ; // 直近ロード位置
-    static float s_LoadedSpeedX, s_LoadedSpeedY, s_LoadedSpeedZ; // 直近ロード速度
+    static float s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ; // 出現位置
+    static float s_LoadedSpeedX, s_LoadedSpeedY, s_LoadedSpeedZ; // 出現速度
     static std::vector<float> s_SpawnTimePresets;
     static std::vector<float> s_AssignedSpawnTimes;
-    static std::vector<std::pair<int, int>> s_AssignedSpawnParamIndices; // (ParamSetのindexとsubParamのindex)
+    static std::vector<std::pair<int, int>> s_AssignedSpawnParamIndices; // ParamSetのindexとsubParamのindex
     static std::vector<bool> s_SpawnedFlags;
 };
