@@ -390,7 +390,7 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	}
 
 	// 何かリジッドボディとの衝突が確認出来たら
-	if (Collision::GetHitRigidBody(pRB))
+	if (Collision::CheckHitToRigidBodyRaw(pRB))
 	{
 		// 衝撃波の作成
 		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 6.0f, 1.0f, 6.0f }, 10);
