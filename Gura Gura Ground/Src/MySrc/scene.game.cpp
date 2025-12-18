@@ -112,21 +112,6 @@ CSceneGame::CSceneGame()
 		// プレイヤー登録
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
-
-
-
-	// ボムの生成
-	CObjectManager::CreateRaw<CBomb>(
-		[&fUnkoSpan](CBomb* p) -> bool
-		{
-			OBJ::Transform TF = p->GetTransform();
-			TF.Pos = { -10.0f, 20.0f, 0.0f };
-			p->SetTransform(TF);
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			p->SetTimer(3000);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
 }
 
 //============================================================================
@@ -144,7 +129,7 @@ void CSceneGame::Update()
 	CCameraController::RefInstance().Update();
 
 	c++;
-	if (c > 600
+	if (c > 300
 		&& !a)
 	{
 		float fSpanField = 15.0f;

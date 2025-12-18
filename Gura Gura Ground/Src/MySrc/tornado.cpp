@@ -144,22 +144,19 @@ void CTornado::SetMoveDir()
 void CTornado::PullPlayer()
 {
 	// プレイヤーリスト取得
-	auto PlayerList = CObjectManager::RefInstance().RefListRaw(OBJ::TYPE::OBSTACLE);
+	auto PlayerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 
 	for (auto ite : PlayerList)
 	{
-		CBomb* Player = dynamic_cast<CBomb*>(ite);
-
-		if (Player == nullptr)
-		{
-			continue;
-		}
+		CPlayer* Player = dynamic_cast<CPlayer*>(ite.get());
 
 		// リジッドボディの取得
 		const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(Player->GetCollider());
 
+		const btVector3& rCurrentVel = pRB->GetLinearVelocity();
+
 		// 移動速度スケール
-		const float fSpeed = 10.0f;
+		const float fSpeed = 5.0f;
 		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
 		DirectX::XMFLOAT3 TornadoPos = GetTransform().Pos;			// 竜巻の位置
@@ -169,6 +166,7 @@ void CTornado::PullPlayer()
 		// 移動方向：XZ軸：方向の単位ベクトルに速度を掛けたものを設定
 		MoveDir.setX(sinf(Dir) * fSpeed);
 		MoveDir.setZ(cosf(Dir) * fSpeed);
+		MoveDir.setY(rCurrentVel.getY());
 
 		// 線形速度を上書き
 		pRB->SetActive();
