@@ -15,7 +15,7 @@
 #include "API.rigidbody.h"
 
 // 衝撃波の作成のため
-#include "bombshockwave.h"
+#include "shockwave.h"
 
 //============================================================================
 // デフォルトコンストラクタ
@@ -57,17 +57,22 @@ void CBomb::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //============================================================================
 void CBomb::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3& Size, int nDuration)
 {
-	// 衝撃波の作成
-	auto pHoldObject = CObjectManager::CreateRaw<CBombShockWave>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+	// 衝撃波の作成と、弱参照の設定
+	const std::shared_ptr<CShockWave>& spShockWave = CObjectManager::CreateShare<CShockWave>(
+		OBJ::TYPE::NONE,
+		OBJ::LAYER::DEFAULT);
 
 	// 自身のトランスフォームを出現位置に設定
-	pHoldObject->SetTransform(GetTransform());
+	spShockWave->SetTransform(GetTransform());
 
 	// ゴーストの作成
-	pHoldObject->FactoryCollider(Type, Size.x, Size.y, Size.z);
+	spShockWave->FactoryCollider(Type, Size.x, Size.y, Size.z);
 
-	// 衝撃波の作成
-	pHoldObject->SetDuration(nDuration);
+	// 自身を無視対象に設定
+	spShockWave->SetIgnore(shared_from_this());
+
+	// 期間の設定
+	spShockWave->SetDuration(nDuration);
 }
 
 //============================================================================
