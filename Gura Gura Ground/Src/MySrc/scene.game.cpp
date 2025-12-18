@@ -28,6 +28,7 @@
 #include "bomb.h"
 #include "pendulum.h"
 #include "cameracontroller.h"
+#include "tornado.h"
 
 //****************************************************
 // 仮
@@ -110,33 +111,19 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
-	// ボールの生成
-	CObjectManager::CreateRaw<CBall>(
-		[&fUnkoSpan](CBall* p) -> bool
-		{
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
 
-	// バーの生成
-	CObjectManager::CreateRaw<CBar>(
-		[&fUnkoSpan](CBar* p) -> bool
+	// 竜巻の生成
+	CObjectManager::CreateRaw<CTornado>(
+		[&fSpanField, fUnkoSpan](CTornado* p) -> bool
 		{
-			p->FactoryCollider(1.5f, 15.0f, 1.5f);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
-
-	// ボムの生成
-	CObjectManager::CreateRaw<CBomb>(
-		[&fUnkoSpan](CBomb* p) -> bool
-		{
+			float Pos = fSpanField + 10.0f;
 			OBJ::Transform TF = p->GetTransform();
-			TF.Pos = { 0.0f, 20.0f, 0.0f };
+			TF.Pos = { -Pos, 0.0f, Pos };
 			p->SetTransform(TF);
+			p->SetStartPos(TF.Pos);
 			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			p->SetTimer(300);
+			p->SetDepth(Pos * 2.0f);
+			p->SetWidth(Pos * 2.0f);
 			return true;
 		},
 		OBJ::TYPE::OBSTACLE);

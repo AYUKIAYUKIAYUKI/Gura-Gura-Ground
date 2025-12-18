@@ -94,6 +94,14 @@ public:
 	static std::shared_ptr<T> CreateShare(U&& fpFactory, OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
 #endif
 
+	// 生ポインタのオブジェクトリストを走査する高階関数
+	template<typename T>
+	void ForEachRaw(const T& fpExecute);
+
+	// シェアポインタのオブジェクトリストを走査する高階関数
+	template<typename T>
+	void ForEachShare(const T& fpExecute);
+
 	//****************************************************
 	// inline function
 	//****************************************************
@@ -231,4 +239,38 @@ std::shared_ptr<T> CObjectManager::CreateShare(U&& fpFactory, OBJ::TYPE Type, OB
 	RefInstance().RegisterObjectShare(spObj);
 
 	return spObj;
+}
+
+// 生ポインタのオブジェクトリストを走査する高階関数
+template<typename T>
+void CObjectManager::ForEachRaw(const T& fpCallBack)
+{
+	// 生ポインタのオブジェクトのリストを取得
+	const std::array<std::list<CObject*>, static_cast<unsigned char>(OBJ::TYPE::MAX)>& rListRaw = CObjectManager::RefInstance().RefListRaw();
+
+	// 全てのリストを走査
+	for (const std::list<CObject*>& rTypeList : rListRaw)
+	{
+		for (const auto& rIt : rTypeList)
+		{
+			fpCallBack(rIt);
+		}
+	}
+}
+
+// シェアポインタをのオブジェクトリストを走査する高階関数
+template<typename T>
+void CObjectManager::ForEachShare(const T& fpCallBack)
+{
+	// 共有ポインタのオブジェクトのリストを取得
+	const std::array<std::list<std::shared_ptr<CObject>>, static_cast<unsigned char>(OBJ::TYPE::MAX)>& rListShare = CObjectManager::RefInstance().RefListShare();
+
+	// 全てのリストを走査
+	for (const std::list<std::shared_ptr<CObject>>& rTypeList : rListShare)
+	{
+		for (const std::shared_ptr<CObject>& rIt : rTypeList)
+		{
+			fpCallBack(rIt);
+		}
+	}
 }

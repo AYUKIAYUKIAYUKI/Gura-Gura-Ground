@@ -97,35 +97,34 @@ namespace Collision
 		bool        m_bHit;
 	};
 
-	static CRigidBody* GetHitRigidBody(CRigidBody* pRigidBody0)
+	// リジッドボディとリジッドボディの衝突判定 - 生ポインタのオブジェクトリストを走査
+	static CRigidBody* CheckHitToRigidBodyRaw(CRigidBody* pRigidBody0)
 	{
 		// オブジェクトのリストを取得
-		const auto& rObjList = CObjectManager::RefInstance().RefListRaw();
+		const std::array<std::list<CObject*>, static_cast<unsigned char>(OBJ::TYPE::MAX)>& rListRaw = CObjectManager::RefInstance().RefListRaw();
 
-		for (const auto& rTypeList : rObjList)
+		// 全てのリストを走査
+		for (const std::list<CObject*>& rTypeList : rListRaw)
 		{
 			for (const auto& rIt : rTypeList)
 			{
-				CPhysicsObject* pPhysicsObject = dynamic_cast<CPhysicsObject*>(rIt);
-
-				// 物理オブジェクトにキャスト可能
-				if (pPhysicsObject)
+				// 物理オブジェクトにキャスト可能で
+				if (CPhysicsObject* pPhysicsObject = dynamic_cast<CPhysicsObject*>(rIt))
 				{
-					CRigidBody* pRigidBody1 = dynamic_cast<CRigidBody*>(pPhysicsObject->GetCollider());
-
-					// リジッドボディにキャスト可能なら
-					if (pRigidBody1)
+					// そのコライダーをリジッドボディにキャスト可能なら
+					if (CRigidBody* pRigidBody1 = dynamic_cast<CRigidBody*>(pPhysicsObject->GetCollider()))
 					{
+						// この時、同じリジッドボディ同士の衝突判定は行わない
 						if (pRigidBody0 == pRigidBody1)
 						{
 							continue;
 						}
 
-						// 衝突判定
+						// 衝突判定を行い
 						Collision::MyContactCallbackRigidBodyAndRigidBody CallBack(pRigidBody0, pRigidBody1);
 						CWorld::RefInstance().RefDynamicsWorldConst()->contactPairTest(pRigidBody0->GetRigidBody(), pRigidBody1->GetRigidBody(), CallBack);
 
-						// 1つでも衝突が確認出来たら
+						// 1つでも衝突が確認出来た段階でそのリジッドボディを返す
 						if (CallBack.m_bHit)
 						{
 							return pRigidBody1;
@@ -138,30 +137,68 @@ namespace Collision
 		return nullptr;
 	}
 
-	static CRigidBody* GetHitRigidBody(CGhost* pGhost)
+	// リジッドボディとリジッドボディの衝突判定 - シェアポインタのオブジェクトリストを走査
+	static CRigidBody* CheckHitToRigidBodyShare(CRigidBody* pRigidBody0)
+	{
+		// 共有ポインタのオブジェクトのリストを取得
+		const std::array<std::list<std::shared_ptr<CObject>>, static_cast<unsigned char>(OBJ::TYPE::MAX)>& rListShare = CObjectManager::RefInstance().RefListShare();
+
+		// 全てのリストを走査
+		for (const std::list<std::shared_ptr<CObject>>& rTypeList : rListShare)
+		{
+			for (const std::shared_ptr<CObject>& rIt : rTypeList)
+			{
+				// 物理オブジェクトにキャスト可能で
+				if (std::shared_ptr<CPhysicsObject> spPhysicsObject = std::dynamic_pointer_cast<CPhysicsObject>(rIt))
+				{
+					// そのコライダーをリジッドボディにキャスト可能なら
+					if (CRigidBody* pRigidBody1 = dynamic_cast<CRigidBody*>(spPhysicsObject->GetCollider()))
+					{
+						// この時、同じリジッドボディ同士の衝突判定は行わない
+						if (pRigidBody0 == pRigidBody1)
+						{
+							continue;
+						}
+
+						// 衝突判定を行い
+						Collision::MyContactCallbackRigidBodyAndRigidBody CallBack(pRigidBody0, pRigidBody1);
+						CWorld::RefInstance().RefDynamicsWorldConst()->contactPairTest(pRigidBody0->GetRigidBody(), pRigidBody1->GetRigidBody(), CallBack);
+
+						// 1つでも衝突が確認出来た段階でそのリジッドボディを返す
+						if (CallBack.m_bHit)
+						{
+							return pRigidBody1;
+						}
+					}
+				}
+			}
+		}
+
+		return nullptr;
+	}
+
+	// ゴーストとリジッドボディの衝突判定 - 生ポインタのオブジェクトリストを走査
+	static CRigidBody* CheckHitToRigidBodyRaw(CGhost* pGhost)
 	{
 		// オブジェクトのリストを取得
-		const auto& rObjList = CObjectManager::RefInstance().RefListRaw();
+		const std::array<std::list<CObject*>, static_cast<unsigned char>(OBJ::TYPE::MAX)>& rListRaw = CObjectManager::RefInstance().RefListRaw();
 
-		for (const auto& rTypeList : rObjList)
+		// 全てのリストを走査
+		for (const std::list<CObject*>& rTypeList : rListRaw)
 		{
 			for (const auto& rIt : rTypeList)
 			{
-				CPhysicsObject* pPhysicsObject = dynamic_cast<CPhysicsObject*>(rIt);
-
-				// 物理オブジェクトにキャスト可能
-				if (pPhysicsObject)
+				// 物理オブジェクトにキャスト可能で
+				if (CPhysicsObject* pPhysicsObject = dynamic_cast<CPhysicsObject*>(rIt))
 				{
-					CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(pPhysicsObject->GetCollider());
-
-					// リジッドボディにキャスト可能なら
-					if (pRigidBody)
+					// そのコライダーをリジッドボディにキャスト可能なら
+					if (CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(pPhysicsObject->GetCollider()))
 					{
-						// 衝突判定
+						// 衝突判定を行い
 						Collision::MyContactCallbackGhostAndRigidBody CallBack(pGhost, pRigidBody);
 						CWorld::RefInstance().RefDynamicsWorldConst()->contactPairTest(pGhost->GetGhost(), pRigidBody->GetRigidBody(), CallBack);
 
-						// 衝突が確認出来たら
+						// 1つでも衝突が確認出来た段階でそのリジッドボディを返す
 						if (CallBack.m_bHit)
 						{
 							return pRigidBody;
@@ -174,7 +211,42 @@ namespace Collision
 		return nullptr;
 	}
 
-	static CRigidBody* GetHitRigidBody(CGhost* pGhost, CRigidBody* pNone)
+	// ゴーストとリジッドボディの衝突判定 - シェアポインタのオブジェクトリストを走査
+	static CRigidBody* CheckHitToRigidBodyShare(CGhost* pGhost)
+	{
+		// 共有ポインタのオブジェクトのリストを取得
+		const std::array<std::list<std::shared_ptr<CObject>>, static_cast<unsigned char>(OBJ::TYPE::MAX)>& rListShare = CObjectManager::RefInstance().RefListShare();
+
+		// 全てのリストを走査
+		for (const std::list<std::shared_ptr<CObject>>& rTypeList : rListShare)
+		{
+			for (const std::shared_ptr<CObject>& rIt : rTypeList)
+			{
+				// 物理オブジェクトにキャスト可能で
+				if (std::shared_ptr<CPhysicsObject> spPhysicsObject = std::dynamic_pointer_cast<CPhysicsObject>(rIt))
+				{
+					// そのコライダーをリジッドボディにキャスト可能なら
+					if (CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(spPhysicsObject->GetCollider()))
+					{
+						// 衝突判定を行い
+						Collision::MyContactCallbackGhostAndRigidBody CallBack(pGhost, pRigidBody);
+						CWorld::RefInstance().RefDynamicsWorldConst()->contactPairTest(pGhost->GetGhost(), pRigidBody->GetRigidBody(), CallBack);
+
+						// 1つでも衝突が確認出来た段階でそのリジッドボディを返す
+						if (CallBack.m_bHit)
+						{
+							return pRigidBody;
+						}
+					}
+				}
+			}
+		}
+
+		return nullptr;
+	}
+
+	// あ
+	static CRigidBody* A(CGhost* pGhost, CRigidBody* pNone)
 	{
 		// オブジェクトのリストを取得
 		const auto& rObjList = CObjectManager::RefInstance().RefListRaw();
