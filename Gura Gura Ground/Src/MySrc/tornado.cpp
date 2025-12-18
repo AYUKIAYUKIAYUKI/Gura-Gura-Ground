@@ -13,6 +13,11 @@
 // 物理挙動作成のため
 #include "API.world.h"
 #include "API.ghost.h"
+#include "API.rigidbody.h"
+
+#include "bomb.h"
+#include "player.h"
+#include "API.object.manager.h"
 
 //============================================================================
 // デフォルトコンストラクタ
@@ -53,11 +58,14 @@ void CTornado::Update()
 	// 移動方向を設定
 	SetMoveDir();
 
-	if (OldEdge == 3
-		&& m_NowEdge == 0)
-	{// 一周した
-		SetDeath();
-	}
+	// プレイヤーを引き寄せる
+	PullPlayer();
+
+	//if (OldEdge == 3
+	//	&& m_NowEdge == 0)
+	//{// 一周した
+	//	SetDeath();
+	//}
 
 	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
 	CPhysicsObject::Update();
@@ -103,7 +111,7 @@ void CTornado::SetMoveDir()
 	const CGhost* const pGhost = dynamic_cast<CGhost*>(GetCollider());
 
 	// 設定用のトランスフォーム
-	OBJ::Transform TF = GetTransform();
+	OBJ::Transform TF = pGhost->GetWorldTransform();
 
 	// 辺の移動ベクトルを計算
 	DirectX::XMFLOAT3 delta = { EndPos.x - StartPos.x, 0.0f,EndPos.z - StartPos.z };
@@ -127,5 +135,43 @@ void CTornado::SetMoveDir()
 	TF.Pos.z = StartPos.z + delta.z * m_edgeProgress;
 
 	// ワールドトランスフォームに反映
-	SetTransform(TF);
+	pGhost->SetWorldTransform(TF);
+}
+
+//============================================================================
+// プレイヤーを引き寄せる
+//============================================================================
+void CTornado::PullPlayer()
+{
+	// プレイヤーリスト取得
+	auto PlayerList = CObjectManager::RefInstance().RefListRaw(OBJ::TYPE::OBSTACLE);
+
+	for (auto ite : PlayerList)
+	{
+		CBomb* Player = dynamic_cast<CBomb*>(ite);
+
+		if (Player == nullptr)
+		{
+			continue;
+		}
+
+		// リジッドボディの取得
+		const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(Player->GetCollider());
+
+		// 移動速度スケール
+		const float fSpeed = 10.0f;
+		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
+
+		DirectX::XMFLOAT3 TornadoPos = GetTransform().Pos;			// 竜巻の位置
+		DirectX::XMFLOAT3 PlayerPos = Player->GetTransform().Pos;	// プレイヤーの位置
+		float Dir = atan2f(TornadoPos.x - PlayerPos.x, TornadoPos.z - PlayerPos.z);// 向き
+
+		// 移動方向：XZ軸：方向の単位ベクトルに速度を掛けたものを設定
+		MoveDir.setX(sinf(Dir) * fSpeed);
+		MoveDir.setZ(cosf(Dir) * fSpeed);
+
+		// 線形速度を上書き
+		pRB->SetActive();
+		pRB->SetLinearVelocity(MoveDir);
+	}
 }

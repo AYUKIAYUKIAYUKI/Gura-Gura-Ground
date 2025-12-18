@@ -38,6 +38,9 @@ namespace
 	const int nNumB = 4;
 	const float fInitDist = 10.0f;
 
+	bool a = false;
+	int c = 0;
+
 	// グローバル
 	OBJ::Transform g_BoxTF = { { 0.5f, 0.5f, 0.5f }, {0.0f, 0.0f, 0.0f, 1.0f}, {-fInitDist, 25.0f, -fInitDist} };
 
@@ -111,19 +114,16 @@ CSceneGame::CSceneGame()
 	}
 
 
-	// 竜巻の生成
-	CObjectManager::CreateRaw<CTornado>(
-		[&fSpanField](CTornado* p) -> bool
+
+	// ボムの生成
+	CObjectManager::CreateRaw<CBomb>(
+		[&fUnkoSpan](CBomb* p) -> bool
 		{
-			float Size = 30.0f;
-			float Pos = fSpanField + 5.0f;
 			OBJ::Transform TF = p->GetTransform();
-			TF.Pos = { -Pos, 0.0f, Pos };
+			TF.Pos = { -10.0f, 20.0f, 0.0f };
 			p->SetTransform(TF);
-			p->SetStartPos(TF.Pos);
-			p->FactoryCollider(Size, 1.0f, Size);
-			p->SetDepth(Pos * 2.0f);
-			p->SetWidth(Pos * 2.0f);
+			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
+			p->SetTimer(3000);
 			return true;
 		},
 		OBJ::TYPE::OBSTACLE);
@@ -142,6 +142,32 @@ void CSceneGame::Update()
 {
 	// カメラコントローラー更新
 	CCameraController::RefInstance().Update();
+
+	c++;
+	if (c > 600
+		&& !a)
+	{
+		float fSpanField = 15.0f;
+
+		// 竜巻の生成
+		CObjectManager::CreateRaw<CTornado>(
+			[&fSpanField](CTornado* p) -> bool
+			{
+				float Size = 3.0f;
+				float Pos = fSpanField + 5.0f;
+				OBJ::Transform TF = p->GetTransform();
+				TF.Pos = { -Pos, 0.0f, Pos };
+				p->SetTransform(TF);
+				p->SetStartPos(TF.Pos);
+				p->FactoryCollider(Size, Size * 0.5f, Size);
+				p->SetDepth(Pos * 2.0f);
+				p->SetWidth(Pos * 2.0f);
+				return true;
+			},
+			OBJ::TYPE::OBSTACLE);
+
+		a = true;
+	}
 
 	// ゲームセットしたらシーン遷移
 	if (GameSet())
