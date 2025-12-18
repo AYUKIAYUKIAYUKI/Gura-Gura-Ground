@@ -13,6 +13,7 @@
 #include <random>
 #include <bomb.h>
 #include <player.h>
+#include <tornado.h>
 
 using json = nlohmann::json;
 
@@ -27,7 +28,7 @@ std::vector<ObstacleEditer::ObstacleParam> ObstacleEditer::m_ParamSets(ObstacleE
 
 std::vector<bool> ObstacleEditer::s_SpawnedFlags = {};
 
-static const char* s_ObstacleTypeNames[] = { "Ball", "Bar", "Bomb" };
+static const char* s_ObstacleTypeNames[] = { "Ball", "Bar", "Bomb","Tornado"};
 
 //============================================================================
 // 障害物パラメーター編集処理
@@ -54,7 +55,7 @@ void ObstacleEditer::EditCommonParams()
 
         // タイプ選択
         int currentType = static_cast<int>(obs.ManualObstacleType); // OBS_TYPE を整数型へ変換
-        const char* typeNames[] = { "None", "Ball", "Bar", "Bomb" };
+        const char* typeNames[] = { "None", "Ball", "Bar", "Bomb" ,"Tornado"};
         if (ImGui::Combo("Type", &currentType, typeNames, static_cast<int>(OBS_TYPE::MAX)))
         {
             obs.ManualObstacleType = static_cast<OBS_TYPE>(currentType); // 整数型から OBS_TYPE型へ再キャストする
@@ -76,6 +77,13 @@ void ObstacleEditer::EditCommonParams()
         if (obs.ManualObstacleType == OBS_TYPE::BOMB)
         {
             ImGui::DragInt("Bomb Timer", &obs.BombTimer, 1.0f, 1, 1000);
+        }
+
+        // TORNADO特有パラメータ入力
+        if (obs.ManualObstacleType == OBS_TYPE::TORNADO)
+        {
+            ImGui::DragFloat("Tornado Width", &obs.TornadoWidth, 1.0f, 1.0f, 200.0f);
+            ImGui::DragFloat("Tornado Depth", &obs.TornadoDepth, 1.0f, 1.0f, 200.0f);
         }
 
         // 削除ボタン
@@ -101,6 +109,32 @@ void ObstacleEditer::EditerMenu()
 
     bool lastPlayMode = m_PlayMode;
     ImGui::Checkbox("Play Mode", &m_PlayMode);
+
+    // プレイモードに入るときに、割当て未実行分があれば再抽選させる
+    if (m_PlayMode && !lastPlayMode)
+    {
+        bool bAssign = false;
+        if (s_AssignedSpawnParamIndices.size() != (size_t)s_SpawnTimePresetCount)
+        {
+            bAssign = true;
+        }
+        else 
+        {
+            for (const auto& idx : s_AssignedSpawnParamIndices)
+            {
+                if (idx.first < 0 || idx.second < 0) 
+                {
+                    bAssign = true;
+                    break;
+                }
+            }
+        }
+        if (bAssign) 
+        {
+            AssignRandomSpawnTimes();
+        }
+    }
+
     if (!m_PlayMode && lastPlayMode)
     {
         ResetPlayMode();
@@ -136,24 +170,32 @@ void ObstacleEditer::SpawnTimePresetEditor()
     {
         ImGui::Text("Game Time: %.2f sec", m_PlayModeElapsedTime);
 
-        ImGui::Text("PresetCount"); ImGui::SameLine();
+        // 残りプレイヤー数を取得して表示
+        const auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
+        int remainingPlayers = static_cast<int>(playerList.size());
+        ImGui::Text("Remaining Players: %d", remainingPlayers);
 
-        if (ImGui::Button("-##PresetCount"))
+        if (m_PlayMode == false)
         {
-            if (s_SpawnTimePresetCount > 1)
+            ImGui::Text("PresetCount"); ImGui::SameLine();
+
+            if (ImGui::Button("-##PresetCount"))
             {
-                s_SpawnTimePresetCount--;
+                if (s_SpawnTimePresetCount > 1)
+                {
+                    s_SpawnTimePresetCount--;
+                }
             }
-        }
 
-        ImGui::SameLine();
-        ImGui::Text("%d", s_SpawnTimePresetCount); ImGui::SameLine();
+            ImGui::SameLine();
+            ImGui::Text("%d", s_SpawnTimePresetCount); ImGui::SameLine();
 
-        if (ImGui::Button("+##PresetCount"))
-        {
-            if (s_SpawnTimePresetCount < SPAWN_PRESET_MAX)
+            if (ImGui::Button("+##PresetCount"))
             {
-                s_SpawnTimePresetCount++;
+                if (s_SpawnTimePresetCount < SPAWN_PRESET_MAX)
+                {
+                    s_SpawnTimePresetCount++;
+                }
             }
         }
 
@@ -183,7 +225,7 @@ void ObstacleEditer::SpawnTimePresetEditor()
                 int subParamIndex = s_AssignedSpawnParamIndices[i].second;
                 if (paramSetIndex < (int)m_ParamSets.size() && subParamIndex < (int)m_ParamSets[paramSetIndex].subParams.size()) {
                     const auto& param = m_ParamSets[paramSetIndex].subParams[subParamIndex];
-                    const char* typeNames[] = { "None", "Ball", "Bar", "Bomb" };
+                    const char* typeNames[] = { "None", "Ball", "Bar", "Bomb" ,"Tornado"};
                     ImGui::Text("Time %d : %.2f (Set %d, Item %d, Type:%s Pos: %.1f %.1f %.1f)",
                         i,
                         s_AssignedSpawnTimes[i],
@@ -260,6 +302,21 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
                                 p->SetTransform(TF);
                                 p->SetTimer(sub.BombTimer); // タイマー値セット
+                                return true;
+                            }, OBJ::TYPE::OBSTACLE);
+                        break;
+                    case OBS_TYPE::TORNADO:
+                        CObjectManager::CreateRaw<CTornado>([sub, subIdx, paramSetIdx](CTornado* p) -> bool
+                            {
+                                p->SetParamSetIndex(paramSetIdx);
+                                p->SetSubParamIndex(static_cast<int>(subIdx));
+                                p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+                                OBJ::Transform TF = {};
+                                TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                                p->SetTransform(TF);
+                                p->SetStartPos(TF.Pos);
+                                p->SetWidth(sub.TornadoWidth);
+                                p->SetDepth(sub.TornadoDepth);
                                 return true;
                             }, OBJ::TYPE::OBSTACLE);
                         break;
@@ -342,6 +399,21 @@ void ObstacleEditer::TryManualSpawn()
                     return true;
                 }, OBJ::TYPE::OBSTACLE);
             break;
+        case OBS_TYPE::TORNADO:
+            CObjectManager::CreateRaw<CTornado>([sub, subIdx, thisSetIdx](CTornado* p) -> bool
+                {
+                    p->SetParamSetIndex(thisSetIdx);
+                    p->SetSubParamIndex(static_cast<int>(subIdx));
+                    p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+                    OBJ::Transform TF = {};
+                    TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                    p->SetTransform(TF);
+                    p->SetStartPos(TF.Pos);
+                    p->SetWidth(sub.TornadoWidth);
+                    p->SetDepth(sub.TornadoDepth);
+                    return true;
+                }, OBJ::TYPE::OBSTACLE);
+            break;
         }
     }
 }
@@ -373,6 +445,8 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
             jSub["collider_depth"] = sub.ColliderDepth;
             jSub["manual_type"] = sub.ManualObstacleType;
             jSub["bomb_timer"] = sub.BombTimer;
+            jSub["tornado_width"] = sub.TornadoWidth;
+            jSub["tornado_depth"] = sub.TornadoDepth;
             jParamSet["sub_params"].push_back(jSub);
         }
 
@@ -439,6 +513,8 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
                         int manualTypeValue = jSub.value("manual_type", static_cast<int>(OBS_TYPE::NONE)); //OBS_TYPEに変換する
                         sub.ManualObstacleType = static_cast<OBS_TYPE>(manualTypeValue);
                         sub.BombTimer = jSub.value("bomb_timer", 300);
+                        sub.TornadoWidth = jSub.value("tornado_width", 40.0f);
+                        sub.TornadoDepth = jSub.value("tornado_depth", 40.0f);
                         m_ParamSets[i].subParams.push_back(sub);
                     }
                 }

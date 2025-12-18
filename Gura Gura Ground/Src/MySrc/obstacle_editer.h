@@ -22,6 +22,7 @@ public:
         BALL,     // ボール
         BAR,      // 棒
         BOMB,     // ボム
+        TORNADO,  // 竜巻
         MAX
     };
 
@@ -37,6 +38,8 @@ public:
         float ColliderHeight = 3.0f;                   // コライダー縦サイズ
         float ColliderDepth = 3.0f;                    // コライダーサイズ深さ
         int BombTimer = 300;                           // タイマー値(ボム用)
+        float TornadoWidth = 40.0f;                    // 竜巻用横サイズ
+        float TornadoDepth = 40.0f;                    // 竜巻用縦サイズ
     };
 
     struct ObstacleParam {

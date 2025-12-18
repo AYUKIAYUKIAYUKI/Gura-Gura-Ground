@@ -4,16 +4,18 @@
             "sub_params": [
                 {
                     "bomb_timer": 300,
-                    "collider_depth": 1.5,
-                    "collider_height": 15.0,
-                    "collider_width": 1.5,
-                    "manual_type": 2,
+                    "collider_depth": 3.0,
+                    "collider_height": 3.0,
+                    "collider_width": 3.0,
+                    "manual_type": 4,
                     "spawnX": -7.0,
                     "spawnY": 10.0,
-                    "spawnZ": 18.0,
+                    "spawnZ": 7.5,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0
+                    "speedZ": -5.0,
+                    "tornado_depth": 20.0,
+                    "tornado_width": 20.0
                 },
                 {
                     "bomb_timer": 300,
@@ -26,7 +28,9 @@
                     "spawnZ": 0.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0
+                    "speedZ": -5.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 }
             ]
         },
@@ -43,7 +47,9 @@
                     "spawnZ": 15.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0
+                    "speedZ": -5.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 },
                 {
                     "bomb_timer": 300,
@@ -56,7 +62,9 @@
                     "spawnZ": 15.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0
+                    "speedZ": -5.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 }
             ]
         },
@@ -73,7 +81,9 @@
                     "spawnZ": 10.0,
                     "speedX": 5.0,
                     "speedY": 0.0,
-                    "speedZ": 0.0
+                    "speedZ": 0.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 },
                 {
                     "bomb_timer": 300,
@@ -86,7 +96,9 @@
                     "spawnZ": -10.0,
                     "speedX": -5.0,
                     "speedY": 0.0,
-                    "speedZ": 0.0
+                    "speedZ": 0.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 }
             ]
         },
@@ -103,7 +115,9 @@
                     "spawnZ": 18.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0
+                    "speedZ": -5.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 },
                 {
                     "bomb_timer": 300,
@@ -116,7 +130,9 @@
                     "spawnZ": -18.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": 5.0
+                    "speedZ": 5.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 }
             ]
         },
@@ -133,7 +149,9 @@
                     "spawnZ": 15.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0
+                    "speedZ": -5.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 },
                 {
                     "bomb_timer": 300,
@@ -146,7 +164,9 @@
                     "spawnZ": -15.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": 5.0
+                    "speedZ": 5.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 },
                 {
                     "bomb_timer": 300,
@@ -159,7 +179,9 @@
                     "spawnZ": -2.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0
+                    "speedZ": -5.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 },
                 {
                     "bomb_timer": 300,
@@ -172,7 +194,9 @@
                     "spawnZ": 2.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": 5.0
+                    "speedZ": 5.0,
+                    "tornado_depth": 40.0,
+                    "tornado_width": 40.0
                 }
             ]
         }
