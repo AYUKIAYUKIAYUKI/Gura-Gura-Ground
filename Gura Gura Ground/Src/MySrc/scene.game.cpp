@@ -85,7 +85,7 @@ CSceneGame::CSceneGame()
 
 	// ’n–Ê‚ğ¶¬
 	float fSpanField = 15.0f;
-	CObjectManager::CreateRaw<CField>(
+	CObjectManager::CreateShare<CField>(
 		[&fSpanField](CField* p) -> bool
 		{
 			p->SetTransform(

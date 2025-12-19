@@ -115,7 +115,7 @@ concept ObjectFactoryFunction = std::is_pointer_v<T>
 //****************************************************
 // オブジェクトクラスを定義
 //****************************************************
-class CObject
+class CObject : public std::enable_shared_from_this<CObject>
 {
 public:
 

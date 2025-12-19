@@ -38,13 +38,22 @@ public:
 	// •`‰æˆ—
 	void Draw() override;
 
+	// –³‹‘ÎÛ‚Ìİ’è
+	inline void SetIgnore(const std::shared_ptr<CObject>& spIgnore) { m_wpIgnore = spIgnore; }
+
 	// ŠúŠÔ‚Ìİ’è
 	inline void SetDuration(int nDuration) { m_nDuration = nDuration; }
 
 private:
 
 	//****************************************************
+	// function
+	//****************************************************
+	void Push(); // ‰Ÿ‚µo‚µˆ—
+
+	//****************************************************
 	// data
 	//****************************************************
-	int m_nDuration; // ŠúŠÔ
+	std::weak_ptr<CObject> m_wpIgnore;  // –³‹‘ÎÛ
+	int                    m_nDuration; // ŠúŠÔ
 };
