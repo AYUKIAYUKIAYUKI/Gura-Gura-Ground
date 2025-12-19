@@ -16,6 +16,7 @@
 
 // エフェクト
 #include "dust.h"
+#include <obstacle_editer.h>
 
 //****************************************************
 // 無名名前空間の定義
@@ -98,8 +99,8 @@ void CBall::Update()
 	// 挙動
 	Action();
 
-	// 戻る
-	Loop();
+	//// 戻る
+	//Loop();
 
 	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
 	CPhysicsObject::Update();
@@ -141,44 +142,12 @@ void CBall::EditParam()
 //============================================================================
 void CBall::Appear()
 {
-	// ランダムな数値を決定
-	int nDirection = rand() % 4;
-
-	// コライダーをリジッドボディにキャスト
+	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
 	const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(GetCollider());
-
-	// 設定用のトランスフォーム
 	OBJ::Transform TF = {};
 
-	// 移動速度スケール作成
-	const float fSpeed = 5.0f;
-
-	switch (nDirection)
-	{
-		// 前
-	case 0:
-		TF.Pos = { 0.0f, g_fAxisY_Spawn, g_fFieldSpan };
-		SetDirection({ 0.0f, 0.0f, -fSpeed });
-		break;
-
-		// 後
-	case 1:
-		TF.Pos = { 0.0f, g_fAxisY_Spawn, -g_fFieldSpan };
-		SetDirection({ 0.0f, 0.0f, fSpeed });
-		break;
-
-		// 左
-	case 2:
-		TF.Pos = { g_fFieldSpan, g_fAxisY_Spawn, 0.0f };
-		SetDirection({ -fSpeed, 0.0f, 0.0f });
-		break;
-
-		// 右
-	case 3:
-		TF.Pos = { -g_fFieldSpan, g_fAxisY_Spawn, 0.0f };
-		SetDirection({ fSpeed, 0.0f, 0.0f });
-		break;
-	}
+	TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };
+	SetDirection({ param.ObstacleSpeedX, param.ObstacleSpeedY, param.ObstacleSpeedZ });
 
 	// ワールドトランスフォームに反映
 	pRigidBody->SetWorldTransform(TF);

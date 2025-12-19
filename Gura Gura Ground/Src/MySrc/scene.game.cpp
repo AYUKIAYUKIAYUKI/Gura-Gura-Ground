@@ -29,6 +29,7 @@
 #include "cameracontroller.h"
 #include "tornado.h"
 
+
 //****************************************************
 // 仮
 //****************************************************
@@ -38,9 +39,19 @@ namespace
 	const int nNumB = 4;
 	const float fInitDist = 10.0f;
 
-	bool a = false;
-	int c = 0;
+	// オブジェクトの出現方向, 0:縦(上下), 1:横(左右)
+	int g_ObstacleDirection = 0;
 
+	bool g_AutoSpawnEnabled = true;
+
+	// 障害物の出現間隔(秒), imguiで設定
+	float g_ObstacleSpawnInterval = 3.0f;
+
+	// 前回出現した時刻
+	float g_ObstacleLastSpawnTime = 0.0f;
+
+	std::chrono::steady_clock::time_point g_LastUpdateTime;
+	float g_GameTime = 0.0f;
 	// グローバル
 	OBJ::Transform g_BoxTF = { { 0.5f, 0.5f, 0.5f }, {0.0f, 0.0f, 0.0f, 1.0f}, {-fInitDist, 25.0f, -fInitDist} };
 
@@ -112,21 +123,18 @@ CSceneGame::CSceneGame()
 		// プレイヤー登録
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
-}
 
-//============================================================================
-// デストラクタ
-//============================================================================
-CSceneGame::~CSceneGame()
-{}
+m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
+	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
+	g_GameTime = 0.0f;	// 障害物スポーンメニュー表示
+	m_ObstacleEditer.EditerMenu();
 
-//============================================================================
-// 更新処理
-//============================================================================
-void CSceneGame::Update()
-{
-	// カメラコントローラー更新
-	CCameraController::RefInstance().Update();
+	// スポーン時間プリセットメニュー表示
+	m_ObstacleEditer.SpawnTimePresetEditor();
+
+	//プレイモード中の自動スポーン処理
+	m_ObstacleEditer.PlayModeSpawn(deltaTime);
+	CCameraController::RefInstance().Update();	// ゲームセットしたらシーン遷移
 
 	c++;
 	if (c > 300
@@ -159,6 +167,7 @@ void CSceneGame::Update()
 	{
 		Change();
 	}
+
 }
 
 //============================================================================
@@ -166,9 +175,8 @@ void CSceneGame::Update()
 //============================================================================
 void CSceneGame::Change()
 {
-	// 全オブジェクトに死亡フラグを立てる
-	CObjectManager::RefInstance().SetDeathAll();
-
-	// タイトルシーンへ
-	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	//// 全オブジェクトに死亡フラグを立てる
+	//CObjectManager::RefInstance().SetDeathAll();
+	//// タイトルシーンへ
+	//CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }

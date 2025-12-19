@@ -48,6 +48,15 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
 	// 竜巻用のリジッドボディの作成
 	SetCollider(CGhost::CreateGhost(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
+
+	// パラメータ参照
+	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
+	OBJ::Transform TF = {};
+
+	TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };
+
+	// 位置セット
+	pRB->SetWorldTransform(TF);
 }
 
 //============================================================================
