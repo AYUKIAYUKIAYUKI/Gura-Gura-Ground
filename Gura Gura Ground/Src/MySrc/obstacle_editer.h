@@ -72,4 +72,6 @@ private:
     static std::vector<float> s_AssignedSpawnTimes;
     static std::vector<std::pair<int, int>> s_AssignedSpawnParamIndices; // ParamSet‚Ìindex‚ÆsubParam‚Ìindex
     static std::vector<bool> s_SpawnedFlags;
+    static std::vector<int> s_SpawnPlayerThresholds;
+    static std::vector<int> s_ForcedParamSetIndices;
 };

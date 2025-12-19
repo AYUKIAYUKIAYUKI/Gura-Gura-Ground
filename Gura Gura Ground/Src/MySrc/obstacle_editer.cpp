@@ -25,10 +25,10 @@ std::vector<float> ObstacleEditer::s_AssignedSpawnTimes(ObstacleEditer::PARAM_SE
 std::vector<float> ObstacleEditer::s_SpawnTimePresets(ObstacleEditer::SPAWN_PRESET_MAX, 5.0f);
 std::vector<std::pair<int, int>> ObstacleEditer::s_AssignedSpawnParamIndices = {};
 std::vector<ObstacleEditer::ObstacleParam> ObstacleEditer::m_ParamSets(ObstacleEditer::PARAM_SET_MAX);
+std::vector<int> ObstacleEditer::s_SpawnPlayerThresholds(ObstacleEditer::SPAWN_PRESET_MAX, 4);
+std::vector<int> ObstacleEditer::s_ForcedParamSetIndices(ObstacleEditer::SPAWN_PRESET_MAX, 0);
 
 std::vector<bool> ObstacleEditer::s_SpawnedFlags = {};
-
-static const char* s_ObstacleTypeNames[] = { "Ball", "Bar", "Bomb","Tornado"};
 
 //============================================================================
 // 障害物パラメーター編集処理
@@ -38,7 +38,7 @@ void ObstacleEditer::EditCommonParams()
     auto& paramSet = RefParam();
 
     // 障害物を追加
-    if (ImGui::Button("Add Obstacle"))
+    if (ImGui::Button(reinterpret_cast<const char*>(u8"障害物を追加")))
     {
         paramSet.subParams.push_back(SubObstacleParam{});
     }
@@ -51,43 +51,44 @@ void ObstacleEditer::EditCommonParams()
 
         SubObstacleParam& obs = paramSet.subParams[i];
 
-        ImGui::Text("Obstacle %zu", i + 1);
+        ImGui::Text(reinterpret_cast<const char*>(u8"障害物パラメーター [%d]"), static_cast<int>(i) + 1);
 
         // タイプ選択
         int currentType = static_cast<int>(obs.ManualObstacleType); // OBS_TYPE を整数型へ変換
         const char* typeNames[] = { "None", "Ball", "Bar", "Bomb" ,"Tornado"};
-        if (ImGui::Combo("Type", &currentType, typeNames, static_cast<int>(OBS_TYPE::MAX)))
+        if (ImGui::Combo(reinterpret_cast<const char*>(u8"出現させる障害物"), &currentType, typeNames, static_cast<int>(OBS_TYPE::MAX)))
         {
             obs.ManualObstacleType = static_cast<OBS_TYPE>(currentType); // 整数型から OBS_TYPE型へ再キャストする
         }
 
         // 出現位置
-        ImGui::DragFloat("Spawn Pos X", &obs.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
-        ImGui::DragFloat("Spawn Pos Y", &obs.ObstacleSpawnY, 0.1f, 5.0f, 100.0f);
-        ImGui::DragFloat("Spawn Pos Z", &obs.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 X"), &obs.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Y"), &obs.ObstacleSpawnY, 0.1f, 5.0f, 100.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Z"), &obs.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
 
         // 移動速度
-        ImGui::DragFloat("Speed X", &obs.ObstacleSpeedX, 0.1f, -20.0f, 20.0f);
-        ImGui::DragFloat("Speed Y", &obs.ObstacleSpeedY, 0.1f, -20.0f, 20.0f);
-        ImGui::DragFloat("Speed Z", &obs.ObstacleSpeedZ, 0.1f, -20.0f, 20.0f);
-        ImGui::DragFloat("Collider Width", &obs.ColliderWidth, 0.1f, 0.1f, 100.0f);
-        ImGui::DragFloat("Collider Height", &obs.ColliderHeight, 0.1f, 0.1f, 100.0f);
-        ImGui::DragFloat("Collider Depth", &obs.ColliderDepth, 0.1f, 0.1f, 100.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 X"), &obs.ObstacleSpeedX, 0.1f, -20.0f, 20.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 Y"), &obs.ObstacleSpeedY, 0.1f, -20.0f, 20.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 Z"), &obs.ObstacleSpeedZ, 0.1f, -20.0f, 20.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"コライダーの幅"), &obs.ColliderWidth, 0.1f, 0.1f, 100.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"コライダーの高さ"), &obs.ColliderHeight, 0.1f, 0.1f, 100.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"コライダーの深度"), &obs.ColliderDepth, 0.1f, 0.1f, 100.0f);
 
+        // ボム固有パラメータ入力
         if (obs.ManualObstacleType == OBS_TYPE::BOMB)
         {
-            ImGui::DragInt("Bomb Timer", &obs.BombTimer, 1.0f, 1, 1000);
+            ImGui::DragInt(reinterpret_cast<const char*>(u8"爆発までの時間"), &obs.BombTimer, 1.0f, 1, 1000);
         }
 
-        // TORNADO特有パラメータ入力
+        // 竜巻固有パラメータ入力
         if (obs.ManualObstacleType == OBS_TYPE::TORNADO)
         {
-            ImGui::DragFloat("Tornado Width", &obs.TornadoWidth, 1.0f, 1.0f, 200.0f);
-            ImGui::DragFloat("Tornado Depth", &obs.TornadoDepth, 1.0f, 1.0f, 200.0f);
+            ImGui::DragFloat(reinterpret_cast<const char*>(u8"竜巻の幅"), &obs.TornadoWidth, 1.0f, 1.0f, 200.0f);
+            ImGui::DragFloat(reinterpret_cast<const char*>(u8"竜巻の高さ"), &obs.TornadoDepth, 1.0f, 1.0f, 200.0f);
         }
 
         // 削除ボタン
-        if (ImGui::Button("Remove"))
+        if (ImGui::Button(reinterpret_cast<const char*>(u8"障害物を削除")))
         {
             paramSet.subParams.erase(paramSet.subParams.begin() + i);
             ImGui::PopID();
@@ -103,12 +104,10 @@ void ObstacleEditer::EditCommonParams()
 //============================================================================
 void ObstacleEditer::EditerMenu()
 {
-    useful::MIS::MyImGuiShortcut_BeginWindow("Obstacle Settings");
-
-    ImGui::Text("Obstacle Menu");
+    useful::MIS::MyImGuiShortcut_BeginWindow(reinterpret_cast<const char*>(u8"障害物設定メニュー"));
 
     bool lastPlayMode = m_PlayMode;
-    ImGui::Checkbox("Play Mode", &m_PlayMode);
+    ImGui::Checkbox(reinterpret_cast<const char*>(u8"プレイモード"), &m_PlayMode);
 
     // プレイモードに入るときに、割当て未実行分があれば再抽選させる
     if (m_PlayMode && !lastPlayMode)
@@ -140,20 +139,19 @@ void ObstacleEditer::EditerMenu()
         ResetPlayMode();
     }
 
-    if (ImGui::Button("Test Spawn Obstacle"))
+    if (ImGui::Button(reinterpret_cast<const char*>(u8"選択中のプリセットを出現")))
     {
         TryManualSpawn();
     }
 
-    if (ImGui::Button("Save Param"))
+    if (ImGui::Button(reinterpret_cast<const char*>(u8"全てのプリセットを保存")))
     {
         SaveParams("Data\\JSON\\obscale_table.json");
     }
 
-    ImGui::Text("Obstacle Param Edit");
 
-    const char* paramSetLabels[PARAM_SET_MAX] = { "Param 1", "Param 2", "Param 3", "Param 4", "Param 5" };
-    ImGui::Combo("Param Set", &m_CurrentParamIndex, paramSetLabels, PARAM_SET_MAX);
+    const char* paramSetLabels[PARAM_SET_MAX] = { "Preset 1", "Preset 2", "Preset 3", "Preset 4", "Preset 5" };
+    ImGui::Combo(reinterpret_cast<const char*>(u8"編集するプリセット"), &m_CurrentParamIndex, paramSetLabels, PARAM_SET_MAX);
 
     // 選択中パラメータセットのパラメータを表示・編集
     EditCommonParams();
@@ -166,18 +164,18 @@ void ObstacleEditer::EditerMenu()
 //============================================================================
 void ObstacleEditer::SpawnTimePresetEditor()
 {
-    if (ImGui::Begin("SpawnTime Preset Editor"))
+    if (ImGui::Begin(reinterpret_cast<const char*>(u8"障害物出現タイミング編集")))
     {
-        ImGui::Text("Game Time: %.2f sec", m_PlayModeElapsedTime);
+        ImGui::Text(reinterpret_cast<const char*>(u8"ゲームタイム %.2f 秒"), m_PlayModeElapsedTime);
 
         // 残りプレイヤー数を取得して表示
         const auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
         int remainingPlayers = static_cast<int>(playerList.size());
-        ImGui::Text("Remaining Players: %d", remainingPlayers);
+        ImGui::Text(reinterpret_cast<const char*>(u8"残りプレイヤー数 [%d 人]"), remainingPlayers);
 
         if (m_PlayMode == false)
         {
-            ImGui::Text("PresetCount"); ImGui::SameLine();
+            ImGui::Text(reinterpret_cast<const char*>(u8"出現回数編集")); ImGui::SameLine();
 
             if (ImGui::Button("-##PresetCount"))
             {
@@ -205,16 +203,71 @@ void ObstacleEditer::SpawnTimePresetEditor()
             s_AssignedSpawnTimes.resize(s_SpawnTimePresetCount, 5.0f);
         }
 
+        if ((int)s_SpawnPlayerThresholds.size() != s_SpawnTimePresetCount)
+        {
+            s_SpawnPlayerThresholds.resize(s_SpawnTimePresetCount, 4);
+        }
+
+        if ((int)s_ForcedParamSetIndices.size() != s_SpawnTimePresetCount)
+        {
+            s_ForcedParamSetIndices.resize(s_SpawnTimePresetCount, 0);
+        }
+
+        if (ImGui::Button(reinterpret_cast<const char*>(u8"設定を適用＆シャッフル抽選する")))
+        {
+            AssignRandomSpawnTimes();
+        }
+
+        ImGui::Separator();
+
         for (int i = 0; i < s_SpawnTimePresetCount; ++i)
         {
             char label[32];
-            snprintf(label, sizeof(label), "SpawnTime %d", i + 1);
+            snprintf(label, sizeof(label), reinterpret_cast<const char*>(u8"出現時間 [%d]"), i + 1);
             ImGui::DragFloat(label, &s_SpawnTimePresets[i], 0.1f, 0.0f, 100.0f);
-        }
 
-        if (ImGui::Button("Assign Random SpawnTimes"))
-        {
-            AssignRandomSpawnTimes();
+            char minusBtn[32], plusBtn[32];
+            snprintf(minusBtn, sizeof(minusBtn), "-##force%d", i);
+            snprintf(plusBtn, sizeof(plusBtn), "+##force%d", i);
+
+
+            if (ImGui::Button(minusBtn)) {
+                if (s_ForcedParamSetIndices[i] > 0)
+                    s_ForcedParamSetIndices[i]--;
+            }
+            ImGui::SameLine();
+            ImGui::Text("%d", s_ForcedParamSetIndices[i]);
+            ImGui::SameLine();
+            if (ImGui::Button(plusBtn)) {
+                if (s_ForcedParamSetIndices[i] < PARAM_SET_MAX)
+                    s_ForcedParamSetIndices[i]++;
+            }
+            ImGui::SameLine();
+            ImGui::Text(reinterpret_cast<const char*>(u8"0=ランダム出現 1～5=プリセット出現"));
+
+            // 残りプレイヤー数出現条件設定
+            if (i >= s_SpawnPlayerThresholds.size()) s_SpawnPlayerThresholds.resize(i + 1, 99);
+            snprintf(minusBtn, sizeof(minusBtn), "-##th%d", i);
+            snprintf(plusBtn, sizeof(plusBtn), "+##th%d", i);
+
+            if (ImGui::Button(minusBtn))
+            {
+                if (s_SpawnPlayerThresholds[i] > 1)
+                    s_SpawnPlayerThresholds[i]--;
+            }
+
+            ImGui::SameLine();
+            ImGui::Text("%d", s_SpawnPlayerThresholds[i]);
+            ImGui::SameLine();
+
+            if (ImGui::Button(plusBtn))
+            {
+                if (s_SpawnPlayerThresholds[i] < 4)
+                    s_SpawnPlayerThresholds[i]++;
+            }
+            ImGui::SameLine();
+            ImGui::Text(reinterpret_cast<const char*>(u8"人以下のプレイヤー数で出現"));
+            ImGui::Separator();
         }
 
         for (int i = 0; i < s_SpawnTimePresetCount; ++i)
@@ -224,15 +277,10 @@ void ObstacleEditer::SpawnTimePresetEditor()
                 int paramSetIndex = s_AssignedSpawnParamIndices[i].first;
                 int subParamIndex = s_AssignedSpawnParamIndices[i].second;
                 if (paramSetIndex < (int)m_ParamSets.size() && subParamIndex < (int)m_ParamSets[paramSetIndex].subParams.size()) {
-                    const auto& param = m_ParamSets[paramSetIndex].subParams[subParamIndex];
-                    const char* typeNames[] = { "None", "Ball", "Bar", "Bomb" ,"Tornado"};
-                    ImGui::Text("Time %d : %.2f (Set %d, Item %d, Type:%s Pos: %.1f %.1f %.1f)",
-                        i,
+                    ImGui::Text(reinterpret_cast<const char*>(u8"出現時間 [%d] : %.2f (出現プリセット : Preset %d)"),
+                        i + 1,
                         s_AssignedSpawnTimes[i],
-                        paramSetIndex + 1,
-                        subParamIndex + 1,
-                        typeNames[(int)param.ManualObstacleType],
-                        param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ
+                        paramSetIndex + 1
                     );
                 }
             }
@@ -249,10 +297,21 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
     if (m_PlayMode)
     {
         m_PlayModeElapsedTime += deltaTime;
+
+        const auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
+        int remainingPlayers = static_cast<int>(playerList.size());
+
         for (int i = 0; i < s_SpawnTimePresetCount; ++i)
         {
             int paramSetIdx = s_AssignedSpawnParamIndices[i].first;
             float assignedSpawnTime = s_AssignedSpawnTimes[i];
+
+            int playerTh = 4;
+            if (i < s_SpawnPlayerThresholds.size()) 
+            {
+                playerTh = s_SpawnPlayerThresholds[i];
+            }
+            if (!(remainingPlayers <= playerTh)) continue;
 
             if (!s_SpawnedFlags[i] && m_PlayModeElapsedTime >= assignedSpawnTime)
             {
@@ -455,9 +514,14 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
 
     // 生成時間プリセットやプレイモード関連の保存
     jsRoot["spawn_time_presets"] = nlohmann::json::array();
-    for (float t : s_SpawnTimePresets)
+    for (int i = 0; i < s_SpawnTimePresetCount && i < (int)s_SpawnTimePresets.size(); ++i)
     {
-        jsRoot["spawn_time_presets"].push_back(t);
+        jsRoot["spawn_time_presets"].push_back(s_SpawnTimePresets[i]);
+    }
+    jsRoot["spawn_player_thresholds"] = nlohmann::json::array();
+    for (int i = 0; i < s_SpawnTimePresetCount && i < (int)s_SpawnPlayerThresholds.size(); ++i)
+    {
+        jsRoot["spawn_player_thresholds"].push_back(s_SpawnPlayerThresholds[i]);
     }
 
     jsRoot["spawn_enable_time"] = 3.0f;
@@ -522,6 +586,19 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
         }
     }
 
+    if (jsRoot.contains("spawn_player_thresholds") && jsRoot["spawn_player_thresholds"].is_array())
+    {
+        int arrSize = jsRoot["spawn_player_thresholds"].size();
+        for (int i = 0; i < arrSize && i < SPAWN_PRESET_MAX; ++i)
+        {
+            s_SpawnPlayerThresholds[i] = jsRoot["spawn_player_thresholds"][i].get<int>();
+        }
+    }
+    else
+    {
+        s_SpawnPlayerThresholds.assign(SPAWN_PRESET_MAX, 4);
+    }
+
     // プリセット数/生成時間
     s_SpawnTimePresetCount = jsRoot.value("preset_count", s_SpawnTimePresetCount);
 
@@ -557,6 +634,11 @@ void ObstacleEditer::AssignRandomSpawnTimes()
         s_AssignedSpawnParamIndices.resize(s_SpawnTimePresetCount);
     }
 
+    if ((int)s_ForcedParamSetIndices.size() != s_SpawnTimePresetCount)
+    {
+        s_ForcedParamSetIndices.resize(s_SpawnTimePresetCount, 0);
+    }
+
     // すべてのParamSetIdx, subParamIdxペアをリスト化する
     std::vector<std::pair<int, int>> allPairs;
     for (int paramSetIdx = 0; paramSetIdx < (int)m_ParamSets.size(); ++paramSetIdx)
@@ -585,18 +667,36 @@ void ObstacleEditer::AssignRandomSpawnTimes()
     for (int presetIndex = 0; presetIndex < s_SpawnTimePresetCount; ++presetIndex)
     {
         std::pair<int, int> selectedPair;
-        bool isValidSelection = false;
+        int paramSetForce = s_ForcedParamSetIndices[presetIndex]; // 0はランダム抽選, 1～5:指定のparam set
 
-        // 一度選択されたペアまたはセットは連続しないよう選択する
-        while (!isValidSelection)
+        if (paramSetForce >= 1 && paramSetForce <= PARAM_SET_MAX) 
         {
-            std::uniform_int_distribution<int> dist(0, (int)allPairs.size() - 1);
-            selectedPair = allPairs[dist(randomnengine)];
-
-            // 同じペアまたは同じセットが連続しないようにする
-            isValidSelection = (selectedPair != lastPair) && (selectedPair.first != lastParamSetIdx);
+            // Param Setが指定されている場合
+            int pIdx = paramSetForce - 1;
+            if (pIdx < (int)m_ParamSets.size() && !m_ParamSets[pIdx].subParams.empty())
+            {
+                // subParamをランダムで選ぶ
+                std::uniform_int_distribution<int> dist(0, (int)m_ParamSets[pIdx].subParams.size() - 1);
+                int subIdx = dist(randomnengine);
+                selectedPair = { pIdx, subIdx };
+            }
+            else
+            {
+                // パラメータセットが無効な場合
+                selectedPair = { -1, -1 };
+            }
+        } 
+        else 
+        {
+            // ランダム抽選
+            bool isValidSelection = false;
+            while (!isValidSelection)
+            {
+                std::uniform_int_distribution<int> dist(0, (int)allPairs.size() - 1);
+                selectedPair = allPairs[dist(randomnengine)];
+                isValidSelection = (selectedPair != lastPair) && (selectedPair.first != lastParamSetIdx);
+            }
         }
-
         // 選択されたペアを保存
         s_AssignedSpawnParamIndices[presetIndex] = selectedPair;
 
