@@ -29,6 +29,7 @@
 #include "cameracontroller.h"
 #include "tornado.h"
 
+
 //****************************************************
 // 仮
 //****************************************************
@@ -37,6 +38,20 @@ namespace
 	// 定数
 	const int nNumB = 4;
 	const float fInitDist = 10.0f;
+
+	// オブジェクトの出現方向, 0:縦(上下), 1:横(左右)
+	int g_ObstacleDirection = 0;
+
+	bool g_AutoSpawnEnabled = true;
+
+	// 障害物の出現間隔(秒), imguiで設定
+	float g_ObstacleSpawnInterval = 3.0f;
+
+	// 前回出現した時刻
+	float g_ObstacleLastSpawnTime = 0.0f;
+
+	std::chrono::steady_clock::time_point g_LastUpdateTime;
+	float g_GameTime = 0.0f;
 
 	// グローバル
 	OBJ::Transform g_BoxTF = { { 0.5f, 0.5f, 0.5f }, {0.0f, 0.0f, 0.0f, 1.0f}, {-fInitDist, 25.0f, -fInitDist} };
@@ -110,22 +125,9 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
-
-	// 竜巻の生成
-	CObjectManager::CreateRaw<CTornado>(
-		[&fSpanField, fUnkoSpan](CTornado* p) -> bool
-		{
-			float Pos = fSpanField + 10.0f;
-			OBJ::Transform TF = p->GetTransform();
-			TF.Pos = { -Pos, 0.0f, Pos };
-			p->SetTransform(TF);
-			p->SetStartPos(TF.Pos);
-			p->FactoryCollider(fUnkoSpan, fUnkoSpan, fUnkoSpan);
-			p->SetDepth(Pos * 2.0f);
-			p->SetWidth(Pos * 2.0f);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
+	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
+	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
+	g_GameTime = 0.0f;
 }
 
 //============================================================================
@@ -139,14 +141,26 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
-	// カメラコントローラー更新
-	CCameraController::RefInstance().Update();
+	//タイム計測
+	auto now = std::chrono::steady_clock::now();
+	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();
+	g_LastUpdateTime = now;
+	g_GameTime += deltaTime;
 
-	// ゲームセットしたらシーン遷移
+	// 障害物スポーンメニュー表示
+	m_ObstacleEditer.EditerMenu();
+
+	// スポーン時間プリセットメニュー表示
+	m_ObstacleEditer.SpawnTimePresetEditor();
+
+	//プレイモード中の自動スポーン処理
+	m_ObstacleEditer.PlayModeSpawn(deltaTime);
+	CCameraController::RefInstance().Update();	// ゲームセットしたらシーン遷移
 	if (GameSet())
 	{
 		Change();
 	}
+
 }
 
 //============================================================================
@@ -154,9 +168,8 @@ void CSceneGame::Update()
 //============================================================================
 void CSceneGame::Change()
 {
-	// 全オブジェクトに死亡フラグを立てる
-	CObjectManager::RefInstance().SetDeathAll();
-
-	// タイトルシーンへ
-	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	//// 全オブジェクトに死亡フラグを立てる
+	//CObjectManager::RefInstance().SetDeathAll();
+	//// タイトルシーンへ
+	//CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }

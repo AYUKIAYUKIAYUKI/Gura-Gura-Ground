@@ -16,6 +16,7 @@
 
 // エフェクト
 #include "dust.h"
+#include <obstacle_editer.h>
 
 //****************************************************
 // usingディレクティブ
@@ -48,31 +49,6 @@ namespace
 			ImGui::TreePop();
 		}
 		ImGui::End();
-	}
-
-	// 進行方向に応じて向きを変更
-	void Unko(OBJ::Transform& rTF, XMFLOAT3 Dir)
-	{
-		// 回転方向を作成
-		btQuaternion RotateVec = {};
-
-		/* ちょっとひどいです */
-		if (Dir.x > 0.0f)
-		{
-			// 左右移動の場合、Z方向に回転
-			RotateVec.setEulerZYX(0.0f, 0.0f, 3.1415927f * 0.5f);
-		}
-		else
-		{
-			// 前後移動の場合、X方向に回転
-			RotateVec.setEulerZYX(3.1415927f * 0.5f, 0.0f, 0.0f);
-		}
-
-		// 方向を正規化
-		RotateVec.normalize();
-
-		// トランスフォームに回転を反映
-		rTF.Rot = { RotateVec.getX(), RotateVec.getY(), RotateVec.getZ(), RotateVec.getW() };
 	}
 }
 
@@ -116,8 +92,8 @@ void CBar::Update()
 	// 挙動
 	Action();
 
-	// 戻る
-	//Loop();
+
+
 
 	// ワールドトランスフォームから位置を取得
 	CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
@@ -166,11 +142,9 @@ void CBar::EditParam()
 //============================================================================
 void CBar::Appear()
 {
-	// ランダムな数値を決定
-	int nDirection = rand() % 4;
-
 	// コライダーをリジッドボディにキャスト
 	const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(GetCollider());
+	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
 
 	// 設定用のトランスフォーム
 	OBJ::Transform TF = {};
@@ -178,34 +152,10 @@ void CBar::Appear()
 	// 移動速度スケール作成
 	const float fSpeed = 3.0f;
 
-	switch (nDirection)
-	{
-		// 前
-	case 0:
-		TF.Pos = { 0.0f, g_fAxisY_Spawn, g_fFieldSpan };
-		SetDirection({ 0.0f, 0.0f, -fSpeed });
-		break;
+	TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };
+	SetDirection({ param.ObstacleSpeedX, param.ObstacleSpeedY, param.ObstacleSpeedZ });
 
-		// 後
-	case 1:
-		TF.Pos = { 0.0f, g_fAxisY_Spawn, -g_fFieldSpan };
-		SetDirection({ 0.0f, 0.0f, fSpeed });
-		break;
-
-		// 左
-	case 2:
-		TF.Pos = { g_fFieldSpan, g_fAxisY_Spawn, 0.0f };
-		SetDirection({ -fSpeed, 0.0f, 0.0f });
-		break;
-
-		// 右
-	case 3:
-		TF.Pos = { -g_fFieldSpan, g_fAxisY_Spawn, 0.0f };
-		SetDirection({ fSpeed, 0.0f, 0.0f });
-		break;
-	}
-
-	Unko(TF, GetDirection());
+	SetRotate(TF, GetDirection());
 
 	// ワールドトランスフォームに反映
 	pRigidBody->SetWorldTransform(TF);
@@ -263,4 +213,29 @@ void CBar::Loop()
 
 	/* 位置を出力*/
 	Print_Pos(TF);
+}
+
+// 進行方向に応じて向きを変更
+void CBar::SetRotate(OBJ::Transform& rTF, XMFLOAT3 Dir)
+{
+	// 回転方向を作成
+	btQuaternion RotateVec = {};
+
+	/* ちょっとひどいです */
+	if (Dir.x > 0.0f)
+	{
+		// 左右移動の場合、Z方向に回転
+		RotateVec.setEulerZYX(0.0f, 0.0f, 3.1415927f * 0.5f);
+	}
+	else
+	{
+		// 前後移動の場合、X方向に回転
+		RotateVec.setEulerZYX(3.1415927f * 0.5f, 0.0f, 0.0f);
+	}
+
+	// 方向を正規化
+	RotateVec.normalize();
+
+	// トランスフォームに回転を反映
+	rTF.Rot = { RotateVec.getX(), RotateVec.getY(), RotateVec.getZ(), RotateVec.getW() };
 }
