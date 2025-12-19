@@ -46,10 +46,10 @@ public:
 	void Update();
 
 	// プレイヤーの登録
-	void Regist(CPlayer* player);
+	//void Regist(CPlayer* player);
 
 	// プレイヤーの削除
-	void UnRegist(CPlayer* player);
+	//void UnRegist(CPlayer* player);
 private:
 
 	//****************************************************
@@ -81,7 +81,7 @@ private:
 	// data
 	//****************************************************
 	CCamera* m_Camera;						// カメラの情報
-	std::list<CPlayer*> m_Players;			// プレイヤーを格納
+	//std::list<CPlayer*> m_Players;			// プレイヤーを格納
 	std::list<CObstacle*> m_Obstacles;		// ギミックを格納
 	DirectX::XMFLOAT3 m_CameraTargetPos;	// カメラの移動位置
 	DirectX::XMFLOAT3 m_FirstCameraPos;		// カメラの最初の位置

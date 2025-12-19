@@ -42,7 +42,7 @@ CCameraController::~CCameraController()
 bool CCameraController::Initialize()
 {
 	// 初期化
-	m_Players.clear();
+	//m_Players.clear();
 	m_Obstacles.clear();
 
 	// カメラの情報取得
@@ -98,30 +98,30 @@ void CCameraController::Update()
 	m_Camera->SetPosTarget(m_CameraTargetPos);
 }
 
-//============================================================================
-// プレイヤーの登録
-//============================================================================
-void CCameraController::Regist(CPlayer* player)
-{
-	m_Players.push_back(player);
-}
-
-//============================================================================
-// プレイヤーの削除
-//============================================================================
-void CCameraController::UnRegist(CPlayer* player)
-{
-	for (auto ite = m_Players.begin(); ite != m_Players.end(); ite++)
-	{
-		if (*ite == player)
-		{// 同じとき
-
-			// 削除
-			ite = m_Players.erase(ite);
-			break;
-		}
-	}
-}
+////============================================================================
+//// プレイヤーの登録
+////============================================================================
+//void CCameraController::Regist(CPlayer* player)
+//{
+//	m_Players.push_back(player);
+//}
+//
+////============================================================================
+//// プレイヤーの削除
+////============================================================================
+//void CCameraController::UnRegist(CPlayer* player)
+//{
+//	for (auto ite = m_Players.begin(); ite != m_Players.end(); ite++)
+//	{
+//		if (*ite == player)
+//		{// 同じとき
+//
+//			// 削除
+//			ite = m_Players.erase(ite);
+//			break;
+//		}
+//	}
+//}
 
 //============================================================================
 // 中心位置を計算
@@ -178,22 +178,27 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 
 	int Count = 0;
 
+	// プレイヤーリスト取得
+	auto Players = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
+
 	// プレイヤー全体で最小と最大の位置を取得
-	for (auto ite : m_Players)
+	for (auto ite : Players)
 	{
+		CPlayer* Player = DownCast<CPlayer>(ite.get());
+
 		if (Count == 0)
 		{
-			MinPlayersPos = ite->GetTransform().Pos;
-			MaxPlayersPos = ite->GetTransform().Pos;
+			MinPlayersPos = Player->GetTransform().Pos;
+			MaxPlayersPos = Player->GetTransform().Pos;
 		}
 
 		// X座標の最小最大
-		MaxPlayersPos.x = max(MaxPlayersPos.x, ite->GetTransform().Pos.x);
-		MinPlayersPos.x = min(MinPlayersPos.x, ite->GetTransform().Pos.x);
+		MaxPlayersPos.x = max(MaxPlayersPos.x, Player->GetTransform().Pos.x);
+		MinPlayersPos.x = min(MinPlayersPos.x, Player->GetTransform().Pos.x);
 		
 		// Z座標の最小最大
-		MaxPlayersPos.z = max(MaxPlayersPos.z, ite->GetTransform().Pos.z);
-		MinPlayersPos.z = min(MinPlayersPos.z, ite->GetTransform().Pos.z);
+		MaxPlayersPos.z = max(MaxPlayersPos.z, Player->GetTransform().Pos.z);
+		MinPlayersPos.z = min(MinPlayersPos.z, Player->GetTransform().Pos.z);
 
 		Count++;
 	}

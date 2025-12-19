@@ -122,7 +122,7 @@ CSceneGame::CSceneGame()
 			OBJ::TYPE::PLAYER);
 
 		// プレイヤー登録
-		CCameraController::RefInstance().Regist(spPlayer.get());
+		//CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
 	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
