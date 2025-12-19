@@ -71,6 +71,7 @@ private:
 	int m_NowEdge;					// Œ»İ‚Ì•Ó
 	int m_LapCount;					// ü‰ñ”
 	int m_NowLapCount;				// Œ»İ‚Ìü‰ñ”
+	int m_Life;						// õ–½
 	float m_edgeProgress;			// Œ»İ‚Ì•Ó‚Ìis“x
 	float m_Width;					// ‰¡•
 	float m_Depth;					// c•

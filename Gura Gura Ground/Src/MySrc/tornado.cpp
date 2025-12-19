@@ -32,6 +32,7 @@ CTornado::CTornado(OBJ::TYPE Type, OBJ::LAYER Layer)
 	, m_Depth(0.0f)
 	, m_LapCount(1)
 	, m_NowLapCount(0)
+	, m_Life(10)
 {}
 
 //============================================================================
@@ -54,6 +55,7 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //============================================================================
 void CTornado::Update()
 {
+	// 画面外に行くか判定
 	if (IsOutOfScreen())
 	{
 		// 移動方向を設定
@@ -66,6 +68,13 @@ void CTornado::Update()
 	{
 		// 画面外に移動
 		MoveOutOfScreen();
+
+		m_Life--;
+
+		if (m_Life <= 0)
+		{
+			SetDeath();
+		}
 	}
 
 	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
