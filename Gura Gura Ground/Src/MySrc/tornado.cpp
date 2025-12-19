@@ -30,6 +30,8 @@ CTornado::CTornado(OBJ::TYPE Type, OBJ::LAYER Layer)
 	, m_NowEdge(0)
 	, m_Width(0.0f)
 	, m_Depth(0.0f)
+	, m_LapCount(1)
+	, m_NowLapCount(0)
 {}
 
 //============================================================================
@@ -52,20 +54,19 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //============================================================================
 void CTornado::Update()
 {
-	// 移動前の辺
-	int OldEdge = m_NowEdge;
+	if (IsOutOfScreen())
+	{
+		// 移動方向を設定
+		SetMoveDir();
 
-	// 移動方向を設定
-	SetMoveDir();
-
-	// プレイヤーを引き寄せる
-	PullPlayer();
-
-	//if (OldEdge == 3
-	//	&& m_NowEdge == 0)
-	//{// 一周した
-	//	SetDeath();
-	//}
+		// プレイヤーを引き寄せる
+		PullPlayer();
+	}
+	else
+	{
+		// 画面外に移動
+		MoveOutOfScreen();
+	}
 
 	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
 	CPhysicsObject::Update();
@@ -107,32 +108,38 @@ void CTornado::SetMoveDir()
 	DirectX::XMFLOAT3 StartPos = TargetPositions[m_NowEdge];				// 最初の位置
 	DirectX::XMFLOAT3 EndPos = TargetPositions[(m_NowEdge + 1) % NUM_EDGES];// 最後の位置
 
-	// コライダーをリジッドボディにキャスト
+	// コライダーをゴーストにキャスト
 	const CGhost* const pGhost = dynamic_cast<CGhost*>(GetCollider());
 
 	// 設定用のトランスフォーム
 	OBJ::Transform TF = pGhost->GetWorldTransform();
 
 	// 辺の移動ベクトルを計算
-	DirectX::XMFLOAT3 delta = { EndPos.x - StartPos.x, 0.0f,EndPos.z - StartPos.z };
+	m_MoveDir = { EndPos.x - StartPos.x, 0.0f,EndPos.z - StartPos.z };
 
 	// 辺の長さ計算
-	float edgeLength = sqrt(delta.x * delta.x + delta.z * delta.z);
+	float edgeLength = sqrt(m_MoveDir.x * m_MoveDir.x + m_MoveDir.z * m_MoveDir.z);
 
 	// フレームごとの速度
-	float speedPerFrame = 0.5f;						// 1フレームで進む距離
+	float speedPerFrame = 0.1f;						// 1フレームで進む距離
 	m_edgeProgress += speedPerFrame / edgeLength;	// 現在の進行度を設定
+
+	// 変更する位置に設定
+	TF.Pos.x = StartPos.x + m_MoveDir.x * m_edgeProgress;
+	TF.Pos.z = StartPos.z + m_MoveDir.z * m_edgeProgress;
 
 	// 最大まで移動
 	if (m_edgeProgress > 1.0f)
 	{
-		m_NowEdge = (m_NowEdge + 1) % NUM_EDGES;
+		int NextEdge = (m_NowEdge + 1) % NUM_EDGES;
+		m_NowEdge = NextEdge;
 		m_edgeProgress = 0.0f;
-	}
 
-	// 変更する位置に設定
-	TF.Pos.x = StartPos.x + delta.x * m_edgeProgress;
-	TF.Pos.z = StartPos.z + delta.z * m_edgeProgress;
+		if (NextEdge == 0)
+		{
+			m_NowLapCount++;
+		}
+	}
 
 	// ワールドトランスフォームに反映
 	pGhost->SetWorldTransform(TF);
@@ -156,7 +163,7 @@ void CTornado::PullPlayer()
 		const btVector3& rCurrentVel = pRB->GetLinearVelocity();
 
 		// 移動速度スケール
-		const float fSpeed = 5.0f;
+		const float fSpeed = 2.0f;
 		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
 		DirectX::XMFLOAT3 TornadoPos = GetTransform().Pos;			// 竜巻の位置
@@ -172,4 +179,34 @@ void CTornado::PullPlayer()
 		pRB->SetActive();
 		pRB->SetLinearVelocity(MoveDir);
 	}
+}
+
+//============================================================================
+// 画面外に移動
+//============================================================================
+void CTornado::MoveOutOfScreen()
+{
+	// コライダーをゴーストにキャスト
+	const CGhost* const pGhost = dynamic_cast<CGhost*>(GetCollider());
+
+	// 速さ
+	const float fSpeed = 0.1f;
+
+	// 設定用のトランスフォーム
+	OBJ::Transform TF = pGhost->GetWorldTransform();
+
+	// 変更する位置に設定
+	TF.Pos.x = TF.Pos.x + m_MoveDir.x * fSpeed;
+	TF.Pos.z = TF.Pos.z + m_MoveDir.z * fSpeed;
+
+	// ワールドトランスフォームに反映
+	pGhost->SetWorldTransform(TF);
+}
+
+//============================================================================
+// 画面外に出るか判定
+//============================================================================
+bool CTornado::IsOutOfScreen()
+{
+	return m_LapCount != m_NowLapCount;
 }
