@@ -352,7 +352,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                             }, OBJ::TYPE::OBSTACLE);
                         break;
                     case OBS_TYPE::BOMB:
-                        CObjectManager::CreateRaw<CBomb>([sub, subIdx, paramSetIdx](CBomb* p) -> bool
+                        CObjectManager::CreateShare<CBomb>([sub, subIdx, paramSetIdx](CBomb* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -446,7 +446,7 @@ void ObstacleEditer::TryManualSpawn()
                 OBJ::TYPE::OBSTACLE);
             break;
         case OBS_TYPE::BOMB:
-            CObjectManager::CreateRaw<CBomb>([sub, subIdx, thisSetIdx](CBomb* p) -> bool
+            CObjectManager::CreateShare<CBomb>([sub, subIdx, thisSetIdx](CBomb* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));
