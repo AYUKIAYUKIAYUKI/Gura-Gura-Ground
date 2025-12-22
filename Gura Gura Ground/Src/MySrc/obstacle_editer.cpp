@@ -37,6 +37,8 @@ void ObstacleEditer::EditCommonParams()
 {
     auto& paramSet = RefParam();
 
+    static int selectedSubParamIndex = 0; 
+
     // 障害物を追加
     if (ImGui::Button(reinterpret_cast<const char*>(u8"障害物を追加")))
     {
@@ -44,18 +46,51 @@ void ObstacleEditer::EditCommonParams()
     }
 
     // 障害物(subParams)の一覧UI
-    for (size_t i = 0; i < paramSet.subParams.size(); ++i)
+    // リスト表示
+    ImGui::Text(reinterpret_cast<const char*>(u8"障害物リスト:"));
+    for (int i = 0; i < (int)paramSet.subParams.size(); ++i)
     {
+        char label[32];
+        snprintf(label, sizeof(label), reinterpret_cast<const char*>(u8"障害物パラメーター[%d]"), i + 1);
+        // 選択型リストボタン
+        if (ImGui::Selectable(reinterpret_cast<const char*>(label), selectedSubParamIndex == i))
+        {
+            selectedSubParamIndex = i;
+        }
+        // 削除ボタン
+        char deleteLabel[32];
+        snprintf(deleteLabel, sizeof(deleteLabel), reinterpret_cast<const char*>(u8"障害物を削除##del%d"), i);
+        if (ImGui::Button(reinterpret_cast<const char*>(deleteLabel)))
+        {
+            paramSet.subParams.erase(paramSet.subParams.begin() + i);
+            if (selectedSubParamIndex >= i && selectedSubParamIndex > 0)
+                selectedSubParamIndex--; // 削除時選択インデックス調整
+            if (paramSet.subParams.empty())
+                selectedSubParamIndex = -1; // 空になったら未選択
+            break;
+        }
+    }
+    ImGui::NewLine();
+
+    // 選択された障害物パラメータ編集
+    if (selectedSubParamIndex >= 0 && selectedSubParamIndex < (int)paramSet.subParams.size())
+    {
+        SubObstacleParam& obs = paramSet.subParams[selectedSubParamIndex];
+
         ImGui::Separator();
-        ImGui::PushID(static_cast<int>(i));
+        ImGui::Text(reinterpret_cast<const char*>(u8"障害物パラメーター [%d]"), selectedSubParamIndex + 1);
 
-        SubObstacleParam& obs = paramSet.subParams[i];
+        // 障害物タイプ
+        int currentType = static_cast<int>(obs.ManualObstacleType);
+        const char* typeNames[] = 
+        {
+            reinterpret_cast<const char*>(u8"None"),
+            reinterpret_cast<const char*>(u8"Ball"),
+            reinterpret_cast<const char*>(u8"Bar"),
+            reinterpret_cast<const char*>(u8"Bomb"),
+            reinterpret_cast<const char*>(u8"Tornado")
+        };
 
-        ImGui::Text(reinterpret_cast<const char*>(u8"障害物パラメーター [%d]"), static_cast<int>(i) + 1);
-
-        // タイプ選択
-        int currentType = static_cast<int>(obs.ManualObstacleType); // OBS_TYPE を整数型へ変換
-        const char* typeNames[] = { "None", "Ball", "Bar", "Bomb" ,"Tornado"};
         if (ImGui::Combo(reinterpret_cast<const char*>(u8"出現させる障害物"), &currentType, typeNames, static_cast<int>(OBS_TYPE::MAX)))
         {
             obs.ManualObstacleType = static_cast<OBS_TYPE>(currentType); // 整数型から OBS_TYPE型へ再キャストする
@@ -86,16 +121,10 @@ void ObstacleEditer::EditCommonParams()
             ImGui::DragFloat(reinterpret_cast<const char*>(u8"竜巻の幅"), &obs.TornadoWidth, 1.0f, 1.0f, 200.0f);
             ImGui::DragFloat(reinterpret_cast<const char*>(u8"竜巻の高さ"), &obs.TornadoDepth, 1.0f, 1.0f, 200.0f);
         }
-
-        // 削除ボタン
-        if (ImGui::Button(reinterpret_cast<const char*>(u8"障害物を削除")))
-        {
-            paramSet.subParams.erase(paramSet.subParams.begin() + i);
-            ImGui::PopID();
-            break;
-        }
-
-        ImGui::PopID();
+    }
+    else
+    {
+        ImGui::Text(reinterpret_cast<const char*>(u8"障害物を選択してください。"));
     }
 }
 
@@ -541,7 +570,14 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
     //各種変数の初期化
     m_CurrentParamIndex = 0;
     m_PlayModeElapsedTime = 0.0f;
+
+#ifdef _DEBUG
     m_PlayMode = false;
+#endif
+
+#ifdef _RELEASE
+    m_PlayMode = true;
+#endif
 
     m_ParamSets.clear();
     m_ParamSets.resize(PARAM_SET_MAX);

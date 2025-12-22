@@ -147,11 +147,13 @@ void CSceneGame::Update()
 	g_LastUpdateTime = now;
 	g_GameTime += deltaTime;
 
+#ifdef _DEBUG
 	// 障害物スポーンメニュー表示
 	m_ObstacleEditer.EditerMenu();
 
 	// スポーン時間プリセットメニュー表示
 	m_ObstacleEditer.SpawnTimePresetEditor();
+#endif
 
 	//プレイモード中の自動スポーン処理
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
@@ -168,8 +170,8 @@ void CSceneGame::Update()
 //============================================================================
 void CSceneGame::Change()
 {
-	//// 全オブジェクトに死亡フラグを立てる
-	//CObjectManager::RefInstance().SetDeathAll();
-	//// タイトルシーンへ
-	//CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	// 全オブジェクトに死亡フラグを立てる
+	CObjectManager::RefInstance().SetDeathAll();
+	// タイトルシーンへ
+	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }
