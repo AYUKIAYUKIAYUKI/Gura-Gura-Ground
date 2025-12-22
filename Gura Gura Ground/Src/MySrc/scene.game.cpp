@@ -22,13 +22,8 @@
 #include "field.h"
 #include "player.h"
 
-/* 一次生成 */
-#include "ball.h"
-#include "bar.h"
-#include "bomb.h"
+// イベント処理のため
 #include "cameracontroller.h"
-#include "tornado.h"
-
 
 //****************************************************
 // 仮
@@ -168,8 +163,9 @@ void CSceneGame::Update()
 //============================================================================
 void CSceneGame::Change()
 {
-	//// 全オブジェクトに死亡フラグを立てる
-	//CObjectManager::RefInstance().SetDeathAll();
-	//// タイトルシーンへ
-	//CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	// 全オブジェクトに死亡フラグを立てる
+	CObjectManager::RefInstance().SetDeathAll();
+
+	// タイトルシーンへ
+	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }

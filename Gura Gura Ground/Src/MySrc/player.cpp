@@ -9,12 +9,9 @@
 // インクルードファイル
 //****************************************************
 #include "player.h"
-#include "API.rigidbody.h"
 #include "API.input.manager.h"
-#include "API.world.h"
 
 // 当たり判定用
-#include "API.object.manager.h"
 #include "API.collision.h"
 #include "field.h"
 #include "shockwave.h"
@@ -22,7 +19,9 @@
 // 塵発生用
 #include "dust.h"
 
+// カメラコントローラー登録解除のため
 #include "cameracontroller.h"
+
 //****************************************************
 // 無名名前空間の定義
 //****************************************************
@@ -32,19 +31,49 @@ namespace
 	int g_nStopCounter = 10;
 
 	// 運動神経
-	float g_fXZAxis_Speed = 8.0f;
-	float g_fYAxis_Jump   = 8.0f;
-
-	// 着地の近似値
-	float fLandEpsilon = 0.003f;
+	float g_fXZAxis_Speed = 9.0f;
+	float g_fYAxis_Jump = 13.5f;
 
 	// デバッグ用
-	void DebugGui()
+	void DebugPrint(CPlayer& rPlayer)
 	{
+		// プレイヤーのインデックス取得
+		const unsigned char wIdxPlayer = rPlayer.GetIdxPlayer();
+
+		// 上の数値を文字列に変換
+		const std::string WindowName = "Player Debug " + std::to_string(static_cast<int>(wIdxPlayer));
+
+		// 現在のトランスフォームを取得
+		const OBJ::Transform& TF = rPlayer.GetTransform();
+
+		// プレイヤーのリジッドボディの取得
+		CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(rPlayer.GetCollider());
+
+		// 現在の加速度を取得
+		const btVector3& rCurrentVel = pRigidBody->GetLinearVelocity();
+
+		// 操作系統
 		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
-		ImGui::DragFloat("Land Epsilon", &fLandEpsilon, 0.001f, 0.001f, 0.1f);
-		ImGui::DragInt("Stop Counter", &g_nStopCounter, 1);
-		ImGui::Separator();
+		if (ImGui::TreeNodeEx(WindowName.c_str(), ImGuiTreeNodeFlags_OpenOnArrow))
+		{
+			ImGui::DragInt("Stop Counter", &g_nStopCounter, 1);
+			ImGui::Separator();
+
+			// 現在の位置を表示
+			ImGui::Text("PosX: %.2f", TF.Pos.x);
+			ImGui::Text("PosY: %.2f", TF.Pos.y);
+			ImGui::Text("PosZ: %.2f", TF.Pos.z);
+			ImGui::Separator();
+
+			// 現在の加速度を表示
+			ImGui::Text("VelX: %.2f", rCurrentVel.getX());
+			ImGui::Text("VelY: %.2f", rCurrentVel.getY());
+			ImGui::Text("VelZ: %.2f", rCurrentVel.getZ());
+			ImGui::Separator();
+
+			ImGui::TreePop();
+		}
+
 		ImGui::End();
 	}
 }
@@ -65,6 +94,12 @@ struct State
 
 	// 更新処理
 	virtual void Execute(CPlayer::StateMachine& rStateMachine) = 0;
+
+	// 移動制御
+	virtual void Move(CPlayer::StateMachine& rStateMachine, float fSpeed);
+
+	// 接地判定
+	virtual bool CheckLand(CPlayer::StateMachine& rStateMachine);
 };
 
 //****************************************************
@@ -141,6 +176,143 @@ struct StateDrop : public State
 };
 
 //============================================================================
+// 移動制御：状態共通
+//============================================================================
+void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
+{
+	// プレイヤーのリジッドボディの取得
+	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
+
+	// 現在の加速度をコピー
+	const btVector3& rCurrentVel = pRigidBody->GetLinearVelocity();
+
+	// 割り当てが該当するゲームパッドの方向入力を取得
+	const std::optional<float>& opDirection = CInputManager::RefInstance().ConvertInputToMoveDirection(rStateMachine.m_rPalyer.GetIdxPlayer());
+
+	// 方向入力があるなら
+	if (opDirection)
+	{
+		// 移動速度スケール
+		float fSpeed = fSpeedArg;
+
+		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr)
+		{
+			fSpeed *= rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetDecayValue();
+		}
+
+#if 0
+		// 数値を先行して取得
+		float fDirectionValue = opDirection.value();
+
+		// 移動速度スケールの作成
+		//const float fSpeed = fSpeedArg;
+		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
+
+		// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
+		// 　　　　：Y軸 ：現在の重力速度を維持
+		MoveDir.setX(sinf(fDirectionValue));
+		MoveDir.setY(0.0f);
+		MoveDir.setZ(cosf(fDirectionValue));
+
+		// 力を加える
+		pRigidBody->SetActive();
+		pRigidBody->SetForce(MoveDir * fSpeedArg);
+#else
+		// 数値を先行して取得
+		float fDirectionValue = opDirection.value();
+
+		// 移動速度スケールの作成
+		//const float fSpeed = fSpeedArg;
+		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
+
+		// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
+		MoveDir.setX(sinf(fDirectionValue));
+		MoveDir.setZ(cosf(fDirectionValue));
+
+		// 目標の加速度作成
+		const btVector3& TargetVel = MoveDir * fSpeed;
+
+		/* ああ…btVector3をXMFLOAT3に変換 */
+		DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
+		DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
+
+		/* ああ…要素ずつ指数減衰 */
+		const float fCoef = 0.25f;
+		useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
+		useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
+
+		/* ああ…XMFLOAT3の減衰結果をbtVector3に変換 */
+		btVector3 ResultVel = { CurrentVel_XMFLOAT.x, rCurrentVel.getY(), CurrentVel_XMFLOAT.z };
+
+		/* 接地しているかどうか (便宜的にシェアポインタのリジッドボディに接触しているか) に応じて速度の加え方を変更 */
+		pRigidBody->SetActive();
+		if (Collision::CheckHitToRigidBodyShare(pRigidBody))
+		{
+			pRigidBody->SetLinearVelocity(ResultVel);
+		}
+		else
+		{
+			pRigidBody->SetForce((ResultVel - rCurrentVel) * 10.0f);
+		}
+#endif
+	}
+	else
+	{
+		btVector3 MoveDir = { 0.0f, 0.0f, 0.0f };
+
+		// 加速度：XZ軸：値を抽出
+		float fCurrentX = rCurrentVel.getX();
+		float fCurrentZ = rCurrentVel.getZ();
+
+		// 加速度：XZ軸：減衰をかける
+		const float fCoef = 0.05f;
+		useful::ExponentialDecay(fCurrentX, 0.0f, fCoef);
+		useful::ExponentialDecay(fCurrentZ, 0.0f, fCoef);
+
+		// 移動方向：XZ軸：減衰を反映
+		// 　　　　：Y軸 ：現在の重力速度を維持
+		MoveDir.setX(fCurrentX);
+		MoveDir.setY(rCurrentVel.getY());
+		MoveDir.setZ(fCurrentZ);
+
+		// 新しい加速度として線形速度を設定
+		pRigidBody->SetLinearVelocity(MoveDir);
+	}
+}
+
+//============================================================================
+// 着地判定：状態共通
+//============================================================================
+bool State::CheckLand(CPlayer::StateMachine& rStateMachine)
+{
+	// プレイヤーのリジッドボディの取得
+	CRigidBody* const pPlayerRigidBody = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
+
+	// 上昇中は着地判定を行わない
+	if (pPlayerRigidBody->GetLinearVelocity().getY() > 0.0f)
+	{
+		return false;
+	}
+
+	// 衝突判定の結果
+	bool m_bHit = false;
+
+	// 生ポインタのオブジェクトのリジッドボディと衝突判定
+	if (Collision::CheckHitToRigidBodyRaw(pPlayerRigidBody))
+	{
+		m_bHit = true;
+	}
+
+	// シェアポインタのオブジェクトのリジッドボディと衝突判定
+	if (Collision::CheckHitToRigidBodyShare(pPlayerRigidBody))
+	{
+		m_bHit = true;
+	}
+
+	return m_bHit;
+}
+
+//============================================================================
 // デフォルトコンストラクタ：ステートマシン
 //============================================================================
 CPlayer::StateMachine::StateMachine(CPlayer& rPlayer)
@@ -166,7 +338,7 @@ void CPlayer::StateMachine::ChangeState(std::unique_ptr<State>&& upNewState)
 {
 	if (!upNewState)
 	{
-	 	return;
+		return;
 	}
 
 	m_upState = std::move(upNewState);
@@ -183,59 +355,21 @@ void StateDefault::Execute(CPlayer::StateMachine& rStateMachine)
 		return;
 	}
 
-	// リジッドボディの取得
-	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
+	// プレイヤーのリジッドボディの取得
+	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
 
-	// 現在の加速度を参照
-	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
-
-	// 割り当てが該当するゲームパッドの方向入力を取得
-	const std::optional<float>& opDir = CInputManager::RefInstance().ConvertInputToMoveDirection(rStateMachine.m_rPalyer.GetIdxPlayer());
-
-	// 方向入力があるなら
-	if (opDir)
-	{
-		// 移動速度スケール
-		float fSpeed  = g_fXZAxis_Speed;
-		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr)
-		{
-			fSpeed *= rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetDecayValue();
-		}
-		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
-
-		// アクティブ化
-		pRB->SetActive();
-
-		// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
-		MoveDir.setX(sinf(opDir.value()) * fSpeed);
-		MoveDir.setZ(cosf(opDir.value()) * fSpeed);
-
-		// 移動方向：Y軸：現在の重力速度を維持
-		MoveDir.setY(rCurrentVel.getY() + 0.02f); // ちょい浮遊
-
-		// 新しい加速度をセット
-		pRB->SetLinearVelocity(MoveDir);
-
-		// 塵の進行更新
-		rStateMachine.m_rPalyer.UpdateDustStep({ -MoveDir.getX(), -MoveDir.getY(), -MoveDir.getZ() });
-	}
+	// 移動
+	Move(rStateMachine, g_fXZAxis_Speed);
 
 	// ジャンプ
 	if (CInputManager::RefInstance().GetTrackerGamePad(rStateMachine.m_rPalyer.GetIdxPlayer()).a == DirectX::GamePad::ButtonStateTracker::PRESSED)
 	{
 		// ジャンプ力
-		float     fAntiAir  = 0.25f;
 		btVector3 btJumpVec = { 0.0f, g_fYAxis_Jump, 0.0f };
 
-		// アクティブ化
-		pRB->SetActive();
-
-		// ジャンプ力：XZ軸：現在の移動方向を逓減して反映
-		btJumpVec.setX(rCurrentVel.getX() * fAntiAir);
-		btJumpVec.setZ(rCurrentVel.getZ() * fAntiAir);
-
-		// ジャンプ力を反映
-		pRB->SetImpulse(btJumpVec);
+		// ジャンプ力を衝撃として加える
+		pRigidBody->SetActive();
+		pRigidBody->SetImpulse(btJumpVec);
 
 		// ジャンプ状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateJump>());
@@ -254,10 +388,10 @@ void StateJump::Execute(CPlayer::StateMachine& rStateMachine)
 	}
 
 	// リジッドボディの取得
-	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
+	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
 
 	// 現在の加速度をコピー
-	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
+	const btVector3& rCurrentVel = pRigidBody->GetLinearVelocity();
 
 	// 下降判定
 	if (!m_bGoDown && rCurrentVel.getY() < 0.0f && m_btOldVel.getY() > 0.0f)
@@ -265,52 +399,32 @@ void StateJump::Execute(CPlayer::StateMachine& rStateMachine)
 		m_bGoDown = true;
 	}
 
-	// 割り当てが該当するゲームパッドの方向入力を取得
-	const std::optional<float>& opDir = CInputManager::RefInstance().ConvertInputToMoveDirection(rStateMachine.m_rPalyer.GetIdxPlayer());
-
-	// 方向入力があるなら
-	if (opDir)
+	// 下降判定取り消し
+	if (m_bGoDown && rCurrentVel.getY() < -8.0f && m_btOldVel.getY() < -8.0f)
 	{
-		// 移動速度スケール
-		const float fAirSpeed = g_fXZAxis_Speed;
-		btVector3   MoveDir   = { 0.0f, 0.0f, 0.0f };
-
-		// アクティブ化
-		pRB->SetActive();
-
-		// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
-		MoveDir.setX(sinf(opDir.value()) * fAirSpeed);
-		MoveDir.setZ(cosf(opDir.value()) * fAirSpeed);
-
-		// 移動方向：Y軸：現在の重力速度を維持
-		MoveDir.setY(rCurrentVel.getY());
-
-		// 新しい加速度をセット
-		pRB->SetLinearVelocity(MoveDir);
+		m_bGoDown = false;
 	}
+
+	// 移動
+	Move(rStateMachine, g_fXZAxis_Speed);
 
 	// 状態変更
 	if (m_bGoDown && CInputManager::RefInstance().GetTrackerGamePad(rStateMachine.m_rPalyer.GetIdxPlayer()).a == DirectX::GamePad::ButtonStateTracker::PRESSED)
 	{
 		// キネマティック化
-		pRB->SetKinematic();
+		pRigidBody->SetKinematic();
 
 		// 下降判定後、ジャンプ状態中に追加入力でドロップ状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDrop>());
 	}
-	else if (m_bGoDown && Collision::GetHitRigidBody(pRB))
+	else if (CheckLand(rStateMachine))
 	{
-		// 下降判定中に何かに剛体に接触していたら通常状態に変更
+		// 地面に着地していたら通常状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
 	}
 
 	// 現在の加速度情報を次フレームへ持ち越し
 	m_btOldVel = rCurrentVel;
-
-	/* 現在のY軸の加速度を取得 */
-	useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
-	ImGui::Text("VelY: %.2f", rCurrentVel.getY());
-	ImGui::End();
 }
 
 //============================================================================
@@ -322,13 +436,10 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	++m_nStopCounter;
 
 	// リジッドボディの取得
-	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
-
-	// 現在の加速度を参照
-	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
+	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
 
 	// 現在のワールドトランスフォームをコピー
-	OBJ::Transform TF = pRB->GetWorldTransform();
+	OBJ::Transform TF = pRigidBody->GetWorldTransform();
 
 	if (m_nStopCounter < g_nStopCounter)
 	{
@@ -340,55 +451,54 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 		   TF.Pos.z + useful::GetRandomValue<float>() * 0.0005f
 		};
 
-		// トランスフォームをモーションステートとリジッドボディに反映する
-		pRB->SetWorldTransform(TF);
+		// トランスフォームをモーションステートに反映する
+		pRigidBody->SetWorldTransform(TF);
 	}
 	else
 	{
-		// ドロップ力
-		btVector3 btDropVec = { 0.0f, -g_fYAxis_Jump, 0.0f };
+		// ドロップ力作成
+		btVector3 btDropVec = { 0.0f, g_fYAxis_Jump * -2.0f, 0.0f };
 
 		// ダイナミックに戻す
-		pRB->SetDynamic();
+		pRigidBody->SetDynamic();
 
-		// アクティブに変更
-		pRB->SetActive();
+		// 下方向に衝撃を与える
+		pRigidBody->SetActive();
+		pRigidBody->SetImpulse(btDropVec);
 
-		// ドロップ力を反映
-		pRB->SetImpulse(btDropVec * 3.0f);
-
-		// 衝撃波の作成
+		// 落下中に小さな球形の衝撃波を作成
 		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::SPHERE, { 2.0f, 2.0f, 2.0f }, 1);
 	}
 
-	// 何かリジッドボディとの衝突が確認出来たら
-	if (Collision::GetHitRigidBody(pRB))
+	// 地面と接地したら
+	if (CheckLand(rStateMachine))
 	{
 		// 衝撃波の作成
-		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 7.0f, 1.0f, 7.0f }, 10);
+		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 6.0f, 1.0f, 6.0f }, 10);
 
 		// 通常状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
 	}
-
-	/* 現在のY軸の加速度を取得 */
-	useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
-	ImGui::Text("VelY: %.2f", rCurrentVel.getY());
-	ImGui::End();
 }
 
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
 CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CPhysicsObject(Type, Layer)
+	: CPhysicsModel(Type, Layer)
 	, m_upStateMachine(std::make_unique<StateMachine>(*this))
-	, m_pShockWave(nullptr)
+	, m_wpField()
 	, m_wIdxPlayer(0)
 	, m_nLostControlDuration(0)
 	, m_nStepCounter(0)
 	, m_pFallTetraBehavior(nullptr)
-{}
+{
+	// シェアポインタのオブジェクトリストの参照
+	const std::list<std::shared_ptr<CObject>>& rFieldList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
+
+	// フィールドの弱参照を設定
+	m_wpField = std::dynamic_pointer_cast<CField>(rFieldList.front());
+}
 
 //============================================================================
 // デストラクタ
@@ -405,39 +515,16 @@ void CPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
 
 	// コライダーをリジッドボディにキャスト
-	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
+	const CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(GetCollider());
+
+	// 重力の設定
+	pRigidBody->SetGravity({ 0.0f, -25.0f, 0.0f });
+
+	// 摩擦力を設定
+	pRigidBody->SetFriction(1.0f);
 
 	// Y軸以外の回転をロック
-	pRB->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
-}
-
-//============================================================================
-// 衝撃波の作成
-//============================================================================
-void CPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
-{
-	// 衝撃波の作成
-	m_pShockWave = CObject::Create<CShockWave>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
-
-	// プレイヤーの登録
-	m_pShockWave->SetPlayer(this);
-
-	// プレイヤーのトランスフォームを出現位置に設定
-	m_pShockWave->SetTransform(GetTransform());
-
-	// ゴーストの作成
-	m_pShockWave->FactoryCollider(Type, Size.x, Size.y, Size.z);
-
-	// 衝撃波の作成
-	m_pShockWave->SetDuration(nDuration);
-}
-
-//============================================================================
-// 衝撃波の削除
-//============================================================================
-void CPlayer::DeleteShockWave()
-{
-	m_pShockWave = nullptr;
+	pRigidBody->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
 }
 
 //============================================================================
@@ -445,9 +532,6 @@ void CPlayer::DeleteShockWave()
 //============================================================================
 void CPlayer::Update()
 {
-	/* デバッグ用 */
-	//DebugGui();
-
 	// 制御不能期間は常にデクリメント
 	--m_nLostControlDuration;
 
@@ -457,97 +541,14 @@ void CPlayer::Update()
 		m_upStateMachine->ExecuteState();
 	}
 
+	// 死亡判定
+	CheckDeath();
+
 	// WVP行列用定数バッファの更新
-	CPhysicsObject::Update();
+	CPhysicsModel::Update();
 
-	/*------------------------------------*/
-
-	// コライダーをリジッドボディにキャスト
-	CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
-
-	/* 衝撃波のみ特殊処理 */
-	if (m_pShockWave)
-	{
-		// 衝撃波のコライダーをゴーストにキャスト
-		CGhost* pShockwaveGhost = useful::DownCast<CGhost>(m_pShockWave->GetCollider());
-
-		// オブジェクトのリストを取得
-		const auto& rObjList = CObjectManager::RefInstance().RefObjList();
-
-		for (const auto& rTypeList : rObjList)
-		{
-			for (const auto& rIt : rTypeList)
-			{
-				CPhysicsObject* pPhysicsObject = dynamic_cast<CPhysicsObject*>(rIt);
-
-				// 物理オブジェクトにキャスト可能なら
-				if (pPhysicsObject)
-				{
-					CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(pPhysicsObject->GetCollider());
-
-					// 自分との判定は行わない
-					if (pRB == pRigidBody)
-					{
-						continue;
-					}
-
-					// リジッドボディを持っていたら
-					if (pRigidBody)
-					{
-						pRigidBody->SetActive();
-						Collision::BumperPush(pShockwaveGhost, pRigidBody, 3.0f);
-					}
-				}
-			}
-		}
-	}
-
-	if (m_pFallTetraBehavior != nullptr)
-	{
-		if (!m_pFallTetraBehavior->GetTimer())
-		{
-			m_pFallTetraBehavior.reset();
-			m_pFallTetraBehavior = nullptr;
-			// コライダーをリジッドボディにキャスト
-			CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
-			OBJ::Transform transform{};
-			transform = pRB->GetWorldTransform();
-			transform.Size = { 1.0f,1.0f,1.0f };
-			pRB->SetWorldTransform(transform);
-		}
-	}
-
-	/*------------------------------------*/
-	// これは死亡扱いのテスト
-
-	// ワールドトランスフォームから位置を取得
-	const DirectX::XMFLOAT3& Pos = pRB->GetWorldTransform().Pos;
-
-	// フィールドの高さを下回ったら
-	/* フィールドを参照すること */
-	if (Pos.y < 3.0f)
-	{
-	   // 自身の死亡フラグを立てる
-		SetDeath();
-		CDust::GenerateSpread(Pos, 20);
-		CCameraController::RefInstance().UnRegist(this);
-	}
-}
-
-//============================================================================
-// 塵の進行更新
-//============================================================================
-void CPlayer::UpdateDustStep(const DirectX::XMFLOAT3& Direction)
-{
-	++m_nStepCounter;
-
-	if (m_nStepCounter > DUST_STEP_COUNT_MAX)
-	{
-		m_nStepCounter = 0;
-
-		// 塵：直線発生：移動した場所の軌跡をなぞるように
-		CDust::GenerateLinear(dynamic_cast<CRigidBody*>(GetCollider())->GetWorldTransform().Pos, Direction);
-	}
+	/* デバッグ表示 */
+	DebugPrint(*this);
 }
 
 //============================================================================
@@ -556,7 +557,31 @@ void CPlayer::UpdateDustStep(const DirectX::XMFLOAT3& Direction)
 void CPlayer::Draw()
 {
 	// モデルの描画
-	CPhysicsObject::Draw();
+	CPhysicsModel::Draw();
+}
+
+//============================================================================
+// 衝撃波の作成
+//============================================================================
+void CPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
+{
+	// 衝撃波の作成と、弱参照の設定
+	const std::shared_ptr<CShockWave>& spShockWave = CObjectManager::CreateShare<CShockWave>(
+		OBJ::TYPE::NONE,
+		OBJ::LAYER::DEFAULT);
+
+	// プレイヤーのトランスフォームを出現位置に設定
+	spShockWave->SetTransform(GetTransform());
+
+	// ゴーストの作成
+	spShockWave->FactoryCollider(Type, Size.x, Size.y, Size.z);
+
+	// 自身を無視対象に設定
+	//spShockWave->SetIgnore(WeakThis().lock());
+	spShockWave->SetIgnore(shared_from_this());
+
+	// 期間の設定
+	spShockWave->SetDuration(nDuration);
 }
 
 //============================================================================
@@ -589,4 +614,56 @@ int CPlayer::GetLostControlDuration() const
 void CPlayer::SetLostControlDuration(int nTime)
 {
 	m_nLostControlDuration = nTime;
+}
+
+//============================================================================
+// 塵の進行更新
+//============================================================================
+void CPlayer::UpdateDustStep(const DirectX::XMFLOAT3& Direction)
+{
+	++m_nStepCounter;
+
+	// 進行カウンターが既定値に到達したら
+	if (m_nStepCounter > DUST_STEP_COUNT_MAX)
+	{
+		m_nStepCounter = 0;
+
+		// コライダーをリジッドボディにキャスト
+		if (CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(GetCollider()))
+		{
+			// 位置を取得
+			const DirectX::XMFLOAT3& Pos = pRigidBody->GetWorldTransform().Pos;
+
+			// 塵：直線発生：移動した場所の軌跡をなぞるように
+			CDust::GenerateLinear(Pos, Direction);
+		}
+	}
+}
+
+//============================================================================
+// 死亡チェック
+//============================================================================
+void CPlayer::CheckDeath()
+{
+	// トランスフォームから高さを取得
+	float fSelfPosY = GetTransform().Pos.y;
+
+	// フィールドの高さを保有
+	float fFieldPosY = 0.0f;
+
+	// フィールドの高さを取得
+	if (std::shared_ptr<CField> spField = m_wpField.lock())
+	{
+		fFieldPosY = spField->GetTransform().Pos.y;
+	}
+
+	// Y座標がフィールドの高さを下回ったら
+	if (fSelfPosY < fFieldPosY)
+	{
+		// 自身の死亡フラグを立てる
+		SetDeath();
+
+		// カメラコントローラーから登録解除
+		CCameraController::RefInstance().UnRegist(this);
+	}
 }
