@@ -26,10 +26,11 @@
     <ClCompile Include="Src\External\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Src\External\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Src\External\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="Src\MySrc\any.cpp" />
     <ClCompile Include="Src\MySrc\ball.cpp" />
     <ClCompile Include="Src\MySrc\bar.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
+    <ClCompile Include="Src\MySrc\bomb.cpp" />
+    <ClCompile Include="Src\MySrc\bombshockwave.cpp" />
     <ClCompile Include="Src\MySrc\cameracontroller.cpp" />
     <ClCompile Include="Src\MySrc\dust.cpp" />
     <ClCompile Include="Src\MySrc\effect.manager.cpp" />
@@ -39,6 +40,7 @@
     <ClCompile Include="Src\MySrc\IronBall.cpp" />
     <ClCompile Include="Src\MySrc\main.cpp" />
     <ClCompile Include="Src\MySrc\obstacle.cpp" />
+    <ClCompile Include="Src\MySrc\obstacle_editer.cpp" />
     <ClCompile Include="Src\MySrc\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pch.h</PrecompiledHeaderFile>
@@ -51,8 +53,8 @@
     <ClCompile Include="Src\MySrc\scene.game.cpp" />
     <ClCompile Include="Src\MySrc\scene.select.cpp" />
     <ClCompile Include="Src\MySrc\shockwave.cpp" />
-    <ClCompile Include="Src\MySrc\state.cpp" />
     <ClCompile Include="Src\MySrc\scene.title.cpp" />
+    <ClCompile Include="Src\MySrc\tornado.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\External\ImGui\imconfig.h" />
@@ -92,10 +94,11 @@
     <ClInclude Include="Src\MyAPI\API.vertexshader.manager.h" />
     <ClInclude Include="Src\MyAPI\API.window.h" />
     <ClInclude Include="Src\MyAPI\API.world.h" />
-    <ClInclude Include="Src\MySrc\any.h" />
     <ClInclude Include="Src\MySrc\ball.h" />
     <ClInclude Include="Src\MySrc\bar.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
+    <ClInclude Include="Src\MySrc\bomb.h" />
+    <ClInclude Include="Src\MySrc\bombshockwave.h" />
     <ClInclude Include="Src\MySrc\cameracontroller.h" />
     <ClInclude Include="Src\MySrc\dust.h" />
     <ClInclude Include="Src\MySrc\effect.manager.h" />
@@ -103,6 +106,7 @@
     <ClInclude Include="Src\MySrc\field.h" />
     <ClInclude Include="Src\MySrc\gimmick.manager.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
+    <ClInclude Include="Src\MySrc\obstacle_editer.h" />
     <ClInclude Include="Src\MySrc\player.h" />
     <ClInclude Include="Src\MySrc\scene.game.h" />
     <ClInclude Include="Src\MySrc\main.h" />
@@ -110,8 +114,8 @@
     <ClInclude Include="Src\MySrc\pch.h" />
     <ClInclude Include="Src\MySrc\scene.select.h" />
     <ClInclude Include="Src\MySrc\shockwave.h" />
-    <ClInclude Include="Src\MySrc\state.h" />
     <ClInclude Include="Src\MySrc\scene.title.h" />
+    <ClInclude Include="Src\MySrc\tornado.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp" />

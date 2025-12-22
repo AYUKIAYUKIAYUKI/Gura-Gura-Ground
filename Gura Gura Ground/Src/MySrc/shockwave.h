@@ -10,13 +10,7 @@
 //****************************************************
 // インクルードファイル
 //****************************************************
-#include "API.collider.h"
 #include "API.physics.object.h"
-
-//****************************************************
-// 前方宣言
-//****************************************************
-class CPlayer;
 
 //****************************************************
 // 衝撃波クラスの定義
@@ -44,17 +38,22 @@ public:
 	// 描画処理
 	void Draw() override;
 
+	// 無視対象の設定
+	inline void SetIgnore(const std::shared_ptr<CObject>& spIgnore) { m_wpIgnore = spIgnore; }
+
 	// 期間の設定
 	inline void SetDuration(int nDuration) { m_nDuration = nDuration; }
-
-	// プレイヤーの設定
-	inline void SetPlayer(CPlayer* pPlayer) { m_pPlayer = pPlayer; }
 
 private:
 
 	//****************************************************
+	// function
+	//****************************************************
+	void Push(); // 押し出し処理
+
+	//****************************************************
 	// data
 	//****************************************************
-	CPlayer* m_pPlayer;   // プレイヤーの
-	int      m_nDuration; // 期間
+	std::weak_ptr<CObject> m_wpIgnore;  // 無視対象
+	int                    m_nDuration; // 期間
 };
