@@ -196,7 +196,11 @@ void StateDefault::Execute(CPlayer::StateMachine& rStateMachine)
 	if (opDir)
 	{
 		// 移動速度スケール
-		const float fSpeed  = g_fXZAxis_Speed;
+		float fSpeed  = g_fXZAxis_Speed;
+		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr)
+		{
+			fSpeed *= rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetDecayValue();
+		}
 		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
 		// アクティブ化
@@ -383,6 +387,7 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 	, m_wIdxPlayer(0)
 	, m_nLostControlDuration(0)
 	, m_nStepCounter(0)
+	, m_pFallTetraBehavior(nullptr)
 {}
 
 //============================================================================
@@ -494,6 +499,21 @@ void CPlayer::Update()
 					}
 				}
 			}
+		}
+	}
+
+	if (m_pFallTetraBehavior != nullptr)
+	{
+		if (!m_pFallTetraBehavior->GetTimer())
+		{
+			m_pFallTetraBehavior.reset();
+			m_pFallTetraBehavior = nullptr;
+			// コライダーをリジッドボディにキャスト
+			CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
+			OBJ::Transform transform{};
+			transform = pRB->GetWorldTransform();
+			transform.Size = { 1.0f,1.0f,1.0f };
+			pRB->SetWorldTransform(transform);
 		}
 	}
 

@@ -40,6 +40,8 @@ public:
 	// 更新処理
 	void Update() override;
 
+	void ToSmash();
+
 	// 描画処理
 	void Draw() override;
 
@@ -48,6 +50,7 @@ public:
 
 	void ChangeState(std::shared_ptr<Tetra_State> NextState);
 
+	//初期設定のゲッター
 	inline DirectX::XMFLOAT3 GetInitalGravity() { return m_InitalGravity; }
 	inline DirectX::XMFLOAT3 GetInitalPosition() { return m_InitalPosition; }
 
@@ -61,9 +64,9 @@ private:
 	//****************************************************
 	// data
 	//****************************************************
-	std::shared_ptr<Tetra_State> m_State;
-	DirectX::XMFLOAT3 m_InitalPosition;
-	DirectX::XMFLOAT3 m_InitalGravity;
+	std::shared_ptr<Tetra_State> m_State;	//状態遷移用のステート
+	DirectX::XMFLOAT3 m_InitalPosition;		//振動実装用、生成時の原点を保存用
+	DirectX::XMFLOAT3 m_InitalGravity;		//落下までの猶予実装用、生成時の重力保存用
 };
 
 //****************************************************
@@ -82,8 +85,8 @@ public:
 	TetraState_Wait([[maybe_unused]] CFallTetra* p);
 	void Action([[maybe_unused]] CFallTetra* p)override;
 private:
-	DirectX::XMFLOAT3 m_DefaultPos;
-	int m_Timer;
+	DirectX::XMFLOAT3 m_DefaultPos;	//揺らすための初期位置
+	int m_Timer;					//落下までの猶予時間
 };
 
 class TetraState_Fall :public Tetra_State
@@ -92,5 +95,5 @@ public:
 	TetraState_Fall([[maybe_unused]] CFallTetra* p);
 	void Action([[maybe_unused]] CFallTetra* p)override;
 private:
-	int m_Grace;
+	int m_Grace;					//即消えないようにするための猶予
 };
