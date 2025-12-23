@@ -186,8 +186,8 @@ void CSceneGame::Update()
 //============================================================================
 void CSceneGame::Change()
 {
-	// 全オブジェクトに死亡フラグを立てる
-	CObjectManager::RefInstance().SetDeathAll();
-	// タイトルシーンへ
-	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	//// 全オブジェクトに死亡フラグを立てる
+	//CObjectManager::RefInstance().SetDeathAll();
+	//// タイトルシーンへ
+	//CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }

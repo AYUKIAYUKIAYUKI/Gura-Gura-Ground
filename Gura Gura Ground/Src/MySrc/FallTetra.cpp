@@ -93,8 +93,16 @@ CFallTetra::~CFallTetra()
 //============================================================================
 void CFallTetra::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
-	// デフォルトのリジッドボディの生成
-	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, SizeVec.x, SizeVec.y, SizeVec.z));
+	// エディターで設定している値を取得
+	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
+
+	// 取得した値を適用
+	float useWidth = param.ColliderWidth;
+	float useHeight = param.ColliderHeight;
+	float useDepth = param.ColliderDepth;
+
+	// リジッドボディの生成
+	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, useWidth, useHeight, useDepth));
 		
 	// コライダーをリジッドボディにキャスト
 	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
@@ -105,18 +113,18 @@ void CFallTetra::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// 質量を設定
 	pRB->SetMass(1.0f);
+
+	// エディターで設定している値で位置を設定
 	OBJ::Transform transform{};
-	DirectX::XMFLOAT2 Vec2{};
-	Vec2.x = SimpleUseful::GetRandomMT(-g_fFieldSpan, g_fFieldSpan);
-	Vec2.y = SimpleUseful::GetRandomMT(-g_fFieldSpan, g_fFieldSpan);
-
-	transform.Pos = { Vec2.x,g_fAxisY_Spawn,Vec2.y};
-	//transform.Pos = { 0.0f,g_fAxisY_Spawn,0.0f };
-
-	transform.Size = SizeVec;
+	transform.Pos = { param.ObstacleSpawnX, g_fAxisY_Spawn, param.ObstacleSpawnZ };
+	transform.Size = { useWidth, useHeight, useDepth };
 	pRB->SetWorldTransform(transform);
-	pRB->SetGravity({ 0.0f,0.0f,0.0f });
 	m_InitalPosition = transform.Pos;
+
+	// 重力初期値リセット
+	pRB->SetGravity({ 0.0f, 0.0f, 0.0f });
+
+	// 状態遷移
 	ChangeState(std::make_shared<TetraState_Wait>(this));
 
 }

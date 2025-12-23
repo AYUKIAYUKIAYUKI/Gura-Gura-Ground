@@ -1,42 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //============================================================================
 // 
 // 障害物エディター [obstacle_editer.cpp]
@@ -53,6 +14,7 @@
 #include <bomb.h>
 #include <player.h>
 #include <tornado.h>
+#include <FallTetra.h>
 
 using json = nlohmann::json;
 
@@ -66,6 +28,7 @@ std::vector<std::pair<int, int>> ObstacleEditer::s_AssignedSpawnParamIndices = {
 std::vector<ObstacleEditer::ObstacleParam> ObstacleEditer::m_ParamSets(ObstacleEditer::PARAM_SET_MAX);
 std::vector<int> ObstacleEditer::s_SpawnPlayerThresholds(ObstacleEditer::SPAWN_PRESET_MAX, 4);
 std::vector<int> ObstacleEditer::s_ForcedParamSetIndices(ObstacleEditer::SPAWN_PRESET_MAX, 0);
+float ObstacleEditer::s_DecayValue = 0.3f;
 
 std::vector<bool> ObstacleEditer::s_SpawnedFlags = {};
 
@@ -82,6 +45,21 @@ void ObstacleEditer::EditCommonParams()
     if (ImGui::Button(reinterpret_cast<const char*>(u8"障害物を追加")))
     {
         paramSet.subParams.push_back(SubObstacleParam{});
+    }
+
+    ImGui::Text(reinterpret_cast<const char*>(u8"FallTetra直撃時のプレイヤー移動減速値"));
+    ImGui::DragFloat(reinterpret_cast<const char*>(u8"減速値"), &s_DecayValue, 0.01f, 0.0f, 1.0f);
+
+    auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
+    for (auto& playerObj : playerList) 
+    {
+        auto player = std::dynamic_pointer_cast<CPlayer>(playerObj);
+        if (!player) continue;
+        auto fallTetra = player->GetFallTetraBehavior();
+        if (fallTetra) {
+            // FallTetra_Behaviorのm_DecayValueへ値を渡すsetter関数
+            fallTetra->SetDecayValue(s_DecayValue);
+        }
     }
 
     // 障害物(subParams)の一覧UI
@@ -103,9 +81,13 @@ void ObstacleEditer::EditCommonParams()
         {
             paramSet.subParams.erase(paramSet.subParams.begin() + i);
             if (selectedSubParamIndex >= i && selectedSubParamIndex > 0)
+            {
                 selectedSubParamIndex--; // 削除時選択インデックス調整
+            }
             if (paramSet.subParams.empty())
+            {
                 selectedSubParamIndex = -1; // 空になったら未選択
+            }
             break;
         }
     }
@@ -127,7 +109,8 @@ void ObstacleEditer::EditCommonParams()
             reinterpret_cast<const char*>(u8"Ball"),
             reinterpret_cast<const char*>(u8"Bar"),
             reinterpret_cast<const char*>(u8"Bomb"),
-            reinterpret_cast<const char*>(u8"Tornado")
+            reinterpret_cast<const char*>(u8"Tornado"),
+            reinterpret_cast<const char*>(u8"FallTetra")
         };
 
         if (ImGui::Combo(reinterpret_cast<const char*>(u8"出現させる障害物"), &currentType, typeNames, static_cast<int>(OBS_TYPE::MAX)))
@@ -137,13 +120,28 @@ void ObstacleEditer::EditCommonParams()
 
         // 出現位置
         ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 X"), &obs.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Y"), &obs.ObstacleSpawnY, 0.1f, 5.0f, 100.0f);
+
+        if (obs.ManualObstacleType == OBS_TYPE::FALLTETRA)
+        {
+            ImGui::Text(reinterpret_cast<const char*>(u8"スポーン座標 Yは15.0fで固定に設定されています"));
+        }
+
+        //スポーン座標 Y (ドッスン以外)
+        if (obs.ManualObstacleType != OBS_TYPE::FALLTETRA)
+        {
+            ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Y"), &obs.ObstacleSpawnY, 0.1f, 5.0f, 100.0f);
+        }
+
         ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Z"), &obs.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
 
-        // 移動速度
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 X"), &obs.ObstacleSpeedX, 0.1f, -20.0f, 20.0f);
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 Y"), &obs.ObstacleSpeedY, 0.1f, -20.0f, 20.0f);
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 Z"), &obs.ObstacleSpeedZ, 0.1f, -20.0f, 20.0f);
+        // 移動速度 (ドッスン以外)
+        if (obs.ManualObstacleType != OBS_TYPE::FALLTETRA)
+        {
+            ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 X"), &obs.ObstacleSpeedX, 0.1f, -20.0f, 20.0f);
+            ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 Y"), &obs.ObstacleSpeedY, 0.1f, -20.0f, 20.0f);
+            ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 Z"), &obs.ObstacleSpeedZ, 0.1f, -20.0f, 20.0f);
+        }
+
         ImGui::DragFloat(reinterpret_cast<const char*>(u8"コライダーの幅"), &obs.ColliderWidth, 0.1f, 0.1f, 100.0f);
         ImGui::DragFloat(reinterpret_cast<const char*>(u8"コライダーの高さ"), &obs.ColliderHeight, 0.1f, 0.1f, 100.0f);
         ImGui::DragFloat(reinterpret_cast<const char*>(u8"コライダーの深度"), &obs.ColliderDepth, 0.1f, 0.1f, 100.0f);
@@ -447,6 +445,19 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 return true;
                             }, OBJ::TYPE::OBSTACLE);
                         break;
+                    case OBS_TYPE::FALLTETRA:
+                        CObjectManager::CreateRaw<CFallTetra>([sub, subIdx, paramSetIdx](CFallTetra* p) -> bool
+                            {
+                                p->SetParamSetIndex(paramSetIdx);
+                                p->SetSubParamIndex(static_cast<int>(subIdx));
+                                // 幅・高さ・奥行きをセット
+                                p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+                                OBJ::Transform TF = {};
+                                TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                                p->SetTransform(TF);
+                                return true;
+                            }, OBJ::TYPE::OBSTACLE);
+                        break;
                     }
                 }
                 s_SpawnedFlags[i] = true;
@@ -541,6 +552,19 @@ void ObstacleEditer::TryManualSpawn()
                     return true;
                 }, OBJ::TYPE::OBSTACLE);
             break;
+        case OBS_TYPE::FALLTETRA:
+            CObjectManager::CreateRaw<CFallTetra>([sub, subIdx, thisSetIdx](CFallTetra* p) -> bool
+                {
+                    p->SetParamSetIndex(thisSetIdx);
+                    p->SetSubParamIndex(static_cast<int>(subIdx));
+                    // 幅・高さ・奥行きをセット
+                    p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+                    OBJ::Transform TF = {};
+                    TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                    p->SetTransform(TF);
+                    return true;
+                }, OBJ::TYPE::OBSTACLE);
+            break;
         }
     }
 }
@@ -594,6 +618,8 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
 
     jsRoot["spawn_enable_time"] = 3.0f;
     jsRoot["preset_count"] = s_SpawnTimePresetCount;
+
+    jsRoot["falltetra_decay_value"] = s_DecayValue;
 
     std::ofstream ofs(fileName);
     ofs << jsRoot.dump(4);
@@ -672,6 +698,14 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
     else
     {
         s_SpawnPlayerThresholds.assign(SPAWN_PRESET_MAX, 4);
+    }
+
+    if (jsRoot.contains("falltetra_decay_value")) 
+    {
+        s_DecayValue = jsRoot["falltetra_decay_value"].get<float>();
+    }
+    else {
+        s_DecayValue = 0.3f; // デフォルト値
     }
 
     // プリセット数/生成時間

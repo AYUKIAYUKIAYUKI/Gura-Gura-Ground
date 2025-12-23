@@ -12,6 +12,7 @@
 //****************************************************
 #include "obstacle.h"
 #include "API.rigidbody.h"
+#include <obstacle_editer.h>
 
 //前方宣言
 class Tetra_State;
@@ -54,6 +55,11 @@ public:
 	inline DirectX::XMFLOAT3 GetInitalGravity() { return m_InitalGravity; }
 	inline DirectX::XMFLOAT3 GetInitalPosition() { return m_InitalPosition; }
 
+	void SetParamSetIndex(int idx) { m_ParamSetIndex = idx; }
+	void SetSubParamIndex(int idx) { m_SubParamIndex = idx; }
+	int  GetParamSetIndex() const { return m_ParamSetIndex; }
+	int  GetSubParamIndex() const { return m_SubParamIndex; }
+
 private:
 
 	//****************************************************
@@ -67,6 +73,10 @@ private:
 	std::shared_ptr<Tetra_State> m_State;	//状態遷移用のステート
 	DirectX::XMFLOAT3 m_InitalPosition;		//振動実装用、生成時の原点を保存用
 	DirectX::XMFLOAT3 m_InitalGravity;		//落下までの猶予実装用、生成時の重力保存用
+
+	int m_ParamSetIndex = 0;   // どのParamSetか
+	int m_SubParamIndex = 0;   // その中の何番目か
+	ObstacleEditer m_ObstacleEditer;
 };
 
 //****************************************************
