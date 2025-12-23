@@ -53,7 +53,7 @@ namespace
 		{
 			if (ImGui::Button("Test Create"))
 			{
-				CObject::Create<CFallTetra>(
+				CObjectManager::CreateRaw<CFallTetra>(
 					[](CFallTetra* p) ->bool
 					{
 						p->FactoryCollider();
@@ -79,7 +79,7 @@ namespace
 // デフォルトコンストラクタ
 //============================================================================
 CFallTetra::CFallTetra(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CObstacle(Type, Layer)
+	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::STATIONARY)
 {}
 
 //============================================================================
@@ -153,12 +153,13 @@ void CFallTetra::Draw()
 void CFallTetra::ToSmash()
 {
 	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
+
 	// オブジェクトのリストを取得
-	const auto& rPlayerList = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::PLAYER);
+	const auto& rPlayerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 
 	for (const auto& e : rPlayerList)
 	{
-		CPlayer* pPlayerObj = dynamic_cast<CPlayer*>(e);
+		std::shared_ptr<CPlayer> pPlayerObj = std::dynamic_pointer_cast<CPlayer>(e);
 
 		// プレイヤー型にキャスト可能なら
 		if (pPlayerObj)

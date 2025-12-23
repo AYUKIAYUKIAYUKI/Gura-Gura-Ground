@@ -21,6 +21,7 @@
 #include "API.object.manager.h"
 #include "field.h"
 #include "player.h"
+#include <enemy1.h>
 
 // イベント処理のため
 #include "cameracontroller.h"
@@ -123,6 +124,26 @@ CSceneGame::CSceneGame()
 	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
 	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
 	g_GameTime = 0.0f;
+
+
+	// 敵生成
+	float fSize = 1.0f;
+
+	CObjectManager::CreateRaw<CEnemy1>(
+		[&fSize](CEnemy1* p) -> bool
+		{
+			p->SetTransform(
+				{
+					{ fSize, fSize, fSize },
+					{ 0.0f, 0.0f, 0.0f, 1.0f },
+					{ 2.0f, 15.0f, 2.0f }
+				}
+			);
+
+			p->FactoryCollider(fSize, fSize, fSize);
+			return true;
+		},
+		OBJ::TYPE::NONE); //TYPEはENEMYとか別枠で確保した}
 }
 
 //============================================================================

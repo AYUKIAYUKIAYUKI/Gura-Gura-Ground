@@ -84,9 +84,6 @@
     <ClCompile Include="Src\External\ImGui\imgui_widgets.cpp">
       <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Src\MySrc\any.cpp">
-      <Filter>%28分類済み%29\【ジオメトリ系統】</Filter>
-    </ClCompile>
     <ClCompile Include="Src\MySrc\field.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
@@ -106,9 +103,6 @@
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
     <ClCompile Include="Src\MySrc\beamlight.cpp">
-      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\MySrc\state.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
     <ClCompile Include="Src\MySrc\IronBall.cpp">
@@ -136,6 +130,21 @@
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
     <ClCompile Include="Src\MySrc\FallTetra.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\enemy1.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\bomb.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\bombshockwave.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\tornado.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\obstacle_editer.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
   </ItemGroup>
@@ -170,9 +179,6 @@
     <ClInclude Include="Src\External\ImGui\imstb_truetype.h">
       <Filter>%28リンカー用外部ファイル%29\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Src\MySrc\any.h">
-      <Filter>%28分類済み%29\【ジオメトリ系統】</Filter>
-    </ClInclude>
     <ClInclude Include="Src\MySrc\field.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
@@ -192,9 +198,6 @@
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
     <ClInclude Include="Src\MySrc\beamlight.h">
-      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\MySrc\state.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
     <ClInclude Include="Src\MySrc\IronBall.h">
@@ -309,6 +312,21 @@
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
     <ClInclude Include="Src\MySrc\FallTetra.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\enemy1.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\bomb.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\bombshockwave.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\tornado.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\obstacle_editer.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
   </ItemGroup>
