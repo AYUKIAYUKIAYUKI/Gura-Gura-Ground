@@ -20,6 +20,7 @@
 //必要なインクルード
 #include <API.gltf.manager.h>
 #include "API.object.manager.h"
+#include "API.collision.h"
 
 //================================================
 //名前空間（無名）
@@ -28,6 +29,10 @@ namespace
 	btVector3 INIT = { 0.0f, 0.0f, 0.0f };//btVector3用初期化マクロ
 }
 
+////===================================================
+////名前空間の使用
+using namespace useful;
+using namespace DirectX;
 
 //======================================
 //コンストラクタ
