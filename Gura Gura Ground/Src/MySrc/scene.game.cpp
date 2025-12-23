@@ -129,8 +129,8 @@ CSceneGame::CSceneGame()
 	// ìGê∂ê¨
 	float fSize = 1.0f;
 
-	CObjectManager::CreateRaw<CEnemy1>(
-		[&fSize](CEnemy1* p) -> bool
+	CObjectManager::CreateRaw<CEnemyPlayer>(
+		[&fSize](CEnemyPlayer* p) -> bool
 		{
 			p->SetTransform(
 				{
