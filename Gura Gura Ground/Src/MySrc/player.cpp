@@ -540,7 +540,14 @@ void CPlayer::Update()
 	{
 		m_upStateMachine->ExecuteState();
 	}
-
+	if (m_pFallTetraBehavior != nullptr)
+	{
+		if (!m_pFallTetraBehavior->GetTimer())
+		{
+			m_pFallTetraBehavior.reset();
+			m_pFallTetraBehavior = nullptr;
+		}
+	}
 	// Ž€–S”»’è
 	CheckDeath();
 

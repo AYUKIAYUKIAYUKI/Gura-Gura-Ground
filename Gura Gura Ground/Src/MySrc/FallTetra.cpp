@@ -183,23 +183,33 @@ void CFallTetra::ToSmash()
 //============================================================================
 void CFallTetra::ChangeState(std::shared_ptr<Tetra_State> NextState) {
 	if (m_State == nullptr) { 
+		//設定されていなければ、待機状態に
 		m_State = std::make_shared<TetraState_Wait>(this); 
 		return; 
 	}
+	//中身を破棄
 	m_State.reset();
 	m_State = NextState;
 }
 
-//============================================================================
-// 待機ステートの挙動
-//============================================================================
+//================================================================================================================================
+// ここから下ステート用処理
 
-TetraState_Wait::TetraState_Wait([[maybe_unused]] CFallTetra* p) :m_Timer(120), m_DefaultPos({0.0f,0.0f,0.0f})
+
+//============================================================================
+// 待機ステートコンストラクタ
+//============================================================================
+TetraState_Wait::TetraState_Wait([[maybe_unused]] CFallTetra* p) :
+				m_Timer(120)
+				, m_DefaultPos({0.0f,0.0f,0.0f})
 {
+	//初期位置を保存
 	m_DefaultPos = p->GetInitalPosition();
 }
 
-
+//============================================================================
+// 待機ステート時の挙動
+//============================================================================
 void TetraState_Wait::Action([[maybe_unused]] CFallTetra* p)
 {
 	if (m_Timer < 0)
@@ -222,6 +232,9 @@ void TetraState_Wait::Action([[maybe_unused]] CFallTetra* p)
 	pRB->SetWorldTransform(transform);
 }
 
+//============================================================================
+// 落下ステートコンストラクタ
+//============================================================================
 TetraState_Fall::TetraState_Fall(CFallTetra* p) : m_Grace(20)
 {
 	// コライダーをリジッドボディにキャスト
@@ -232,6 +245,9 @@ TetraState_Fall::TetraState_Fall(CFallTetra* p) : m_Grace(20)
 	pRB->SetGravity({ gravity.x,gravity.y,gravity.z});
 }
 
+//============================================================================
+// 落下ステートの挙動
+//============================================================================
 void TetraState_Fall::Action([[maybe_unused]] CFallTetra* p)
 {
 	// コライダーをリジッドボディにキャスト
