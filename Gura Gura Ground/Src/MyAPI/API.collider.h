@@ -22,7 +22,6 @@
 // 前方宣言
 //****************************************************
 class  btCollisionShape;
-struct RenderCollision;
 
 //****************************************************
 // 名前空間Collsion：衝突判定にまつわる定義を配置します
@@ -86,10 +85,6 @@ protected:
 	      btCollisionShape* GetCollisionShape();
 	const btCollisionShape* GetCollisionShapeConst() const;
 
-	// コリジョン描画の取得
-	      RenderCollision* GetRenderCollision();
-	const RenderCollision* GetRenderCollisionConst() const;
-
 	// コリジョン描画のカラー設定
 	void SetRenderCollisionColor(const DirectX::XMFLOAT4& Color);
 
@@ -98,7 +93,7 @@ private:
 	//****************************************************
 	// function
 	//****************************************************
-	void Error(); // エラー処理
+	void ErrorCheck(); // エラー検知
 
 	//****************************************************
 	// data

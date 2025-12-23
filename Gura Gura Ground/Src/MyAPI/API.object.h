@@ -48,9 +48,9 @@ namespace OBJ
 	//****************************************************
 	struct Transform
 	{
-		DirectX::XMFLOAT3 Size  = { 1.0f, 1.0f, 1.0f };
-		DirectX::XMFLOAT4 Rot   = { 0.0f, 0.0f, 0.0f, 1.0f };
-		DirectX::XMFLOAT3 Pos   = { 0.0f, 0.0f, 0.0f };
+		DirectX::XMFLOAT3 Size = { 1.0f, 1.0f, 1.0f };
+		DirectX::XMFLOAT4 Rot  = { 0.0f, 0.0f, 0.0f, 1.0f };
+		DirectX::XMFLOAT3 Pos  = { 0.0f, 0.0f, 0.0f };
 		DirectX::XMMATRIX World = DirectX::XMMatrixIdentity();
 	};
 
@@ -115,7 +115,7 @@ concept ObjectFactoryFunction = std::is_pointer_v<T>
 //****************************************************
 // オブジェクトクラスを定義
 //****************************************************
-class CObject
+class CObject : public std::enable_shared_from_this<CObject>
 {
 public:
 
@@ -141,14 +141,14 @@ public:
 
 	// 生成処理
 	template <DerivedFromObject T>
-	static T* Create(OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
+	[[ deprecated("使用禁止") ]] static T* Create(OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
 
 #if CONCEPT_ε || CONCEPT_ρ
 	template <DerivedFromObject T, ObjectFactoryFunction U>
 	static T* Create(U&& fpFactory, OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
 #else
 	template <DerivedFromObject T, typename U>
-	static T* Create(U&& fpFactory, OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
+	[[ deprecated("使用禁止") ]] static T* Create(U&& fpFactory, OBJ::TYPE Type = OBJ::TYPE::NONE, OBJ::LAYER Layer = OBJ::LAYER::DEFAULT);
 #endif
 
 	//****************************************************

@@ -77,6 +77,10 @@
 // 自作
 #include "API.useful.h"
 
+//Effekseer用
+#include "Effekseer.h"
+#include "EffekseerRendererDX11.h"
+
 //****************************************************
 // ライブラリのリンク
 //****************************************************

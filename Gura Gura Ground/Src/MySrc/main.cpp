@@ -23,6 +23,9 @@
 // 初期シーン生成のため
 #include "scene.title.h"
 
+//エフェクシア確認用
+#include "effect.manager.h"
+
 //****************************************************
 // エントリーポイント
 //****************************************************
@@ -90,19 +93,27 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hInstancePre
 						// 物理ワールドの更新
 						CWorld::RefInstance().Update();
 
-						// オブジェクトリストの更新
-						CObjectManager::RefInstance().UpdateAllObject();
-						CObjectManager::RefInstance().LateUpdateAllObject();
+						// オブジェクトの更新
+						CObjectManager::RefInstance().Update();
+
+						// エフェクトマネージャーの更新
+						//CEffectManager::RefInstance().Update();
 					});
 
 				// レンダラーの描画処理
 				CRenderer::RefInstance().Draw(
 					[]() -> void
 					{
-						// オブジェクトリストの描画
-						CObjectManager::RefInstance().DrawAllObject();
+						// オブジェクトの描画
+						CObjectManager::RefInstance().Draw();
+
+						// エフェクトマネージャーの描画
+						//CEffectManager::RefInstance().Draw();
 					});
 			});
+
+		// オブジェクトマネージャーの明示的な破棄
+		CObjectManager::ExplicitRelease();
 	}
 	catch (const std::exception& Error)
 	{

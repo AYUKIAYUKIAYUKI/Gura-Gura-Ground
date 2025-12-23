@@ -53,6 +53,9 @@ public:
 	// インスタンスの参照を取得します
 	static T& RefInstance();
 
+	// 明示的な破棄
+	static void ExplicitRelease();
+
 protected:
 
 	//****************************************************

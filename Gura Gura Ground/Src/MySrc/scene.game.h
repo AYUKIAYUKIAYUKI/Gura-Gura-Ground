@@ -11,6 +11,7 @@
 // インクルードファイル
 //****************************************************
 #include "API.scene.h"
+#include "obstacle_editer.h"
 
 //****************************************************
 // 前方宣言
@@ -35,4 +36,6 @@ public:
 	//****************************************************
 	void Update() override; // 更新処理
 	void Change() override; // シーン変更
+private:
+	ObstacleEditer m_ObstacleEditer;
 };

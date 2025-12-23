@@ -70,12 +70,12 @@ void CEnemy1::FactoryCollider(float fWidth, float fHeight, float fDepth)
 void CEnemy1::searchPlayer()
 {
 	//オブジェクトmanagerからプレイヤータイプを見つける
-	std::list<CObject*> playerlist = CObjectManager::RefInstance().RefObjList(OBJ::TYPE::PLAYER);
+	std::list<std::shared_ptr<CObject>> playerlist = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 
 	//範囲baseでプレイヤー情報の基盤を取得
 	for (const auto Obj : playerlist)
 	{
-		m_pPlayer.push_back(static_cast<CPlayer*>(Obj)); //プレイヤーの情報を入れる
+		m_pPlayer.push_back(static_cast<CPlayer*>(Obj.get())); //プレイヤーの情報を入れる
 	}
 }
 
@@ -263,7 +263,11 @@ void CEnemy1::InJump()
 	}
 
 	//下降中に何かに当たった時
-	if (m_bGoDown && Collision::GetHitRigidBody(pRB))
+	if (m_bGoDown && Collision::CheckHitToRigidBodyRaw(pRB))
+	{
+		++m_nRecasttime;
+	}
+	else if (m_bGoDown && Collision::CheckHitToRigidBodyShare(pRB))
 	{
 		++m_nRecasttime;
 	}
@@ -301,7 +305,7 @@ void CEnemy1::HipDrap()
 void CEnemy1::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
 {
 	// 衝撃波の作成
-	m_pShockWave = CObject::Create<CShockWave>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+	m_pShockWave = CObjectManager::CreateShare<CShockWave>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT).get();
 
 	// プレイヤーの登録
 	//m_pShockWave->SetPlayer(this);

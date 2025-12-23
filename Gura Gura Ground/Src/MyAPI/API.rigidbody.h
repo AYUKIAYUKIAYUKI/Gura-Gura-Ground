@@ -64,6 +64,13 @@ public:
 	bool GetActive() const;
 	void SetActive() const;
 
+	// 重力の操作用
+	const btVector3& GetGravity()                          const;
+	void             SetGravity(const btVector3& rGravity) const;
+
+	// 加速度減衰の設定
+	void SetDamping(float fLinear, float fRotate) const;
+
 	// 質量の設定
 	void SetMass(float fMass) const;
 
@@ -89,8 +96,11 @@ public:
 	const btVector3& GetLinearVelocity()                           const;
 	void             SetLinearVelocity(const btVector3& rVelocity) const;
 
-	// インパルスの付与
-	void SetImpulse(const btVector3& Impulse) const;
+	// 力の操作
+	void SetForce(const btVector3& rForce) const;
+
+	// 衝撃の付与
+	void SetImpulse(const btVector3& rImpulse) const;
 
 	// リジッドボディ本体の取得
 	      btRigidBody* GetRigidBody();
@@ -108,7 +118,7 @@ private:
 	//****************************************************
 	// function
 	//****************************************************
-	void Error(); // エラー処理
+	void ErrorCheck(); // エラー検出
 
 	//****************************************************
 	// data
