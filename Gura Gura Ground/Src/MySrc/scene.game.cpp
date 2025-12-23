@@ -204,8 +204,8 @@ void CSceneGame::SpawnCPU()
 	const float fSize = 1.0f;
 
 	// 敵生成
-	CObjectManager::CreateRaw<CEnemy1>(
-		[fSize](CEnemy1* p) -> bool
+	CObjectManager::CreateRaw<CEnemyPlayer>(
+		[fSize](CEnemyPlayer* p) -> bool
 		{
 			// トランスフォームの設定
 			p->SetTransform(
