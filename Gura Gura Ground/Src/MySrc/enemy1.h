@@ -15,14 +15,7 @@
 //===================================================
 //インクルード
 #include "API.physics.object.h"
-#include "API.rigidbody.h"
-#include "API.collision.h"
-
-//===================================================
-//名前空間の使用
-using namespace useful;
-using namespace DirectX;
-
+#include "API.world.h"
 
 //===================================================
 //前方宣言
@@ -117,13 +110,13 @@ public:
 	 * @brief 敵とプレイヤーの当たり判定チェック処理
 	 * @param [in] 対象の位置情報、自身の位置情報,範囲
 	 */
-	bool CheckCollision(const XMFLOAT3& c1, const XMFLOAT3& c2, float Radius);
+	bool CheckCollision(const DirectX::XMFLOAT3& c1, const DirectX::XMFLOAT3& c2, float Radius);
 
 	/**
 	 * @brief 距離を算出する処理
 	 * @param [in] 対象の位置情報、自身の位置情報
 	 */
-	float CheckDistance(const XMFLOAT3& c1, const XMFLOAT3& c2);
+	float CheckDistance(const DirectX::XMFLOAT3& c1, const DirectX::XMFLOAT3& c2);
 
 private:
 
