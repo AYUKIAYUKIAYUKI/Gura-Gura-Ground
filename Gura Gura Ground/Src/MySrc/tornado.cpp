@@ -49,6 +49,9 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	// 竜巻用のリジッドボディの作成
 	SetCollider(CGhost::CreateGhost(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
 
+	// コライダーをゴーストにキャスト
+	const CGhost* const pGhost = dynamic_cast<CGhost*>(GetCollider());
+
 	// パラメータ参照
 	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
 	OBJ::Transform TF = {};
@@ -56,7 +59,7 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };
 
 	// 位置セット
-	pRB->SetWorldTransform(TF);
+	pGhost->SetWorldTransform(TF);
 }
 
 //============================================================================
@@ -208,7 +211,7 @@ void CTornado::MoveOutOfScreen()
 	const CGhost* const pGhost = dynamic_cast<CGhost*>(GetCollider());
 
 	// 速さ
-	const float fSpeed = 0.1f;
+	const float fSpeed = 0.02f;
 
 	// 設定用のトランスフォーム
 	OBJ::Transform TF = pGhost->GetWorldTransform();
@@ -226,5 +229,5 @@ void CTornado::MoveOutOfScreen()
 //============================================================================
 bool CTornado::IsOutOfScreen()
 {
-	return m_LapCount != m_NowLapCount;
+	return m_NowLapCount < 1;
 }

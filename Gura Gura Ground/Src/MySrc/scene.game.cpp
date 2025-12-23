@@ -52,6 +52,7 @@ namespace
 
 	std::chrono::steady_clock::time_point g_LastUpdateTime;
 	float g_GameTime = 0.0f;
+
 	// ƒOƒ[ƒoƒ‹
 	OBJ::Transform g_BoxTF = { { 0.5f, 0.5f, 0.5f }, {0.0f, 0.0f, 0.0f, 1.0f}, {-fInitDist, 25.0f, -fInitDist} };
 
@@ -124,9 +125,47 @@ CSceneGame::CSceneGame()
 		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 
-m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //áŠQ•¨ƒpƒ‰ƒ[ƒ^[‚ğ“Ç‚İ‚Ş
+	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //áŠQ•¨ƒpƒ‰ƒ[ƒ^[‚ğ“Ç‚İ‚Ş
 	g_LastUpdateTime = std::chrono::steady_clock::now(); //Œ»İ‚ÌŠÔ‚É‡‚í‚¹‚é
-	g_GameTime = 0.0f;	// áŠQ•¨ƒXƒ|[ƒ“ƒƒjƒ…[•\¦
+	g_GameTime = 0.0f;
+
+
+	// —³Šª‚Ì¶¬
+	CObjectManager::CreateRaw<CTornado>(
+		[&fSpanField](CTornado* p) -> bool
+		{
+			float Size = 3.0f;
+			float Pos = fSpanField + 5.0f;
+			OBJ::Transform TF = p->GetTransform();
+			TF.Pos = { -Pos, 0.0f, Pos };
+			p->SetTransform(TF);
+			p->SetStartPos(TF.Pos);
+			p->FactoryCollider(Size, Size * 0.5f, Size);
+			p->SetDepth(Pos * 2.0f);
+			p->SetWidth(Pos * 2.0f);
+			return true;
+		},
+		OBJ::TYPE::OBSTACLE);
+}
+
+//============================================================================
+// ƒfƒXƒgƒ‰ƒNƒ^
+//============================================================================
+CSceneGame::~CSceneGame()
+{}
+
+//============================================================================
+// XVˆ—
+//============================================================================
+void CSceneGame::Update()
+{
+	//ƒ^ƒCƒ€Œv‘ª
+	auto now = std::chrono::steady_clock::now();
+	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();
+	g_LastUpdateTime = now;
+	g_GameTime += deltaTime;
+
+	// áŠQ•¨ƒXƒ|[ƒ“ƒƒjƒ…[•\¦
 	m_ObstacleEditer.EditerMenu();
 
 	// ƒXƒ|[ƒ“ŠÔƒvƒŠƒZƒbƒgƒƒjƒ…[•\¦
@@ -134,40 +173,15 @@ m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //áŠQ•¨ƒpƒ‰ƒ[ƒ
 
 	//ƒvƒŒƒCƒ‚[ƒh’†‚Ì©“®ƒXƒ|[ƒ“ˆ—
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
-	CCameraController::RefInstance().Update();	// ƒQ[ƒ€ƒZƒbƒg‚µ‚½‚çƒV[ƒ“‘JˆÚ
 
-	c++;
-	if (c > 300
-		&& !a)
-	{
-		float fSpanField = 15.0f;
-
-		// —³Šª‚Ì¶¬
-		CObjectManager::CreateRaw<CTornado>(
-			[&fSpanField](CTornado* p) -> bool
-			{
-				float Size = 3.0f;
-				float Pos = fSpanField + 5.0f;
-				OBJ::Transform TF = p->GetTransform();
-				TF.Pos = { -Pos, 0.0f, Pos };
-				p->SetTransform(TF);
-				p->SetStartPos(TF.Pos);
-				p->FactoryCollider(Size, Size * 0.5f, Size);
-				p->SetDepth(Pos * 2.0f);
-				p->SetWidth(Pos * 2.0f);
-				return true;
-			},
-			OBJ::TYPE::OBSTACLE);
-
-		a = true;
-	}
+	//ƒJƒƒ‰ƒRƒ“ƒgƒ[ƒ‰[‚ÌXV
+	CCameraController::RefInstance().Update();
 
 	// ƒQ[ƒ€ƒZƒbƒg‚µ‚½‚çƒV[ƒ“‘JˆÚ
 	if (GameSet())
 	{
 		Change();
 	}
-
 }
 
 //============================================================================

@@ -53,7 +53,7 @@ public:
 	inline void SetDepth(float Depth) { m_Depth = Depth; }
 
 	// ü‰ñ”‚Ìİ’è
-	inline void SetLapCount(float count) { m_LapCount = count; }
+	inline void SetLapCount(int count) { m_LapCount = count; }
 	//Imguiİ’è—p
 	void SetParamSetIndex(int idx) { m_ParamSetIndex = idx; }
 	void SetSubParamIndex(int idx) { m_SubParamIndex = idx; }
