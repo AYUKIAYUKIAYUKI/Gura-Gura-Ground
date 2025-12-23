@@ -222,22 +222,22 @@ void CSceneGame::SpawnCPU()
 		},
 		OBJ::TYPE::NONE); //TYPEはENEMYとか別枠で確保した}
 
-	// 竜巻の生成
-	CObjectManager::CreateRaw<CTornado>(
-		[&fSpanField](CTornado* p) -> bool
-		{
-			float Size = 3.0f;
-			float Pos = fSpanField + 5.0f;
-			OBJ::Transform TF = p->GetTransform();
-			TF.Pos = { -Pos, 0.0f, Pos };
-			p->SetTransform(TF);
-			p->SetStartPos(TF.Pos);
-			p->FactoryCollider(Size, Size * 0.5f, Size);
-			p->SetDepth(Pos * 2.0f);
-			p->SetWidth(Pos * 2.0f);
-			return true;
-		},
-		OBJ::TYPE::OBSTACLE);
+	//// 竜巻の生成
+	//CObjectManager::CreateRaw<CTornado>(
+	//	[&fSpanField](CTornado* p) -> bool
+	//	{
+	//		float Size = 3.0f;
+	//		float Pos = fSpanField + 5.0f;
+	//		OBJ::Transform TF = p->GetTransform();
+	//		TF.Pos = { -Pos, 0.0f, Pos };
+	//		p->SetTransform(TF);
+	//		p->SetStartPos(TF.Pos);
+	//		p->FactoryCollider(Size, Size * 0.5f, Size);
+	//		p->SetDepth(Pos * 2.0f);
+	//		p->SetWidth(Pos * 2.0f);
+	//		return true;
+	//	},
+	//	OBJ::TYPE::OBSTACLE);
 }
 
 //============================================================================
@@ -263,13 +263,15 @@ bool CSceneGame::CheckGameSet()
 	//カメラコントローラーの更新
 	CCameraController::RefInstance().Update();
 
-	// ゲームセットしたらシーン遷移
-	if (GameSet())	{
+	for (const auto& wpPlayer : m_apwPlayers)
+	{
 		/* プレイヤーが1人でも生きていたらゲーム継続 */
 		if (!wpPlayer.expired())
 		{
 			return false;
 		}
 	}
+
 	return true;
+
 }
