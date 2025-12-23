@@ -19,6 +19,9 @@
 // 塵発生用
 #include "dust.h"
 
+// カメラコントローラー登録解除のため
+#include "cameracontroller.h"
+
 //****************************************************
 // 無名名前空間の定義
 //****************************************************
@@ -150,7 +153,7 @@ struct StateJump : public State
 	//****************************************************
 	// Data
 	//****************************************************
-	bool      m_bGoDown = false;                // 下降判定
+	bool      m_bGoDown  = false;                // 下降判定
 	btVector3 m_btOldVel = { 0.0f, 0.0f, 0.0f }; // 過去の加速度
 };
 
@@ -189,6 +192,14 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 	// 方向入力があるなら
 	if (opDirection)
 	{
+		// 移動速度スケール
+		float fSpeed = fSpeedArg;
+
+		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr)
+		{
+			fSpeed *= rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetDecayValue();
+		}
+
 #if 0
 		// 数値を先行して取得
 		float fDirectionValue = opDirection.value();
@@ -219,11 +230,11 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 		MoveDir.setZ(cosf(fDirectionValue));
 
 		// 目標の加速度作成
-		const btVector3& TargetVel = MoveDir * fSpeedArg;
+		const btVector3& TargetVel = MoveDir * fSpeed;
 
 		/* ああ…btVector3をXMFLOAT3に変換 */
 		DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
-		DirectX::XMFLOAT3 TargeVel_XMFLOAT   = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
+		DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
 
 		/* ああ…要素ずつ指数減衰 */
 		const float fCoef = 0.25f;
@@ -307,8 +318,7 @@ bool State::CheckLand(CPlayer::StateMachine& rStateMachine)
 CPlayer::StateMachine::StateMachine(CPlayer& rPlayer)
 	: m_upState(std::make_unique<StateDefault>())
 	, m_rPalyer(rPlayer)
-{
-}
+{}
 
 //============================================================================
 // 状態実行：ステートマシン
@@ -475,12 +485,13 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 // デフォルトコンストラクタ
 //============================================================================
 CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CPhysicsObject(Type, Layer)
+	: CPhysicsModel(Type, Layer)
 	, m_upStateMachine(std::make_unique<StateMachine>(*this))
 	, m_wpField()
 	, m_wIdxPlayer(0)
 	, m_nLostControlDuration(0)
 	, m_nStepCounter(0)
+	, m_pFallTetraBehavior(nullptr)
 {
 	// シェアポインタのオブジェクトリストの参照
 	const std::list<std::shared_ptr<CObject>>& rFieldList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
@@ -534,7 +545,7 @@ void CPlayer::Update()
 	CheckDeath();
 
 	// WVP行列用定数バッファの更新
-	CPhysicsObject::Update();
+	CPhysicsModel::Update();
 
 	/* デバッグ表示 */
 	DebugPrint(*this);
@@ -546,7 +557,7 @@ void CPlayer::Update()
 void CPlayer::Draw()
 {
 	// モデルの描画
-	CPhysicsObject::Draw();
+	CPhysicsModel::Draw();
 }
 
 //============================================================================
@@ -651,5 +662,8 @@ void CPlayer::CheckDeath()
 	{
 		// 自身の死亡フラグを立てる
 		SetDeath();
+
+		// カメラコントローラーから登録解除
+		CCameraController::RefInstance().UnRegist(this);
 	}
 }

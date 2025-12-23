@@ -21,14 +21,10 @@
 #include "API.object.manager.h"
 #include "field.h"
 #include "player.h"
+#include <enemy1.h>
 
-/* 一次生成 */
-#include "ball.h"
-#include "bar.h"
-#include "bomb.h"
+// イベント処理のため
 #include "cameracontroller.h"
-#include "tornado.h"
-
 
 //****************************************************
 // 仮
@@ -130,6 +126,25 @@ CSceneGame::CSceneGame()
 	g_GameTime = 0.0f;
 
 
+	// 敵生成
+	float fSize = 1.0f;
+
+	CObjectManager::CreateRaw<CEnemy1>(
+		[&fSize](CEnemy1* p) -> bool
+		{
+			p->SetTransform(
+				{
+					{ fSize, fSize, fSize },
+					{ 0.0f, 0.0f, 0.0f, 1.0f },
+					{ 2.0f, 15.0f, 2.0f }
+				}
+			);
+
+			p->FactoryCollider(fSize, fSize, fSize);
+			return true;
+		},
+		OBJ::TYPE::NONE); //TYPEはENEMYとか別枠で確保した}
+
 	// 竜巻の生成
 	CObjectManager::CreateRaw<CTornado>(
 		[&fSpanField](CTornado* p) -> bool
@@ -189,8 +204,9 @@ void CSceneGame::Update()
 //============================================================================
 void CSceneGame::Change()
 {
-	//// 全オブジェクトに死亡フラグを立てる
-	//CObjectManager::RefInstance().SetDeathAll();
-	//// タイトルシーンへ
-	//CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	// 全オブジェクトに死亡フラグを立てる
+	CObjectManager::RefInstance().SetDeathAll();
+
+	// タイトルシーンへ
+	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }
