@@ -30,7 +30,6 @@
     <ClCompile Include="Src\MySrc\bar.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
     <ClCompile Include="Src\MySrc\bomb.cpp" />
-    <ClCompile Include="Src\MySrc\bombshockwave.cpp" />
     <ClCompile Include="Src\MySrc\cameracontroller.cpp" />
     <ClCompile Include="Src\MySrc\dust.cpp" />
     <ClCompile Include="Src\MySrc\effect.manager.cpp" />
@@ -99,7 +98,6 @@
     <ClInclude Include="Src\MySrc\bar.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
     <ClInclude Include="Src\MySrc\bomb.h" />
-    <ClInclude Include="Src\MySrc\bombshockwave.h" />
     <ClInclude Include="Src\MySrc\cameracontroller.h" />
     <ClInclude Include="Src\MySrc\dust.h" />
     <ClInclude Include="Src\MySrc\effect.manager.h" />
