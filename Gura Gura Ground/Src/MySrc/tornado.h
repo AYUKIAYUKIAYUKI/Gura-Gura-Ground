@@ -54,11 +54,14 @@ public:
 
 	// ü‰ñ”‚Ìİ’è
 	inline void SetLapCount(int count) { m_LapCount = count; }
+
 	//Imguiİ’è—p
 	void SetParamSetIndex(int idx) { m_ParamSetIndex = idx; }
 	void SetSubParamIndex(int idx) { m_SubParamIndex = idx; }
 	int  GetParamSetIndex() const { return m_ParamSetIndex; }
-	int  GetSubParamIndex() const { return m_SubParamIndex; }private:
+	int  GetSubParamIndex() const { return m_SubParamIndex; }
+
+private:
 
 	//****************************************************
 	// function

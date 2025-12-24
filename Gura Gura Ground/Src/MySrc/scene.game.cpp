@@ -22,6 +22,7 @@
 #include "field.h"
 #include "player.h"
 #include <enemy1.h>
+#include "tornado.h"
 
 // イベント処理のため
 #include "cameracontroller.h"
@@ -100,7 +101,11 @@ void CSceneGame::Update()
 
 	//プレイモード中の自動スポーン処理
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
-	CCameraController::RefInstance().Update();	// ゲームセットしたらシーン遷移
+
+	// カメラコントローラーの更新
+	CCameraController::RefInstance().Update();	
+	
+	// ゲームセットしたらシーン遷移
 
 	/* ゲームセットチェック */
 	if (CheckGameSet())
@@ -217,23 +222,6 @@ void CSceneGame::SpawnCPU()
 			return true;
 		},
 		OBJ::TYPE::NONE); //TYPEはENEMYとか別枠で確保した}
-
-	//// 竜巻の生成
-	//CObjectManager::CreateRaw<CTornado>(
-	//	[&fSpanField](CTornado* p) -> bool
-	//	{
-	//		float Size = 3.0f;
-	//		float Pos = fSpanField + 5.0f;
-	//		OBJ::Transform TF = p->GetTransform();
-	//		TF.Pos = { -Pos, 0.0f, Pos };
-	//		p->SetTransform(TF);
-	//		p->SetStartPos(TF.Pos);
-	//		p->FactoryCollider(Size, Size * 0.5f, Size);
-	//		p->SetDepth(Pos * 2.0f);
-	//		p->SetWidth(Pos * 2.0f);
-	//		return true;
-	//	},
-	//	OBJ::TYPE::OBSTACLE);
 }
 
 //============================================================================
@@ -241,23 +229,11 @@ void CSceneGame::SpawnCPU()
 //============================================================================
 bool CSceneGame::CheckGameSet()
 {
-//タイム計測
+	//タイム計測
 	auto now = std::chrono::steady_clock::now();
 	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();
 	g_LastUpdateTime = now;
 	g_GameTime += deltaTime;
-
-	// 障害物スポーンメニュー表示
-	m_ObstacleEditer.EditerMenu();
-
-	// スポーン時間プリセットメニュー表示
-	m_ObstacleEditer.SpawnTimePresetEditor();
-
-	//プレイモード中の自動スポーン処理
-	m_ObstacleEditer.PlayModeSpawn(deltaTime);
-
-	//カメラコントローラーの更新
-	CCameraController::RefInstance().Update();
 
 	for (const auto& wpPlayer : m_apwPlayers)
 	{
