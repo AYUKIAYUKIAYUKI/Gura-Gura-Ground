@@ -70,7 +70,7 @@ bool CCameraController::Initialize()
 	// プレイヤー全体で最小と最大の位置を取得
 	for (auto ite : Players)
 	{
-		std::weak_ptr<CPlayer> Player = std::static_pointer_cast<CPlayer>(ite);
+		std::weak_ptr<CPlayer> Player = std::dynamic_pointer_cast<CPlayer>(ite);
 		m_Players.push_back(Player);
 	}
 
