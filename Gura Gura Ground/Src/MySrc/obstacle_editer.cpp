@@ -15,6 +15,7 @@
 #include <player.h>
 #include <tornado.h>
 #include <FallTetra.h>
+#include <pendulum.h>
 
 using json = nlohmann::json;
 
@@ -110,7 +111,8 @@ void ObstacleEditer::EditCommonParams()
             reinterpret_cast<const char*>(u8"Bar"),
             reinterpret_cast<const char*>(u8"Bomb"),
             reinterpret_cast<const char*>(u8"Tornado"),
-            reinterpret_cast<const char*>(u8"FallTetra")
+            reinterpret_cast<const char*>(u8"FallTetra"),
+            reinterpret_cast<const char*>(u8"Pendulum")
         };
 
         if (ImGui::Combo(reinterpret_cast<const char*>(u8"出現させる障害物"), &currentType, typeNames, static_cast<int>(OBS_TYPE::MAX)))
@@ -118,24 +120,33 @@ void ObstacleEditer::EditCommonParams()
             obs.ManualObstacleType = static_cast<OBS_TYPE>(currentType); // 整数型から OBS_TYPE型へ再キャストする
         }
 
-        // 出現位置
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 X"), &obs.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
-
-        if (obs.ManualObstacleType == OBS_TYPE::FALLTETRA)
+        // スポーン座標 (竜巻以外)
+        if (obs.ManualObstacleType != OBS_TYPE::TORNADO)
         {
-            ImGui::Text(reinterpret_cast<const char*>(u8"スポーン座標 Yは15.0fで固定に設定されています"));
+            ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 X"), &obs.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
+
+            if (obs.ManualObstacleType == OBS_TYPE::FALLTETRA)
+            {
+                ImGui::Text(reinterpret_cast<const char*>(u8"スポーン座標 Yは15.0fで固定に設定されています"));
+            }
+
+            if (obs.ManualObstacleType == OBS_TYPE::PENDULUM)
+            {
+                ImGui::Text(reinterpret_cast<const char*>(u8"スポーン座標 Yは20.0fで固定に設定されています"));
+            }
+
+            //スポーン座標 Y (ドッスン以外)
+            if (obs.ManualObstacleType != OBS_TYPE::FALLTETRA && obs.ManualObstacleType != OBS_TYPE::PENDULUM)
+            {
+                ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Y"), &obs.ObstacleSpawnY, 0.1f, 5.0f, 100.0f);
+            }
+
+            ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Z"), &obs.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
         }
 
-        //スポーン座標 Y (ドッスン以外)
-        if (obs.ManualObstacleType != OBS_TYPE::FALLTETRA)
-        {
-            ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Y"), &obs.ObstacleSpawnY, 0.1f, 5.0f, 100.0f);
-        }
-
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Z"), &obs.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
-
-        // 移動速度 (ドッスン以外)
-        if (obs.ManualObstacleType != OBS_TYPE::FALLTETRA)
+        // 移動速度 (ドッスンと竜巻と以外)
+        if (obs.ManualObstacleType != OBS_TYPE::FALLTETRA && obs.ManualObstacleType != OBS_TYPE::TORNADO && 
+            obs.ManualObstacleType != OBS_TYPE::PENDULUM && obs.ManualObstacleType != OBS_TYPE::BOMB)
         {
             ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 X"), &obs.ObstacleSpeedX, 0.1f, -20.0f, 20.0f);
             ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 Y"), &obs.ObstacleSpeedY, 0.1f, -20.0f, 20.0f);
@@ -150,13 +161,6 @@ void ObstacleEditer::EditCommonParams()
         if (obs.ManualObstacleType == OBS_TYPE::BOMB)
         {
             ImGui::DragInt(reinterpret_cast<const char*>(u8"爆発までの時間"), &obs.BombTimer, 1.0f, 1, 1000);
-        }
-
-        // 竜巻固有パラメータ入力
-        if (obs.ManualObstacleType == OBS_TYPE::TORNADO)
-        {
-            ImGui::DragFloat(reinterpret_cast<const char*>(u8"竜巻の幅"), &obs.TornadoWidth, 1.0f, 1.0f, 200.0f);
-            ImGui::DragFloat(reinterpret_cast<const char*>(u8"竜巻の高さ"), &obs.TornadoDepth, 1.0f, 1.0f, 200.0f);
         }
     }
     else
@@ -386,6 +390,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                 {
                     const auto& sub = paramSet.subParams[subIdx];
 
+                    //各種障害物の生成
                     switch (sub.ManualObstacleType)
                     {
                     case OBS_TYPE::BALL:
@@ -433,15 +438,18 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                     case OBS_TYPE::TORNADO:
                         CObjectManager::CreateRaw<CTornado>([sub, subIdx, paramSetIdx](CTornado* p) -> bool
                             {
+                                const float fSpanField = 15.0f;
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
-                                p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
-                                OBJ::Transform TF = {};
-                                TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                                float Size = 3.0f;
+                                float Pos = fSpanField + 5.0f;         // 地面サイズ+オフセットで基準位置
+                                OBJ::Transform TF = p->GetTransform();
+                                TF.Pos = { -Pos, 0.0f, Pos };
                                 p->SetTransform(TF);
                                 p->SetStartPos(TF.Pos);
-                                p->SetWidth(sub.TornadoWidth);
-                                p->SetDepth(sub.TornadoDepth);
+                                p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+                                p->SetDepth(Pos * 2.0f); // 奥行き
+                                p->SetWidth(Pos * 2.0f); // 幅
                                 return true;
                             }, OBJ::TYPE::OBSTACLE);
                         break;
@@ -451,6 +459,18 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
                                 // 幅・高さ・奥行きをセット
+                                p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+                                OBJ::Transform TF = {};
+                                TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                                p->SetTransform(TF);
+                                return true;
+                            }, OBJ::TYPE::OBSTACLE);
+                        break;
+                    case OBS_TYPE::PENDULUM:
+                        CObjectManager::CreateRaw<CPendulum>([sub, subIdx, paramSetIdx](CPendulum* p) -> bool
+                            {
+                                p->SetParamSetIndex(paramSetIdx);
+                                p->SetSubParamIndex(static_cast<int>(subIdx));
                                 p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
                                 OBJ::Transform TF = {};
                                 TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
@@ -491,6 +511,8 @@ void ObstacleEditer::TryManualSpawn()
     for (size_t subIdx = 0; subIdx < paramSet.subParams.size(); ++subIdx)
     {
         const auto& sub = paramSet.subParams[subIdx];
+
+        //各種障害物の生成
         switch (sub.ManualObstacleType)
         {
         case OBS_TYPE::BALL:
@@ -540,15 +562,18 @@ void ObstacleEditer::TryManualSpawn()
         case OBS_TYPE::TORNADO:
             CObjectManager::CreateRaw<CTornado>([sub, subIdx, thisSetIdx](CTornado* p) -> bool
                 {
+                    const float fSpanField = 15.0f;
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));
-                    p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
-                    OBJ::Transform TF = {};
-                    TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                    float Size = 3.0f;
+                    float Pos = fSpanField + 5.0f;         // 地面サイズ+オフセットで基準位置
+                    OBJ::Transform TF = p->GetTransform();
+                    TF.Pos = { -Pos, 0.0f, Pos };
                     p->SetTransform(TF);
                     p->SetStartPos(TF.Pos);
-                    p->SetWidth(sub.TornadoWidth);
-                    p->SetDepth(sub.TornadoDepth);
+                    p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+                    p->SetDepth(Pos * 2.0f); // 奥行き
+                    p->SetWidth(Pos * 2.0f); // 幅
                     return true;
                 }, OBJ::TYPE::OBSTACLE);
             break;
@@ -557,7 +582,18 @@ void ObstacleEditer::TryManualSpawn()
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));
-                    // 幅・高さ・奥行きをセット
+                    p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+                    OBJ::Transform TF = {};
+                    TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                    p->SetTransform(TF);
+                    return true;
+                }, OBJ::TYPE::OBSTACLE);
+            break;
+        case OBS_TYPE::PENDULUM:
+            CObjectManager::CreateRaw<CPendulum>([sub, subIdx, thisSetIdx](CPendulum* p) -> bool
+                {
+                    p->SetParamSetIndex(thisSetIdx);
+                    p->SetSubParamIndex(static_cast<int>(subIdx));
                     p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
                     OBJ::Transform TF = {};
                     TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
@@ -596,8 +632,6 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
             jSub["collider_depth"] = sub.ColliderDepth;
             jSub["manual_type"] = sub.ManualObstacleType;
             jSub["bomb_timer"] = sub.BombTimer;
-            jSub["tornado_width"] = sub.TornadoWidth;
-            jSub["tornado_depth"] = sub.TornadoDepth;
             jParamSet["sub_params"].push_back(jSub);
         }
 
@@ -668,7 +702,7 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
                         SubObstacleParam sub;
                         sub.ObstacleSpawnX = jSub.value("spawnX", 0.0f);
                         sub.ObstacleSpawnY = jSub.value("spawnY", 10.0f);
-                        sub.ObstacleSpawnZ = jSub.value("spawnZ", 15.0f);
+                        sub.ObstacleSpawnZ = jSub.value("spawnZ", 0.0f);
                         sub.ObstacleSpeedX = jSub.value("speedX", 0.0f);
                         sub.ObstacleSpeedY = jSub.value("speedY", 0.0f);
                         sub.ObstacleSpeedZ = jSub.value("speedZ", -5.0f);
@@ -678,8 +712,6 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
                         int manualTypeValue = jSub.value("manual_type", static_cast<int>(OBS_TYPE::NONE)); //OBS_TYPEに変換する
                         sub.ManualObstacleType = static_cast<OBS_TYPE>(manualTypeValue);
                         sub.BombTimer = jSub.value("bomb_timer", 300);
-                        sub.TornadoWidth = jSub.value("tornado_width", 40.0f);
-                        sub.TornadoDepth = jSub.value("tornado_depth", 40.0f);
                         m_ParamSets[i].subParams.push_back(sub);
                     }
                 }

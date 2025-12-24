@@ -51,12 +51,6 @@ public:
 
 	// 縦幅の設定
 	inline void SetDepth(float Depth) { m_Depth = Depth; }
-
-	//Imgui設定用
-	void SetParamSetIndex(int idx) { m_ParamSetIndex = idx; }
-	void SetSubParamIndex(int idx) { m_SubParamIndex = idx; }
-	int  GetParamSetIndex() const { return m_ParamSetIndex; }
-	int  GetSubParamIndex() const { return m_SubParamIndex; }
 private:
 
 	//****************************************************
@@ -73,9 +67,4 @@ private:
 	float m_edgeProgress;			// 現在の辺の進行度
 	float m_Width;					// 横幅
 	float m_Depth;					// 縦幅
-
-	int m_ParamSetIndex = 0;   // どのParamSetか
-	int m_SubParamIndex = 0;   // その中の何番目か
-
-	ObstacleEditer m_ObstacleEditer;
 };

@@ -24,6 +24,7 @@ public:
         BOMB,      // ボム
         TORNADO,   // 竜巻
         FALLTETRA, // 上部落下物
+        PENDULUM,  // 振り子
         MAX
     };
 
@@ -34,13 +35,11 @@ public:
         float ObstacleSpeedZ = -5.0f;                  // 初速度Z
         float ObstacleSpawnX = 0.0f;                   // 生成位置X
         float ObstacleSpawnY = 10.0f;                  // 生成位置Y
-        float ObstacleSpawnZ = 15.0f;                  // 生成位置Z
+        float ObstacleSpawnZ = 10.0f;                  // 生成位置Z
         float ColliderWidth = 3.0f;                    // コライダー横サイズ
         float ColliderHeight = 3.0f;                   // コライダー縦サイズ
         float ColliderDepth = 3.0f;                    // コライダーサイズ深さ
         int BombTimer = 300;                           // タイマー値(ボム用)
-        float TornadoWidth = 40.0f;                    // 竜巻用横サイズ
-        float TornadoDepth = 40.0f;                    // 竜巻用縦サイズ
     };
 
     struct ObstacleParam {

@@ -142,7 +142,7 @@ void CBall::EditParam()
 //============================================================================
 void CBall::Appear()
 {
-	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
+	const auto& param = m_ObstacleEditer.m_ParamSets[GetParamSetIndex()].subParams[GetSubParamIndex()];
 	const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(GetCollider());
 	OBJ::Transform TF = {};
 

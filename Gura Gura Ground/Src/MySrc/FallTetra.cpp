@@ -94,7 +94,7 @@ CFallTetra::~CFallTetra()
 void CFallTetra::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
 	// エディターで設定している値を取得
-	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
+	const auto& param = m_ObstacleEditer.m_ParamSets[GetParamSetIndex()].subParams[GetSubParamIndex()];
 
 	// 取得した値を適用
 	float useWidth = param.ColliderWidth;
