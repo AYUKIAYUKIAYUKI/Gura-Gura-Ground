@@ -10,17 +10,18 @@
 //****************************************************
 // インクルードファイル
 //****************************************************
-#include "API.physics.object.h"
+#include "API.physics.model.h"
 
 //****************************************************
 // 前方宣言
 //****************************************************
 class CField;
+class FallTetra_Behavior;
 
 //****************************************************
 // プレイヤークラスの定義
 //****************************************************
-class CPlayer : public CPhysicsObject
+class CPlayer : public CPhysicsModel
 {
 	//****************************************************
 	// 静的定数
@@ -69,6 +70,14 @@ public:
 	// 塵の進行更新
 	void UpdateDustStep(const DirectX::XMFLOAT3& Direction);
 
+	//ぺちゃんこ状態の管理
+	std::shared_ptr<FallTetra_Behavior> GetFallTetraBehavior() { return m_pFallTetraBehavior; }
+	//外部からぺちゃんこ有効化するための関数
+	void EnableFallTetraBehavior() {
+		if (m_pFallTetraBehavior != nullptr)m_pFallTetraBehavior.reset();
+		m_pFallTetraBehavior = std::make_shared<FallTetra_Behavior>();
+	}
+
 private:
 
 	//****************************************************
@@ -84,4 +93,22 @@ private:
 	unsigned char                 m_wIdxPlayer;           // プレイヤーのインデックス
 	int                           m_nLostControlDuration; // 操作不能期間
 	int                           m_nStepCounter;         // 進行カウンター
+
+	std::shared_ptr<FallTetra_Behavior> m_pFallTetraBehavior;
+};
+
+//仮でドッスン関連の挙動実装するクラス追加
+class FallTetra_Behavior
+{
+public:
+	FallTetra_Behavior() :m_Timer(180), m_DecayValue(0.3f){}
+	float GetDecayValue() { return m_DecayValue; }
+	bool GetTimer() {
+		--m_Timer;
+		return m_Timer > 0;
+	}
+	void TimerReset() { m_Timer = 180; }
+private:
+	float m_DecayValue;
+	int m_Timer;
 };

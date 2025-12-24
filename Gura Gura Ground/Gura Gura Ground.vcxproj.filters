@@ -31,6 +31,9 @@
     <Filter Include="%28分類済み%29\【マネージャー系統】">
       <UniqueIdentifier>{a5fb867c-8f7c-4d9e-8c28-de9ac076b0f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="%28分類済み%29\【ジオメトリ系統】">
+      <UniqueIdentifier>{29b5531a-bb6e-4ff0-87b4-f517107347e3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="%28分類済み%29\【エンティティ系統】">
       <UniqueIdentifier>{87cf8145-529c-443c-a12f-7cc763790d6d}</UniqueIdentifier>
     </Filter>
@@ -126,6 +129,12 @@
     <ClCompile Include="Src\MySrc\ball.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
+    <ClCompile Include="Src\MySrc\FallTetra.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\enemy1.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
     <ClCompile Include="Src\MySrc\bomb.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
@@ -133,7 +142,7 @@
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
     <ClCompile Include="Src\MySrc\tornado.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
     <ClCompile Include="Src\MySrc\obstacle_editer.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
@@ -302,14 +311,20 @@
     <ClInclude Include="Src\MySrc\ball.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
-    <ClInclude Include="Src\MySrc\bombshockwave.h">
+    <ClInclude Include="Src\MySrc\FallTetra.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\enemy1.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
     <ClInclude Include="Src\MySrc\bomb.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
+    <ClInclude Include="Src\MySrc\bombshockwave.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
     <ClInclude Include="Src\MySrc\tornado.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
     <ClInclude Include="Src\MySrc\obstacle_editer.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
