@@ -57,9 +57,6 @@ CSceneGame::CSceneGame()
 	/* コリジョン描画の切り替え */
 	CCollider::SwitchRenderCollision();
 
-	// カメラコントローラーの初期化
-	CCameraController::RefInstance().Initialize();
-
 	// フィールドスポーン
 	SpawnField();
 
@@ -68,6 +65,9 @@ CSceneGame::CSceneGame()
 
 	// CPUスポーン
 	SpawnCPU();
+
+	// カメラコントローラーの初期化
+	CCameraController::RefInstance().Initialize();
 
 	// 障害物エディターの初期化
 	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
@@ -101,7 +101,7 @@ void CSceneGame::Update()
 	//プレイモード中の自動スポーン処理
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
 	CCameraController::RefInstance().Update();	// ゲームセットしたらシーン遷移
-	
+
 	/* ゲームセットチェック */
 	if (CheckGameSet())
 	{
@@ -129,7 +129,7 @@ void CSceneGame::SpawnField()
 {
 	// フィールドの水平方向の大きさ
 	const float fSpanField = 15.0f;
-	
+
 	// 地面を生成
 	CObjectManager::CreateShare<CField>(
 		[&fSpanField](CField* p) -> bool
@@ -156,7 +156,7 @@ void CSceneGame::SpawnField()
 void CSceneGame::SpawnPlayer()
 {
 	// プレイヤーの初期トランスフォーム
-	OBJ::Transform PlayersInitTransform = 
+	OBJ::Transform PlayersInitTransform =
 	{
 		{ 0.5f, 0.5f, 0.5f },
 		{ 0.0f, 0.0f, 0.0f, 1.0f},
@@ -188,10 +188,6 @@ void CSceneGame::SpawnPlayer()
 
 		// プレイヤーの弱参照を作成
 		m_apwPlayers[wPlayerIndex] = spPlayer;
-
-		// カメラコントローラーへプレイヤーを登録
-		/* 出来れば生ポインタでなく弱参照を用いてください */
-		CCameraController::RefInstance().Regist(spPlayer.get());
 	}
 }
 
