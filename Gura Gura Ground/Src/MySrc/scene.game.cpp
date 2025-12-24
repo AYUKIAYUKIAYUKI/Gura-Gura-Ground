@@ -80,9 +80,6 @@ CSceneGame::CSceneGame()
 	// コリジョン描画の切り替え
 	CCollider::SwitchRenderCollision();
 
-	// 初期設定
-	CCameraController::RefInstance().Initialize();
-
 	// 地面を生成
 	float fSpanField = 15.0f;
 	CObjectManager::CreateShare<CField>(
@@ -120,10 +117,10 @@ CSceneGame::CSceneGame()
 				return true;
 			},
 			OBJ::TYPE::PLAYER);
-
-		// プレイヤー登録
-		//CCameraController::RefInstance().Regist(spPlayer.get());
 	}
+
+	// 初期設定(プレイヤーを生成してから)
+	CCameraController::RefInstance().Initialize();
 
 	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
 	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
