@@ -76,7 +76,7 @@ void ObstacleEditer::EditCommonParams()
         }
         // íœƒ{ƒ^ƒ“
         char deleteLabel[32];
-        snprintf(deleteLabel, sizeof(deleteLabel), reinterpret_cast<const char*>(u8"áŠQ•¨‚ğíœ##del%d"), i);
+        snprintf(deleteLabel, sizeof(deleteLabel), reinterpret_cast<const char*>(u8"áŠQ•¨[%d]‚ğíœ##del%d"), i + 1);
         if (ImGui::Button(reinterpret_cast<const char*>(deleteLabel)))
         {
             paramSet.subParams.erase(paramSet.subParams.begin() + i);

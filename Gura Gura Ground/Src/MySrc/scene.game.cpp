@@ -102,6 +102,7 @@ void CSceneGame::Update()
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
 	CCameraController::RefInstance().Update();	// ゲームセットしたらシーン遷移
 
+
 	/* ゲームセットチェック */
 	if (CheckGameSet())
 	{
