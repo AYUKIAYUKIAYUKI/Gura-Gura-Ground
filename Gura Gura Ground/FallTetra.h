@@ -1,7 +1,7 @@
 //============================================================================
 // 
-// 振り子 [pendulum.h]
-// Author : 大竹熙
+// ドッスン [FallTetra.h]
+// Author : 元地弘汰
 // 
 //============================================================================
 
@@ -11,22 +11,22 @@
 // インクルードファイル
 //****************************************************
 #include "obstacle.h"
-#include "player.h"
-#include "API.rigidbody.h"
-#include <unordered_set>
+
+//前方宣言
+class Tetra_State;
 
 //****************************************************
-// バークラスの定義
+// ドッスン(落下四面体)クラスの定義
 //****************************************************
-class CPendulum : public CObstacle
+class CFallTetra : public CObstacle
 {
 public:
 
 	//****************************************************
 	// special function
 	//****************************************************
-	CPendulum(OBJ::TYPE Type, OBJ::LAYER Layer); // デフォルトコンストラクタ
-	~CPendulum() override;                       // デストラクタ
+	CFallTetra(OBJ::TYPE Type, OBJ::LAYER Layer); // デフォルトコンストラクタ
+	~CFallTetra() override;                       // デストラクタ
 
 	//****************************************************
 	// function
@@ -44,32 +44,47 @@ public:
 	// パラメータの編集
 	void EditParam() override { int i = 0; }
 
-	// 進行方向の設定
-	inline const DirectX::XMFLOAT3& GetDirection() const { return m_Direction; }
-	inline       void               SetDirection(const DirectX::XMFLOAT3& Direction) { m_Direction = Direction; }
-
+	inline void ChangeState(std::shared_ptr<Tetra_State> NextState) {
+		if (m_State != nullptr)NextState = nullptr;
+		m_State = NextState;
+	}
 private:
 
 	//****************************************************
 	// function
 	//****************************************************
-	void Appear(); // 出現
-	void Action(); // 挙動
-	void Loop();   // 戻る
-	void CheckHitPlayer();
-	void CreateHingeConstraint(CRigidBody* rb, float radius);
+	void Appear() {};
+
 
 	//****************************************************
 	// data
 	//****************************************************
-	DirectX::XMFLOAT3 m_Direction;   // 進行方向
-	float m_Time;                    // 経過時間
-	float m_Phase = 0.0f;            // 揺れの位相
-	int m_HitCooldown = 0;           // ヒットクールタイム
-	DirectX::XMFLOAT3 m_prevPos = { 0.0f, 0.0f, 0.0f }; // 前フレーム位置
-	bool m_hasPrevPos = false;                          // 初回記録済み
-	bool m_CollisionDisabled;
-	CRigidBody* m_pRB = nullptr;
-	std::unordered_set<CPlayer*> m_HitPlayers;
+	std::shared_ptr<Tetra_State> m_State;
 
+};
+
+//****************************************************
+// ドッスン(落下四面体)用ステート
+//****************************************************
+class Tetra_State
+{		//ステート基底
+public:
+	virtual void Action([[maybe_unused]]CFallTetra* p) = 0;
+};
+
+class TetraState_Wait:public Tetra_State
+{		//空中で待機ステート
+public:
+	TetraState_Wait(DirectX::XMFLOAT3 defaultposition) :m_Timer(0) {m_DefaultPos = defaultposition;}
+	void Action([[maybe_unused]] CFallTetra* p)override;
+private:
+	DirectX::XMFLOAT3 m_DefaultPos;
+	int m_Timer;
+};
+
+class TetraState_Fall :public Tetra_State
+{		//落下状態ステート
+public:
+	TetraState_Fall(CFallTetra* p);
+	void Action([[maybe_unused]] CFallTetra* p)override;
 };
