@@ -669,8 +669,5 @@ void CPlayer::CheckDeath()
 	{
 		// 自身の死亡フラグを立てる
 		SetDeath();
-
-		// カメラコントローラーから登録解除
-		CCameraController::RefInstance().UnRegist(this);
 	}
 }
