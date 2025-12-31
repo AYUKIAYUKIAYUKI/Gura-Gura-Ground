@@ -220,6 +220,9 @@ void CCameraController::GetObstacles()
 	// áŠQ•¨ƒŠƒXƒgæ“¾
 	auto List = CObjectManager::RefInstance().RefListRaw(OBJ::TYPE::OBSTACLE);
 
+	// ‘S•”Á‚·
+	m_Obstacles.clear();
+
 	for (auto ite : List)
 	{
 		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite);
