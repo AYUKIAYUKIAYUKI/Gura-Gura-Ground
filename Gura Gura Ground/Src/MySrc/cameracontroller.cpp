@@ -111,6 +111,9 @@ void CCameraController::Update()
 	
 	// カメラの変更位置を設定
 	m_Camera->SetPosTarget(m_CameraTargetPos);
+
+	// 保存したギミックの情報全部消す
+	m_Obstacles.clear();
 }
 
 //============================================================================
@@ -218,14 +221,19 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 void CCameraController::GetObstacles()
 {
 	// 障害物リスト取得
-	auto List = CObjectManager::RefInstance().RefListRaw(OBJ::TYPE::OBSTACLE);
+	auto ListRaw = CObjectManager::RefInstance().RefListRaw(OBJ::TYPE::OBSTACLE);
+	auto ListShare = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::OBSTACLE);
 
-	// 全部消す
-	m_Obstacles.clear();
-
-	for (auto ite : List)
+	for (auto ite : ListRaw)
 	{
 		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite);
+
+		m_Obstacles.push_back(Obstacle);
+	}
+
+	for (auto ite : ListShare)
+	{
+		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite.get());
 
 		m_Obstacles.push_back(Obstacle);
 	}
