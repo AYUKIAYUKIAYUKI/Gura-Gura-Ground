@@ -69,7 +69,7 @@ void ObstacleEditer::EditCommonParams()
     for (int i = 0; i < (int)paramSet.subParams.size(); ++i)
     {
         char label[32];
-        snprintf(label, sizeof(label), reinterpret_cast<const char*>(u8"障害物パラメーター[%d]"), i + 1);
+        snprintf(label, sizeof(label), reinterpret_cast<const char*>(u8"障害物[%d]"), i + 1);
         // 選択型リストボタン
         if (ImGui::Selectable(reinterpret_cast<const char*>(label), selectedSubParamIndex == i))
         {
