@@ -138,13 +138,13 @@
     <ClCompile Include="Src\MySrc\bomb.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
-    <ClCompile Include="Src\MySrc\bombshockwave.cpp">
+    <ClCompile Include="Src\MySrc\obstacle_editer.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
     <ClCompile Include="Src\MySrc\tornado.cpp">
-      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Src\MySrc\obstacle_editer.cpp">
+    <ClCompile Include="Src\MySrc\pendulum.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
   </ItemGroup>
@@ -320,13 +320,13 @@
     <ClInclude Include="Src\MySrc\bomb.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
-    <ClInclude Include="Src\MySrc\bombshockwave.h">
-      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
-    </ClInclude>
     <ClInclude Include="Src\MySrc\tornado.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
     <ClInclude Include="Src\MySrc\obstacle_editer.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\pendulum.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
   </ItemGroup>

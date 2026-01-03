@@ -53,7 +53,7 @@ void CBomb::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	pRB->SetRestitution(0.25f);
 
 	// パラメータ参照
-	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
+	const auto& param = m_ObstacleEditer.m_ParamSets[GetParamSetIndex()].subParams[GetSubParamIndex()];
 	OBJ::Transform TF = {};
 
 	TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };
@@ -92,7 +92,7 @@ void CBomb::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3& 
 void CBomb::Update()
 {
 	// 挙動
-	Action();
+	//Action();
 
 	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
 	CPhysicsObject::Update();

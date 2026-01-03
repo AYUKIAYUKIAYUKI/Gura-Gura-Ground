@@ -1,4 +1,5 @@
-﻿//============================================================================
+﻿
+//============================================================================
 // 
 // 振り子 [pendulum.cpp]
 // Author : 大竹熙
@@ -194,41 +195,24 @@ void CPendulum::Appear()
 {
 	OBJ::Transform TF = {};
 
+	// エディターで設定している値を設定
+	const auto& param = m_ObstacleEditer.m_ParamSets[GetParamSetIndex()].subParams[GetSubParamIndex()];
+	m_OriginPos = { param.ObstacleSpawnX, g_fAxisY_Spawn, param.ObstacleSpawnZ };
+
+	// 移動速度スケール作成
 	const float fSpeed = 3.0f;
 
-	// 0: 奥→手前, 1: 手前→奥, 2: 右→左, 3: 左→右
-	int nPattern = rand() % 4;
+	// エディターで設定している値を適応
+	TF.Pos = { param.ObstacleSpawnX, g_fAxisY_Spawn, param.ObstacleSpawnZ };
+	SetDirection({ param.ObstacleSpeedX, g_fAxisY_Spawn, param.ObstacleSpeedZ });
 
-	switch (nPattern)
-	{
-	case 0: // 奥→手前
-		SetDirection({ 0.0f, 0.0f, -fSpeed });
-		m_Phase = DirectX::XM_PI * 0.5f;
-		break;
-	case 1: // 手前→奥
-		SetDirection({ 0.0f, 0.0f, fSpeed });
-		m_Phase = -DirectX::XM_PI * 0.5f;
-		break;
-	case 2: // 右→左
-		SetDirection({ -fSpeed, 0.0f, 0.0f });
-		m_Phase = DirectX::XM_PI * 0.5f;
-		break;
-	case 3: // 左→右
-		SetDirection({ fSpeed, 0.0f, 0.0f });
-		m_Phase = -DirectX::XM_PI * 0.5f;
-		break;
-	}
+	m_Phase = -DirectX::XM_PI * 0.5f;
 
-	// 支点は常に中央
-	TF.Pos = { 0.0f, g_fAxisY_Spawn, 0.0f };
+	// ワールドトランスフォームに反映
+	m_pRB->SetWorldTransform(TF);
 
 	m_Time = 0.0f;
 	m_hasPrevPos = false;
-
-	if (m_pRB)
-	{
-		m_pRB->SetWorldTransform(TF);
-	}
 }
 
 //============================================================================
@@ -251,22 +235,22 @@ void CPendulum::Action()
 	const float swing = PendulumParams::Length * sinf(theta);
 	const float swingY = pivotY - Ls * cosf(theta);
 
-	OBJ::Transform TF{};
+    OBJ::Transform TF{};
 
-	if (m_Direction.z != 0.0f)
-	{
-		TF.Pos.x = 0.0f;
-		TF.Pos.y = swingY;
-		TF.Pos.z = swing;
-	}
-	else
-	{
-		TF.Pos.x = swing;
-		TF.Pos.y = swingY;
-		TF.Pos.z = 0.0f;
-	}
-
-	m_pRB->SetWorldTransform(TF);
+	// エディターで設定した値が運動基点として加算し、中心座標となるようにする
+    if (m_Direction.z != 0.0f)
+    {
+        TF.Pos.x = m_OriginPos.x;
+        TF.Pos.y = swingY;
+        TF.Pos.z = m_OriginPos.z + swing;
+    }
+    else
+    {
+        TF.Pos.x = m_OriginPos.x + swing;
+        TF.Pos.y = swingY;
+        TF.Pos.z = m_OriginPos.z;
+    }
+    m_pRB->SetWorldTransform(TF);
 }
 
 //============================================================================

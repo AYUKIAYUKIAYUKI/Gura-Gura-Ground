@@ -108,6 +108,7 @@
     <ClInclude Include="Src\MySrc\field.h" />
     <ClInclude Include="Src\MySrc\gimmick.manager.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
+    <ClInclude Include="Src\MySrc\pendulum.h" />
     <ClInclude Include="Src\MySrc\player.h" />
     <ClInclude Include="Src\MySrc\scene.game.h" />
     <ClInclude Include="Src\MySrc\main.h" />

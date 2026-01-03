@@ -97,12 +97,13 @@ private:
 	std::shared_ptr<FallTetra_Behavior> m_pFallTetraBehavior;
 };
 
-//仮でドッスン関連の挙動実装するクラス追加
+//仮でドッスン関連の挙動実装するクラス追加 ←結局本実装になるやつ
 class FallTetra_Behavior
 {
 public:
 	FallTetra_Behavior() :m_Timer(180), m_DecayValue(0.3f){}
 	float GetDecayValue() { return m_DecayValue; }
+	void SetDecayValue(float v) { m_DecayValue = v; }
 	bool GetTimer() {
 		--m_Timer;
 		return m_Timer > 0;

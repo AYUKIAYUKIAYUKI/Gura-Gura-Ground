@@ -122,7 +122,7 @@ struct CPlayer::StateMachine
 	// data
 	//****************************************************
 	std::unique_ptr<State> m_upState; // 状態
-	CPlayer&               m_rPalyer; // プレイヤーの参照
+	CPlayer& m_rPalyer; // プレイヤーの参照
 };
 
 //****************************************************
@@ -153,7 +153,7 @@ struct StateJump : public State
 	//****************************************************
 	// Data
 	//****************************************************
-	bool      m_bGoDown  = false;                // 下降判定
+	bool      m_bGoDown = false;                // 下降判定
 	btVector3 m_btOldVel = { 0.0f, 0.0f, 0.0f }; // 過去の加速度
 };
 
@@ -540,7 +540,14 @@ void CPlayer::Update()
 	{
 		m_upStateMachine->ExecuteState();
 	}
-
+	if (m_pFallTetraBehavior != nullptr)
+	{
+		if (!m_pFallTetraBehavior->GetTimer())
+		{
+			m_pFallTetraBehavior.reset();
+			m_pFallTetraBehavior = nullptr;
+		}
+	}
 	// 死亡判定
 	CheckDeath();
 

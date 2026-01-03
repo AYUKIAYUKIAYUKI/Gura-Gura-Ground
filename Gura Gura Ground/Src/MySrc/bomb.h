@@ -52,11 +52,6 @@ public:
 	inline int  GetTimer() const     { return m_nTimer; }
 	inline void SetTimer(int nTimer) { m_nTimer = nTimer; }
 
-	void SetParamSetIndex(int idx) { m_ParamSetIndex = idx; }
-	void SetSubParamIndex(int idx) { m_SubParamIndex = idx; }
-	int  GetParamSetIndex() const { return m_ParamSetIndex; }
-	int  GetSubParamIndex() const { return m_SubParamIndex; }
-
 private:
 
 	//****************************************************
@@ -68,8 +63,4 @@ private:
 	// data
 	//****************************************************
 	int m_nTimer; // タイマー
-
-	int m_ParamSetIndex = 0;   // どのParamSetか
-	int m_SubParamIndex = 0;   // その中の何番目か
-	ObstacleEditer m_ObstacleEditer;
 };

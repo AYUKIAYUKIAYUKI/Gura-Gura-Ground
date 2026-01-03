@@ -1,3 +1,4 @@
+
 //============================================================================
 // 
 // 振り子 [pendulum.h]
@@ -67,6 +68,7 @@ private:
 	float m_Phase = 0.0f;            // 揺れの位相
 	int m_HitCooldown = 0;           // ヒットクールタイム
 	DirectX::XMFLOAT3 m_prevPos = { 0.0f, 0.0f, 0.0f }; // 前フレーム位置
+	DirectX::XMFLOAT3 m_OriginPos = { 0.0f, 0.0f, 0.0f }; // 振り子座標の原点
 	bool m_hasPrevPos = false;                          // 初回記録済み
 	bool m_CollisionDisabled;
 	CRigidBody* m_pRB = nullptr;

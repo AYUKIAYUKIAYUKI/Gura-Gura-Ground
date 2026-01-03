@@ -22,6 +22,7 @@
 #include "field.h"
 #include "player.h"
 #include <enemy1.h>
+#include "tornado.h"
 
 // イベント処理のため
 #include "cameracontroller.h"
@@ -100,7 +101,11 @@ void CSceneGame::Update()
 
 	//プレイモード中の自動スポーン処理
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
-	CCameraController::RefInstance().Update();	// ゲームセットしたらシーン遷移
+	
+	// カメラコントローラーの更新
+	CCameraController::RefInstance().Update();	
+	
+	// ゲームセットしたらシーン遷移
 
 	/* ゲームセットチェック */
 	if (CheckGameSet())
@@ -224,6 +229,12 @@ void CSceneGame::SpawnCPU()
 //============================================================================
 bool CSceneGame::CheckGameSet()
 {
+	//タイム計測
+	auto now = std::chrono::steady_clock::now();
+	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();
+	g_LastUpdateTime = now;
+	g_GameTime += deltaTime;
+
 	for (const auto& wpPlayer : m_apwPlayers)
 	{
 		/* プレイヤーが1人でも生きていたらゲーム継続 */
@@ -234,4 +245,5 @@ bool CSceneGame::CheckGameSet()
 	}
 
 	return true;
+
 }
