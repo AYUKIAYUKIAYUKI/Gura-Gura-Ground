@@ -11,6 +11,7 @@
 // インクルードファイル
 //****************************************************
 #include "API.physics.object.h"
+#include <obstacle_editer.h>
 
 //****************************************************
 // 名前空間Obstacleを定義
@@ -68,6 +69,11 @@ public:
 	// 挙動の種類取得
 	inline Obstacle::OBSTACLE_TYPE GetObsType() const { return m_ObsType; }
 
+	void SetParamSetIndex(int idx) { m_ParamSetIndex = idx; }
+	void SetSubParamIndex(int idx) { m_SubParamIndex = idx; }
+	int  GetParamSetIndex() const { return m_ParamSetIndex; }
+	int  GetSubParamIndex() const { return m_SubParamIndex; }
+
 private:
 
 	//****************************************************
@@ -75,6 +81,12 @@ private:
 	//****************************************************
 	Obstacle::OBSTACLE_TYPE m_ObsType; // ギミックの種類
 
+	int m_ParamSetIndex = 0; // パラメータセット
+	int m_SubParamIndex = 0; // サブパラメータ
+
 	// 選択中の障害物
 	static CObstacle* s_pPickingObstacle;
+
+protected:
+	ObstacleEditer m_ObstacleEditer;
 };

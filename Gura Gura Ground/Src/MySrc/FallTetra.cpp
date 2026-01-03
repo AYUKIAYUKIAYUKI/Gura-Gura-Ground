@@ -42,7 +42,7 @@ namespace
 
 	// その他設定値
 	const int ViverateValue = 200;
-	const DirectX::XMFLOAT3 SizeVec = {3.4f,4.0f,2.8f};
+	const DirectX::XMFLOAT3 SizeVec = { 3.4f,4.0f,2.8f };
 
 	// 位置表示
 	void Print_Pos(const OBJ::Transform& TF)
@@ -93,9 +93,17 @@ CFallTetra::~CFallTetra()
 //============================================================================
 void CFallTetra::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
-	// デフォルトのリジッドボディの生成
-	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, SizeVec.x, SizeVec.y, SizeVec.z));
-		
+	// エディターで設定している値を取得
+	const auto& param = m_ObstacleEditer.m_ParamSets[GetParamSetIndex()].subParams[GetSubParamIndex()];
+
+	// 取得した値を適用
+	float useWidth = param.ColliderWidth;
+	float useHeight = param.ColliderHeight;
+	float useDepth = param.ColliderDepth;
+
+	// リジッドボディの生成
+	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, useWidth, useHeight, useDepth));
+
 	// コライダーをリジッドボディにキャスト
 	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
 	btVector3 Gravity = pRB->GetRigidBody()->getGravity();
@@ -105,18 +113,18 @@ void CFallTetra::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// 質量を設定
 	pRB->SetMass(1.0f);
+
+	// エディターで設定している値で位置を設定
 	OBJ::Transform transform{};
-	DirectX::XMFLOAT2 Vec2{};
-	Vec2.x = SimpleUseful::GetRandomMT(-g_fFieldSpan, g_fFieldSpan);
-	Vec2.y = SimpleUseful::GetRandomMT(-g_fFieldSpan, g_fFieldSpan);
-
-	transform.Pos = { Vec2.x,g_fAxisY_Spawn,Vec2.y};
-	//transform.Pos = { 0.0f,g_fAxisY_Spawn,0.0f };
-
-	transform.Size = SizeVec;
+	transform.Pos = { param.ObstacleSpawnX, g_fAxisY_Spawn, param.ObstacleSpawnZ };
+	transform.Size = { useWidth, useHeight, useDepth };
 	pRB->SetWorldTransform(transform);
-	pRB->SetGravity({ 0.0f,0.0f,0.0f });
 	m_InitalPosition = transform.Pos;
+
+	// 重力初期値リセット
+	pRB->SetGravity({ 0.0f, 0.0f, 0.0f });
+
+	// 状態遷移
 	ChangeState(std::make_shared<TetraState_Wait>(this));
 
 }
@@ -182,24 +190,34 @@ void CFallTetra::ToSmash()
 // ステートの切り替え
 //============================================================================
 void CFallTetra::ChangeState(std::shared_ptr<Tetra_State> NextState) {
-	if (m_State == nullptr) { 
-		m_State = std::make_shared<TetraState_Wait>(this); 
-		return; 
+	if (m_State == nullptr) {
+		//設定されていなければ、待機状態に
+		m_State = std::make_shared<TetraState_Wait>(this);
+		return;
 	}
+	//中身を破棄
 	m_State.reset();
 	m_State = NextState;
 }
 
-//============================================================================
-// 待機ステートの挙動
-//============================================================================
+//================================================================================================================================
+// ここから下ステート用処理
 
-TetraState_Wait::TetraState_Wait([[maybe_unused]] CFallTetra* p) :m_Timer(120), m_DefaultPos({0.0f,0.0f,0.0f})
+
+//============================================================================
+// 待機ステートコンストラクタ
+//============================================================================
+TetraState_Wait::TetraState_Wait([[maybe_unused]] CFallTetra* p) :
+	m_Timer(120)
+	, m_DefaultPos({ 0.0f,0.0f,0.0f })
 {
+	//初期位置を保存
 	m_DefaultPos = p->GetInitalPosition();
 }
 
-
+//============================================================================
+// 待機ステート時の挙動
+//============================================================================
 void TetraState_Wait::Action([[maybe_unused]] CFallTetra* p)
 {
 	if (m_Timer < 0)
@@ -222,16 +240,22 @@ void TetraState_Wait::Action([[maybe_unused]] CFallTetra* p)
 	pRB->SetWorldTransform(transform);
 }
 
+//============================================================================
+// 落下ステートコンストラクタ
+//============================================================================
 TetraState_Fall::TetraState_Fall(CFallTetra* p) : m_Grace(20)
 {
 	// コライダーをリジッドボディにキャスト
 	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(p->GetCollider());
 	DirectX::XMFLOAT3 gravity = { p->GetInitalGravity().x ,p->GetInitalGravity().y,p->GetInitalGravity().z };
-	
+
 	//重力を戻す
-	pRB->SetGravity({ gravity.x,gravity.y,gravity.z});
+	pRB->SetGravity({ gravity.x,gravity.y,gravity.z });
 }
 
+//============================================================================
+// 落下ステートの挙動
+//============================================================================
 void TetraState_Fall::Action([[maybe_unused]] CFallTetra* p)
 {
 	// コライダーをリジッドボディにキャスト

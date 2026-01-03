@@ -18,11 +18,13 @@ public:
     //========================
     enum class OBS_TYPE : unsigned char
     {
-        NONE = 0, // 無し
-        BALL,     // ボール
-        BAR,      // 棒
-        BOMB,     // ボム
-        TORNADO,  // 竜巻
+        NONE = 0,  // 無し
+        BALL,      // ボール
+        BAR,       // 棒
+        BOMB,      // ボム
+        TORNADO,   // 竜巻
+        FALLTETRA, // 上部落下物
+        PENDULUM,  // 振り子
         MAX
     };
 
@@ -33,13 +35,11 @@ public:
         float ObstacleSpeedZ = -5.0f;                  // 初速度Z
         float ObstacleSpawnX = 0.0f;                   // 生成位置X
         float ObstacleSpawnY = 10.0f;                  // 生成位置Y
-        float ObstacleSpawnZ = 15.0f;                  // 生成位置Z
+        float ObstacleSpawnZ = 10.0f;                  // 生成位置Z
         float ColliderWidth = 3.0f;                    // コライダー横サイズ
         float ColliderHeight = 3.0f;                   // コライダー縦サイズ
         float ColliderDepth = 3.0f;                    // コライダーサイズ深さ
         int BombTimer = 300;                           // タイマー値(ボム用)
-        float TornadoWidth = 40.0f;                    // 竜巻用横サイズ
-        float TornadoDepth = 40.0f;                    // 竜巻用縦サイズ
     };
 
     struct ObstacleParam {
@@ -64,6 +64,7 @@ public:
     static int m_CurrentParamIndex;                    // 現在編集中インデックス
     static std::vector<ObstacleParam> m_ParamSets;     // パラメータセット配列
     static ObstacleParam& RefParam() { return m_ParamSets[m_CurrentParamIndex]; }
+    static float s_DecayValue; //上部落下障害物に接触した時の減速値
 private:
     static int s_SpawnTimePresetCount;
     static float s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ; // 出現位置

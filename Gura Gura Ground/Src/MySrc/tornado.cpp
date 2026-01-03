@@ -53,7 +53,7 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	const CGhost* const pGhost = dynamic_cast<CGhost*>(GetCollider());
 
 	// パラメータ参照
-	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
+	const auto& param = m_ObstacleEditer.m_ParamSets[GetParamSetIndex()].subParams[GetSubParamIndex()];
 	OBJ::Transform TF = {};
 
 	TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };

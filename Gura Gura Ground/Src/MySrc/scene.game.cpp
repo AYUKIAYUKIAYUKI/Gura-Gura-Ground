@@ -101,7 +101,7 @@ void CSceneGame::Update()
 
 	//プレイモード中の自動スポーン処理
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
-
+	
 	// カメラコントローラーの更新
 	CCameraController::RefInstance().Update();	
 	
