@@ -13,7 +13,7 @@
 #include "API.scene.h"
 #include "obstacle_editer.h"
 
-#include "Hudeditor.h"
+//#include "Hudeditor.h"
 
 //****************************************************
 // ‘O•ûéŒ¾
