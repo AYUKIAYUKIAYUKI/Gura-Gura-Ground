@@ -148,7 +148,7 @@ void CSceneGame::SpawnField()
 				});
 
 			// コライダーの生成
-			p->FactoryCollider(fSpanField * 2.0f, 1.0f * 2.0f, fSpanField * 2.0f);
+			p->FactoryCollider(fSpanField, 1.0f, fSpanField);
 
 			return true;
 		},
@@ -185,7 +185,7 @@ void CSceneGame::SpawnPlayer()
 				p->SetTransform(PlayersInitTransform);
 
 				// コライダー生の成
-				p->FactoryCollider(1.0f, 1.0f, 1.0f);
+				p->FactoryCollider(0.5f, 0.5f, 0.5f);
 
 				return true;
 			},
@@ -202,7 +202,7 @@ void CSceneGame::SpawnPlayer()
 void CSceneGame::SpawnCPU()
 {
 	// 敵の各辺のスパン
-	const float fSize = 1.0f;
+	const float fSize = 0.5f;
 
 	// 敵生成
 	CObjectManager::CreateRaw<CEnemyPlayer>(
