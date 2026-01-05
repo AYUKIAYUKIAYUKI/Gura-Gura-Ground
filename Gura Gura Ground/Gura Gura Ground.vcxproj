@@ -247,7 +247,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionDir)Lib\_Debug\BulletCollision_Debug.lib;$(SolutionDir)Lib\_Debug\BulletDynamics_Debug.lib;$(SolutionDir)Lib\_Debug\DirectXTex.lib;$(SolutionDir)Lib\_Debug\DirectXTK.lib;$(SolutionDir)Lib\_Debug\LinearMath_Debug.lib;$(SolutionDir)Lib\_Debug\lua54.lib;$(SolutionDir)Lib\_Debug\3E8ED147825_Debug.lib;$(SolutionDir)Lib\_Debug\Effekseer.lib;$(SolutionDir)Lib\_Debug\EffekseerRendererDX11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Lib\_Debug\BulletCollision_Debug.lib;$(SolutionDir)Lib\_Debug\BulletDynamics_Debug.lib;$(SolutionDir)Lib\_Debug\DirectXTex.lib;$(SolutionDir)Lib\_Debug\DirectXTK.lib;$(SolutionDir)Lib\_Debug\LinearMath_Debug.lib;$(SolutionDir)Lib\_Debug\lua54.lib;$(SolutionDir)Lib\_Debug\3E8ED147825_Debug.lib;$(SolutionDir)Lib\_Debug\Effekseer.lib;$(SolutionDir)Lib\_Debug\EffekseerRendererDX11.lib;$(SolutionDir)Lib\_Debug\assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

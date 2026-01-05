@@ -43,6 +43,9 @@ public:
 	// 描画処理
 	void Draw() override;
 
+	// モデルのバインド
+	void SetModel(const GltfMesh& rData);
+
 private:
 
 	//****************************************************

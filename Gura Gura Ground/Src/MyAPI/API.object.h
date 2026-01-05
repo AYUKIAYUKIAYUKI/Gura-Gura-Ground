@@ -1,4 +1,3 @@
-
 // ※ このファイルは公開インターフェース用のヘッダーファイルです
 // 　 利用者によるファイル内の実装変更を想定していないので直接行わないでください
 
@@ -72,7 +71,8 @@ namespace OBJ
 	{
 		TF.World =
 			DirectX::XMMatrixScaling(TF.Size.x, TF.Size.y, TF.Size.z) *
-			DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(TF.Rot.x, TF.Rot.y, TF.Rot.z, TF.Rot.w)) *
+			//DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(TF.Rot.x, TF.Rot.y, TF.Rot.z, TF.Rot.w)) *
+			DirectX::XMMatrixRotationRollPitchYaw(TF.Rot.x, TF.Rot.y, TF.Rot.z) *
 			DirectX::XMMatrixTranslation(TF.Pos.x, TF.Pos.y, TF.Pos.z);
 	}
 

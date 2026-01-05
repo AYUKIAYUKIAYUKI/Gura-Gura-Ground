@@ -1,6 +1,10 @@
 {
   "Element": [
     [
+      "Shadow",
+      "Data\\TEXTURE\\effect000.jpg"
+    ],
+    [
       "Human.A",
       "Data\\TEXTURE\\chintori.png"
     ],

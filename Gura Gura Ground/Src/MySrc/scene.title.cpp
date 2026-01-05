@@ -208,10 +208,10 @@ void CSceneTitle::Change()
 	TriggerEvent_DarkFadeAllCurtain();
 
 	// 効果音：ブザー
-	CSoundManger::RefInstance().Play("Buzzer", false, -0.5f, 1.5f);
+	//CSoundManger::RefInstance().Play("Buzzer", false, -0.5f, 1.5f);
 
 	// 効果音：ジャンプ
-	CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
+	//CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
 }
 
 //============================================================================
