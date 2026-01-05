@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "field.h"
+#include "API.gltf.manager.h"
 
 // コライダーの作成用
 #include "API.rigidbody.h"
@@ -17,8 +18,11 @@
 // デフォルトコンストラクタ
 //============================================================================
 CField::CField(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CPhysicsObject(Type, Layer)
-{}
+	: CPhysicsModel(Type, Layer)
+{
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Field"));
+}
 
 //============================================================================
 // デストラクタ
@@ -49,8 +53,8 @@ void CField::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //============================================================================
 void CField::Update()
 {
-	// 物理オブジェクト用の更新
-	CPhysicsObject::Update();
+	// 物理モデル用の更新
+	CPhysicsModel::Update();
 }
 
 //============================================================================
@@ -58,6 +62,6 @@ void CField::Update()
 //============================================================================
 void CField::Draw()
 {
-	// 物理オブジェクト用の更新
-	CPhysicsObject::Draw();
+	// 物理モデル用の更新
+	CPhysicsModel::Draw();
 }

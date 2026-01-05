@@ -142,7 +142,7 @@ void CSceneGame::SpawnField()
 			// トランスフォームの設定
 			p->SetTransform(
 				{
-					{ fSpanField, 1.0f, fSpanField },
+					{ fSpanField, fSpanField, fSpanField },
 					{ 0.0f, 0.0f, 0.0f, 1.0f },
 					{ 0.0f, 5.0f, 0.0f }
 				});
@@ -245,5 +245,4 @@ bool CSceneGame::CheckGameSet()
 	}
 
 	return true;
-
 }
