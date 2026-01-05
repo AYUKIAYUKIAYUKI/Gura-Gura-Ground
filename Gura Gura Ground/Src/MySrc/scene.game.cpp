@@ -48,6 +48,22 @@ namespace
 
 	std::chrono::steady_clock::time_point g_LastUpdateTime;
 	float g_GameTime = 0.0f;
+
+	// あああ
+	void ModifyModelOffset(CField* pField)
+	{
+		// モデルオフセットの取得
+		DirectX::XMFLOAT3 raa = pField->GetModelOffset();
+
+		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
+		ImGui::DragFloat("Pos X", &raa.x, 0.01f);
+		ImGui::DragFloat("Pos Y", &raa.y, 0.01f);
+		ImGui::DragFloat("Pos Z", &raa.z, 0.01f);
+		ImGui::End();
+
+		// モデルオフセットの設定
+		pField->SetModelOffset(raa);
+	}
 }
 
 //============================================================================
@@ -103,7 +119,7 @@ void CSceneGame::Update()
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
 	
 	// カメラコントローラーの更新
-	CCameraController::RefInstance().Update();	
+	//CCameraController::RefInstance().Update();
 	
 	// ゲームセットしたらシーン遷移
 
@@ -133,16 +149,17 @@ void CSceneGame::Change()
 void CSceneGame::SpawnField()
 {
 	// フィールドの水平方向の大きさ
-	const float fSpanField = 15.0f;
+	const float fSpanField  = 15.0f;
+	const float fSpanAdjust = 0.95f;
 
 	// 地面を生成
 	CObjectManager::CreateShare<CField>(
-		[&fSpanField](CField* p) -> bool
+		[&fSpanField, &fSpanAdjust](CField* p) -> bool
 		{
 			// トランスフォームの設定
 			p->SetTransform(
 				{
-					{ fSpanField, fSpanField, fSpanField },
+					{ fSpanField * fSpanAdjust, fSpanField, fSpanField * fSpanAdjust },
 					{ 0.0f, 0.0f, 0.0f, 1.0f },
 					{ 0.0f, 5.0f, 0.0f }
 				});
