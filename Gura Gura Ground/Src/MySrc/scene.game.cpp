@@ -21,6 +21,7 @@
 #include "API.object.manager.h"
 #include "field.h"
 #include "player.h"
+#include "symbol.h"
 #include <enemy1.h>
 #include "tornado.h"
 
@@ -83,6 +84,9 @@ CSceneGame::CSceneGame()
 	// CPUスポーン
 	SpawnCPU();
 
+	// シンボルスポーン
+	SpawnSymbol();
+
 	// カメラコントローラーの初期化
 	CCameraController::RefInstance().Initialize();
 
@@ -119,10 +123,12 @@ void CSceneGame::Update()
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
 	
 	// カメラコントローラーの更新
-	//CCameraController::RefInstance().Update();
+	CCameraController::RefInstance().Update();
 	
-	// ゲームセットしたらシーン遷移
+	// シンボルセット
+	SetSymbol();
 
+	// ゲームセットしたらシーン遷移
 	/* ゲームセットチェック */
 	if (CheckGameSet())
 	{
@@ -239,6 +245,57 @@ void CSceneGame::SpawnCPU()
 			return true;
 		},
 		OBJ::TYPE::NONE); //TYPEはENEMYとか別枠で確保した}
+}
+
+//============================================================================
+// シンボルスポーン
+//============================================================================
+void CSceneGame::SpawnSymbol()
+{
+	for (unsigned char wPlayerIndex = 0; wPlayerIndex < MAX_PLYAER; ++wPlayerIndex)
+	{
+		// シンボル生成
+		m_apSymbol[wPlayerIndex] = CObjectManager::CreateRaw<CSymbol>(
+			[&wPlayerIndex](CSymbol* pSymbol) -> bool
+			{
+				// シンボルのインデックス設定
+				pSymbol->SetSymbolIdx(wPlayerIndex);
+
+				return true;
+			});
+	}
+}
+
+//============================================================================
+// シンボルセット
+//============================================================================
+void CSceneGame::SetSymbol()
+{
+	// プレイヤーの弱参照配列を走査
+	for (unsigned char wIdx = 0; wIdx < MAX_PLYAER; ++wIdx)
+	{
+		// プレイヤーが存在していたら
+		if (std::shared_ptr<CPlayer> spPlayer = m_apwPlayers[wIdx].lock())
+		{
+			// シンボルのトランスフォームの取得
+			OBJ::Transform SymbolTransform = m_apSymbol[wIdx]->GetTransform();
+
+			// シンボルの位置をプレイヤーの位置に合わせる
+			SymbolTransform.Pos = spPlayer->GetTransform().Pos;
+			SymbolTransform.Pos.y += m_apSymbol[wIdx]->GetSymbolOffsetY();
+
+			// シンボルのトランスフォームを設定
+			m_apSymbol[wIdx]->SetTransform(SymbolTransform);
+		}
+		else
+		{
+			// プレイヤーが存在しなかったらシンボルを消す
+			if (m_apSymbol[wIdx])
+			{
+				m_apSymbol[wIdx]->SetDeath();
+			}
+		}
+	}
 }
 
 //============================================================================

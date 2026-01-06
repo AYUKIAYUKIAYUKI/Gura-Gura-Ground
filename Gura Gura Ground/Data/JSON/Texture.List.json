@@ -1,6 +1,26 @@
 {
   "Element": [
     [
+      "CP",
+      "Data\\TEXTURE\\ply0.png"
+    ],
+    [
+      "P1",
+      "Data\\TEXTURE\\ply1.png"
+    ],
+    [
+      "P2",
+      "Data\\TEXTURE\\ply2.png"
+    ],
+    [
+      "P3",
+      "Data\\TEXTURE\\ply3.png"
+    ],
+    [
+      "P4",
+      "Data\\TEXTURE\\ply4.png"
+    ],
+    [
       "Shadow",
       "Data\\TEXTURE\\effect000.jpg"
     ],
