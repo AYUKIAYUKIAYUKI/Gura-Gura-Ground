@@ -2,11 +2,11 @@
   "Element": [
     [
       "Test",
-      "Data\\MODEL\\GLB\\Kusa\\Kusa.glb"
+      "Data\\MODEL\\GLB\\Test\\Test.glb"
     ],
     [
       "Field",
-      "Data\\MODEL\\GLB\\Wind\\aa.glb"
+      "Data\\MODEL\\GLB\\Wind\\aa.gltf"
     ],
     [
       "Ball",
