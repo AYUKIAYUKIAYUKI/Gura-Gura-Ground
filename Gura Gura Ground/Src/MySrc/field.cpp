@@ -24,7 +24,7 @@ CField::CField(OBJ::TYPE Type, OBJ::LAYER Layer)
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Field"));
 
 	// モデルオフセットの設定
-	SetModelOffset({ 1.15f, 1.0f, -0.3f });
+	SetModelOffset({ 1.15f, 0.8f, -0.3f });
 }
 
 //============================================================================

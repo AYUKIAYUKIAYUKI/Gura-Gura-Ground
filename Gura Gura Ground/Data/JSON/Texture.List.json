@@ -21,6 +21,10 @@
       "Data\\TEXTURE\\ply4.png"
     ],
     [
+      "Sky",
+      "Data\\TEXTURE\\sky.png"
+    ],
+    [
       "Shadow",
       "Data\\TEXTURE\\effect000.jpg"
     ],

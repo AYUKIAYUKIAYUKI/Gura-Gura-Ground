@@ -65,7 +65,8 @@ private:
 	std::array<std::weak_ptr<CPlayer>, MAX_PLYAER> m_apwPlayers;
 
 	// シンボルの配列
-	std::array<CSymbol*, MAX_PLYAER>  m_apSymbol;
+	std::array<CSymbol*, MAX_PLYAER> m_apSymbol;
+	std::vector<CSymbol*>            m_vpSymbol;
 
 	// 障害物エディター
 	ObstacleEditer m_ObstacleEditer;

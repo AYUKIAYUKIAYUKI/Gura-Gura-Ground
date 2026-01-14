@@ -44,11 +44,13 @@ namespace
 using namespace DirectX;
 using namespace useful;
 
+#include "API.gltf.manager.h"
 
 //======================================
 //コンストラクタ
 //======================================
-CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsObject(Type, Layer)  
+CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :
+	CPhysicsModel(Type, Layer)  
 , m_nRecasttime(0), m_bJump(true), m_pBar(nullptr)                                           
 , m_pShockWave(nullptr), m_bGoDown(false), m_btOldVel(INIT)                    
 , m_nStart(0), m_bStart(false)
@@ -56,6 +58,9 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsObject(Typ
 	m_pPlayer.clear();
 	searchPlayer();  //プレイヤーを探す(初めにプレイヤーが生成されてるのが条件)
 	searchBar();     //障害物を探す(初めにプレイヤーが生成されてるのが条件)
+
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
 
 	m_State = ENEMY_STATE::STATE_BASE;
 }
@@ -112,7 +117,7 @@ void CEnemyPlayer::Update()
 	}
 
 	//基底クラスの更新
-	CPhysicsObject::Update();
+	CPhysicsModel::Update();
 }
 
 
@@ -529,5 +534,5 @@ void CEnemyPlayer::Jump_Base()
 //======================================
 void CEnemyPlayer::Draw()
 {
-	CPhysicsObject::Draw();
+	CPhysicsModel::Draw();
 }

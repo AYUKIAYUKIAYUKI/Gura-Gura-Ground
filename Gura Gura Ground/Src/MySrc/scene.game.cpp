@@ -28,6 +28,9 @@
 // イベント処理のため
 #include "cameracontroller.h"
 
+// a
+CEnemyPlayer* g_pEnemy;
+
 //****************************************************
 // 仮：最終的に必要と判断した変数はメンバに付属してください
 //****************************************************
@@ -73,7 +76,7 @@ namespace
 CSceneGame::CSceneGame()
 {
 	/* コリジョン描画の切り替え */
-	CCollider::SwitchRenderCollision();
+	//CCollider::SwitchRenderCollision();
 
 	// フィールドスポーン
 	SpawnField();
@@ -228,7 +231,7 @@ void CSceneGame::SpawnCPU()
 	const float fSize = 0.5f;
 
 	// 敵生成
-	CObjectManager::CreateRaw<CEnemyPlayer>(
+	g_pEnemy = CObjectManager::CreateRaw<CEnemyPlayer>(
 		[fSize](CEnemyPlayer* p) -> bool
 		{
 			// トランスフォームの設定
@@ -245,6 +248,16 @@ void CSceneGame::SpawnCPU()
 			return true;
 		},
 		OBJ::TYPE::NONE); //TYPEはENEMYとか別枠で確保した}
+
+	// シンボル生成
+	m_vpSymbol.push_back(CObjectManager::CreateRaw<CSymbol>(
+		[](CSymbol* pSymbol) -> bool
+		{
+			// シンボルのインデックス設定
+			pSymbol->SetSymbolIdx(-1);
+
+			return true;
+		}));
 }
 
 //============================================================================
@@ -296,6 +309,21 @@ void CSceneGame::SetSymbol()
 			}
 		}
 	}
+
+#if 1 // aCP
+	for (auto& pSymbol : m_vpSymbol)
+	{
+		// シンボルのトランスフォームの取得
+		OBJ::Transform SymbolTransform = pSymbol->GetTransform();
+
+		// シンボルの位置を敵の位置に合わせる
+		SymbolTransform.Pos = g_pEnemy->GetTransform().Pos;
+		SymbolTransform.Pos.y += pSymbol->GetSymbolOffsetY();
+
+		// シンボルのトランスフォームを設定
+		pSymbol->SetTransform(SymbolTransform);
+	}
+#endif
 }
 
 //============================================================================
