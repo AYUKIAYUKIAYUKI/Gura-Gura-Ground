@@ -178,7 +178,8 @@ void CSceneGame::SpawnField()
 
 			return true;
 		},
-		OBJ::TYPE::FIELD);
+		OBJ::TYPE::FIELD,
+		OBJ::LAYER::BG);
 }
 
 //============================================================================
