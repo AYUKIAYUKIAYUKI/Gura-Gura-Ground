@@ -19,6 +19,7 @@
 // 前方宣言
 //****************************************************
 class CPlayer;
+class CSymbol;
 
 //****************************************************
 // ゲームクラスの定義
@@ -52,6 +53,8 @@ private:
 	void SpawnField();   // フィールドスポーン
 	void SpawnPlayer();  // プレイヤースポーン
 	void SpawnCPU();     // CPUスポーン
+	void SpawnSymbol();  // シンボルスポーン
+	void SetSymbol();    // シンボルセット
 	bool CheckGameSet(); // ゲームセットチェック
 
 	//****************************************************
@@ -60,6 +63,10 @@ private:
 	
 	// プレイヤーの弱参照配列
 	std::array<std::weak_ptr<CPlayer>, MAX_PLYAER> m_apwPlayers;
+
+	// シンボルの配列
+	std::array<CSymbol*, MAX_PLYAER> m_apSymbol;
+	std::vector<CSymbol*>            m_vpSymbol;
 
 	// 障害物エディター
 	ObstacleEditer m_ObstacleEditer;

@@ -71,9 +71,6 @@
 // JSONóp
 #include <nlohmann/json.hpp>
 
-// lua/sol2óp
-#include <sol/sol.hpp>
-
 // é©çÏ
 #include "API.useful.h"
 

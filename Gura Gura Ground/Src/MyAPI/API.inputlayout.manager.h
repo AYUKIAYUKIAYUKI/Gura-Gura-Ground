@@ -79,7 +79,7 @@ public:
 	static bool CreateVertexBuffer2D(ID3D11Buffer** ppVertexBuffer);
 
 	// クアッド(3D)用の頂点バッファの生成
-	//static bool CreateVertexBufferForQuad3D(ID3D11Buffer** ppVertexBuffer);
+	static bool CreateVertexBuffer3D(ID3D11Buffer** ppVertexBuffer);
 
 	// メッシュ用の頂点バッファの生成
 	static bool CreateVertexBufferForMesh(ID3D11Buffer** ppVertexBuffer, const std::vector<Vertex3D>& rvVertices);

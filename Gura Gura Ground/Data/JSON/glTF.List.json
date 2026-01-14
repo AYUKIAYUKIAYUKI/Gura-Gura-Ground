@@ -3,6 +3,18 @@
     [
       "Test",
       "Data\\MODEL\\GLB\\Test\\Test.glb"
+    ],
+    [
+      "Field",
+      "Data\\MODEL\\GLB\\Wind\\aa.gltf"
+    ],
+    [
+      "Ball",
+      "Data\\MODEL\\GLB\\Ball\\ball.glb"
+    ],
+    [
+      "Bar",
+      "Data\\MODEL\\GLB\\Stick\\stick.glb"
     ]
   ]
 }
