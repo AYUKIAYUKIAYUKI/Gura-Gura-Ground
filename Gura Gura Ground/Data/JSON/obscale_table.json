@@ -5,33 +5,23 @@
             "sub_params": [
                 {
                     "bomb_timer": 300,
+                    "boomerang_add_by_speed": 80.0,
+                    "boomerang_base_power": 20.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 3,
+                    "boomerang_omega": 1.0,
+                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
-                    "manual_type": 4,
-                    "spawnX": -7.0,
+                    "manual_type": 7,
+                    "spawnX": 0.0,
                     "spawnY": 10.0,
-                    "spawnZ": 7.5,
+                    "spawnZ": 10.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0,
-                    "tornado_depth": 20.0,
-                    "tornado_width": 20.0
-                },
-                {
-                    "bomb_timer": 300,
-                    "collider_depth": 3.0,
-                    "collider_height": 3.0,
-                    "collider_width": 3.0,
-                    "manual_type": 3,
-                    "spawnX": 2.0,
-                    "spawnY": 10.0,
-                    "spawnZ": 0.0,
-                    "speedX": 0.0,
-                    "speedY": 0.0,
-                    "speedZ": -5.0,
-                    "tornado_depth": 40.0,
-                    "tornado_width": 40.0
+                    "speedZ": -5.0
                 }
             ]
         },
@@ -39,6 +29,13 @@
             "sub_params": [
                 {
                     "bomb_timer": 300,
+                    "boomerang_add_by_speed": 80.0,
+                    "boomerang_base_power": 20.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 0,
+                    "boomerang_omega": 1.0,
+                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -48,12 +45,17 @@
                     "spawnZ": 15.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0,
-                    "tornado_depth": 40.0,
-                    "tornado_width": 40.0
+                    "speedZ": -5.0
                 },
                 {
                     "bomb_timer": 300,
+                    "boomerang_add_by_speed": 80.0,
+                    "boomerang_base_power": 20.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 0,
+                    "boomerang_omega": 1.0,
+                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -63,9 +65,7 @@
                     "spawnZ": 15.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0,
-                    "tornado_depth": 40.0,
-                    "tornado_width": 40.0
+                    "speedZ": -5.0
                 }
             ]
         },
@@ -73,6 +73,13 @@
             "sub_params": [
                 {
                     "bomb_timer": 300,
+                    "boomerang_add_by_speed": 80.0,
+                    "boomerang_base_power": 20.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 0,
+                    "boomerang_omega": 1.0,
+                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -82,12 +89,17 @@
                     "spawnZ": 10.0,
                     "speedX": 5.0,
                     "speedY": 0.0,
-                    "speedZ": 0.0,
-                    "tornado_depth": 40.0,
-                    "tornado_width": 40.0
+                    "speedZ": 0.0
                 },
                 {
                     "bomb_timer": 300,
+                    "boomerang_add_by_speed": 80.0,
+                    "boomerang_base_power": 20.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 0,
+                    "boomerang_omega": 1.0,
+                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -97,12 +109,17 @@
                     "spawnZ": -10.0,
                     "speedX": -5.0,
                     "speedY": 0.0,
-                    "speedZ": 0.0,
-                    "tornado_depth": 40.0,
-                    "tornado_width": 40.0
+                    "speedZ": 0.0
                 },
                 {
                     "bomb_timer": 300,
+                    "boomerang_add_by_speed": 80.0,
+                    "boomerang_base_power": 20.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 0,
+                    "boomerang_omega": 1.0,
+                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -112,9 +129,7 @@
                     "spawnZ": 15.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0,
-                    "tornado_depth": 40.0,
-                    "tornado_width": 40.0
+                    "speedZ": -5.0
                 }
             ]
         },
@@ -122,6 +137,13 @@
             "sub_params": [
                 {
                     "bomb_timer": 300,
+                    "boomerang_add_by_speed": 80.0,
+                    "boomerang_base_power": 20.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 0,
+                    "boomerang_omega": 1.0,
+                    "boomerang_radius": 12.0,
                     "collider_depth": 1.5,
                     "collider_height": 15.0,
                     "collider_width": 1.5,
@@ -131,12 +153,17 @@
                     "spawnZ": 18.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0,
-                    "tornado_depth": 40.0,
-                    "tornado_width": 40.0
+                    "speedZ": -5.0
                 },
                 {
                     "bomb_timer": 300,
+                    "boomerang_add_by_speed": 80.0,
+                    "boomerang_base_power": 20.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 0,
+                    "boomerang_omega": 1.0,
+                    "boomerang_radius": 12.0,
                     "collider_depth": 1.5,
                     "collider_height": 15.0,
                     "collider_width": 1.5,
@@ -146,9 +173,7 @@
                     "spawnZ": -18.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": 5.0,
-                    "tornado_depth": 40.0,
-                    "tornado_width": 40.0
+                    "speedZ": 5.0
                 }
             ]
         },
@@ -156,6 +181,13 @@
             "sub_params": [
                 {
                     "bomb_timer": 300,
+                    "boomerang_add_by_speed": 80.0,
+                    "boomerang_base_power": 20.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 0,
+                    "boomerang_omega": 1.0,
+                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -165,12 +197,17 @@
                     "spawnZ": -2.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": -5.0,
-                    "tornado_depth": 40.0,
-                    "tornado_width": 40.0
+                    "speedZ": -5.0
                 },
                 {
                     "bomb_timer": 300,
+                    "boomerang_add_by_speed": 80.0,
+                    "boomerang_base_power": 20.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 0,
+                    "boomerang_omega": 1.0,
+                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -180,9 +217,7 @@
                     "spawnZ": 2.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
-                    "speedZ": 5.0,
-                    "tornado_depth": 40.0,
-                    "tornado_width": 40.0
+                    "speedZ": 5.0
                 }
             ]
         }

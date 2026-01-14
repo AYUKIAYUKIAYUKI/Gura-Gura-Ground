@@ -25,6 +25,7 @@ public:
         TORNADO,   // 竜巻
         FALLTETRA, // 上部落下物
         PENDULUM,  // 振り子
+        BOOMERANG, // ブーメラン
         MAX
     };
 
@@ -40,6 +41,13 @@ public:
         float ColliderHeight = 3.0f;                   // コライダー縦サイズ
         float ColliderDepth = 3.0f;                    // コライダーサイズ深さ
         int BombTimer = 300;                           // タイマー値(ボム用)
+        float BoomerangOmega = 1.0f;   // 速度
+        float BoomerangRadius = 12.0f; // 半径
+        float BoomerangBasePower = 20.0f;      // 基本吹っ飛びパワー
+        float BoomerangAddBySpeed = 80.0f;     // 速度依存加算
+        float BoomerangMaxFinalPower = 350.0f; //最大
+        int   BoomerangHitCooldown = 10;
+        int BoomerangMovePattern = 0; //ブーメランの移動
     };
 
     struct ObstacleParam {
