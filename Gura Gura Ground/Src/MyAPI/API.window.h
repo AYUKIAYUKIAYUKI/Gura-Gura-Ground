@@ -75,6 +75,10 @@ public:
 	template <typename T>
 	void MessageLoop(T&& fpMainLoop);
 
+	// フルスクリーン制御
+	void ChangeScreenMode(bool bEnable);
+	inline bool GetFullscreenState() const { return m_bFullscreen; }
+
 	//****************************************************
 	// inline function
 	//***************************************************
@@ -117,6 +121,11 @@ private:
 	// デバッグウィンドウ用
 	HANDLE              m_hPipe;       // デバッグウィンドウ用パイプ
 	PROCESS_INFORMATION m_ProcessInfo; // プロセス情報
+
+	// フルスクリーン制御用
+	bool  m_bFullscreen;
+	DWORD m_dwWindowedStyle;
+	DWORD m_dwWindowedExStyle;
 };
 
 // テンプレート実装ファイル
