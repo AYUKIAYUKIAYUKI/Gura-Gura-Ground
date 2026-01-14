@@ -34,7 +34,7 @@ namespace
 	const int MAX_RECASTTIME_IN_BAR = 60;    //バーのリキャストタイムの最大値
 
 	//プレイヤーと同じ数値にする&&プレイヤーから直接同期->処理も変更しないと多分無理
-	const float MOVE = 7.0f;                 //自身の移動値 (今はdebugで似てる速度を目視で設定中)
+	const float MOVE = 6.5f;                 //自身の移動値 (今はdebugで似てる速度を目視で設定中)
 	const float JUMPPOWER = 13.5f;           //自身のジャンプ力
 	const float DROPPOWER = JUMPPOWER * 1.5f;  //自身のドロップ速度
 }
@@ -51,13 +51,10 @@ using namespace useful;
 CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsObject(Type, Layer)  
 , m_nRecasttime(0), m_bJump(true), m_pBar(nullptr)                                           
 , m_pShockWave(nullptr), m_bGoDown(false), m_btOldVel(INIT)                    
-, m_nStart(0), m_bStart(false)
+, m_nStart(0), m_bStart(false), m_pwPlayer{}, m_State(ENEMY_STATE::STATE_BASE)
 {
-	m_pPlayer.clear();
 	searchPlayer();  //プレイヤーを探す(初めにプレイヤーが生成されてるのが条件)
 	searchBar();     //障害物を探す(初めにプレイヤーが生成されてるのが条件)
-
-	m_State = ENEMY_STATE::STATE_BASE;
 }
 
 //======================================
@@ -65,7 +62,8 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsObject(Typ
 //======================================
 CEnemyPlayer::~CEnemyPlayer()
 {
-	std::vector<CPlayer*>().swap(m_pPlayer);
+	std::vector<std::weak_ptr<CPlayer>>().swap(m_pwPlayer);
+	std::vector<CEnemyPlayer*>().swap(m_pwSelf);
 	m_pBar = nullptr;
 }
 
@@ -125,81 +123,147 @@ void CEnemyPlayer::Update()
 //======================================
 void CEnemyPlayer::State_Base()
 {
-	//================================================================================================================================
-	//プレイヤーの判定
-	if (!m_pPlayer.empty())
+	State_Base_Search();
+	State_Base_Bar();
+}
+
+//======================================
+//基本となる状態の処理
+//======================================
+void CEnemyPlayer::State_Base_Search()
+{
+	std::vector<TargetInfo> targets;   //まとめて比較する用変数(構造体により、型が違くても比較可能)
+
+	auto SelfPos = GetTransform().Pos; //自身の位置
+
+	//プレイヤーを対象に追加 
+	for (const auto& wp : m_pwPlayer)
 	{
-		std::vector<float>fvSaveDistance;  //各プレイヤーと自身の距離を算出
-		std::vector<float>fvAngle;         //各プレイヤーと自身の向きを算出
-
-		auto SelfPos = GetTransform().Pos; //自身の位置 
-
-		//範囲baseでプレイヤーを参照
-		for (const auto& pPlayer : m_pPlayer)
+		//閲覧情報がある
+		if (auto sp = wp.lock())
 		{
-			auto PlayerPos = pPlayer->GetTransform().Pos;                                //プレイヤーの位置
+			//プレイヤーの位置
+			auto Playerpos = sp->GetTransform().Pos;
 
-			fvAngle.push_back(atan2f(PlayerPos.x - SelfPos.x, PlayerPos.z - SelfPos.z)); //対角線の角度を算出する（目標ー自機）
+			//プレイヤーの速度
+			CRigidBody* pRB = DownCast<CRigidBody>(sp->GetCollider());
+			auto PlayerVel = pRB->GetLinearVelocity(); // ← 速度取得
 
-			fvSaveDistance.push_back(CheckDistance(PlayerPos, SelfPos));                 //距離を算出
-		}
-
-		//-----------*全てのプレイヤーとの計算が終了＝算出したデータを比較し、最も近いプレイヤーを探す*-----------
-		auto min_iterator = std::min_element(fvSaveDistance.begin(), fvSaveDistance.end()); //最小値取得
-		size_t min_index = std::distance(fvSaveDistance.begin(), min_iterator);             //最小値を持つ番号取得
-
-		auto PlayerPos = m_pPlayer[min_index]->GetTransform().Pos;   //プレイヤーの位置
-		const float RADIUS = 4.0f;                                   //範囲
-
-		//当たり判定
-		if (CheckCollision(PlayerPos, SelfPos, RADIUS))
-		{
-			//ジャンプしてない
-			if (m_bJump)
-			{
-				Jump_Base();
-
-				ChangeState(ENEMY_STATE::STATE_IN_JUMP);
-			}
-		}
-		else
-		{
-			//規定時間まで待ったかつジャンプを可能
-			if (m_bJump&&m_bStart)
-			{
-				MoveAtPlayer(fvAngle[min_index], MOVE); //プレイヤーへ移動させる
-			}
-
-			//ここでゲーム開始時にすぐ動かないよう設定する
-			else if(!m_bStart)
-			{
-				++m_nStart;
-				
-				//既定時間まで動かない
-				if (m_nStart >= MAX_RECASTTIME_MOVE)
-				{
-					m_bStart = true;
-				}
-			}
+			//代入
+			targets.push_back({ CheckDistance(Playerpos, SelfPos),atan2f(Playerpos.x - SelfPos.x, Playerpos.z - SelfPos.z),Playerpos ,PlayerVel});
 		}
 	}
 
+	//敵プレイヤーを対象に追加 
+	for (const auto& enemy : m_pwSelf)
+	{
+		//死んでない
+		if (!enemy->GetDeath())
+		{
+			//敵プレイヤーの位置(EnemyPlayer=EP)
+			auto EPpos = enemy->GetTransform().Pos;
 
-	//================================================================================================================================
-	//バーの判定
+			//敵プレイヤーの速度
+			CRigidBody* pRB = DownCast<CRigidBody>(enemy->GetCollider());
+			auto EPVel = pRB->GetLinearVelocity(); // ← 速度取得
+
+			//代入
+			targets.push_back({CheckDistance(EPpos, SelfPos),atan2f(EPpos.x - SelfPos.x, EPpos.z - SelfPos.z),EPpos,EPVel });
+		}
+		
+	}
+
+	//対象がいなければ終了
+	if (targets.empty())
+	{
+		return; //これがないとerror(情報がない為)
+	}
+
+	//最も近いターゲットを取得 
+	auto min_it = std::min_element
+	(
+		targets.begin(), targets.end(),
+		[](const TargetInfo& a, const TargetInfo& b)
+		{
+			return a.distance < b.distance;
+		}
+	);
+
+	//ここで予測位置を計算する 
+	float predictionTime = 0.3f; //先読み時間(大きくするほど挙動が変化)
+	DirectX::XMFLOAT3 predictedPos = 
+	{
+		min_it->pos.x + min_it->vel.getX() * predictionTime,
+		min_it->pos.y + min_it->vel.getY() * predictionTime,
+		min_it->pos.z + min_it->vel.getZ() * predictionTime
+	};
+
+	//予測位置への角度を計算
+	float predictedAngle = atan2f
+	(
+		predictedPos.x - SelfPos.x,
+		predictedPos.z - SelfPos.z
+	);
+
+	//Comparison に渡す angle を差し替える
+	Comparison(predictedPos, SelfPos, predictedAngle);
+}
+
+//======================================
+//比較処理(当たった時の判定や初動動かない処理)
+//======================================
+void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX::XMFLOAT3& SelfPos, float angle)
+{
+	const float RADIUS = 4.0f;         //当たり半径
+
+	//当たっているかどうか判定
+	if (CheckCollision(targetPos, SelfPos, RADIUS))
+	{
+		if (m_bJump)
+		{
+			Jump_Base();                             //飛ぶ前の準備段階               
+			ChangeState(ENEMY_STATE::STATE_IN_JUMP); //状態をジャンプ中に変更
+		}
+	}
+	else
+	{
+		//初動が完了
+		if (m_bJump && m_bStart)
+		{
+			MoveAtPlayer(angle, MOVE); //移動
+		}
+		else if (!m_bStart)
+		{
+			++m_nStart;
+
+			//初動どれだけ動かないか
+			if (m_nStart >= MAX_RECASTTIME_MOVE)
+			{
+				m_bStart = true;
+			}
+		}
+	}
+}
+
+
+//======================================
+//基本となる状態のバーの処理
+//======================================
+void CEnemyPlayer::State_Base_Bar()
+{
 	if (m_pBar)
 	{
 		const float size = 1.0f; //当たり判定の大きさ
 
 		//自身のトランスフォーム情報
 		auto SelfTransform = GetTransform();
-		XMFLOAT3 SelfSize = { size, size, size };
+		XMFLOAT3 SelfSize = { size, size, size };                                                  //「ファクトリーコライダーの値」を参照      
 		GameObject self_GO = SetObbInfo(self_GO, SelfTransform.Pos, SelfSize, SelfTransform.Rot);
 
 		//バーのトランスフォーム情報
 		CRigidBody* pRB_Bar = DownCast<CRigidBody>(m_pBar->GetCollider());
 		auto BarTransform = pRB_Bar->GetWorldTransform();
-		XMFLOAT3 BarSize = { size, 15.0f, size };
+		XMFLOAT3 BarSize = { size, 15.0f, size };                                                  //「ファクトリーコライダーの値」を参照
 		GameObject bar_GO = SetObbInfo(bar_GO, BarTransform.Pos, BarSize, BarTransform.Rot);
 
 		if (self_GO.localOBB.Intersects(bar_GO.localOBB))
@@ -285,9 +349,18 @@ void CEnemyPlayer::searchPlayer()
 	for (auto Obj : playerlist)
 	{
 		//キャストしてプレイヤーの情報を入れる
-		CPlayer* pPlayer = dynamic_cast<CPlayer*>(Obj.get());
-		m_pPlayer.push_back(pPlayer);
+		auto pPlayer = std::dynamic_pointer_cast<CPlayer>(Obj);
+		m_pwPlayer.push_back(pPlayer);
 	}
+
+	
+
+
+}
+
+void CEnemyPlayer::searchEnemy(CEnemyPlayer* pSelf)
+{
+	m_pwSelf.push_back(pSelf);
 }
 
 //======================================
@@ -433,29 +506,15 @@ bool CEnemyPlayer::InJump(bool& bJump, int& RecastTme, const int MaxRecast)
 	//下降中なにかに当たる時
 	if (m_bGoDown && Collision::CheckHitToRigidBodyShare(pRB))
 	{
-		++RecastTme;
-
-		//リキャストタイムが規定値に達した時
-		if (RecastTme >= MaxRecast)
+		if (DownHit(bJump, RecastTme, MaxRecast))
 		{
-			m_bGoDown = false;  //強制的に下降状態を解く（もう地上判定）
-			RecastTme = 0;      //リキャストタイムを初期化
-			bJump = true;       //ジャンプ可能
-
 			return true;
 		}
 	}
 	else if (m_bGoDown && Collision::CheckHitToRigidBodyRaw(pRB))
 	{
-		++RecastTme;
-
-		//リキャストタイムが規定値に達した時
-		if (RecastTme >= MaxRecast)
+		if (DownHit(bJump, RecastTme, MaxRecast))
 		{
-			m_bGoDown = false;  //強制的に下降状態を解く（もう地上判定）
-			RecastTme = 0;      //リキャストタイムを初期化
-			bJump = true;       //ジャンプ可能
-
 			return true;
 		}
 	}
@@ -467,22 +526,30 @@ bool CEnemyPlayer::InJump(bool& bJump, int& RecastTme, const int MaxRecast)
 }
 
 //======================================
+//落下判定中の処理
+//======================================
+bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
+{
+	++RecastTme;
+
+	//リキャストタイムが規定値に達した時
+	if (RecastTme >= MaxRecast)
+	{
+		m_bGoDown = false;  //強制的に下降状態を解く（もう地上判定）
+		RecastTme = 0;      //リキャストタイムを初期化
+		bJump = true;       //ジャンプ可能
+
+		return true;
+	}
+
+	return false;
+}
+
+//======================================
 //情報があるかどうか確認処理
 //======================================
 void CEnemyPlayer::CheckInfo()
 {
-	int nSize = (int)m_pPlayer.size() - 1; //プレイヤー数-1(０から数えるのため)
-
-	//プレイヤーが死んだとき情報を消す
-	for (int nCount = nSize; nCount >= 0; --nCount)
-	{
-		//死亡判定
-		if (m_pPlayer[nCount]->GetDeath())
-		{
-			m_pPlayer.erase(m_pPlayer.begin() + nCount);
-		}
-	}
-
 	//バーの情報を消す(死亡判定)
 	if (m_pBar && m_pBar->GetDeath())
 	{
@@ -506,7 +573,7 @@ void CEnemyPlayer::CheckInfo()
 }
 
 //======================================
-//情報があるかどうか確認処理
+//飛ぶ基本処理
 //======================================
 void CEnemyPlayer::Jump_Base()
 {

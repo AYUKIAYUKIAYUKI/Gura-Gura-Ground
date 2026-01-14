@@ -15,6 +15,7 @@
 //s必要なインクルード
 #include "API.physics.object.h" //基底クラス
 #include <API.collision.h>      //btVector3の使用
+#include <memory>
 
 //===================================================
 //独自判断インクルード
@@ -39,6 +40,15 @@ private:
 		DirectX::BoundingOrientedBox localOBB; // ローカル座標系での初期ボックス
 	};
 
+	//比較に必要な情報群
+	struct TargetInfo
+	{
+		float distance;   //距離
+		float angle;      //向き
+	    useful::Vec3 pos; //位置
+	    btVector3 vel;    //加速
+	};
+
 	//各状態のタイプ
 	enum class ENEMY_STATE
 	{
@@ -51,6 +61,10 @@ private:
 	void State_Base();     //基礎状態
 	void State_In_Jump();  //飛んだ後(最中)の処理
 	void State_Bar();      //バーに関する状態
+
+	//関数分け
+	void State_Base_Search();  //敵（自身）とプレイヤーのベース（当たった時など）
+	void State_Base_Bar();    //バーベース
 
 public:
 
@@ -77,8 +91,9 @@ public:
 	 */
 	void Draw() override;
 
-private: //プレイヤーに関する関数群
+	void searchEnemy(CEnemyPlayer*pSelf);
 
+private: //プレイヤーに関する関数群
 	/**
 	 * @brief 敵をプレイヤーの方へ移動する関数
 	 */
@@ -144,23 +159,36 @@ private: //共通する関数群
 	 */
 	void CheckInfo();
 
+	/**
+	 * @brief 比較処理(当たった時の判定や初動動かない処理)
+	 */
+	void Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX::XMFLOAT3& SelfPos,float angle);
+
+private:
+
+	/**
+	 * @brief 落下判定中の処理
+	 */
+	bool DownHit(bool& bJump, int& RecastTme, const int MaxRecast);
+
 private:
 
 	//===================================================
 	//プレイヤー参照変数
-	CShockWave* m_pShockWave;          // 衝撃波
-	bool m_bGoDown;
-	btVector3 m_btOldVel;
+	CShockWave* m_pShockWave; // 衝撃波
+	bool m_bGoDown;           //下降判定
+	btVector3 m_btOldVel;     //過去の加速値
 
-	std::vector<CPlayer*>m_pPlayer;  //プレイヤーの情報を取得する用
-	CBar* m_pBar;                    //バーの情報を取得する用
-
-	int m_nStart;                    //ゲーム開始の移動までのカウントを進める用
-	bool m_bStart;                   //ゲーム開始時移動していいかどうか判断用
+    std::vector<std::weak_ptr<CPlayer>>m_pwPlayer; //プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
+    std::vector<CEnemyPlayer*>m_pwSelf;            //敵プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
+	CBar* m_pBar;                                  //バーの情報を取得する用
+									                
+	int m_nStart;  //ゲーム開始の移動までのカウントを進める用
+	bool m_bStart; //ゲーム開始時移動していいかどうか判断用
 
 	//===================================================
 	//共通
-	int m_nRecasttime;               //行動までのリキャストタイム
-	bool m_bJump;                    //ジャンプするかどうかの判定用(true=ジャンプ可能)
-	ENEMY_STATE m_State;             //状態管理用変数
+	int m_nRecasttime;   //行動までのリキャストタイム
+	bool m_bJump;        //ジャンプするかどうかの判定用(true=ジャンプ可能)
+	ENEMY_STATE m_State; //状態管理用変数
 };
