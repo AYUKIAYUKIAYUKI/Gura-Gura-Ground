@@ -4,7 +4,6 @@
         {
             "sub_params": [
                 {
-                    "bomb_timer": 300,
                     "boomerang_add_by_speed": 80.0,
                     "boomerang_base_power": 20.0,
                     "boomerang_hit_cooldown": 10,
@@ -28,14 +27,6 @@
         {
             "sub_params": [
                 {
-                    "bomb_timer": 300,
-                    "boomerang_add_by_speed": 80.0,
-                    "boomerang_base_power": 20.0,
-                    "boomerang_hit_cooldown": 10,
-                    "boomerang_max_final_power": 350.0,
-                    "boomerang_move_pattern": 0,
-                    "boomerang_omega": 1.0,
-                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -48,14 +39,6 @@
                     "speedZ": -5.0
                 },
                 {
-                    "bomb_timer": 300,
-                    "boomerang_add_by_speed": 80.0,
-                    "boomerang_base_power": 20.0,
-                    "boomerang_hit_cooldown": 10,
-                    "boomerang_max_final_power": 350.0,
-                    "boomerang_move_pattern": 0,
-                    "boomerang_omega": 1.0,
-                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -72,14 +55,6 @@
         {
             "sub_params": [
                 {
-                    "bomb_timer": 300,
-                    "boomerang_add_by_speed": 80.0,
-                    "boomerang_base_power": 20.0,
-                    "boomerang_hit_cooldown": 10,
-                    "boomerang_max_final_power": 350.0,
-                    "boomerang_move_pattern": 0,
-                    "boomerang_omega": 1.0,
-                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -92,14 +67,6 @@
                     "speedZ": 0.0
                 },
                 {
-                    "bomb_timer": 300,
-                    "boomerang_add_by_speed": 80.0,
-                    "boomerang_base_power": 20.0,
-                    "boomerang_hit_cooldown": 10,
-                    "boomerang_max_final_power": 350.0,
-                    "boomerang_move_pattern": 0,
-                    "boomerang_omega": 1.0,
-                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -112,14 +79,6 @@
                     "speedZ": 0.0
                 },
                 {
-                    "bomb_timer": 300,
-                    "boomerang_add_by_speed": 80.0,
-                    "boomerang_base_power": 20.0,
-                    "boomerang_hit_cooldown": 10,
-                    "boomerang_max_final_power": 350.0,
-                    "boomerang_move_pattern": 0,
-                    "boomerang_omega": 1.0,
-                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -136,14 +95,6 @@
         {
             "sub_params": [
                 {
-                    "bomb_timer": 300,
-                    "boomerang_add_by_speed": 80.0,
-                    "boomerang_base_power": 20.0,
-                    "boomerang_hit_cooldown": 10,
-                    "boomerang_max_final_power": 350.0,
-                    "boomerang_move_pattern": 0,
-                    "boomerang_omega": 1.0,
-                    "boomerang_radius": 12.0,
                     "collider_depth": 1.5,
                     "collider_height": 15.0,
                     "collider_width": 1.5,
@@ -156,14 +107,6 @@
                     "speedZ": -5.0
                 },
                 {
-                    "bomb_timer": 300,
-                    "boomerang_add_by_speed": 80.0,
-                    "boomerang_base_power": 20.0,
-                    "boomerang_hit_cooldown": 10,
-                    "boomerang_max_final_power": 350.0,
-                    "boomerang_move_pattern": 0,
-                    "boomerang_omega": 1.0,
-                    "boomerang_radius": 12.0,
                     "collider_depth": 1.5,
                     "collider_height": 15.0,
                     "collider_width": 1.5,
@@ -180,14 +123,6 @@
         {
             "sub_params": [
                 {
-                    "bomb_timer": 300,
-                    "boomerang_add_by_speed": 80.0,
-                    "boomerang_base_power": 20.0,
-                    "boomerang_hit_cooldown": 10,
-                    "boomerang_max_final_power": 350.0,
-                    "boomerang_move_pattern": 0,
-                    "boomerang_omega": 1.0,
-                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -200,14 +135,6 @@
                     "speedZ": -5.0
                 },
                 {
-                    "bomb_timer": 300,
-                    "boomerang_add_by_speed": 80.0,
-                    "boomerang_base_power": 20.0,
-                    "boomerang_hit_cooldown": 10,
-                    "boomerang_max_final_power": 350.0,
-                    "boomerang_move_pattern": 0,
-                    "boomerang_omega": 1.0,
-                    "boomerang_radius": 12.0,
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,

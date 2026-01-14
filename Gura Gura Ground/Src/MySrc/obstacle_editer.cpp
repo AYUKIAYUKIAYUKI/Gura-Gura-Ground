@@ -698,14 +698,23 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
             jSub["collider_height"] = sub.ColliderHeight;
             jSub["collider_depth"] = sub.ColliderDepth;
             jSub["manual_type"] = sub.ManualObstacleType;
-            jSub["boomerang_move_pattern"] = sub.BoomerangMovePattern;
-            jSub["bomb_timer"] = sub.BombTimer;
-            jSub["boomerang_omega"] = sub.BoomerangOmega;
-            jSub["boomerang_radius"] = sub.BoomerangRadius;
-            jSub["boomerang_base_power"] = sub.BoomerangBasePower;
-            jSub["boomerang_add_by_speed"] = sub.BoomerangAddBySpeed;
-            jSub["boomerang_max_final_power"] = sub.BoomerangMaxFinalPower;
-            jSub["boomerang_hit_cooldown"] = sub.BoomerangHitCooldown;
+
+            // manual_typeが3（BOMB）のときのみブーメラン関連パラメータを書き込む
+            if (sub.ManualObstacleType == ObstacleEditer::OBS_TYPE::BOMB)
+            {
+                jSub["bomb_timer"] = sub.BombTimer;
+            }
+            // manual_typeが7（BOOMERANG）のときのみブーメラン関連パラメータを書き込む
+            if (sub.ManualObstacleType == ObstacleEditer::OBS_TYPE::BOOMERANG) 
+            {
+                jSub["boomerang_move_pattern"] = sub.BoomerangMovePattern;
+                jSub["boomerang_omega"] = sub.BoomerangOmega;
+                jSub["boomerang_radius"] = sub.BoomerangRadius;
+                jSub["boomerang_base_power"] = sub.BoomerangBasePower;
+                jSub["boomerang_add_by_speed"] = sub.BoomerangAddBySpeed;
+                jSub["boomerang_max_final_power"] = sub.BoomerangMaxFinalPower;
+                jSub["boomerang_hit_cooldown"] = sub.BoomerangHitCooldown;
+            }
             jParamSet["sub_params"].push_back(jSub);
         }
 
