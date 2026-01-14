@@ -110,7 +110,7 @@ void CSceneGame::Update()
 	/* ゲームセットチェック */
 	if (CheckGameSet())
 	{
-		/* 即シーン変更 */
+		///* 即シーン変更 */
 		Change();
 	}
 }

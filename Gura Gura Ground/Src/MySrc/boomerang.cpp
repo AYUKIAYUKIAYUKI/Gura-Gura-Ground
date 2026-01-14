@@ -282,8 +282,8 @@ void CBoomerang::Loop()
     {
         m_Time = 0.0f;
 
-        // 出し直し
-        Appear();
+        // 削除
+        SetDeath();
 
         CDust::GenerateSpread(TF.Pos, 10);
     }

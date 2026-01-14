@@ -17,6 +17,7 @@
 #include <FallTetra.h>
 #include <pendulum.h>
 #include <boomerang.h>
+#include <birdstrike.h>
 
 using json = nlohmann::json;
 
@@ -114,7 +115,8 @@ void ObstacleEditer::EditCommonParams()
             reinterpret_cast<const char*>(u8"竜巻"),
             reinterpret_cast<const char*>(u8"ドッスン"),
             reinterpret_cast<const char*>(u8"振り子"),
-            reinterpret_cast<const char*>(u8"ブーメラン")
+            reinterpret_cast<const char*>(u8"ブーメラン"),
+           reinterpret_cast<const char*>(u8"鳥の群れ")
         };
 
         if (ImGui::Combo(reinterpret_cast<const char*>(u8"出現させる障害物"), &currentType, typeNames, static_cast<int>(OBS_TYPE::MAX)))
@@ -123,7 +125,7 @@ void ObstacleEditer::EditCommonParams()
         }
 
         // スポーン座標 (竜巻以外)
-        if (obs.ManualObstacleType != OBS_TYPE::TORNADO)
+        if (obs.ManualObstacleType != OBS_TYPE::TORNADO && obs.ManualObstacleType != OBS_TYPE::BIRDSTRIKE)
         {
             ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 X"), &obs.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
 
@@ -151,8 +153,8 @@ void ObstacleEditer::EditCommonParams()
             ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Z"), &obs.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
         }
 
-        // 移動速度 (ドッスンと竜巻、振り子、ブーメラン以外)
-        if (obs.ManualObstacleType != OBS_TYPE::FALLTETRA && obs.ManualObstacleType != OBS_TYPE::TORNADO && 
+        // 移動速度 (ドッスンと竜巻、振り子、ブーメラン、鳥の群れ以外)
+        if (obs.ManualObstacleType != OBS_TYPE::FALLTETRA && obs.ManualObstacleType != OBS_TYPE::TORNADO && obs.ManualObstacleType != OBS_TYPE::BIRDSTRIKE &&
             obs.ManualObstacleType != OBS_TYPE::PENDULUM && obs.ManualObstacleType != OBS_TYPE::BOMB && obs.ManualObstacleType != OBS_TYPE::BOOMERANG)
         {
             ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度 X"), &obs.ObstacleSpeedX, 0.1f, -20.0f, 20.0f);
@@ -523,6 +525,18 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                             return true;
                             }, OBJ::TYPE::OBSTACLE);
                         break;
+                    case OBS_TYPE::BIRDSTRIKE:
+                        CObjectManager::CreateRaw<CBirdStrike>([sub, subIdx, paramSetIdx](CBirdStrike* p) -> bool
+                            {
+                                p->SetParamSetIndex(paramSetIdx);
+                                p->SetSubParamIndex(static_cast<int>(subIdx));
+                                p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+                                OBJ::Transform TF = {};
+                                TF.Pos = { 0.0f, 0.0f, 0.0f };
+                                p->SetTransform(TF);
+                                return true;
+                            }, OBJ::TYPE::OBSTACLE);
+                        break;
                     }
                 }
                 s_SpawnedFlags[i] = true;
@@ -668,6 +682,18 @@ void ObstacleEditer::TryManualSpawn()
                 return true;
                 }, OBJ::TYPE::OBSTACLE);
             break;
+        case OBS_TYPE::BIRDSTRIKE:
+            CObjectManager::CreateRaw<CBirdStrike>([sub, subIdx, thisSetIdx](CBirdStrike* p) -> bool
+                {
+                    p->SetParamSetIndex(thisSetIdx);
+                    p->SetSubParamIndex(static_cast<int>(subIdx));
+                    p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+                    OBJ::Transform TF = {};
+                    TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+                    p->SetTransform(TF);
+                    return true;
+                }, OBJ::TYPE::OBSTACLE);
+            break;
         }
     }
 }
@@ -704,6 +730,7 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
             {
                 jSub["bomb_timer"] = sub.BombTimer;
             }
+
             // manual_typeが7（BOOMERANG）のときのみブーメラン関連パラメータを書き込む
             if (sub.ManualObstacleType == ObstacleEditer::OBS_TYPE::BOOMERANG) 
             {

@@ -26,6 +26,7 @@ public:
         FALLTETRA, // ã•”—Ž‰º•¨
         PENDULUM,  // U‚èŽq
         BOOMERANG, // ƒu[ƒƒ‰ƒ“
+        BIRDSTRIKE, // ’¹‚ÌŒQ‚ê
         MAX
     };
 
