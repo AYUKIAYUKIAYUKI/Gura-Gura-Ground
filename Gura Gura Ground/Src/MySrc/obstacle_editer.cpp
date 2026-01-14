@@ -419,7 +419,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                     switch (sub.ManualObstacleType)
                     {
                     case OBS_TYPE::BALL:
-                        CObjectManager::CreateRaw<CBall>([sub, subIdx, paramSetIdx](CBall* p) -> bool
+                        CObjectManager::CreateShare<CBall>([sub, subIdx, paramSetIdx](CBall* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -433,7 +433,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                             }, OBJ::TYPE::OBSTACLE);
                         break;
                     case OBS_TYPE::BAR:
-                        CObjectManager::CreateRaw<CBar>([sub, subIdx, paramSetIdx](CBar* p) -> bool
+                        CObjectManager::CreateShare<CBar>([sub, subIdx, paramSetIdx](CBar* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -461,7 +461,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                             }, OBJ::TYPE::OBSTACLE);
                         break;
                     case OBS_TYPE::TORNADO:
-                        CObjectManager::CreateRaw<CTornado>([sub, subIdx, paramSetIdx](CTornado* p) -> bool
+                        CObjectManager::CreateShare<CTornado>([sub, subIdx, paramSetIdx](CTornado* p) -> bool
                             {
                                 const float fSpanField = 15.0f;
                                 p->SetParamSetIndex(paramSetIdx);
@@ -479,7 +479,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                             }, OBJ::TYPE::OBSTACLE);
                         break;
                     case OBS_TYPE::FALLTETRA:
-                        CObjectManager::CreateRaw<CFallTetra>([sub, subIdx, paramSetIdx](CFallTetra* p) -> bool
+                        CObjectManager::CreateShare<CFallTetra>([sub, subIdx, paramSetIdx](CFallTetra* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -492,7 +492,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                             }, OBJ::TYPE::OBSTACLE);
                         break;
                     case OBS_TYPE::PENDULUM:
-                        CObjectManager::CreateRaw<CPendulum>([sub, subIdx, paramSetIdx](CPendulum* p) -> bool
+                        CObjectManager::CreateShare<CPendulum>([sub, subIdx, paramSetIdx](CPendulum* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -504,7 +504,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                             }, OBJ::TYPE::OBSTACLE);
                         break;
                     case OBS_TYPE::BOOMERANG:
-                        CObjectManager::CreateRaw<CBoomerang>([sub, subIdx, paramSetIdx](CBoomerang* p) -> bool {
+                        CObjectManager::CreateShare<CBoomerang>([sub, subIdx, paramSetIdx](CBoomerang* p) -> bool {
                             p->SetParamSetIndex(paramSetIdx);
                             p->SetSubParamIndex(static_cast<int>(subIdx));
                             p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
@@ -526,7 +526,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                             }, OBJ::TYPE::OBSTACLE);
                         break;
                     case OBS_TYPE::BIRDSTRIKE:
-                        CObjectManager::CreateRaw<CBirdStrike>([sub, subIdx, paramSetIdx](CBirdStrike* p) -> bool
+                        CObjectManager::CreateShare<CBirdStrike>([sub, subIdx, paramSetIdx](CBirdStrike* p) -> bool
                             {
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -575,7 +575,7 @@ void ObstacleEditer::TryManualSpawn()
         switch (sub.ManualObstacleType)
         {
         case OBS_TYPE::BALL:
-            CObjectManager::CreateRaw<CBall>([sub, subIdx, thisSetIdx](CBall* p) -> bool
+            CObjectManager::CreateShare<CBall>([sub, subIdx, thisSetIdx](CBall* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex((int)subIdx);
@@ -590,7 +590,7 @@ void ObstacleEditer::TryManualSpawn()
                 OBJ::TYPE::OBSTACLE);
             break;
         case OBS_TYPE::BAR:
-            CObjectManager::CreateRaw<CBar>([sub, subIdx, thisSetIdx](CBar* p) -> bool
+            CObjectManager::CreateShare<CBar>([sub, subIdx, thisSetIdx](CBar* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex((int)subIdx);
@@ -619,7 +619,7 @@ void ObstacleEditer::TryManualSpawn()
                 }, OBJ::TYPE::OBSTACLE);
             break;
         case OBS_TYPE::TORNADO:
-            CObjectManager::CreateRaw<CTornado>([sub, subIdx, thisSetIdx](CTornado* p) -> bool
+            CObjectManager::CreateShare<CTornado>([sub, subIdx, thisSetIdx](CTornado* p) -> bool
                 {
                     const float fSpanField = 15.0f;
                     p->SetParamSetIndex(thisSetIdx);
@@ -637,7 +637,7 @@ void ObstacleEditer::TryManualSpawn()
                 }, OBJ::TYPE::OBSTACLE);
             break;
         case OBS_TYPE::FALLTETRA:
-            CObjectManager::CreateRaw<CFallTetra>([sub, subIdx, thisSetIdx](CFallTetra* p) -> bool
+            CObjectManager::CreateShare<CFallTetra>([sub, subIdx, thisSetIdx](CFallTetra* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -649,7 +649,7 @@ void ObstacleEditer::TryManualSpawn()
                 }, OBJ::TYPE::OBSTACLE);
             break;
         case OBS_TYPE::PENDULUM:
-            CObjectManager::CreateRaw<CPendulum>([sub, subIdx, thisSetIdx](CPendulum* p) -> bool
+            CObjectManager::CreateShare<CPendulum>([sub, subIdx, thisSetIdx](CPendulum* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));
@@ -661,11 +661,12 @@ void ObstacleEditer::TryManualSpawn()
                 }, OBJ::TYPE::OBSTACLE);
             break;
         case OBS_TYPE::BOOMERANG:
-            CObjectManager::CreateRaw<CBoomerang>([sub, subIdx, thisSetIdx](CBoomerang* p) -> bool {
+            CObjectManager::CreateShare<CBoomerang>([sub, subIdx, thisSetIdx](CBoomerang* p) -> bool {
                 p->SetParamSetIndex(thisSetIdx);
                 p->SetSubParamIndex(static_cast<int>(subIdx));
                 p->SetMovePattern(sub.BoomerangMovePattern);
                 p->FactoryCollider(sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth);
+
                 OBJ::Transform TF = {};
                 TF.Pos = { sub.ObstacleSpawnX, 9.0f, sub.ObstacleSpawnZ };
                 p->SetTransform(TF);
@@ -683,7 +684,7 @@ void ObstacleEditer::TryManualSpawn()
                 }, OBJ::TYPE::OBSTACLE);
             break;
         case OBS_TYPE::BIRDSTRIKE:
-            CObjectManager::CreateRaw<CBirdStrike>([sub, subIdx, thisSetIdx](CBirdStrike* p) -> bool
+            CObjectManager::CreateShare<CBirdStrike>([sub, subIdx, thisSetIdx](CBirdStrike* p) -> bool
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));

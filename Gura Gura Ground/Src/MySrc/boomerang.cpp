@@ -285,7 +285,7 @@ void CBoomerang::Loop()
         // 削除
         SetDeath();
 
-        CDust::GenerateSpread(TF.Pos, 10);
+        //CDust::GenerateSpread(TF.Pos, 10);
     }
 
     Print_Pos(TF);
