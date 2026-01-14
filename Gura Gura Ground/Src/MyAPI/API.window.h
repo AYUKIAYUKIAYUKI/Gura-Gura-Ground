@@ -1,4 +1,3 @@
-
 // ※ このファイルは公開インターフェース用のヘッダーファイルです
 // 　 利用者によるファイル内の実装変更を想定していないので直接行わないでください
 
@@ -52,12 +51,12 @@ public:
 	static constexpr float FWINDOW_HEIGHT = 720.0f;
 
 	// スクリーン横幅
-	static const WORD  WSCREEN_WIDTH;
-	static const float FSCREEN_WIDTH;
+	static constexpr WORD  WSCREEN_WIDTH = 1920;
+	static constexpr float FSCREEN_WIDTH = 1920.0f;
 
 	// スクリーン縦幅
-	static const WORD  WSCREEN_HEIGHT;
-	static const float FSCREEN_HEIGHT;
+	static constexpr WORD  WSCREEN_HEIGHT = 1080;
+	static constexpr float FSCREEN_HEIGHT = 1080.0f;
 
 	//****************************************************
 	// function
