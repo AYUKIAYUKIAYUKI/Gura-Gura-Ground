@@ -15,20 +15,26 @@
 // インクルードファイル
 //****************************************************
 #include "API.manager.h"
-#include <tiny_gltf.h>
-#include <WICTextureLoader.h>
+
+//****************************************************
+// サブメッシュ情報の構造体を定義
+//****************************************************
+struct GltfSubMesh
+{
+	ComPtr<ID3D11ShaderResourceView> cpTexture;    // テクスチャ
+	DirectX::XMFLOAT4                Color;        // 色
+	ComPtr<ID3D11Buffer>             cpVertexBuff; // 頂点バッファ
+	ComPtr<ID3D11Buffer>             cpIndexBuff;  // インデックスバッファ
+	int                              nNumIndex;    // インデックス数
+};
 
 //****************************************************
 // メッシュ情報の構造体を定義
 //****************************************************
 struct GltfMesh
 {
-	tinygltf::Model                  Model;        // glTFモデル
-	ComPtr<ID3D11Buffer>             cpVertexBuff; // 頂点バッファ
-	ComPtr<ID3D11Buffer>             cpIndexBuff;  // インデックスバッファ
-	int                              nNumIndex;    // インデックス数
-	ComPtr<ID3D11ShaderResourceView> cpTexture;    // テクスチャ
-	//std::vector<Bone>                vBone;        // ボーン情報
+	std::vector<GltfSubMesh> vSubMesh;    // サブメッシュ情報
+	int                      nNumSubMesh; // サブメッシュ数
 };
 
 //****************************************************

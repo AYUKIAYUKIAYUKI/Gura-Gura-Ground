@@ -13,7 +13,7 @@
 
 //===================================================
 //s必要なインクルード
-#include "API.physics.object.h" //基底クラス
+#include "API.physics.model.h" //基底クラス
 #include <API.collision.h>      //btVector3の使用
 
 //===================================================
@@ -29,7 +29,7 @@ class CBar;
 
 //===================================================
 //敵プレイヤーのクラス
-class CEnemyPlayer :public CPhysicsObject
+class CEnemyPlayer :public CPhysicsModel
 {
 private:
 	// オブジェクトの情報を管理する構造体（例）
