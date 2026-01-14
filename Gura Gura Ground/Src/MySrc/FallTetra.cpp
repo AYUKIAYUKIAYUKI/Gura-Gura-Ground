@@ -95,7 +95,7 @@ void CFallTetra::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
 	// デフォルトのリジッドボディの生成
 	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, SizeVec.x, SizeVec.y, SizeVec.z));
-		
+	
 	// コライダーをリジッドボディにキャスト
 	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
 	btVector3 Gravity = pRB->GetRigidBody()->getGravity();

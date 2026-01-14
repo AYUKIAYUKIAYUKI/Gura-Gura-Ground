@@ -29,6 +29,7 @@
     <ClCompile Include="Src\MySrc\ball.cpp" />
     <ClCompile Include="Src\MySrc\bar.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
+    <ClCompile Include="Src\MySrc\BirdStrike.cpp" />
     <ClCompile Include="Src\MySrc\bomb.cpp" />
     <ClCompile Include="Src\MySrc\cameracontroller.cpp" />
     <ClCompile Include="Src\MySrc\dust.cpp" />
@@ -97,6 +98,7 @@
     <ClInclude Include="Src\MySrc\ball.h" />
     <ClInclude Include="Src\MySrc\bar.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
+    <ClInclude Include="Src\MySrc\BirdStrike.h" />
     <ClInclude Include="Src\MySrc\bomb.h" />
     <ClInclude Include="Src\MySrc\cameracontroller.h" />
     <ClInclude Include="Src\MySrc\dust.h" />
