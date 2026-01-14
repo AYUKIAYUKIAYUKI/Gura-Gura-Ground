@@ -33,7 +33,7 @@ class CObjectManager : public CSingleton<CObjectManager>
 	//****************************************************
 	using Object_Share = std::shared_ptr<CObject>;
 
-	using List_Raw   = std::list<CObject*>;
+	using List_Raw = std::list<CObject*>;
 	using List_Share = std::list<Object_Share>;
 
 	//****************************************************
@@ -107,15 +107,15 @@ public:
 	//****************************************************
 
 	// 新規オブジェクトの登録
-	inline void RegisterObjectRaw(CObject*&& pObject)      { m_aListRaw[static_cast<unsigned char>(pObject->GetType())].push_back(pObject); }
+	inline void RegisterObjectRaw(CObject*&& pObject) { m_aListRaw[static_cast<unsigned char>(pObject->GetType())].push_back(pObject); }
 	inline void RegisterObjectShare(Object_Share spObject) { m_aListShare[static_cast<unsigned char>(spObject->GetType())].push_back(spObject); }
 
 	// オブジェクトのリストを取得
-	inline const std::array<List_Raw,   static_cast<unsigned char>(OBJ::TYPE::MAX)>& RefListRaw()   { return m_aListRaw; }
+	inline const std::array<List_Raw, static_cast<unsigned char>(OBJ::TYPE::MAX)>& RefListRaw() { return m_aListRaw; }
 	inline const std::array<List_Share, static_cast<unsigned char>(OBJ::TYPE::MAX)>& RefListShare() { return m_aListShare; }
 
 	// 指定したタイプのオブジェクトのリストを取得
-	inline const List_Raw&   RefListRaw(OBJ::TYPE Type)   { return m_aListRaw[static_cast<unsigned char>(Type)]; }
+	inline const List_Raw& RefListRaw(OBJ::TYPE Type) { return m_aListRaw[static_cast<unsigned char>(Type)]; }
 	inline const List_Share& RefListShare(OBJ::TYPE Type) { return m_aListShare[static_cast<unsigned char>(Type)]; }
 
 private:
@@ -125,17 +125,15 @@ private:
 	//****************************************************
 	void UpdateListRaw();       // 生ポインタのオブジェクト一斉更新
 	void LateUpdateListRaw();   // 生ポインタのオブジェクト一斉遅延更新
-	void DrawListRaw();         // 生ポインタのオブジェクト一斉描画
 	void UpdateListShare();     // シェアポインタのオブジェクト一斉更新
 	void LateUpdateListShare(); // シェアポインタのオブジェクト一斉遅延更新
-	void DrawListShare();       // シェアポインタのオブジェクト一斉描画
 
 	//****************************************************
 	// data
 	//****************************************************
 
 	// 保有する全てのタイプ分のリスト
-	std::array<List_Raw,   static_cast<unsigned char>(OBJ::TYPE::MAX)> m_aListRaw;
+	std::array<List_Raw, static_cast<unsigned char>(OBJ::TYPE::MAX)> m_aListRaw;
 	std::array<List_Share, static_cast<unsigned char>(OBJ::TYPE::MAX)> m_aListShare;
 };
 
