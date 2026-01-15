@@ -235,7 +235,7 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 
 		/* ‚ ‚ cbtVector3‚ğXMFLOAT3‚É•ÏŠ· */
 		DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
-		DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
+		DirectX::XMFLOAT3 TargeVel_XMFLOAT   = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
 
 		/* ‚ ‚ c—v‘f‚¸‚Âw”Œ¸Š */
 		const float fCoef = 0.25f;
@@ -479,6 +479,9 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 
 		// ’Êíó‘Ô‚É•ÏX
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
+
+		// oFŠgU”­¶
+		CDust::GenerateSpread(rStateMachine.m_rPalyer.GetTransform().Pos, 7);
 	}
 }
 
@@ -552,6 +555,7 @@ void CPlayer::Update()
 			m_pFallTetraBehavior = nullptr;
 		}
 	}
+
 	// €–S”»’è
 	CheckDeath();
 
