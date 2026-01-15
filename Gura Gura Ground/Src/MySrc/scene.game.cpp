@@ -168,7 +168,7 @@ void CSceneGame::SpawnPlayer()
 		{ -fInitDist, 25.0f, -fInitDist }
 	};
 
-	for (unsigned char wPlayerIndex = 0; wPlayerIndex < MAX_PLYAER; ++wPlayerIndex)
+	for (unsigned char wPlayerIndex = 0; wPlayerIndex < 2; ++wPlayerIndex)
 	{
 		// 良い感じに四方に散らばらせる
 		if (wPlayerIndex % 2 == 0) PlayersInitTransform.Pos.z *= -1.0f;
@@ -201,27 +201,47 @@ void CSceneGame::SpawnPlayer()
 //============================================================================
 void CSceneGame::SpawnCPU()
 {
-	// 敵の各辺のスパン
 	const float fSize = 1.0f;
+	const float EnemyIndex = 2;
+	float Posx = -5.0f;
+	std::vector<std::shared_ptr<CEnemyPlayer>>pEnemy;
 
-	// 敵生成
-	CObjectManager::CreateRaw<CEnemyPlayer>(
-		[fSize](CEnemyPlayer* p) -> bool
+	for (unsigned char wPlayerIndex = 0; wPlayerIndex < EnemyIndex; ++wPlayerIndex)
+	{
+		// プレイヤーの初期トランスフォーム
+		OBJ::Transform PlayersInitTransform =
 		{
-			// トランスフォームの設定
-			p->SetTransform(
-				{
-					{ fSize, fSize, fSize },
-					{ 0.0f,  0.0f,  0.0f, 1.0f },
-					{ 2.0f,  15.0f, 2.0f }
-				});
+			{ fSize, fSize, fSize },
+			{ 0.0f, 0.0f, 0.0f, 1.0f},
+			{ Posx, 15.0f, -5.0f }
+		};
 
-			// コライダーの生成
-			p->FactoryCollider(fSize, fSize, fSize);
+		// 敵生成
+		pEnemy.push_back(CObjectManager::CreateShare<CEnemyPlayer>(
+			[PlayersInitTransform](CEnemyPlayer* p) -> bool
+			{
+				// トランスフォームの設定
+				p->SetTransform(PlayersInitTransform);
 
-			return true;
-		},
-		OBJ::TYPE::NONE); //TYPEはENEMYとか別枠で確保した}
+				// コライダーの生成
+				p->FactoryCollider(1.0f, 1.0f, 1.0f);
+
+				return true;
+			},
+			OBJ::TYPE::NONE) //TYPEはENEMYとか別枠で確保した}
+		);
+
+		Posx = 5.0f;
+	}
+
+	for (int i = 0; i < EnemyIndex; ++i)
+	{
+		for (int j = 0; j < EnemyIndex; ++j)
+		{
+			if (i == j) continue;  // 自分自身はスキップ
+			pEnemy[i]->searchEnemy(pEnemy[j]);
+		}
+	}
 }
 
 //============================================================================

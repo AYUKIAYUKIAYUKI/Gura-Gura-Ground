@@ -55,6 +55,9 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsObject(Typ
 {
 	searchPlayer();  //プレイヤーを探す(初めにプレイヤーが生成されてるのが条件)
 	searchBar();     //障害物を探す(初めにプレイヤーが生成されてるのが条件)
+
+	//あらかじめパラメータを設定
+	m_params.predictionTime = 0.295f +RandomRange(-0.05f, 0.05f); //ある程度の値の大きさを持たせる
 }
 
 //======================================
@@ -62,9 +65,18 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsObject(Typ
 //======================================
 CEnemyPlayer::~CEnemyPlayer()
 {
+	//ポインターの情報を消す
 	std::vector<std::weak_ptr<CPlayer>>().swap(m_pwPlayer);
-	std::vector<CEnemyPlayer*>().swap(m_pwSelf);
+	std::vector<std::weak_ptr<CEnemyPlayer>>().swap(m_pwSelf);
 	m_pBar = nullptr;
+}
+
+//======================================
+//別の自身クラスを探す処理
+//======================================
+void CEnemyPlayer::searchEnemy(std::shared_ptr<CEnemyPlayer>pSelf)
+{
+	m_pwSelf.push_back(pSelf);
 }
 
 
@@ -102,6 +114,7 @@ void CEnemyPlayer::Update()
 	//情報があるか確認
 	CheckInfo();
 
+	//各情報を判定し、それに対応した呼び出す
 	switch (m_State)
 	{
 	case ENEMY_STATE::STATE_BASE:    State_Base();    break;
@@ -136,42 +149,9 @@ void CEnemyPlayer::State_Base_Search()
 
 	auto SelfPos = GetTransform().Pos; //自身の位置
 
-	//プレイヤーを対象に追加 
-	for (const auto& wp : m_pwPlayer)
-	{
-		//閲覧情報がある
-		if (auto sp = wp.lock())
-		{
-			//プレイヤーの位置
-			auto Playerpos = sp->GetTransform().Pos;
-
-			//プレイヤーの速度
-			CRigidBody* pRB = DownCast<CRigidBody>(sp->GetCollider());
-			auto PlayerVel = pRB->GetLinearVelocity(); // ← 速度取得
-
-			//代入
-			targets.push_back({ CheckDistance(Playerpos, SelfPos),atan2f(Playerpos.x - SelfPos.x, Playerpos.z - SelfPos.z),Playerpos ,PlayerVel});
-		}
-	}
-
-	//敵プレイヤーを対象に追加 
-	for (const auto& enemy : m_pwSelf)
-	{
-		//死んでない
-		if (!enemy->GetDeath())
-		{
-			//敵プレイヤーの位置(EnemyPlayer=EP)
-			auto EPpos = enemy->GetTransform().Pos;
-
-			//敵プレイヤーの速度
-			CRigidBody* pRB = DownCast<CRigidBody>(enemy->GetCollider());
-			auto EPVel = pRB->GetLinearVelocity(); // ← 速度取得
-
-			//代入
-			targets.push_back({CheckDistance(EPpos, SelfPos),atan2f(EPpos.x - SelfPos.x, EPpos.z - SelfPos.z),EPpos,EPVel });
-		}
-		
-	}
+	//targetsに各情報を入れる
+	CollectTargetInfo(m_pwPlayer, targets, SelfPos); //プレイヤーの情報
+	CollectTargetInfo(m_pwSelf, targets, SelfPos);   //（別の）自身の情報
 
 	//対象がいなければ終了
 	if (targets.empty())
@@ -180,18 +160,18 @@ void CEnemyPlayer::State_Base_Search()
 	}
 
 	//最も近いターゲットを取得 
-	auto min_it = std::min_element
+	auto min_it = std::max_element
 	(
 		targets.begin(), targets.end(),
-		[](const TargetInfo& a, const TargetInfo& b)
+		[&](const TargetInfo& a, const TargetInfo& b)
 		{
-			return a.distance < b.distance;
+			return ScoreTarget(a, SelfPos) < ScoreTarget(b, SelfPos);
 		}
 	);
 
 	//ここで予測位置を計算する 
-	float predictionTime = 0.3f; //先読み時間(大きくするほど挙動が変化)
-	DirectX::XMFLOAT3 predictedPos = 
+	float predictionTime = m_params.predictionTime; 
+	DirectX::XMFLOAT3 predictedPos =
 	{
 		min_it->pos.x + min_it->vel.getX() * predictionTime,
 		min_it->pos.y + min_it->vel.getY() * predictionTime,
@@ -212,9 +192,9 @@ void CEnemyPlayer::State_Base_Search()
 //======================================
 //比較処理(当たった時の判定や初動動かない処理)
 //======================================
-void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX::XMFLOAT3& SelfPos, float angle)
+void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3 targetPos, const DirectX::XMFLOAT3 SelfPos, float angle)
 {
-	const float RADIUS = 4.0f;         //当たり半径
+	const float RADIUS = 3.0f;         //当たり半径
 
 	//当たっているかどうか判定
 	if (CheckCollision(targetPos, SelfPos, RADIUS))
@@ -245,6 +225,58 @@ void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX:
 	}
 }
 
+//======================================
+//対象の総合判定処理
+//======================================
+float CEnemyPlayer::ScoreTarget(const TargetInfo& t, const DirectX::XMFLOAT3& selfPos)
+{
+	float score = 0.0f;
+
+	// -----------------------------
+	// 1、距離（最重要）
+	// 距離^3 → 距離^2 に変更して安定化
+	// -----------------------------
+	float distanceScore = 1.0f / (t.distance * t.distance + 0.001f);
+	distanceScore = btClamped(distanceScore, 0.0f, 1000.0f);         // 暴走防止
+	score += distanceScore * m_params.weightDistance;
+
+	// -----------------------------
+	// 2、接近度 * 距離減衰
+	// approach を 0～1 に正規化して扱う
+	// -----------------------------
+	useful::Vec3 toTarget = t.pos - useful::Vec3(selfPos.x, selfPos.y, selfPos.z);
+	toTarget = NormalizeFloat3(toTarget); //正規化
+
+	//正規化
+	btVector3 velNorm = t.vel;        //normalize関数を使用するために置き換え
+	if (velNorm.length2() > 0.0001f)
+	{
+		velNorm.normalize();
+	}
+	float approach = btDot(btVector3(toTarget.x, toTarget.y, toTarget.z), velNorm); //「ターゲット方向ベクトル」と「正規化された速度ベクトル」の内積＝接近度」
+	float approach01 = (approach + 1.0f) * 0.5f;                                    // [-1,1] → [0,1] に正規化
+
+	// 距離^2 で減衰（距離^3 より安定）
+	float approachScore = approach01 / (t.distance * t.distance + 0.001f);
+	approachScore = btClamped(approachScore, 0.0f, 1000.0f);
+	score += approachScore * m_params.weightApproach;
+
+	return score;
+}
+
+//======================================
+//正規化
+//======================================
+XMFLOAT3 CEnemyPlayer::NormalizeFloat3(const DirectX::XMFLOAT3& v)
+{
+	XMVECTOR vec = XMLoadFloat3(&v);
+	vec = XMVector3Normalize(vec);
+
+	XMFLOAT3 out;
+	XMStoreFloat3(&out, vec);
+
+	return out;
+}
 
 //======================================
 //基本となる状態のバーの処理
@@ -298,8 +330,6 @@ void CEnemyPlayer::State_In_Jump()
 
 			// ドロップ力を反映
 			pRB->SetImpulse(btDropVec);
-
-			//CreateShockWave(Collision::SHAPETYPE::SPHERE, { 2.0f, 2.0f, 2.0f }, 1);
 		}
 
 		//リキャストタイムがMAXの設定値分到達した時にジャンプ出来るようにする
@@ -353,14 +383,6 @@ void CEnemyPlayer::searchPlayer()
 		m_pwPlayer.push_back(pPlayer);
 	}
 
-	
-
-
-}
-
-void CEnemyPlayer::searchEnemy(CEnemyPlayer* pSelf)
-{
-	m_pwSelf.push_back(pSelf);
 }
 
 //======================================
@@ -390,34 +412,13 @@ void CEnemyPlayer::MoveAtPlayer(float Angle, float speed)
 	pRB->SetLinearVelocity(MoveDir); //加速度の設定
 }
 
-//============================================================================
-// 衝撃波の作成(未定)
-//============================================================================
-void CEnemyPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
-{
-	// 衝撃波の作成
-	//m_pShockWave = CObject::Create<CShockWave>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
-
-	// プレイヤーの登録
-	//m_pShockWave->SetPlayer(this);
-
-	// プレイヤーのトランスフォームを出現位置に設定
-	m_pShockWave->SetTransform(GetTransform());
-
-	// ゴーストの作成
-	m_pShockWave->FactoryCollider(Type, Size.x, Size.y, Size.z);
-
-	// 衝撃波の作成
-	m_pShockWave->SetDuration(nDuration);
-}
-
 //======================================
 //当たり判定チェック処理
 //======================================
-bool CEnemyPlayer::CheckCollision(const XMFLOAT3& c1, const XMFLOAT3& c2, float Radius)
+bool CEnemyPlayer::CheckCollision(const XMFLOAT3& c1pos, const XMFLOAT3& c2pos, float Radius)
 {
 	//対角線を算出
-	float centerDistance = CheckDistance(c1, c2);
+	float centerDistance = CheckDistance(c1pos, c2pos);
 
 	//中心点の距離より半径の和のほうが大きい
 	if (centerDistance <= Radius)
@@ -530,7 +531,7 @@ bool CEnemyPlayer::InJump(bool& bJump, int& RecastTme, const int MaxRecast)
 //======================================
 bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
 {
-	++RecastTme;
+	++RecastTme; //必ず０から始動
 
 	//リキャストタイムが規定値に達した時
 	if (RecastTme >= MaxRecast)
@@ -540,6 +541,11 @@ bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
 		bJump = true;       //ジャンプ可能
 
 		return true;
+	}
+	//多少強引に一回だけ衝撃波を呼ぶ処理を実行
+	else if (RecastTme <= 1)
+	{
+		CreateShockWave(Collision::SHAPETYPE::BOX, { 7.0f, 1.0f, 7.0f }, 10);
 	}
 
 	return false;
@@ -590,6 +596,32 @@ void CEnemyPlayer::Jump_Base()
 	pRB->SetActive();
 	pRB->SetImpulse(btJumpVec);
 }
+
+//============================================================================
+// 衝撃波の作成
+//============================================================================
+void CEnemyPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
+{
+	// 衝撃波の作成と、弱参照の設定
+	const std::shared_ptr<CShockWave>& spShockWave = CObjectManager::CreateShare<CShockWave>
+		(
+		  OBJ::TYPE::NONE,
+		  OBJ::LAYER::DEFAULT
+		);
+
+	// 自身のトランスフォームを出現位置に設定
+	spShockWave->SetTransform(GetTransform());
+
+	// ゴーストの作成
+	spShockWave->FactoryCollider(Type, Size.x, Size.y, Size.z);
+
+	// 自身を無視対象に設定
+	spShockWave->SetIgnore(shared_from_this());
+
+	// 期間の設定
+	spShockWave->SetDuration(nDuration);
+}
+
 
 //======================================
 //描画処理
