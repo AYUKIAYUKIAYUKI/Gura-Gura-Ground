@@ -89,6 +89,54 @@
       "Data\\TEXTURE\\reticle.png"
     ],
     [
+      "ResultNum0",
+      "Data\\TEXTURE\\Number\\ResultNum0.png"
+    ],
+    [
+      "ResultNum1",
+      "Data\\TEXTURE\\Number\\ResultNum1.png"
+    ],
+    [
+      "ResultNum2",
+      "Data\\TEXTURE\\Number\\ResultNum2.png"
+    ],
+    [
+      "ResultNum3",
+      "Data\\TEXTURE\\Number\\ResultNum3.png"
+    ],
+    [
+      "ResultNum4",
+      "Data\\TEXTURE\\Number\\ResultNum4.png"
+    ],
+    [
+      "ResultNum5",
+      "Data\\TEXTURE\\Number\\ResultNum5.png"
+    ],
+    [
+      "ResultNum6",
+      "Data\\TEXTURE\\Number\\ResultNum6.png"
+    ],
+    [
+      "ResultNum7",
+      "Data\\TEXTURE\\Number\\ResultNum7.png"
+    ],
+    [
+      "ResultNum8",
+      "Data\\TEXTURE\\Number\\ResultNum8.png"
+    ],
+    [
+      "ResultNum9",
+      "Data\\TEXTURE\\Number\\ResultNum9.png"
+    ],
+    [
+      "ResultNumCoron",
+      "Data\\TEXTURE\\Number\\ResultNumCoron.png"
+    ],
+    [
+      "BattleTimeText",
+      "Data\\TEXTURE\\Result\\BattleTime_Text.png"
+    ],
+    [
       "Uchiyama",
       "Data\\TEXTURE\\uchiyama.png"
     ]

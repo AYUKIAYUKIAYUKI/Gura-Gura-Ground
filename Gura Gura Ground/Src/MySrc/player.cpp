@@ -23,6 +23,9 @@
 // カメラコントローラー登録解除のため
 #include "cameracontroller.h"
 
+// 静的メンバ初期化
+std::vector<float> CPlayer::s_vSurvivalTimes(CPlayer::MAX_PLAYER_COUNT, 0.0f);
+
 //****************************************************
 // 無名名前空間の定義
 //****************************************************
@@ -539,6 +542,13 @@ void CPlayer::Update()
 	// 制御不能期間は常にデクリメント
 	--m_nLostControlDuration;
 
+	//生存時間計測
+	if (m_bIsDead) 
+	{
+		if (m_wIdxPlayer < s_vSurvivalTimes.size())
+			s_vSurvivalTimes[m_wIdxPlayer] += 1.0f / 60.0f; // 60FPSで換算
+	}
+
 	// 状態実行
 	if (m_upStateMachine)
 	{
@@ -672,6 +682,7 @@ void CPlayer::CheckDeath()
 	if (fSelfPosY < fFieldPosY)
 	{
 		// 自身の死亡フラグを立てる
+		m_bIsDead = true;
 		SetDeath();
 	}
 }

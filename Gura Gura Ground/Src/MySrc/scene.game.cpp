@@ -28,6 +28,8 @@
 // イベント処理のため
 #include "cameracontroller.h"
 
+#include "scene.result.h"
+
 // a
 CEnemyPlayer* g_pEnemy;
 
@@ -148,8 +150,12 @@ void CSceneGame::Change()
 	// 全オブジェクトに死亡フラグを立てる
 	CObjectManager::RefInstance().SetDeathAll();
 
-	// タイトルシーンへ
-	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	//生存時間
+	std::vector<float> times = CPlayer::s_vSurvivalTimes;
+	auto resultScene = std::make_unique<CSceneResult>(times);
+
+	//遷移時に生存時間も渡す
+	CSceneManager::RefInstance().ChangeScene(std::move(resultScene));
 }
 
 //============================================================================

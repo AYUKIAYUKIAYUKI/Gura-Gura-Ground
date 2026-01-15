@@ -67,6 +67,7 @@ public:
     void AssignRandomSpawnTimes();              // スポーンタイム割り当て（ランダム化）
     void PlayModeSpawn(float deltaTime);        // プレイモード・自動生成処理
     void ResetPlayMode();                       // プレイモードリセット
+    void ShowGlobalGimmickSettingsWindow();
 
     bool m_PlayMode;                        // プレイモードフラグ
     float m_PlayModeElapsedTime;             // プレイモード経過時間

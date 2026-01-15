@@ -255,10 +255,10 @@ TetraState_Fall::TetraState_Fall(CFallTetra* p) : m_Grace(20)
 
 //============================================================================
 // 落下ステートの挙動
-//============================================================================
+//====================リジッドボディに========================================================
 void TetraState_Fall::Action([[maybe_unused]] CFallTetra* p)
 {
-	// コライダーをリジッドボディにキャスト
+	// コライダーをキャスト
 	CRigidBody* const pRB = dynamic_cast<CRigidBody*>(p->GetCollider());
 
 	//下方向に移動量を加えてあげる
@@ -279,7 +279,7 @@ void TetraState_Fall::Action([[maybe_unused]] CFallTetra* p)
 	if (velY < 0.01f && velY > -0.01f)
 	{//Y方向の移動量が一定値以下なら
 		// 塵：拡散発生
-		CDust::GenerateSpread(TF.Pos, 10);
+		//CDust::GenerateSpread(TF.Pos, 10);
 		p->SetDeath();
 	}
 }

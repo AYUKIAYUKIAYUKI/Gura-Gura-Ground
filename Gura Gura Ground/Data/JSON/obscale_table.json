@@ -21,6 +21,18 @@
                     "speedX": 0.0,
                     "speedY": 0.0,
                     "speedZ": -5.0
+                },
+                {
+                    "collider_depth": 2.0,
+                    "collider_height": 2.0,
+                    "collider_width": 2.0,
+                    "manual_type": 0,
+                    "spawnX": 0.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 10.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
                 }
             ]
         },
