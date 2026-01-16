@@ -40,7 +40,7 @@ struct GltfMesh
 //****************************************************
 // glTFモデルマネージャークラスの定義
 //****************************************************
-class CGltfManager : public CManager<CGltfManager, GltfMesh>
+class CGltfManager : public CManager<CGltfManager, GltfMesh*>
 {
 	//****************************************************
 	// 前方宣言

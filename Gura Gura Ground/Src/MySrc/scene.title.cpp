@@ -27,6 +27,9 @@
 /* デバッグ */
 namespace
 {
+	static float fW = 1980.0f / 1280.0f;
+	static float fH = 1080.0f / 720.0f;
+
 	static float fA = 250.0f;
 	static float fB = 344.0f;
 	static float fC = 640.0f;
@@ -74,7 +77,7 @@ CSceneTitle::CSceneTitle()
 	// 幕を生成
 	auto pBG = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::BG);
 	pBG->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("BG"));
-	OBJ::Transform TF = { { 1280.0f, 1280.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX, WCY, 0.0f } };
+	OBJ::Transform TF = { { 1280.0f * fW, 1280.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX * fW, WCY * fH, 0.0f } };
 	pBG->SetTransform(TF);
 	pBG->SetTransformTarget(TF);
 	m_pBackCurtain = pBG;
@@ -82,14 +85,14 @@ CSceneTitle::CSceneTitle()
 	// 額縁を生成
 	auto pFrame = CObjectManager::CreateRaw<CHud>();
 	pFrame->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Frame"));
-	TF = { { 500.0f, 500.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX, WCY, 0.0f } };
+	TF = { { 500.0f * fW, 500.0f * fW, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX * fW, WCY * fH, 0.0f } };
 	pFrame->SetTransform(TF);
 	pFrame->SetTransformTarget(TF);
 
 	// 無を生成
 	auto pPicture = CObjectManager::CreateRaw<CHud>();
 	pPicture->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
-	TF = { { fA, fB, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX, WCY, 0.0f } };
+	TF = { { fA * fW, fB * fH, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX * fW, WCY * fH, 0.0f } };
 	pPicture->SetTransform(TF);
 	pPicture->SetTransformTarget(TF);
 	Ijiru = pPicture;
@@ -97,7 +100,7 @@ CSceneTitle::CSceneTitle()
 	// 緞帳(左)を生成
 	auto pSatinCurtain = CObjectManager::CreateRaw<CHud>();
 	pSatinCurtain->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
-	TF = { { 600.0f, 720.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 300.0f, WCY, 0.0f } };
+	TF = { { 600.0f * fW, 720.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 300.0f * fW, WCY * fH, 0.0f } };
 	pSatinCurtain->SetTransform(TF);
 	pSatinCurtain->SetTransformTarget(TF);
 	m_vpSatinCurtain.push_back(pSatinCurtain);
@@ -105,7 +108,11 @@ CSceneTitle::CSceneTitle()
 	// 緞帳(右)を生成
 	pSatinCurtain = CObjectManager::CreateRaw<CHud>();
 	pSatinCurtain->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
-	TF = { { 600.0f, 720.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 1280.0 - 300.0f, WCY, 0.0f } };
+	TF = OBJ::Transform{
+		DirectX::XMFLOAT3(600.0f * fW, 720.0f * fH, 0.0f),
+		DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
+		DirectX::XMFLOAT3((1280.0f - 300.0f) * fW, WCY * fH, 0.0f)
+	};
 	pSatinCurtain->SetTransform(TF);
 	pSatinCurtain->SetTransformTarget(TF);
 	m_vpSatinCurtain.push_back(pSatinCurtain);
@@ -114,7 +121,7 @@ CSceneTitle::CSceneTitle()
 	auto Logo = CObjectManager::CreateRaw<CHud>();
 	Logo->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Logo.A"));
 	Logo->SetTransform(ITFB);
-	TF = { { 624.0f, 113.0f, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { WCX + 125.0f, WCY + 125.0f, 0.0f } };
+	TF = { { 624.0f * fW, 113.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { (WCX + 125.0f) * fW, (WCY + 125.0f) * fH, 0.0f } };
 	Logo->SetTransformTarget(TF);
 	m_vpLogo.push_back(Logo);
 
@@ -122,7 +129,7 @@ CSceneTitle::CSceneTitle()
 	Logo = CObjectManager::CreateRaw<CHud>();
 	Logo->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Logo.B"));
 	Logo->SetTransform(ITFA);
-	TF = { { 417.0f, 134.0f, 0.0f }, { 0.0f, 0.0f, -0.2f, 0.0f }, { WCX - 200.0f, WCY - 125.0f, 0.0f } };
+	TF = { { 417.0f * fW, 134.0f * fH, 0.0f }, { 0.0f, 0.0f, -0.2f, 0.0f }, { (WCX - 200.0f) * fW, (WCY - 125.0f) * fH, 0.0f } };
 	Logo->SetTransformTarget(TF);
 	m_vpLogo.push_back(Logo);
 
@@ -130,7 +137,7 @@ CSceneTitle::CSceneTitle()
 	Logo = CObjectManager::CreateRaw<CHud>();
 	Logo->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Logo.C"));
 	Logo->SetTransform(ITFB);
-	TF = { { 529.0f, 135.0f, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { WCX + 125.0f, WCY + 40.0f, 0.0f } };
+	TF = { { 529.0f * fW, 135.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { (WCX + 125.0f) * fW, (WCY + 40.0f) * fH, 0.0f } };
 	Logo->SetTransformTarget(TF);
 	m_vpLogo.push_back(Logo);
 }
@@ -224,12 +231,12 @@ void CSceneTitle::TriggerEvent_MoveSatinCurtain()
 
 	// 緞帳(左)の目標位置を変更
 	const OBJ::Transform& rTF_Left   = m_vpSatinCurtain[0]->GetTransformTarget();
-	const OBJ::Transform  NewTF_Left = { rTF_Left.Size, rTF_Left.Rot, { fPosTarget_X, rTF_Left.Pos.y, 0.0f } };
+	const OBJ::Transform  NewTF_Left = { rTF_Left.Size, rTF_Left.Rot, { fPosTarget_X * fW, rTF_Left.Pos.y, 0.0f } };
 	m_vpSatinCurtain[0]->SetTransformTarget(NewTF_Left);
 
 	// 緞帳(右)の目標位置を変更
 	const OBJ::Transform& rTF_Right   = m_vpSatinCurtain[1]->GetTransformTarget();
-	const OBJ::Transform  NewTF_Right = { rTF_Right.Size, rTF_Right.Rot, { 1280.0f + -fPosTarget_X, rTF_Right.Pos.y, 0.0f } };
+	const OBJ::Transform  NewTF_Right = { rTF_Right.Size, rTF_Right.Rot, { (1280.0f + -fPosTarget_X) * fW, rTF_Right.Pos.y, 0.0f } };
 	m_vpSatinCurtain[1]->SetTransformTarget(NewTF_Right);
 }
 

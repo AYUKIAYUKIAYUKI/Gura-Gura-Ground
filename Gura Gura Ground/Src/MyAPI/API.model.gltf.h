@@ -54,7 +54,7 @@ public:
 	void Draw();
 
 	// モデルのバインド
-	void SetModel(const GltfMesh& rData);
+	void SetModel(GltfMesh* pData);
 
 	// 頂点シェーダーのバインド
 	void SetVertexShader(const ComPtr<ID3D11VertexShader>& rcpVS);
