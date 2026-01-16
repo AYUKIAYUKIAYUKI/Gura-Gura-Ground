@@ -171,8 +171,21 @@ void CPendulum::Update()
 	// 挙動
 	Action();
 
+	// 1往復周期 = 2π / ω（端→端）
+	const float period = 2.0f * DirectX::XM_PI / PendulumParams::Omega;
+
+	// 現在のワールドトランスフォームを取得
+	OBJ::Transform TF = {};
+	m_pRB->GetWorldTransform(TF);
+
+	if (m_Time >= period)
+	{
+		// 自身の死亡フラグを立てる
+		SetDeath();
+	}
+
 	// 戻る
-	Loop();
+	//Loop();
 
 	CheckHitPlayer();
 

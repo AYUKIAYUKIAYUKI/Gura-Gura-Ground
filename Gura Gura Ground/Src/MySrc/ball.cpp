@@ -100,6 +100,15 @@ void CBall::Update()
 	// 挙動
 	Action();
 
+	// ワールドトランスフォームから位置を取得
+	CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
+	const DirectX::XMFLOAT3& Pos = pRB->GetWorldTransform().Pos;
+	if (Pos.y < 3.0f)
+	{
+		// 自身の死亡フラグを立てる
+		SetDeath();
+	}
+
 	//// 戻る
 	//Loop();
 
@@ -210,9 +219,6 @@ void CBall::Loop()
 
 		// 塵：拡散発生
 		CDust::GenerateSpread(TF.Pos, 10);
-
-		// 効果音：跳ねる音停止
-		CSoundManger::RefInstance().Stop("Ball");
 	}
 
 	/* 位置を出力*/

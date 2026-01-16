@@ -39,6 +39,10 @@
     [
       "Bomb",
       "Data\\Audio\\bomb.wav"
+    ],
+    [
+      "Boomerang",
+      "Data\\Audio\\boomerang.wav"
     ]
   ]
 }
