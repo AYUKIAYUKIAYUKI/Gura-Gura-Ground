@@ -151,7 +151,10 @@
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
     <ClCompile Include="Src\MySrc\symbol.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\hud.count.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
     <ClCompile Include="Src\MySrc\boomerang.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
@@ -353,8 +356,11 @@
     <ClInclude Include="Src\MySrc\shadow.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
+    <ClInclude Include="Src\MySrc\hud.count.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
     <ClInclude Include="Src\MySrc\symbol.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
     <ClInclude Include="Src\MySrc\boomerang.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
