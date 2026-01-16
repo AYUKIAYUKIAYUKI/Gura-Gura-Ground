@@ -43,7 +43,8 @@ public:
 	{
 		TAG_LIGHTNING = 0,
 		TAG_WATER,
-		TAG_FIRE
+		TAG_FIRE,
+		TAG_HIPDROP
 	};
 	void Update();			//çXêV
 	void Draw();			//ï`âÊ
