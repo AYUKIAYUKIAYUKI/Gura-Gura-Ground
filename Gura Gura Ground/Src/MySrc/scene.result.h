@@ -27,4 +27,9 @@ private:
 	float m_fGameTime;
 	std::vector<float> m_playerSurvivalTimes;
 	std::vector<std::vector<CHud*>> m_vvPlayerNumbers;
+	std::vector<CHud*> m_vpPlayerLights;
+	std::vector<CHud*> m_vpPlayerBattleTexts;
+	std::vector<CHud*> m_vpPlayerIcons;
+	std::vector<CHud*> m_vpPlayerRankImgs;
+	std::vector<CHud*> m_vpPlayerTextImgs;
 };
