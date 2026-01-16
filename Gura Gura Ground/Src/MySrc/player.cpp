@@ -197,7 +197,8 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 
 		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr)
 		{
-			fSpeed *= rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetDecayValue();
+			float Decay = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetDecayValue();
+			fSpeed *= Decay;
 		}
 
 #if 0

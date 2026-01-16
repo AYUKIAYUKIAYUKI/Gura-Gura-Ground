@@ -26,6 +26,9 @@
 // イベント処理のため
 #include "cameracontroller.h"
 
+//ﾃﾞﾊﾞｯｸﾞ
+#include "Barrel.h"
+
 //****************************************************
 // 仮：最終的に必要と判断した変数はメンバに付属してください
 //****************************************************
@@ -47,6 +50,28 @@ namespace
 
 	std::chrono::steady_clock::time_point g_LastUpdateTime;
 	float g_GameTime = 0.0f;
+	void DEBUG_WND()
+	{
+		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
+
+		if(ImGui::Button("Barrel"))
+		{
+			CObjectManager::CreateRaw<CBarrel>([](CBarrel* p)->bool {
+				p->FactoryCollider();
+
+				const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
+				OBJ::Transform TF = {};
+				TF.Pos = { 0.0f,10.0f,14.0f};
+				CBarrel::SetRotate(TF, { 0.0f, 0.0f,1.0f});
+				pRigidBody->SetWorldTransform(TF);
+				p->SetDirection({ 0.0f,0.0f, -5.0f });
+				return true;
+				});
+		}
+
+		ImGui::Separator();
+		ImGui::End();
+	}
 }
 
 //============================================================================
@@ -86,6 +111,8 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
+	DEBUG_WND();
+
 	//タイム計測
 	auto now = std::chrono::steady_clock::now();
 	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();

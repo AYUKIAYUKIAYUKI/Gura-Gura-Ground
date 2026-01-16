@@ -74,7 +74,10 @@ public:
 	std::shared_ptr<FallTetra_Behavior> GetFallTetraBehavior() { return m_pFallTetraBehavior; }
 	//ŠO•”‚©‚ç‚Ø‚¿‚á‚ñ‚±—LŒø‰»‚·‚é‚½‚ß‚ÌŠÖ”
 	void EnableFallTetraBehavior() {
-		if (m_pFallTetraBehavior != nullptr)m_pFallTetraBehavior.reset();
+		if (m_pFallTetraBehavior != nullptr) {
+			m_pFallTetraBehavior.reset();
+			return;
+		}
 		m_pFallTetraBehavior = std::make_shared<FallTetra_Behavior>();
 	}
 
