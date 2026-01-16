@@ -73,7 +73,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
             return a.timeInt > b.timeInt || (a.timeInt == b.timeInt && a.idx < b.idx);
         }
     );
-    std::vector<int> indexToRank(playerCount, 0); // index→順位（Rank_番号）
+    std::vector<int> indexToRank(playerCount, 0);
     int rankNumber = 1; // 1位（Rank_1）から
     int prevTime = -1;
     int usedRank = rankNumber;
@@ -101,22 +101,59 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         if ((int)m_playerSurvivalTimes[i] > maxTimeInt)
             maxTimeInt = (int)m_playerSurvivalTimes[i];
     }
-
-    // 最長タイムプレイヤーにTextPlayer00X画像を表示
+    // 勝者（最長タイム）プレイヤーをカウント
+    std::vector<int> winners;
     for (size_t i = 0; i < playerCount; ++i) {
         if ((int)m_playerSurvivalTimes[i] == maxTimeInt) {
-            float baseX = leftmostX + i * TIMER_INTERVAL;
-            std::string textPlayerTex = "TextPlayer00" + std::to_string(i + 1); // 例: TextPlayer001.png
+            winners.push_back((int)i);
+        }
+    }
+
+    // 横並びのための調整値
+    const float SINGLE_WIN_IMG_X = 1500.0f;
+    const float SINGLE_WIN_IMG_Y = 500.0f;
+    const float WIN_IMG_W = 664.0f;
+    const float WIN_IMG_H = 133.0f;
+    const float HALF_WIN_IMG_W = WIN_IMG_W / 2.0f;
+    const float HALF_WIN_IMG_H = WIN_IMG_H / 2.0f;
+    const float PLAYER_TXT_BASE_X = SINGLE_WIN_IMG_X;
+    const float PLAYER_TXT_BASE_Y = SINGLE_WIN_IMG_Y;
+    const float IMAGE_SPACING = 26.0f;  // 画像同士の間隔
+
+     // 勝者が1人の場合
+    if (winners.size() == 1) 
+    {
+
+        int winnerIndex = winners[0];
+        std::string textPlayerTex = "TextPlayer00" + std::to_string(winnerIndex + 1);
+        auto pText = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+        pText->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey(textPlayerTex));
+        OBJ::Transform TEXT_PLAYER_TR = { {WIN_IMG_W, WIN_IMG_H, 0}, {0,0,0,0}, {PLAYER_TXT_BASE_X, PLAYER_TXT_BASE_Y, 0} };
+        pText->SetTransform(TEXT_PLAYER_TR);
+        pText->SetTransformTarget(TEXT_PLAYER_TR);
+        m_vpPlayerTextImgs.push_back(pText);
+    }
+
+    // 勝者が2人以上場合、縦並びで配置
+    else if (winners.size() > 1) 
+    {
+        float totalH = winners.size() * HALF_WIN_IMG_H + (winners.size() - 1) * IMAGE_SPACING;
+        float topY = PLAYER_TXT_BASE_Y - (totalH * 0.5f) + (HALF_WIN_IMG_H * 0.5f);
+        for (size_t k = 0; k < winners.size(); ++k) {
+            int winnerIndex = winners[k];
+            std::string textPlayerTex = "TextPlayer00" + std::to_string(winnerIndex + 1);
             auto pText = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
             pText->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey(textPlayerTex));
-            // 画像のサイズを参考に座標調整（幅:664px, 高さ:133px想定）
-            OBJ::Transform TEXT_PLAYER_TR = { {664, 133, 0}, {0,0,0,0}, {1500, 500.0f, 0} };
+            float posX = PLAYER_TXT_BASE_X;
+            float posY = topY + k * (HALF_WIN_IMG_H + IMAGE_SPACING);
+            OBJ::Transform TEXT_PLAYER_TR = { {HALF_WIN_IMG_W, HALF_WIN_IMG_H, 0}, {0,0,0,0}, {posX, posY, 0} };
             pText->SetTransform(TEXT_PLAYER_TR);
             pText->SetTransformTarget(TEXT_PLAYER_TR);
             m_vpPlayerTextImgs.push_back(pText);
         }
     }
 
+    //プレイヤー分表示させる
     for (size_t i = 0; i < playerCount; ++i)
     {
         std::vector<CHud*> vpNums;

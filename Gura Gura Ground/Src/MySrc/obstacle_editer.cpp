@@ -18,6 +18,7 @@
 #include <pendulum.h>
 #include <boomerang.h>
 #include <birdstrike.h>
+#include "Barrel.h"
 
 using json = nlohmann::json;
 
@@ -145,7 +146,8 @@ void ObstacleEditer::EditCommonParams()
             reinterpret_cast<const char*>(u8"ドッスン"),
             reinterpret_cast<const char*>(u8"振り子"),
             reinterpret_cast<const char*>(u8"ブーメラン"),
-            reinterpret_cast<const char*>(u8"鳥の群れ")
+            reinterpret_cast<const char*>(u8"鳥の群れ"),
+            reinterpret_cast<const char*>(u8"タル+オイル")
         };
 
         if (ImGui::Combo(reinterpret_cast<const char*>(u8"出現させる障害物"), &currentType, typeNames, static_cast<int>(OBS_TYPE::MAX)))
@@ -569,6 +571,32 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 return true;
                             }, OBJ::TYPE::OBSTACLE);
                         break;
+                    case OBS_TYPE::BARREL:
+                        CObjectManager::CreateShare<CBarrel>([sub, subIdx, paramSetIdx](CBarrel* p) -> bool
+                            {
+                                p->SetParamSetIndex(paramSetIdx);
+                                p->SetSubParamIndex(static_cast<int>(subIdx));
+                                // 先にコライダーを生成
+                                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
+
+                                OBJ::Transform TF = {};
+                                TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+
+                                // 必要であれば角度設定。速度ベースにしたい場合はここを工夫
+                                CBarrel::SetRotate(TF, { sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
+                                p->SetTransform(TF);
+
+                                // 進行方向もエディタ値を使う
+                                p->SetDirection({ sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
+
+                                const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
+                                if (pRigidBody) {
+                                    pRigidBody->SetWorldTransform(TF);
+                                }
+
+                                return true;
+                            }, OBJ::TYPE::OBSTACLE);
+                        break;
                     }
                 }
                 s_SpawnedFlags[i] = true;
@@ -611,7 +639,7 @@ void ObstacleEditer::TryManualSpawn()
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex((int)subIdx);
-                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                     const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
                     OBJ::Transform TF = {};
                     TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
@@ -626,7 +654,7 @@ void ObstacleEditer::TryManualSpawn()
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex((int)subIdx);
-                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                     const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
                     OBJ::Transform TF = {};
                     TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
@@ -642,7 +670,7 @@ void ObstacleEditer::TryManualSpawn()
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));
-                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                     OBJ::Transform TF = {};
                     TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
                     p->SetTransform(TF);
@@ -662,7 +690,7 @@ void ObstacleEditer::TryManualSpawn()
                     TF.Pos = { -Pos, 0.0f, Pos };
                     p->SetTransform(TF);
                     p->SetStartPos(TF.Pos);
-                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                     p->SetDepth(Pos * 2.0f); // 奥行き
                     p->SetWidth(Pos * 2.0f); // 幅
                     return true;
@@ -673,7 +701,7 @@ void ObstacleEditer::TryManualSpawn()
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));
-                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                     OBJ::Transform TF = {};
                     TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
                     p->SetTransform(TF);
@@ -685,7 +713,7 @@ void ObstacleEditer::TryManualSpawn()
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));
-                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                     OBJ::Transform TF = {};
                     TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
                     p->SetTransform(TF);
@@ -697,7 +725,7 @@ void ObstacleEditer::TryManualSpawn()
                 p->SetParamSetIndex(thisSetIdx);
                 p->SetSubParamIndex(static_cast<int>(subIdx));
                 p->SetMovePattern(sub.BoomerangMovePattern);
-                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
 
                 OBJ::Transform TF = {};
                 TF.Pos = { sub.ObstacleSpawnX, 9.0f, sub.ObstacleSpawnZ };
@@ -720,10 +748,36 @@ void ObstacleEditer::TryManualSpawn()
                 {
                     p->SetParamSetIndex(thisSetIdx);
                     p->SetSubParamIndex(static_cast<int>(subIdx));
-                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                     OBJ::Transform TF = {};
                     TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
                     p->SetTransform(TF);
+                    return true;
+                }, OBJ::TYPE::OBSTACLE);
+            break;
+        case OBS_TYPE::BARREL:
+            CObjectManager::CreateShare<CBarrel>([sub, subIdx, thisSetIdx](CBarrel* p) -> bool
+                {
+                    p->SetParamSetIndex(thisSetIdx);
+                    p->SetSubParamIndex(static_cast<int>(subIdx));
+                    // 先にコライダーを生成
+                    p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
+
+                    OBJ::Transform TF = {};
+                    TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+
+                    // 必要であれば角度設定。速度ベースにしたい場合はここを工夫
+                    CBarrel::SetRotate(TF, { sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
+                    p->SetTransform(TF);
+
+                    // 進行方向もエディタ値を使う
+                    p->SetDirection({ sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
+
+                    const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
+                    if (pRigidBody) {
+                        pRigidBody->SetWorldTransform(TF);
+                    }
+
                     return true;
                 }, OBJ::TYPE::OBSTACLE);
             break;

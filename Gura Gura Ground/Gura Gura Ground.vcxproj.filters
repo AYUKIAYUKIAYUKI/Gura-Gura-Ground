@@ -162,6 +162,12 @@
     <ClCompile Include="Src\MySrc\scene.result.cpp">
       <Filter>%28分類済み%29\【シーン系統】</Filter>
     </ClCompile>
+    <ClCompile Include="Src\MySrc\Barrel.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\Oil.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\MySrc\main.h">
@@ -358,6 +364,12 @@
     </ClInclude>
     <ClInclude Include="Src\MySrc\scene.result.h">
       <Filter>%28分類済み%29\【シーン系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\Barrel.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\Oil.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

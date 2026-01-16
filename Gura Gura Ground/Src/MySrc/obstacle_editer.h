@@ -27,6 +27,7 @@ public:
         PENDULUM,  // 振り子
         BOOMERANG, // ブーメラン
         BIRDSTRIKE, // 鳥の群れ
+        BARREL,    //タル+オイル
         MAX
     };
 
@@ -56,7 +57,7 @@ public:
     };
 
     static const int PARAM_SET_MAX = 5;                // パラメータセット最大数
-    static const int SPAWN_PRESET_MAX = 10;
+    static const int SPAWN_PRESET_MAX = 50;
 
     void EditCommonParams();                    // 共通パラメータ編集UI
     void EditerMenu();                          // メイン編集ウィンドウ

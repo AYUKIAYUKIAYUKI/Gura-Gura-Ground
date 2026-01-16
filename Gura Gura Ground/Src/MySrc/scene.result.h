@@ -21,8 +21,29 @@ public:
 	void Change() override;
 
 private:
+	enum class ANIM_PHASE {
+		WIN_TEXT_FADEIN,
+		WIN_WAIT,
+		PLAYER_TEXT_SCALEUP,
+		PLAYER_WAIT,
+		SHOW_OTHERS,
+		FINISHED
+	};
+	ANIM_PHASE m_animPhase = ANIM_PHASE::WIN_TEXT_FADEIN;
+	float m_animTimer = 0.0f;
+	float m_winTextAlpha = 0.0f;
+	int   m_winTextAlphaInt = 0;
+	float m_playerTextScale = 0.0f;
+	float m_otherAlpha = 0.0f;
+	int   m_otherAlphaInt = 0;
+
+	// ŠeŽí—Þ‚ÌHUD‚Ö‚Ìindex/memo
+	int m_winTextIdx = -1;
+	std::vector<int> m_playerTextIdxs;
+	std::vector<int> m_otherHudIdxs;
+
 	CHud* m_pBackground;
-	std::vector<CHud*> m_vpNumbers; // 0-9‰æ‘œHUD
+	std::vector<CHud*> m_vpNumbers;
 	int m_nResultValue;
 	float m_fGameTime;
 	std::vector<float> m_playerSurvivalTimes;

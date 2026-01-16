@@ -42,9 +42,6 @@ namespace
         // --- ブーメランの軌道パラメータ ---
         // ================================
 
-        // 速度
-        const float Omega = 1.0;
-
         // 半径（弧の大きさ）
         const float Radius = g_fFieldSpan * 0.8f;
 
@@ -62,22 +59,6 @@ namespace
         // 擬似速度の上限（安全装置）
         const float MaxSpeed = 20.0f;
 
-        // ヒット後のクールタイム
-        const int HitCooldown = 10;
-
-
-        // ================================
-        // --- 吹っ飛びパワー調整 ---
-        // ================================
-
-        // 基本吹っ飛びパワー
-        const float BasePower = 20.0f;
-
-        // 速度依存の加算パワー
-        const float AddBySpeed = 80.0f;
-
-        // 最終的な吹っ飛びパワーの上限
-        const float MaxFinalPower = 350.0f;
     }
 
     // 位置表示
@@ -273,7 +254,7 @@ void CBoomerang::Loop()
     if (!m_pRB) return;
 
     // 1回の弧で必要な時間 = ArcAngle / Omega
-    const float fullTime = BoomerangParams::ArcAngle / BoomerangParams::Omega;
+    const float fullTime = BoomerangParams::ArcAngle / m_Omega;
 
     OBJ::Transform TF{};
     m_pRB->GetWorldTransform(TF);
@@ -369,10 +350,10 @@ void CBoomerang::CheckHitPlayer()
         // パワー計算
         float t = speed / BoomerangParams::MaxSpeed;
 
-        float power = BoomerangParams::BasePower
-            + BoomerangParams::AddBySpeed * t;
+        float power = m_BasePower
+            + m_AddBySpeed * t;
 
-        power = std::clamp(power, 0.0f, BoomerangParams::MaxFinalPower);
+        power = std::clamp(power, 0.0f, m_MaxFinalPower);
 
         // 少し浮かせる
         {
