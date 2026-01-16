@@ -19,6 +19,7 @@
 
 // オブジェクト生成・破棄のため
 #include "API.object.manager.h"
+#include "hud.count.h"
 #include "field.h"
 #include "player.h"
 #include "symbol.h"
@@ -30,6 +31,8 @@
 
 // a
 CEnemyPlayer* g_pEnemy;
+
+#include "API.texture.manager.h"
 
 //****************************************************
 // 仮：最終的に必要と判断した変数はメンバに付属してください
@@ -73,25 +76,21 @@ namespace
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
-CSceneGame::CSceneGame()
+CSceneGame::CSceneGame() 
+	: m_pHudFinish(nullptr)
+	, m_bStart(false)
+	, m_nStartCount(0)
+	, m_bFinish(false)
+	, m_ObstacleEditer{}
 {
 	/* コリジョン描画の切り替え */
 	//CCollider::SwitchRenderCollision();
 
+	// HUDスポーン
+	SpawnHUD();
+
 	// フィールドスポーン
 	SpawnField();
-
-	// プレイヤースポーン
-	SpawnPlayer();
-
-	// CPUスポーン
-	SpawnCPU();
-
-	// シンボルスポーン
-	SpawnSymbol();
-
-	// カメラコントローラーの初期化
-	CCameraController::RefInstance().Initialize();
 
 	// 障害物エディターの初期化
 	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
@@ -124,19 +123,25 @@ void CSceneGame::Update()
 
 	//プレイモード中の自動スポーン処理
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
-	
-	// カメラコントローラーの更新
-	CCameraController::RefInstance().Update();
-	
-	// シンボルセット
-	SetSymbol();
 
-	// ゲームセットしたらシーン遷移
-	/* ゲームセットチェック */
-	if (CheckGameSet())
+	// HUD：カウントセット
+	SetHudCount();
+
+	if (m_bStart)
 	{
-		/* 即シーン変更 */
-		Change();
+		// カメラコントローラーの更新
+		CCameraController::RefInstance().Update();
+
+		// シンボルセット
+		SetSymbol();
+
+		// ゲームセットしたらシーン遷移
+		/* ゲームセットチェック */
+		if (CheckGameSet())
+		{
+			/* 即シーン変更 */
+			Change();
+		}
 	}
 }
 
@@ -150,6 +155,46 @@ void CSceneGame::Change()
 
 	// タイトルシーンへ
 	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+}
+
+//============================================================================
+// HUDスポーン
+//============================================================================
+void CSceneGame::SpawnHUD()
+{
+	// HUD：カウントを生成
+	for (unsigned char wIdx = 0; wIdx < MAX_COUNT; ++wIdx)
+	{
+		if (!m_apHudCount[wIdx])
+		{
+			m_apHudCount[wIdx] = CObjectManager::CreateRaw<CHudCount>(
+				[&wIdx](CHudCount* p)  -> bool
+				{
+					// カウントのインデックス設定
+					p->SetHudCountIdx(wIdx);
+
+					return true;
+				},
+				OBJ::TYPE::NONE,
+				OBJ::LAYER::DEFAULT);
+		}
+	}
+
+	// HUD：フィニッシュを生成
+	if (!m_pHudFinish)
+	{
+		// トランスフォームの設定を一切行いません
+		m_pHudFinish = CObjectManager::CreateRaw<CHud>(
+			[](CHud* p)  -> bool
+			{
+				/* テクスチャの設定 */
+				p->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.A"));
+
+				return true;
+			},
+			OBJ::TYPE::NONE,
+			OBJ::LAYER::DEFAULT);
+	}
 }
 
 //============================================================================
@@ -281,6 +326,35 @@ void CSceneGame::SpawnSymbol()
 }
 
 //============================================================================
+// HUD：カウントセット	
+//============================================================================
+void CSceneGame::SetHudCount()
+{
+	// ゲーム開始していたら何もしない
+	if (m_bStart)
+	{
+		return;
+	}
+
+	/* カウンターがあったので、つかわしてもらいます */
+	m_nStartCount = static_cast<float>(g_GameTime);
+
+	// 現在のカウント数と設定済みのインデックスで自動表示
+	for (const auto& rIt : m_apHudCount)
+	{
+		rIt->SetNowCount(static_cast<unsigned char>(m_nStartCount));
+	}
+
+	// カウントの最大値を超えたら開始フラグを立てる
+	if (m_nStartCount > MAX_COUNT)
+	{
+		m_bStart = true;
+
+		SetStartGame();
+	}
+}
+
+//============================================================================
 // シンボルセット
 //============================================================================
 void CSceneGame::SetSymbol()
@@ -328,16 +402,28 @@ void CSceneGame::SetSymbol()
 }
 
 //============================================================================
+// ゲーム開始セット
+//============================================================================
+void CSceneGame::SetStartGame()
+{
+	// プレイヤースポーン
+	SpawnPlayer();
+
+	// CPUスポーン
+	SpawnCPU();
+
+	// シンボルスポーン
+	SpawnSymbol();
+
+	// カメラコントローラーの初期化
+	CCameraController::RefInstance().Initialize();
+}
+
+//============================================================================
 // ゲームセットチェック
 //============================================================================
 bool CSceneGame::CheckGameSet()
 {
-	//タイム計測
-	auto now = std::chrono::steady_clock::now();
-	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();
-	g_LastUpdateTime = now;
-	g_GameTime += deltaTime;
-
 	for (const auto& wpPlayer : m_apwPlayers)
 	{
 		/* プレイヤーが1人でも生きていたらゲーム継続 */
