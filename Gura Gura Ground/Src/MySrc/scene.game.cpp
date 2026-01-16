@@ -28,6 +28,7 @@
 
 //ﾃﾞﾊﾞｯｸﾞ
 #include "Barrel.h"
+#include "effect.manager.h"
 
 //****************************************************
 // 仮：最終的に必要と判断した変数はメンバに付属してください
@@ -68,6 +69,7 @@ namespace
 				return true;
 				});
 		}
+		if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_HIPDROP, { 0.0f,0.0f,0.0f },nullptr,1.5f);
 
 		ImGui::Separator();
 		ImGui::End();
