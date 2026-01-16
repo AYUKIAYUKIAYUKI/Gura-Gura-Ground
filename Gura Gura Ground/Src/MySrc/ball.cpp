@@ -200,7 +200,7 @@ void CBall::Loop()
 		Appear();
 
 		// oFŠgU”­¶
-		CDust::GenerateSpread(TF.Pos, 10);
+		//CDust::GenerateSpread(TF.Pos, 10);
 	}
 
 	/* ˆÊ’u‚ğo—Í*/

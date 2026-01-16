@@ -28,8 +28,11 @@
     <ClCompile Include="Src\External\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Src\MySrc\ball.cpp" />
     <ClCompile Include="Src\MySrc\bar.cpp" />
+    <ClCompile Include="Src\MySrc\Barrel.cpp" />
     <ClCompile Include="Src\MySrc\beamlight.cpp" />
+    <ClCompile Include="Src\MySrc\BirdStrike.cpp" />
     <ClCompile Include="Src\MySrc\bomb.cpp" />
+    <ClCompile Include="Src\MySrc\boomerang.cpp" />
     <ClCompile Include="Src\MySrc\cameracontroller.cpp" />
     <ClCompile Include="Src\MySrc\dust.cpp" />
     <ClCompile Include="Src\MySrc\effect.manager.cpp" />
@@ -42,6 +45,7 @@
     <ClCompile Include="Src\MySrc\main.cpp" />
     <ClCompile Include="Src\MySrc\obstacle.cpp" />
     <ClCompile Include="Src\MySrc\obstacle_editer.cpp" />
+    <ClCompile Include="Src\MySrc\Oil.cpp" />
     <ClCompile Include="Src\MySrc\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pch.h</PrecompiledHeaderFile>
@@ -53,6 +57,7 @@
     <ClCompile Include="Src\MySrc\pendulum.cpp" />
     <ClCompile Include="Src\MySrc\player.cpp" />
     <ClCompile Include="Src\MySrc\scene.game.cpp" />
+    <ClCompile Include="Src\MySrc\scene.result.cpp" />
     <ClCompile Include="Src\MySrc\scene.select.cpp" />
     <ClCompile Include="Src\MySrc\shadow.cpp" />
     <ClCompile Include="Src\MySrc\shockwave.cpp" />
@@ -100,8 +105,11 @@
     <ClInclude Include="Src\MyAPI\API.world.h" />
     <ClInclude Include="Src\MySrc\ball.h" />
     <ClInclude Include="Src\MySrc\bar.h" />
+    <ClInclude Include="Src\MySrc\Barrel.h" />
     <ClInclude Include="Src\MySrc\beamlight.h" />
+    <ClInclude Include="Src\MySrc\BirdStrike.h" />
     <ClInclude Include="Src\MySrc\bomb.h" />
+    <ClInclude Include="Src\MySrc\boomerang.h" />
     <ClInclude Include="Src\MySrc\cameracontroller.h" />
     <ClInclude Include="Src\MySrc\dust.h" />
     <ClInclude Include="Src\MySrc\effect.manager.h" />
@@ -112,12 +120,14 @@
     <ClInclude Include="Src\MySrc\hud.count.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
     <ClInclude Include="Src\MySrc\obstacle_editer.h" />
+    <ClInclude Include="Src\MySrc\Oil.h" />
     <ClInclude Include="Src\MySrc\pendulum.h" />
     <ClInclude Include="Src\MySrc\player.h" />
     <ClInclude Include="Src\MySrc\scene.game.h" />
     <ClInclude Include="Src\MySrc\main.h" />
     <ClInclude Include="Src\MySrc\obstacle.h" />
     <ClInclude Include="Src\MySrc\pch.h" />
+    <ClInclude Include="Src\MySrc\scene.result.h" />
     <ClInclude Include="Src\MySrc\scene.select.h" />
     <ClInclude Include="Src\MySrc\shadow.h" />
     <ClInclude Include="Src\MySrc\shockwave.h" />

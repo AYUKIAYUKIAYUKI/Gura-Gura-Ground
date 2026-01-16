@@ -92,7 +92,7 @@ void CBomb::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3& 
 void CBomb::Update()
 {
 	// 挙動
-	//Action();
+	Action();
 
 	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
 	CPhysicsObject::Update();
