@@ -79,7 +79,7 @@ namespace
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
-CSceneGame::CSceneGame() 
+CSceneGame::CSceneGame()
 	: m_pHudFinish(nullptr)
 	, m_bStart(false)
 	, m_nStartCount(0)
@@ -163,7 +163,6 @@ void CSceneGame::Change()
 	//遷移時に生存時間も渡す
 	CSceneManager::RefInstance().ChangeScene(std::move(resultScene));
 }
-
 //============================================================================
 // ゲーム開始セット
 //============================================================================
@@ -297,7 +296,7 @@ void CSceneGame::SpawnPlayer()
 		{ -fInitDist, 25.0f, -fInitDist }
 	};
 
-	for (unsigned char wPlayerIndex = 0; wPlayerIndex < 2; ++wPlayerIndex)
+	for (unsigned char wPlayerIndex = 0; wPlayerIndex < MAX_PLYAER; ++wPlayerIndex)
 	{
 		// 良い感じに四方に散らばらせる
 		if (wPlayerIndex % 2 == 0) PlayersInitTransform.Pos.z *= -1.0f;
@@ -338,7 +337,7 @@ void CSceneGame::SpawnCPU()
 	for (unsigned char wPlayerIndex = 0; wPlayerIndex < EnemyIndex; ++wPlayerIndex)
 	{
 		// プレイヤーの初期トランスフォーム
-		OBJ::Transform PlayersInitTransform =		{
+		OBJ::Transform PlayersInitTransform = {
 			{ fSize, fSize, fSize },
 			{ 0.0f, 0.0f, 0.0f, 1.0f},
 			{ Posx, 15.0f, -5.0f }
@@ -346,13 +345,13 @@ void CSceneGame::SpawnCPU()
 
 		// 敵生成
 		pEnemy.push_back(CObjectManager::CreateShare<CEnemyPlayer>(
-			[PlayersInitTransform](CEnemyPlayer* p) -> bool
+			[PlayersInitTransform, fSize](CEnemyPlayer* p) -> bool
 			{
 				// トランスフォームの設定
 				p->SetTransform(PlayersInitTransform);
 
 				// コライダーの生成
-				p->FactoryCollider(1.0f, 1.0f, 1.0f);
+				p->FactoryCollider(fSize, fSize, fSize);
 
 				return true;
 			},
@@ -370,7 +369,7 @@ void CSceneGame::SpawnCPU()
 			pEnemy[i]->searchEnemy(pEnemy[j]);
 		}
 	}
-
+	
 	// シンボル生成
 	m_vpSymbol.push_back(CObjectManager::CreateRaw<CSymbol>(
 		[](CSymbol* pSymbol) -> bool
@@ -432,7 +431,7 @@ void CSceneGame::SetSymbol()
 		}
 	}
 
-#if 1 // aCP
+#if 0 // aCP
 	for (auto& pSymbol : m_vpSymbol)
 	{
 		// シンボルのトランスフォームの取得
