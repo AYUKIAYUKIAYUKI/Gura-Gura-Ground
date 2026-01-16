@@ -51,14 +51,18 @@ private:
 	//****************************************************
 	// function
 	//****************************************************
+	
+	// シーン初期化 ～
+	void SetStartGame(); // ゲーム開始セット
 	void SpawnHUD();     // HUDスポーン
+	void SetHudCount();  // HUD：カウントセット
 	void SpawnField();   // フィールドスポーン
 	void SpawnPlayer();  // プレイヤースポーン
 	void SpawnCPU();     // CPUスポーン
 	void SpawnSymbol();  // シンボルスポーン
-	void SetHudCount();  // HUD：カウントセット
+	
+	// ～ ゲーム中 ～
 	void SetSymbol();    // シンボルセット
-	void SetStartGame(); // ゲーム開始セット
 	bool CheckGameSet(); // ゲームセットチェック
 
 	//****************************************************

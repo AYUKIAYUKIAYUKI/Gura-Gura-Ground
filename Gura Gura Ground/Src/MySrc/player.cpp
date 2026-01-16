@@ -17,8 +17,9 @@
 #include "field.h"
 #include "shockwave.h"
 
-// o”­¶—p
+// ‘•ü—p
 #include "dust.h"
+#include "shadow.h"
 
 // ƒJƒƒ‰ƒRƒ“ƒgƒ[ƒ‰[“o˜^‰ğœ‚Ì‚½‚ß
 #include "cameracontroller.h"
@@ -532,6 +533,14 @@ void CPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// Y²ˆÈŠO‚Ì‰ñ“]‚ğƒƒbƒN
 	pRigidBody->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
+
+	// ‰e‚Ìì¬
+	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(
+		OBJ::TYPE::NONE,
+		OBJ::LAYER::DEFAULT);
+
+	// ‰e‚Ì’Ç]‘ÎÛ‚Æ‚µ‚Ä©g‚ğİ’è
+	pShadow->SetTrackTarget(shared_from_this());
 }
 
 //============================================================================

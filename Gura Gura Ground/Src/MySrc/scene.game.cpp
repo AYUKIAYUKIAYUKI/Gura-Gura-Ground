@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "scene.game.h"
+#include "API.renderer.h"
 
 // 遷移先のシーン
 #include "API.scene.manager.h"
@@ -158,6 +159,24 @@ void CSceneGame::Change()
 }
 
 //============================================================================
+// ゲーム開始セット
+//============================================================================
+void CSceneGame::SetStartGame()
+{
+	// プレイヤースポーン
+	SpawnPlayer();
+
+	// CPUスポーン
+	SpawnCPU();
+
+	// シンボルスポーン
+	SpawnSymbol();
+
+	// カメラコントローラーの初期化
+	CCameraController::RefInstance().Initialize();
+}
+
+//============================================================================
 // HUDスポーン
 //============================================================================
 void CSceneGame::SpawnHUD()
@@ -197,6 +216,35 @@ void CSceneGame::SpawnHUD()
 			},
 			OBJ::TYPE::NONE,
 			OBJ::LAYER::DEFAULT);
+	}
+}
+
+//============================================================================
+// HUD：カウントセット	
+//============================================================================
+void CSceneGame::SetHudCount()
+{
+	// ゲーム開始していたら何もしない
+	if (m_bStart)
+	{
+		return;
+	}
+
+	/* カウンターがあったので、つかわしてもらいます */
+	m_nStartCount = static_cast<int>(g_GameTime);
+
+	// 現在のカウント数と設定済みのインデックスで自動表示
+	for (const auto& rIt : m_apHudCount)
+	{
+		rIt->SetNowCount(static_cast<unsigned char>(m_nStartCount));
+	}
+
+	// カウントの最大値を超えたら開始フラグを立てる
+	if (m_nStartCount > MAX_COUNT)
+	{
+		m_bStart = true;
+
+		SetStartGame();
 	}
 }
 
@@ -303,7 +351,7 @@ void CSceneGame::SpawnCPU()
 		[](CSymbol* pSymbol) -> bool
 		{
 			// シンボルのインデックス設定
-			pSymbol->SetSymbolIdx(-1);
+			pSymbol->SetSymbolIdx(MAX_PLYAER);
 
 			return true;
 		}));
@@ -325,35 +373,6 @@ void CSceneGame::SpawnSymbol()
 
 				return true;
 			});
-	}
-}
-
-//============================================================================
-// HUD：カウントセット	
-//============================================================================
-void CSceneGame::SetHudCount()
-{
-	// ゲーム開始していたら何もしない
-	if (m_bStart)
-	{
-		return;
-	}
-
-	/* カウンターがあったので、つかわしてもらいます */
-	m_nStartCount = static_cast<float>(g_GameTime);
-
-	// 現在のカウント数と設定済みのインデックスで自動表示
-	for (const auto& rIt : m_apHudCount)
-	{
-		rIt->SetNowCount(static_cast<unsigned char>(m_nStartCount));
-	}
-
-	// カウントの最大値を超えたら開始フラグを立てる
-	if (m_nStartCount > MAX_COUNT)
-	{
-		m_bStart = true;
-
-		SetStartGame();
 	}
 }
 
@@ -402,24 +421,6 @@ void CSceneGame::SetSymbol()
 		pSymbol->SetTransform(SymbolTransform);
 	}
 #endif
-}
-
-//============================================================================
-// ゲーム開始セット
-//============================================================================
-void CSceneGame::SetStartGame()
-{
-	// プレイヤースポーン
-	SpawnPlayer();
-
-	// CPUスポーン
-	SpawnCPU();
-
-	// シンボルスポーン
-	SpawnSymbol();
-
-	// カメラコントローラーの初期化
-	CCameraController::RefInstance().Initialize();
 }
 
 //============================================================================
