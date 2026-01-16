@@ -1,4 +1,3 @@
-
 // ※ このファイルは公開インターフェース用のヘッダーファイルです
 // 　 利用者によるファイル内の実装変更を想定していないので直接行わないでください
 
@@ -66,9 +65,20 @@ namespace OBJ
 	}
 
 	//============================================================================
-	// トランスフォーム情報から3D用のW行列を作成
+	// トランスフォーム情報から3D用のW行列を作成 - オイラー角版
 	//============================================================================
-	inline void CalcMtxWorldBy3DTransform(Transform& TF)
+	inline void CalcMtxWorldBy3DTransformEuler(Transform& TF)
+	{
+		TF.World =
+			DirectX::XMMatrixScaling(TF.Size.x, TF.Size.y, TF.Size.z) *
+			DirectX::XMMatrixRotationRollPitchYaw(TF.Rot.x, TF.Rot.y, TF.Rot.z) *
+			DirectX::XMMatrixTranslation(TF.Pos.x, TF.Pos.y, TF.Pos.z);
+	}
+
+	//============================================================================
+	// トランスフォーム情報から3D用のW行列を作成 - 四元数版
+	//============================================================================
+	inline void CalcMtxWorldBy3DTransformQuaternion(Transform& TF)
 	{
 		TF.World =
 			DirectX::XMMatrixScaling(TF.Size.x, TF.Size.y, TF.Size.z) *

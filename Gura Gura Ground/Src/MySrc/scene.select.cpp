@@ -180,7 +180,7 @@ void CSceneSelect::WhileEvent_QueInstantiateLight()
 		m_vpBeamLight.push_back(pfsbl);
 
 		// 効果音：アイアン
-		CSoundManger::RefInstance().Play("Light", false, -0.5f, 2.0f);
+		//CSoundManger::RefInstance().Play("Light", false, -0.5f, 2.0f);
 	}
 }
 

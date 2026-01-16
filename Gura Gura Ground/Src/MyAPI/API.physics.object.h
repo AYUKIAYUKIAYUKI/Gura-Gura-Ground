@@ -18,11 +18,6 @@
 //****************************************************
 class CPhysicsObject : public CObject
 {
-	//****************************************************
-	// 前方宣言
-	//****************************************************
-	struct Impl;
-
 public:
 
 	//****************************************************
@@ -52,13 +47,13 @@ public:
 	void Draw() override;
 
 	// トランスフォームの操作用
-	const OBJ::Transform& GetTransform() const;
-	      void            SetTransform(const OBJ::Transform& TF);
+	inline const OBJ::Transform& GetTransform() const                   { return m_Transform; }
+	inline       void            SetTransform(const OBJ::Transform& TF) { m_Transform = TF; }
 
 	// コライダーの操作用
-	      CCollider* GetCollider();
-	const CCollider* GetColliderConst() const;
-	      void       SetCollider(CCollider* pCollider);
+	inline       CCollider* GetCollider()                     { return m_upCollider.get(); }
+	//inline const CCollider* GetColliderConst() const          { return m_upCollider.get(); }
+	inline       void       SetCollider(CCollider* pCollider) { m_upCollider.reset(pCollider); }
 
 private:
 
@@ -70,5 +65,6 @@ private:
 	//****************************************************
 	// data
 	//****************************************************
-	std::unique_ptr<Impl> m_upImpl;
+	OBJ::Transform             m_Transform;  // トランスフォーム
+	std::unique_ptr<CCollider> m_upCollider; // コライダー
 };

@@ -65,9 +65,6 @@ public:
 	// ピクセルシェーダーのバインド
 	void SetPixelShader(const ComPtr<ID3D11PixelShader>& rcpPS);
 
-	// 定数バッファのバインド
-	void SetConstantBuffer(const ComPtr<ID3D11Buffer>& rcpCB);
-
 private:
 
 	//****************************************************

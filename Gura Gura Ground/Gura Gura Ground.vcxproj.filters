@@ -147,6 +147,12 @@
     <ClCompile Include="Src\MySrc\pendulum.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
+    <ClCompile Include="Src\MySrc\shadow.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\symbol.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\MySrc\main.h">
@@ -328,6 +334,12 @@
     </ClInclude>
     <ClInclude Include="Src\MySrc\pendulum.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\shadow.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\symbol.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

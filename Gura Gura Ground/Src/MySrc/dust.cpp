@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "dust.h"
+#include "API.gltf.manager.h"
 #include "API.rigidbody.h"
 #include "API.world.h"
 
@@ -19,8 +20,11 @@
 // デフォルトコンストラクタ
 //============================================================================
 CDust::CDust(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CPhysicsObject(Type, Layer)
-{}
+	 : CPhysicsModel(Type, Layer)
+{
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+}
 
 //============================================================================
 // デストラクタ
@@ -64,7 +68,7 @@ void CDust::Update()
 	}
 
 	// 物理オブジェクト用の更新処理
-	CPhysicsObject::Update();
+	CPhysicsModel::Update();
 }
 
 //============================================================================
@@ -73,7 +77,7 @@ void CDust::Update()
 void CDust::Draw()
 {
 	// 物理オブジェクト用の描画処理
-	CPhysicsObject::Draw();
+	CPhysicsModel::Draw();
 }
 
 //============================================================================
