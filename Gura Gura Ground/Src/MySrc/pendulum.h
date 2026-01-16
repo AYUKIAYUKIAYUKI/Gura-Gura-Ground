@@ -73,5 +73,5 @@ private:
 	bool m_CollisionDisabled;
 	CRigidBody* m_pRB = nullptr;
 	std::unordered_set<CPlayer*> m_HitPlayers;
-
+	bool m_hasPlayedNearCenter = false;
 };

@@ -43,7 +43,7 @@ namespace
         // ================================
 
         // 速度
-        const float Omega = 1.0;
+        const float Omega = 2.0;
 
         // 半径（弧の大きさ）
         const float Radius = g_fFieldSpan * 0.8f;

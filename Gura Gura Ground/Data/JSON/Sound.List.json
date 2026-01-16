@@ -19,6 +19,26 @@
     [
       "Noise",
       "Data\\Audio\\noise.wav"
+    ],
+    [
+      "Ball",
+      "Data\\Audio\\bouncingball.wav"
+    ],
+    [
+      "FallTetra",
+      "Data\\Audio\\falling.wav"
+    ],
+    [
+      "Tornado",
+      "Data\\Audio\\wind.wav"
+    ],
+    [
+      "Pendulum",
+      "Data\\Audio\\swing.wav"
+    ],
+    [
+      "Bomb",
+      "Data\\Audio\\bomb.wav"
     ]
   ]
 }

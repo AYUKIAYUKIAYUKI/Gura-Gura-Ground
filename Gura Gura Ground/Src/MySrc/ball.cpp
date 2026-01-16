@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "ball.h"
+#include "API.sound.manager.h"
 
 // 物理挙動作成のため
 #include "API.world.h"
@@ -167,6 +168,15 @@ void CBall::Action()
 	// 現在の加速度をコピー
 	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
 
+	// ★★★ ここから追加：跳ねた瞬間の検知 ★★★
+	if (m_PrevVelY < 0.0f && rCurrentVel.getY() > 0.0f)
+	{
+		// 効果音：跳ねる音
+		CSoundManger::RefInstance().Play("Ball", false, -0.5f, 1.0f);
+	}
+	m_PrevVelY = rCurrentVel.getY();
+	// ★★★ 追加ここまで ★★★
+
 	// リジッドボディのアクティブ化
 	pRB->SetActive();
 
@@ -176,7 +186,6 @@ void CBall::Action()
 	// 新しい加速度をセット
 	pRB->SetLinearVelocity(MoveDir);
 }
-
 //============================================================================
 // 戻る
 //============================================================================
@@ -201,6 +210,9 @@ void CBall::Loop()
 
 		// 塵：拡散発生
 		CDust::GenerateSpread(TF.Pos, 10);
+
+		// 効果音：跳ねる音停止
+		CSoundManger::RefInstance().Stop("Ball");
 	}
 
 	/* 位置を出力*/
