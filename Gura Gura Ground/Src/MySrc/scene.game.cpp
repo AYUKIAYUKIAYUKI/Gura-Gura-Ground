@@ -170,7 +170,10 @@ void CSceneGame::SpawnHUD()
 			m_apHudCount[wIdx] = CObjectManager::CreateRaw<CHudCount>(
 				[&wIdx](CHudCount* p)  -> bool
 				{
-					// カウントのインデックス設定
+					// 補間係数を変更
+					p->SetLerpPower(0.1f);
+
+					// カウント数のインデックス設定
 					p->SetHudCountIdx(wIdx);
 
 					return true;
