@@ -21,11 +21,15 @@
 #include "API.object.manager.h"
 #include "field.h"
 #include "player.h"
+#include "symbol.h"
 #include <enemy1.h>
 #include "tornado.h"
 
 // イベント処理のため
 #include "cameracontroller.h"
+
+// a
+CEnemyPlayer* g_pEnemy;
 
 //****************************************************
 // 仮：最終的に必要と判断した変数はメンバに付属してください
@@ -48,6 +52,22 @@ namespace
 
 	std::chrono::steady_clock::time_point g_LastUpdateTime;
 	float g_GameTime = 0.0f;
+
+	// あああ
+	void ModifyModelOffset(CField* pField)
+	{
+		// モデルオフセットの取得
+		DirectX::XMFLOAT3 raa = pField->GetModelOffset();
+
+		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
+		ImGui::DragFloat("Pos X", &raa.x, 0.01f);
+		ImGui::DragFloat("Pos Y", &raa.y, 0.01f);
+		ImGui::DragFloat("Pos Z", &raa.z, 0.01f);
+		ImGui::End();
+
+		// モデルオフセットの設定
+		pField->SetModelOffset(raa);
+	}
 }
 
 //============================================================================
@@ -56,7 +76,7 @@ namespace
 CSceneGame::CSceneGame()
 {
 	/* コリジョン描画の切り替え */
-	CCollider::SwitchRenderCollision();
+	//CCollider::SwitchRenderCollision();
 
 	// フィールドスポーン
 	SpawnField();
@@ -66,6 +86,9 @@ CSceneGame::CSceneGame()
 
 	// CPUスポーン
 	SpawnCPU();
+
+	// シンボルスポーン
+	SpawnSymbol();
 
 	// カメラコントローラーの初期化
 	CCameraController::RefInstance().Initialize();
@@ -103,10 +126,12 @@ void CSceneGame::Update()
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
 	
 	// カメラコントローラーの更新
-	CCameraController::RefInstance().Update();	
+	CCameraController::RefInstance().Update();
 	
-	// ゲームセットしたらシーン遷移
+	// シンボルセット
+	SetSymbol();
 
+	// ゲームセットしたらシーン遷移
 	/* ゲームセットチェック */
 	if (CheckGameSet())
 	{
@@ -133,26 +158,28 @@ void CSceneGame::Change()
 void CSceneGame::SpawnField()
 {
 	// フィールドの水平方向の大きさ
-	const float fSpanField = 15.0f;
+	const float fSpanField  = 15.0f;
+	const float fSpanAdjust = 0.95f;
 
 	// 地面を生成
 	CObjectManager::CreateShare<CField>(
-		[&fSpanField](CField* p) -> bool
+		[&fSpanField, &fSpanAdjust](CField* p) -> bool
 		{
 			// トランスフォームの設定
 			p->SetTransform(
 				{
-					{ fSpanField, 1.0f, fSpanField },
+					{ fSpanField * fSpanAdjust, fSpanField, fSpanField * fSpanAdjust },
 					{ 0.0f, 0.0f, 0.0f, 1.0f },
 					{ 0.0f, 5.0f, 0.0f }
 				});
 
 			// コライダーの生成
-			p->FactoryCollider(fSpanField * 2.0f, 1.0f * 2.0f, fSpanField * 2.0f);
+			p->FactoryCollider(fSpanField, 1.0f, fSpanField);
 
 			return true;
 		},
-		OBJ::TYPE::FIELD);
+		OBJ::TYPE::FIELD,
+		OBJ::LAYER::BG);
 }
 
 //============================================================================
@@ -185,7 +212,7 @@ void CSceneGame::SpawnPlayer()
 				p->SetTransform(PlayersInitTransform);
 
 				// コライダー生の成
-				p->FactoryCollider(1.0f, 1.0f, 1.0f);
+				p->FactoryCollider(0.5f, 0.5f, 0.5f);
 
 				return true;
 			},
@@ -201,7 +228,7 @@ void CSceneGame::SpawnPlayer()
 //============================================================================
 void CSceneGame::SpawnCPU()
 {
-	const float fSize = 1.0f;
+	const float fSize = 0.5f;
 	const float EnemyIndex = 2;
 	float Posx = -5.0f;
 	std::vector<std::shared_ptr<CEnemyPlayer>>pEnemy;
@@ -209,8 +236,7 @@ void CSceneGame::SpawnCPU()
 	for (unsigned char wPlayerIndex = 0; wPlayerIndex < EnemyIndex; ++wPlayerIndex)
 	{
 		// プレイヤーの初期トランスフォーム
-		OBJ::Transform PlayersInitTransform =
-		{
+		OBJ::Transform PlayersInitTransform =		{
 			{ fSize, fSize, fSize },
 			{ 0.0f, 0.0f, 0.0f, 1.0f},
 			{ Posx, 15.0f, -5.0f }
@@ -242,6 +268,82 @@ void CSceneGame::SpawnCPU()
 			pEnemy[i]->searchEnemy(pEnemy[j]);
 		}
 	}
+
+	// シンボル生成
+	m_vpSymbol.push_back(CObjectManager::CreateRaw<CSymbol>(
+		[](CSymbol* pSymbol) -> bool
+		{
+			// シンボルのインデックス設定
+			pSymbol->SetSymbolIdx(-1);
+
+			return true;
+		}));
+}
+
+//============================================================================
+// シンボルスポーン
+//============================================================================
+void CSceneGame::SpawnSymbol()
+{
+	for (unsigned char wPlayerIndex = 0; wPlayerIndex < MAX_PLYAER; ++wPlayerIndex)
+	{
+		// シンボル生成
+		m_apSymbol[wPlayerIndex] = CObjectManager::CreateRaw<CSymbol>(
+			[&wPlayerIndex](CSymbol* pSymbol) -> bool
+			{
+				// シンボルのインデックス設定
+				pSymbol->SetSymbolIdx(wPlayerIndex);
+
+				return true;
+			});
+	}
+}
+
+//============================================================================
+// シンボルセット
+//============================================================================
+void CSceneGame::SetSymbol()
+{
+	// プレイヤーの弱参照配列を走査
+	for (unsigned char wIdx = 0; wIdx < MAX_PLYAER; ++wIdx)
+	{
+		// プレイヤーが存在していたら
+		if (std::shared_ptr<CPlayer> spPlayer = m_apwPlayers[wIdx].lock())
+		{
+			// シンボルのトランスフォームの取得
+			OBJ::Transform SymbolTransform = m_apSymbol[wIdx]->GetTransform();
+
+			// シンボルの位置をプレイヤーの位置に合わせる
+			SymbolTransform.Pos = spPlayer->GetTransform().Pos;
+			SymbolTransform.Pos.y += m_apSymbol[wIdx]->GetSymbolOffsetY();
+
+			// シンボルのトランスフォームを設定
+			m_apSymbol[wIdx]->SetTransform(SymbolTransform);
+		}
+		else
+		{
+			// プレイヤーが存在しなかったらシンボルを消す
+			if (m_apSymbol[wIdx])
+			{
+				m_apSymbol[wIdx]->SetDeath();
+			}
+		}
+	}
+
+#if 1 // aCP
+	for (auto& pSymbol : m_vpSymbol)
+	{
+		// シンボルのトランスフォームの取得
+		OBJ::Transform SymbolTransform = pSymbol->GetTransform();
+
+		// シンボルの位置を敵の位置に合わせる
+		SymbolTransform.Pos = g_pEnemy->GetTransform().Pos;
+		SymbolTransform.Pos.y += pSymbol->GetSymbolOffsetY();
+
+		// シンボルのトランスフォームを設定
+		pSymbol->SetTransform(SymbolTransform);
+	}
+#endif
 }
 
 //============================================================================
@@ -265,5 +367,4 @@ bool CSceneGame::CheckGameSet()
 	}
 
 	return true;
-
 }

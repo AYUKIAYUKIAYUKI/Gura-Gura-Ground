@@ -43,10 +43,18 @@ public:
 	// 描画処理
 	void Draw() override;
 
+	// モデルのバインド
+	inline void SetModel(const GltfMesh& rData) { m_upModel->SetModel(rData); }
+
+	// モデルオフセットの操作用
+	inline const DirectX::XMFLOAT3& GetModelOffset() const                           { return m_ModelOffset; }
+	inline       void               SetModelOffset(const DirectX::XMFLOAT3& rOffset) { m_ModelOffset = rOffset; }
+
 private:
 
 	//****************************************************
 	// data
 	//****************************************************
-	std::unique_ptr<CGltf> m_upModel; // glTFモデル
+	std::unique_ptr<CGltf> m_upModel;     // glTFモデル
+	DirectX::XMFLOAT3      m_ModelOffset; // モデルオフセット
 };

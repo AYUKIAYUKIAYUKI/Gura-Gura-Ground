@@ -13,7 +13,7 @@
 
 //===================================================
 //s必要なインクルード
-#include "API.physics.object.h" //基底クラス
+#include "API.physics.model.h" //基底クラス
 #include <API.collision.h>      //btVector3の使用
 #include <memory>
 #include <random>
@@ -31,7 +31,7 @@ class CBar;
 
 //===================================================
 //敵プレイヤーのクラス ＝＝＝＝関数や変数が多いか,,,＝＝＝＝
-class CEnemyPlayer :public CPhysicsObject
+class CEnemyPlayer :public CPhysicsModel
 {
 private: //構造体
 

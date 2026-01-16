@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "player.h"
+#include "API.gltf.manager.h"
 #include "API.input.manager.h"
 
 // 当たり判定用
@@ -498,6 +499,9 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 
 	// フィールドの弱参照を設定
 	m_wpField = std::dynamic_pointer_cast<CField>(rFieldList.front());
+
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
 }
 
 //============================================================================

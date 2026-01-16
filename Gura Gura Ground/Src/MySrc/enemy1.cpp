@@ -44,11 +44,13 @@ namespace
 using namespace DirectX;
 using namespace useful;
 
+#include "API.gltf.manager.h"
 
 //======================================
 //コンストラクタ
 //======================================
-CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsObject(Type, Layer)  
+CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :
+	CPhysicsModel(Type, Layer)  
 , m_nRecasttime(0), m_bJump(true), m_pBar(nullptr)                                           
 , m_pShockWave(nullptr), m_bGoDown(false), m_btOldVel(INIT)                    
 , m_nStart(0), m_bStart(false), m_pwPlayer{}, m_State(ENEMY_STATE::STATE_BASE)
@@ -57,8 +59,10 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsObject(Typ
 	searchBar();     //障害物を探す(初めにプレイヤーが生成されてるのが条件)
 
 	//あらかじめパラメータを設定
-	m_params.predictionTime = 0.295f +RandomRange(-0.05f, 0.05f); //ある程度の値の大きさを持たせる
-}
+	m_params.predictionTime = 0.295f +RandomRange(-0.05f, 0.05f); //ある程度の値の大きさを持たせる	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+
+	m_State = ENEMY_STATE::STATE_BASE;}
 
 //======================================
 //デストラクタ
@@ -123,7 +127,7 @@ void CEnemyPlayer::Update()
 	}
 
 	//基底クラスの更新
-	CPhysicsObject::Update();
+	CPhysicsModel::Update();
 }
 
 
@@ -628,5 +632,5 @@ void CEnemyPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMF
 //======================================
 void CEnemyPlayer::Draw()
 {
-	CPhysicsObject::Draw();
+	CPhysicsModel::Draw();
 }
