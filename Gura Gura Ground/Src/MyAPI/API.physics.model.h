@@ -44,7 +44,7 @@ public:
 	void Draw() override;
 
 	// モデルのバインド
-	inline void SetModel(const GltfMesh& rData) { m_upModel->SetModel(rData); }
+	inline void SetModel(GltfMesh* pData) { m_upModel->SetModel(pData); }
 
 	// モデルオフセットの操作用
 	inline const DirectX::XMFLOAT3& GetModelOffset() const                           { return m_ModelOffset; }

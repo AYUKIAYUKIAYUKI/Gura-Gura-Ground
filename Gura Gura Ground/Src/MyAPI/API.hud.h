@@ -44,6 +44,10 @@ public:
 	// 描画処理
 	void Draw() override;
 
+	// 補間係数の操作用
+	float GetLerpPower() const;
+	void  SetLerpPower(float fPower);
+
 	// 目標トランスフォームの操作用
 	const OBJ::Transform& GetTransformTarget() const;
 	      void            SetTransformTarget(const OBJ::Transform& TF);
