@@ -172,7 +172,7 @@ void CSceneGame::SetStartGame()
 	SpawnPlayer();
 
 	// CPUスポーン
-	SpawnCPU();
+	//SpawnCPU();
 
 	// シンボルスポーン
 	SpawnSymbol();

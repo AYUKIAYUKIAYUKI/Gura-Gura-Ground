@@ -71,7 +71,7 @@ CEnemyPlayer::~CEnemyPlayer()
 {
 	//ポインターの情報を消す
 	std::vector<std::weak_ptr<CPlayer>>().swap(m_pwPlayer);
-	std::vector<std::weak_ptr<CEnemyPlayer>>().swap(m_pwSelf);
+	//std::vector<std::weak_ptr<CEnemyPlayer>>().swap(m_pwSelf);
 	m_pBar = nullptr;
 }
 
