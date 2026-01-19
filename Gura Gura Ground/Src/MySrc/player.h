@@ -29,6 +29,7 @@ class CPlayer : public CPhysicsModel
 
 	// 塵生成の最大ステップ数
 	static constexpr int DUST_STEP_COUNT_MAX = 15;
+	static constexpr size_t MAX_PLAYER_COUNT = 4;
 
 public:
 
@@ -70,6 +71,8 @@ public:
 	// 塵の進行更新
 	void UpdateDustStep(const DirectX::XMFLOAT3& Direction);
 
+	static std::vector<float> s_vSurvivalTimes; //生存時間 
+
 	//ぺちゃんこ状態の管理
 	std::shared_ptr<FallTetra_Behavior> GetFallTetraBehavior() { return m_pFallTetraBehavior; }
 	//外部からぺちゃんこ有効化するための関数
@@ -77,6 +80,11 @@ public:
 		if (m_pFallTetraBehavior != nullptr)m_pFallTetraBehavior.reset();
 		m_pFallTetraBehavior = std::make_shared<FallTetra_Behavior>();
 	}
+
+	//プレイヤーごとの生存時間取得
+	static float GetSurvivalTimeForIndex(size_t idx) {if (idx < s_vSurvivalTimes.size()) return s_vSurvivalTimes[idx];return 0.0f;}
+	//生存時間削除
+	static void ClearAllSurvivalTimes() { std::fill(s_vSurvivalTimes.begin(), s_vSurvivalTimes.end(), 0.0f); }
 
 private:
 
@@ -95,6 +103,8 @@ private:
 	int                           m_nStepCounter;         // 進行カウンター
 
 	std::shared_ptr<FallTetra_Behavior> m_pFallTetraBehavior;
+protected:
+	bool m_bIsDead; //死亡したかどうか
 };
 
 //仮でドッスン関連の挙動実装するクラス追加 ←結局本実装になるやつ

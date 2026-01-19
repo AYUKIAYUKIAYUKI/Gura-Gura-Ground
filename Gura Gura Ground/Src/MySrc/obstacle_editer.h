@@ -25,6 +25,9 @@ public:
         TORNADO,   // 竜巻
         FALLTETRA, // 上部落下物
         PENDULUM,  // 振り子
+        BOOMERANG, // ブーメラン
+        BIRDSTRIKE, // 鳥の群れ
+        BARREL,    //タル+オイル
         MAX
     };
 
@@ -40,6 +43,13 @@ public:
         float ColliderHeight = 3.0f;                   // コライダー縦サイズ
         float ColliderDepth = 3.0f;                    // コライダーサイズ深さ
         int BombTimer = 300;                           // タイマー値(ボム用)
+        float BoomerangOmega = 1.0f;   // 速度
+        float BoomerangRadius = 12.0f; // 半径
+        float BoomerangBasePower = 20.0f;      // 基本吹っ飛びパワー
+        float BoomerangAddBySpeed = 80.0f;     // 速度依存加算
+        float BoomerangMaxFinalPower = 350.0f; //最大
+        int   BoomerangHitCooldown = 10;
+        int BoomerangMovePattern = 0; //ブーメランの移動
     };
 
     struct ObstacleParam {
@@ -47,7 +57,7 @@ public:
     };
 
     static const int PARAM_SET_MAX = 5;                // パラメータセット最大数
-    static const int SPAWN_PRESET_MAX = 10;
+    static const int SPAWN_PRESET_MAX = 50;
 
     void EditCommonParams();                    // 共通パラメータ編集UI
     void EditerMenu();                          // メイン編集ウィンドウ
@@ -58,6 +68,7 @@ public:
     void AssignRandomSpawnTimes();              // スポーンタイム割り当て（ランダム化）
     void PlayModeSpawn(float deltaTime);        // プレイモード・自動生成処理
     void ResetPlayMode();                       // プレイモードリセット
+    void ShowGlobalGimmickSettingsWindow();
 
     bool m_PlayMode;                        // プレイモードフラグ
     float m_PlayModeElapsedTime;             // プレイモード経過時間

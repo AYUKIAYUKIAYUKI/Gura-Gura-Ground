@@ -38,4 +38,14 @@ public:
 
 	// 描画処理
 	void Draw() override;
+
+	// 追従対象の物理モデルの設定
+	void SetTrackTarget(const std::shared_ptr<CObject>& spTarget);
+
+private:
+
+	//****************************************************
+	// data
+	//****************************************************
+	std::weak_ptr<CObject> m_wpTrackTarget; // 追従対象のオブジェクト
 };
