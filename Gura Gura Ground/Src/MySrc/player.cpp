@@ -509,6 +509,8 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 
 	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+
+	m_bIsDead = false; //死亡しているかどうか
 }
 
 //============================================================================
@@ -555,7 +557,7 @@ void CPlayer::Update()
 	--m_nLostControlDuration;
 
 	//生存時間計測
-	if (m_bIsDead) 
+	if (!m_bIsDead) 
 	{
 		if (m_wIdxPlayer < s_vSurvivalTimes.size())
 			s_vSurvivalTimes[m_wIdxPlayer] += 1.0f / 60.0f; // 60FPSで換算

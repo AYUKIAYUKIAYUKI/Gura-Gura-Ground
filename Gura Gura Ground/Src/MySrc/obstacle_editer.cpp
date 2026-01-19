@@ -275,7 +275,6 @@ void ObstacleEditer::EditerMenu()
         SaveParams("Data\\JSON\\obscale_table.json");
     }
 
-
     const char* paramSetLabels[PARAM_SET_MAX] = { "Preset 1", "Preset 2", "Preset 3", "Preset 4", "Preset 5" };
     ImGui::Combo(reinterpret_cast<const char*>(u8"編集するプリセット"), &m_CurrentParamIndex, paramSetLabels, PARAM_SET_MAX);
 

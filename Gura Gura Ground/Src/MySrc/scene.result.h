@@ -8,6 +8,7 @@
 #pragma once
 
 #include "API.scene.h"
+#include "beamlight.h" 
 
 class CHud;
 
@@ -19,6 +20,7 @@ public:
 
 	void Update() override;
 	void Change() override;
+	void ComputeWinners(const std::vector<float>& survivalTimes);
 
 private:
 	enum class ANIM_PHASE {
@@ -49,6 +51,8 @@ private:
 	int m_nResultValue;
 	float m_fGameTime;
 	int m_resultTitleIdx = -1;
+	bool m_beamLightAppeared = false;
+	float m_bgDarkRatio = 0.0f;
 	DirectX::XMFLOAT3 m_resultTitleTargetPos;
 	std::vector<float> m_playerSurvivalTimes;
 	std::vector<std::vector<CHud*>> m_vvPlayerNumbers;
@@ -57,4 +61,5 @@ private:
 	std::vector<CHud*> m_vpPlayerIcons;
 	std::vector<CHud*> m_vpPlayerRankImgs;
 	std::vector<CHud*> m_vpPlayerTextImgs;
+	std::vector<CBeamLight*> m_vpBeamLight;
 };

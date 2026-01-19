@@ -42,6 +42,17 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     pBG->SetTransform(TF_BG);
     pBG->SetTransformTarget(TF_BG);
     m_pBackground = pBG;
+
+    // BGを初期暗色にセット
+    if (m_pBackground)
+    {
+        float dark = 0.25f;
+        DirectX::XMFLOAT4 color(dark, dark, dark, 1.0f);
+        m_pBackground->SetCol(color);
+        m_pBackground->SetColTarget(color);
+        m_bgDarkRatio = 0.0f;
+    }
+
     const float BASE_Y = 980.0f;
 
     const int TIMER_ADJUST = 50;
@@ -60,6 +71,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         int timeInt;
         float timeOrig;
     };
+
     std::vector<PlayerRankInfo> sortList;
     for (size_t i = 0; i < playerCount; ++i)
     {
@@ -67,10 +79,12 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     }
 
     std::sort(sortList.begin(), sortList.end(),
-        [](const PlayerRankInfo& a, const PlayerRankInfo& b) {
+        [](const PlayerRankInfo& a, const PlayerRankInfo& b) 
+        {
             return a.timeInt > b.timeInt || (a.timeInt == b.timeInt && a.idx < b.idx);
         }
     );
+
     std::vector<int> indexToRank(playerCount, 0);
     int rankNumber = 1;
     int prevTime = -1;
@@ -93,7 +107,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     auto pResultTitle = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
     pResultTitle->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultTitle_Text"));
     OBJ::Transform TR = {
-        DirectX::XMFLOAT3(483.0f, 200.0f, 0),           // サイズ
+        DirectX::XMFLOAT3(483.0f, 200.0f, 0),// サイズ
         DirectX::XMFLOAT4A(0,0,0,1),
         DirectX::XMFLOAT3(CENTER_X, titleStartY, 0)
     };
@@ -116,12 +130,14 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     m_vpPlayerIcons.push_back(pWinText);
 
     int maxTimeInt = -1;
-    for (size_t i = 0; i < playerCount; ++i) {
+    for (size_t i = 0; i < playerCount; ++i) 
+    {
         if ((int)m_playerSurvivalTimes[i] > maxTimeInt)
             maxTimeInt = (int)m_playerSurvivalTimes[i];
     }
     std::vector<int> winners;
-    for (size_t i = 0; i < playerCount; ++i) {
+    for (size_t i = 0; i < playerCount; ++i)
+    {
         if ((int)m_playerSurvivalTimes[i] == maxTimeInt) {
             winners.push_back((int)i);
         }
@@ -136,7 +152,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     const float PLAYER_TXT_BASE_Y = SINGLE_WIN_IMG_Y;
     const float IMAGE_SPACING = 26.0f;
 
-    // 勝者TextPlayer00X 初期化(スケール0, アルファ0)
+    // 勝者TextPlayer00X 初期化
     if (winners.size() == 1)
     {
         int winnerIndex = winners[0];
@@ -169,11 +185,10 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
             float posX = PLAYER_TXT_BASE_X;
             float posY = topY + k * (HALF_WIN_IMG_H + IMAGE_SPACING);
             OBJ::Transform TEXT_PLAYER_TR = {
-                DirectX::XMFLOAT3(WIN_IMG_W, WIN_IMG_H, 0),
+                DirectX::XMFLOAT3(HALF_WIN_IMG_W, HALF_WIN_IMG_H, 0),
                 DirectX::XMFLOAT4A(0,0,0,1),
-                DirectX::XMFLOAT3(PLAYER_TXT_BASE_X, PLAYER_TXT_BASE_Y, 0)
+                DirectX::XMFLOAT3(posX, posY, 0)
             };
-
             pText->SetTransform(TEXT_PLAYER_TR);
             pText->SetTransformTarget(TEXT_PLAYER_TR);
             DirectX::XMFLOAT4 col = DirectX::XMFLOAT4(1, 1, 1, 0);
@@ -184,7 +199,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         }
     }
 
-    // プレイヤー数分UI表示(アニメ用: 全画像アルファ0で初期化)
+    // プレイヤー数分UI表示
     for (size_t playerIdx = 0; playerIdx < playerCount; ++playerIdx)
     {
         std::vector<CHud*> vpNums;
@@ -303,21 +318,56 @@ CSceneResult::~CSceneResult()
 //============================================================================
 void CSceneResult::Update()
 {
-    float deltaT = 1.0f / 60.0f; // フレーム時間(仮/必要に応じて時間差対応)
+    float deltaT = 1.0f / 60.0f; // フレーム時間
+
+    bool drawBeam = true;
+
+    if (m_pBackground)
+    {
+        // 背景インアニメーション
+        float from = 0.25f; // 暗
+        float to = 1.0f;  // 明
+        float speed = 0.03f; // 明るくなる速度
+        bool shouldBrighten = false;
+
+        // PLAYER_TEXT_SCALEUPで明るくする
+        if (m_animPhase == ANIM_PHASE::PLAYER_TEXT_SCALEUP ||
+            m_animPhase == ANIM_PHASE::PLAYER_WAIT ||
+            m_animPhase == ANIM_PHASE::SHOW_OTHERS ||
+            m_animPhase == ANIM_PHASE::FINISHED)
+        {
+            shouldBrighten = true;
+        }
+
+        if (shouldBrighten)
+        {
+            if (m_bgDarkRatio < 1.0f)
+                m_bgDarkRatio += speed;
+            if (m_bgDarkRatio > 1.0f)
+                m_bgDarkRatio = 1.0f;
+        }
+        else
+        {
+            m_bgDarkRatio = 0.0f;
+        }
+
+        float colorLerp = from * (1.0f - m_bgDarkRatio) + to * m_bgDarkRatio;
+        DirectX::XMFLOAT4 newColor(colorLerp, colorLerp, colorLerp, 1.0f);
+        m_pBackground->SetCol(newColor);
+        m_pBackground->SetColTarget(newColor);
+    }
 
     switch (m_animPhase)
     {
     case ANIM_PHASE::TITLE_MOVE:
         if (m_resultTitleIdx >= 0 && m_resultTitleIdx < (int)m_vpNumbers.size()) {
             auto pHud = m_vpNumbers[m_resultTitleIdx];
-            // 現在位置
             OBJ::Transform tr = pHud->GetTransform();
-            // 線形補間で降下
             float speed = 5.0f;
             float nextY = tr.Pos.y + speed;
             if (nextY >= m_resultTitleTargetPos.y) {
                 nextY = m_resultTitleTargetPos.y;
-                m_animPhase = ANIM_PHASE::TITLE_WAIT; // タイトル着地後待機状態に入る
+                m_animPhase = ANIM_PHASE::TITLE_WAIT;
             }
             tr.Pos.y = nextY;
             pHud->SetTransform(tr);
@@ -333,17 +383,17 @@ void CSceneResult::Update()
         break;
     case ANIM_PHASE::WIN_TEXT_FADEIN:
     {
-        m_winTextAlpha += 8.0f; // 8ずつ加算(約32フレで255)
+        m_winTextAlpha += 8.0f;
         if (m_winTextAlpha > 255.0f) m_winTextAlpha = 255.0f;
         float a = m_winTextAlpha / 255.0f;
 
-        if (m_winTextIdx >= 0 && m_winTextIdx < (int)m_vpPlayerIcons.size()) 
+        if (m_winTextIdx >= 0 && m_winTextIdx < (int)m_vpPlayerIcons.size())
         {
             auto pHud = m_vpPlayerIcons[m_winTextIdx];
             DirectX::XMFLOAT4 col = pHud->GetColTarget();
             col.w = a;
             pHud->SetColTarget(col);
-            pHud->SetCol(col); // 即反映
+            pHud->SetCol(col);
         }
 
         if (m_winTextAlpha >= 255.0f) {
@@ -363,18 +413,28 @@ void CSceneResult::Update()
     {
         m_playerTextScale += 0.04f;
         if (m_playerTextScale > 1.0f) m_playerTextScale = 1.0f;
-        // 対応HUDすべて対応
         for (auto idx : m_playerTextIdxs) {
             if (idx >= 0 && idx < (int)m_vpPlayerTextImgs.size()) {
                 auto pHud = m_vpPlayerTextImgs[idx];
                 OBJ::Transform tf = pHud->GetTransformTarget();
-                //tf.scale.x = m_playerTextScale;
-                //tf.scale.y = m_playerTextScale;
                 pHud->SetTransformTarget(tf);
-                // α表示も1に
                 DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = (m_playerTextScale < 1.0f) ? m_playerTextScale : 1.0f;
                 pHud->SetColTarget(col);
                 pHud->SetCol(col);
+            }
+        }
+        if (!m_beamLightAppeared)
+        {
+            m_beamLightAppeared = true;
+            m_vpBeamLight.clear();
+            for (int i = 0; i < 3; ++i) {
+                float time = 5.0f + i;
+                DirectX::XMFLOAT2 pos = { 0.3f * (i == 0 ? 1 : i == 1 ? -1 : 0), 0.75f };
+                auto pBeam = CObjectManager::CreateRaw<CBeamLight>(OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
+                pBeam->SetPos(pos);
+                pBeam->SetTime(time);
+                pBeam->SetEnableTime(true);
+                m_vpBeamLight.push_back(pBeam);
             }
         }
         if (m_playerTextScale >= 1.0f) {
@@ -395,8 +455,6 @@ void CSceneResult::Update()
         if (m_otherAlpha > 255.0f) m_otherAlpha = 255.0f;
         {
             float a = m_otherAlpha / 255.0f;
-            // BG以外すべてをフェードイン
-            // 例: m_vpPlayerIcons, m_vpPlayerLights, m_vpPlayerBattleTexts, m_vpPlayerRankImgs など
             for (auto& pHud : m_vpPlayerLights) {
                 if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = a; pHud->SetColTarget(col); pHud->SetCol(col); }
             }
@@ -420,11 +478,20 @@ void CSceneResult::Update()
         }
         break;
     case ANIM_PHASE::FINISHED:
-        // 通常のUpdate分岐や入力受付へ
-        if (CInputManager::RefInstance().EnhancedEnter()) {
+        if (CInputManager::RefInstance().EnhancedEnter())
+        {
             Change();
         }
         break;
+    }
+
+    if (m_beamLightAppeared) {
+        for (auto* beam : m_vpBeamLight) {
+            if (beam) {
+                beam->Update();
+                beam->Draw();
+            }
+        }
     }
 }
 
