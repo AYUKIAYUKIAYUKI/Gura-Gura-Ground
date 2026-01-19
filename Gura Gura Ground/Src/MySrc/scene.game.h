@@ -19,6 +19,7 @@
 class CHudCount;
 class CHud;
 class CPlayer;
+class CEnemyPlayer;
 class CSymbol;
 
 //****************************************************
@@ -58,7 +59,6 @@ private:
 	void SetHudCount();  // HUD：カウントセット
 	void SpawnField();   // フィールドスポーン
 	void SpawnPlayer();  // プレイヤースポーン
-	void SpawnCPU();     // CPUスポーン
 	void SpawnSymbol();  // シンボルスポーン
 	
 	// ～ ゲーム中 ～
@@ -77,7 +77,8 @@ private:
 	bool                              m_bFinish;     // 終了状態
 
 	// プレイヤーの弱参照配列
-	std::array<std::weak_ptr<CPlayer>, MAX_PLYAER> m_apwPlayers;
+	std::array<std::weak_ptr<CPlayer>, MAX_PLYAER> m_apwPlayers; // プレイヤー用
+	std::vector<std::weak_ptr<CEnemyPlayer>>       m_vpwCPUs;    // CPU用
 
 	// シンボルの配列
 	std::array<CSymbol*, MAX_PLYAER> m_apSymbol; // シンボル：プレイヤー用
