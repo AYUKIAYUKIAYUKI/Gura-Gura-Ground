@@ -19,6 +19,9 @@ class CCamera;
 class CPlayer;
 class CObstacle;
 
+/* 追加 */
+class CEnemyPlayer;
+
 //****************************************************
 // カメラの移動制御クラスの定義
 //****************************************************
@@ -85,4 +88,7 @@ private:
 	float m_MaxCameraDistance;						// カメラの最大の距離
 	bool m_IsMovingGimmickActive;					// 特定方向に移動するギミックが出現しているか
 	bool m_IsPerimeterGimmickActive;				// 外周を移動するギミックが出現しているか
+
+	/* 追加 */
+	std::vector<std::weak_ptr<CEnemyPlayer>> m_vwpCPUs; /* CPUの弱参照配列 */
 };

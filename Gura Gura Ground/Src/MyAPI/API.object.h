@@ -25,6 +25,7 @@ namespace OBJ
 		NONE = 0, // 無し
 		FIELD,    // 地面
 		PLAYER,   // プレイヤー
+		CPU,      // CPU
 		OBSTACLE, // 障害物
 		MAX
 	};

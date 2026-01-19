@@ -121,6 +121,24 @@ public:
 	// ゲームパッドトラッカーの取得
 	inline const DirectX::GamePad::ButtonStateTracker& GetTrackerGamePad(unsigned char wPadIdx = 0) { return m_aGamePadTracker[wPadIdx]; }
 
+	// ゲームパッドの接続数の判別を行い、その数をそんまま返す
+	inline unsigned char GetConnectedGamePadNum() const
+	{ 
+		for (unsigned char wIdxPad = 0; wIdxPad < MAX_GAMEPAD; ++wIdxPad)
+		{
+			// ゲームパッドのステートの取得
+			const auto& rState = m_upGamePad->GetState(wIdxPad);
+
+			// 接続が失われていたら
+			if (!rState.IsConnected())
+			{
+				return wIdxPad;
+			}
+		}
+
+		return MAX_GAMEPAD;
+	}
+
 private:
 
 	//****************************************************
