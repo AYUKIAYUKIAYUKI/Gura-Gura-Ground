@@ -46,6 +46,9 @@ public:
 
     // 進行方向の設定
     inline void SetDirection(const DirectX::XMFLOAT3& Direction) { m_Direction = Direction; }
+    void SetBoomerangParams(float omega,float radius,float basePower,float addBySpeed,float maxFinalPower,int hitCooldown);
+    void SetMovePattern(int pattern) { m_MovePattern = pattern; }
+    int m_MovePattern = 0;
 
 private:
 
@@ -74,5 +77,11 @@ private:
 
     float m_StartAngle;  // 弧の開始角度（ラジアン）
     float m_EndAngle;    // 弧の終了角度（ラジアン）
+    float m_Omega = 1.0f;
+    float m_Radius = 12.0f;
+    float m_BasePower = 20.0f;
+    float m_AddBySpeed = 80.0f;
+    float m_MaxFinalPower = 350.0f;
+    int   m_CustomHitCooldown = 10;
     DirectX::XMFLOAT3 m_Center; // 円の中心（XZ平面の支点）
 };

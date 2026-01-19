@@ -299,11 +299,10 @@ void CPendulum::Loop()
 	{
 		m_Time = 0.0f;   // 時間リセット
 
-		// 出現
-		Appear();
+		SetDeath();
 
 		// 塵：拡散発生
-		CDust::GenerateSpread(TF.Pos, 10);
+		//CDust::GenerateSpread(TF.Pos, 10);
 
 		// ★ 振り子が戻ったのでヒット履歴をリセット
 		m_HitPlayers.clear();

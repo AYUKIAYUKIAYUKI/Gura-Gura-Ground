@@ -56,11 +56,11 @@ public:
 	// テクスチャのバインド
 	void SetTexture(const ComPtr<ID3D11ShaderResourceView>& rcpSRV);
 
-	// WVP行列用定数バッファのバインド
-	inline void SetConstantBuffer_WVP(const ComPtr<ID3D11Buffer>& rcpCB_WVP);
+	// 定数バッファのバインド：頂点シェーダー用
+	void SetConstantBuffer_VS(const ComPtr<ID3D11Buffer>& rcpCB_VS);
 
-	// カラー用定数バッファのバインド
-	void SetConstantBuffer_Col(const ComPtr<ID3D11Buffer>& rcpCB_Col);
+	// 定数バッファのバインド：ピクセルシェーダー用
+	void SetConstantBuffer_PS(const ComPtr<ID3D11Buffer>& rcpCB_PS);
 
 	// トランスフォームの操作用
 	const OBJ::Transform& GetTransform() const;

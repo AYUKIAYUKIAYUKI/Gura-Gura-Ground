@@ -42,9 +42,6 @@ namespace
         // --- ブーメランの軌道パラメータ ---
         // ================================
 
-        // 速度
-        const float Omega = 2.0;
-
         // 半径（弧の大きさ）
         const float Radius = g_fFieldSpan * 0.8f;
 
@@ -62,22 +59,6 @@ namespace
         // 擬似速度の上限（安全装置）
         const float MaxSpeed = 20.0f;
 
-        // ヒット後のクールタイム
-        const int HitCooldown = 10;
-
-
-        // ================================
-        // --- 吹っ飛びパワー調整 ---
-        // ================================
-
-        // 基本吹っ飛びパワー
-        const float BasePower = 20.0f;
-
-        // 速度依存の加算パワー
-        const float AddBySpeed = 80.0f;
-
-        // 最終的な吹っ飛びパワーの上限
-        const float MaxFinalPower = 350.0f;
     }
 
     // 位置表示
@@ -162,6 +143,22 @@ void CBoomerang::Draw()
     CPhysicsObject::Draw();
 }
 
+void CBoomerang::SetBoomerangParams(
+    float omega,
+    float radius,
+    float basePower,
+    float addBySpeed,
+    float maxFinalPower,
+    int hitCooldown)
+{
+    m_Omega = omega;
+    m_Radius = radius;
+    m_BasePower = basePower;
+    m_AddBySpeed = addBySpeed;
+    m_MaxFinalPower = maxFinalPower;
+    m_CustomHitCooldown = hitCooldown; // 最初にセット
+}
+
 //============================================================================
 // 出現
 //============================================================================
@@ -169,11 +166,11 @@ void CBoomerang::Appear()
 {
     OBJ::Transform TF{};
 
-    const float R = BoomerangParams::Radius;
+    const float R = m_Radius; // パラメータ適用
     const float H = g_fBoomerangY;
 
     // 0: 奥→手前, 1: 手前→奥, 2: 右→左, 3: 左→右
-    const int nPattern = rand() % 4;
+    const int nPattern = m_MovePattern;
 
     switch (nPattern)
     {
@@ -182,19 +179,16 @@ void CBoomerang::Appear()
         m_EndAngle = DirectX::XM_PI * 2.0f;
         m_Center = { 0.0f, H, g_fFieldHalf + R };
         break;
-
     case 1: // 手前→奥
         m_StartAngle = 0.0f;
         m_EndAngle = DirectX::XM_PI;
         m_Center = { 0.0f, H, -g_fFieldHalf - R };
         break;
-
     case 2: // 右→左
         m_StartAngle = DirectX::XM_PIDIV2;
         m_EndAngle = DirectX::XM_PI * 1.5f;
         m_Center = { g_fFieldHalf + R, H, 0.0f };
         break;
-
     case 3: // 左→右
         m_StartAngle = DirectX::XM_PIDIV2 + DirectX::XM_PI;
         m_EndAngle = DirectX::XM_PI * 1.5f + DirectX::XM_PI;
@@ -209,6 +203,9 @@ void CBoomerang::Appear()
     TF.Pos = { x, H, z };
     m_Time = 0.0f;
 
+    // 編集画面で設定されたヒットクールタイムをセット
+    m_HitCooldown = m_CustomHitCooldown;
+
     if (m_pRB)
         m_pRB->SetWorldTransform(TF);
 }
@@ -220,10 +217,10 @@ void CBoomerang::Action()
 {
     if (!m_pRB) return;
 
-    const float R = BoomerangParams::Radius;
+    const float R = m_Radius;
 
     // 経過時間に応じて角度を進める
-    const float travel = BoomerangParams::Omega * m_Time;
+    const float travel = m_Omega * m_Time;
 
     // StartAngle → EndAngle へ向かって角度を更新
     float theta = m_StartAngle;
@@ -257,7 +254,7 @@ void CBoomerang::Loop()
     if (!m_pRB) return;
 
     // 1回の弧で必要な時間 = ArcAngle / Omega
-    const float fullTime = BoomerangParams::ArcAngle / BoomerangParams::Omega;
+    const float fullTime = BoomerangParams::ArcAngle / m_Omega;
 
     OBJ::Transform TF{};
     m_pRB->GetWorldTransform(TF);
@@ -266,10 +263,10 @@ void CBoomerang::Loop()
     {
         m_Time = 0.0f;
 
-        // 出し直し
-        Appear();
+        // 削除
+        SetDeath();
 
-        CDust::GenerateSpread(TF.Pos, 10);
+        //CDust::GenerateSpread(TF.Pos, 10);
     }
 
     Print_Pos(TF);
@@ -353,10 +350,10 @@ void CBoomerang::CheckHitPlayer()
         // パワー計算
         float t = speed / BoomerangParams::MaxSpeed;
 
-        float power = BoomerangParams::BasePower
-            + BoomerangParams::AddBySpeed * t;
+        float power = m_BasePower
+            + m_AddBySpeed * t;
 
-        power = std::clamp(power, 0.0f, BoomerangParams::MaxFinalPower);
+        power = std::clamp(power, 0.0f, m_MaxFinalPower);
 
         // 少し浮かせる
         {

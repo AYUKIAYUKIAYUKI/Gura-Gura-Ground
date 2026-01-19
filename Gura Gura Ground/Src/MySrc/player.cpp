@@ -17,11 +17,15 @@
 #include "field.h"
 #include "shockwave.h"
 
-// 塵発生用
+// 装飾用
 #include "dust.h"
+#include "shadow.h"
 
 // カメラコントローラー登録解除のため
 #include "cameracontroller.h"
+
+// 静的メンバ初期化
+std::vector<float> CPlayer::s_vSurvivalTimes(CPlayer::MAX_PLAYER_COUNT, 0.0f);
 
 //****************************************************
 // 無名名前空間の定義
@@ -235,7 +239,7 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 
 		/* ああ…btVector3をXMFLOAT3に変換 */
 		DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
-		DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
+		DirectX::XMFLOAT3 TargeVel_XMFLOAT   = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
 
 		/* ああ…要素ずつ指数減衰 */
 		const float fCoef = 0.25f;
@@ -479,6 +483,9 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 
 		// 通常状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
+
+		// 塵：拡散発生
+		CDust::GenerateSpread(rStateMachine.m_rPalyer.GetTransform().Pos, 7);
 	}
 }
 
@@ -529,6 +536,14 @@ void CPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// Y軸以外の回転をロック
 	pRigidBody->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
+
+	// 影の作成
+	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(
+		OBJ::TYPE::NONE,
+		OBJ::LAYER::DEFAULT);
+
+	// 影の追従対象として自身を設定
+	pShadow->SetTrackTarget(shared_from_this());
 }
 
 //============================================================================
@@ -538,6 +553,13 @@ void CPlayer::Update()
 {
 	// 制御不能期間は常にデクリメント
 	--m_nLostControlDuration;
+
+	//生存時間計測
+	if (m_bIsDead) 
+	{
+		if (m_wIdxPlayer < s_vSurvivalTimes.size())
+			s_vSurvivalTimes[m_wIdxPlayer] += 1.0f / 60.0f; // 60FPSで換算
+	}
 
 	// 状態実行
 	if (m_upStateMachine)
@@ -552,6 +574,7 @@ void CPlayer::Update()
 			m_pFallTetraBehavior = nullptr;
 		}
 	}
+
 	// 死亡判定
 	CheckDeath();
 
@@ -672,6 +695,7 @@ void CPlayer::CheckDeath()
 	if (fSelfPosY < fFieldPosY)
 	{
 		// 自身の死亡フラグを立てる
+		m_bIsDead = true;
 		SetDeath();
 	}
 }
