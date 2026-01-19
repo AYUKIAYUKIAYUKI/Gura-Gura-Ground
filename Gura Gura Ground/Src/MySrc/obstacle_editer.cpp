@@ -41,6 +41,7 @@ std::vector<bool> ObstacleEditer::s_SpawnedFlags = {};
 //============================================================================
 void ObstacleEditer::EditCommonParams()
 {
+
     auto& paramSet = RefParam();
 
     static int selectedSubParamIndex = 0; 
@@ -230,6 +231,7 @@ void ObstacleEditer::EditCommonParams()
 //============================================================================
 void ObstacleEditer::EditerMenu()
 {
+
     useful::MIS::MyImGuiShortcut_BeginWindow(reinterpret_cast<const char*>(u8"è·äQï®ê›íËÉÅÉjÉÖÅ["));
 
     bool lastPlayMode = m_PlayMode;
@@ -866,11 +868,11 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
     m_CurrentParamIndex = 0;
     m_PlayModeElapsedTime = 0.0f;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
     m_PlayMode = false;
 #endif
 
-#ifdef _RELEASE
+#ifdef NDEBUG
     m_PlayMode = true;
 #endif
 

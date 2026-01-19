@@ -118,14 +118,19 @@ void CSceneGame::Update()
 	g_LastUpdateTime = now;
 	g_GameTime += deltaTime;
 
+#ifndef NDEBUG
 	// 障害物スポーンメニュー表示
 	m_ObstacleEditer.EditerMenu();
 
 	// スポーン時間プリセットメニュー表示
 	m_ObstacleEditer.SpawnTimePresetEditor();
+#endif
 
-	//プレイモード中の自動スポーン処理
-	m_ObstacleEditer.PlayModeSpawn(deltaTime);
+	if (m_bStart)
+	{
+		//プレイモード中の自動スポーン処理
+		m_ObstacleEditer.PlayModeSpawn(deltaTime);
+	}
 
 	// HUD：カウントセット
 	SetHudCount();
