@@ -328,7 +328,8 @@ void CSceneGame::SpawnPlayer()
 					p->FactoryCollider(fColliderSpan, fColliderSpan, fColliderSpan);
 
 					return true;
-				});
+				},
+				OBJ::TYPE::CPU);
 
 			// 自分自身の共有ポインタを保有
 			spCPU->searchEnemy(spCPU);
