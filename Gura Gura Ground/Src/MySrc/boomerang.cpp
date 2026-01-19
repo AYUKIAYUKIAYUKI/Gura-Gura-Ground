@@ -1,48 +1,4 @@
-﻿
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//============================================================================
+﻿//============================================================================
 //
 // ブーメラン [boomerang.cpp]
 // Author : 大竹熙
@@ -53,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "boomerang.h"
+#include "API.sound.manager.h"
 
 // 物理挙動作成のため
 #include "API.world.h"
@@ -77,7 +34,7 @@ namespace
     float g_fFieldHalf = g_fFieldSpan * 0.5f;
 
     // 高さ
-    float g_fBoomerangY = 9.0f; 
+    float g_fBoomerangY = 9.0f;
 
     // ブーメランパラメータ
     namespace BoomerangParams
@@ -87,7 +44,7 @@ namespace
         // ================================
 
         // 速度
-        const float Omega = 2.0;
+        const float Omega = 1.0;
 
         // 半径（弧の大きさ）
         const float Radius = g_fFieldSpan * 0.8f;
@@ -175,6 +132,9 @@ void CBoomerang::FactoryCollider(float fWidth, float fHeight, float fDepth)
     rb->setActivationState(DISABLE_DEACTIVATION);
     rb->setGravity(btVector3(0, 0, 0));
 
+    // 効果音：ブーメラン
+    CSoundManger::RefInstance().Play("Boomerang", true, -0.5f, 0.2f);
+
     Appear();
 }
 
@@ -206,6 +166,22 @@ void CBoomerang::Draw()
     CPhysicsObject::Draw();
 }
 
+void CBoomerang::SetBoomerangParams(
+    float omega,
+    float radius,
+    float basePower,
+    float addBySpeed,
+    float maxFinalPower,
+    int hitCooldown)
+{
+    m_Omega = omega;
+    m_Radius = radius;
+    m_BasePower = basePower;
+    m_AddBySpeed = addBySpeed;
+    m_MaxFinalPower = maxFinalPower;
+    m_CustomHitCooldown = hitCooldown; // 最初にセット
+}
+
 //============================================================================
 // 出現
 //============================================================================
@@ -213,11 +189,11 @@ void CBoomerang::Appear()
 {
     OBJ::Transform TF{};
 
-    const float R = BoomerangParams::Radius;
+    const float R = m_Radius; // パラメータ適用
     const float H = g_fBoomerangY;
 
     // 0: 奥→手前, 1: 手前→奥, 2: 右→左, 3: 左→右
-    const int nPattern = rand() % 4;
+    const int nPattern = m_MovePattern;
 
     switch (nPattern)
     {
@@ -226,19 +202,16 @@ void CBoomerang::Appear()
         m_EndAngle = DirectX::XM_PI * 2.0f;
         m_Center = { 0.0f, H, g_fFieldHalf + R };
         break;
-
     case 1: // 手前→奥
         m_StartAngle = 0.0f;
         m_EndAngle = DirectX::XM_PI;
         m_Center = { 0.0f, H, -g_fFieldHalf - R };
         break;
-
     case 2: // 右→左
         m_StartAngle = DirectX::XM_PIDIV2;
         m_EndAngle = DirectX::XM_PI * 1.5f;
         m_Center = { g_fFieldHalf + R, H, 0.0f };
         break;
-
     case 3: // 左→右
         m_StartAngle = DirectX::XM_PIDIV2 + DirectX::XM_PI;
         m_EndAngle = DirectX::XM_PI * 1.5f + DirectX::XM_PI;
@@ -253,6 +226,9 @@ void CBoomerang::Appear()
     TF.Pos = { x, H, z };
     m_Time = 0.0f;
 
+    // 編集画面で設定されたヒットクールタイムをセット
+    m_HitCooldown = m_CustomHitCooldown;
+
     if (m_pRB)
         m_pRB->SetWorldTransform(TF);
 }
@@ -264,10 +240,10 @@ void CBoomerang::Action()
 {
     if (!m_pRB) return;
 
-    const float R = BoomerangParams::Radius;
+    const float R = m_Radius;
 
     // 経過時間に応じて角度を進める
-    const float travel = BoomerangParams::Omega * m_Time;
+    const float travel = m_Omega * m_Time;
 
     // StartAngle → EndAngle へ向かって角度を更新
     float theta = m_StartAngle;
@@ -310,8 +286,10 @@ void CBoomerang::Loop()
     {
         m_Time = 0.0f;
 
-        // 出し直し
-        Appear();
+        // 効果音：ブーメラン
+        CSoundManger::RefInstance().Stop("Boomerang");
+
+        SetDeath();
 
         CDust::GenerateSpread(TF.Pos, 10);
     }

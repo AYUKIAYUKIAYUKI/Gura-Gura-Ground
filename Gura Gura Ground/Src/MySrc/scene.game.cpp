@@ -10,6 +10,7 @@
 //****************************************************
 #include "scene.game.h"
 #include "API.renderer.h"
+#include "API.sound.manager.h"
 
 // 遷移先のシーン
 #include "API.scene.manager.h"
@@ -144,6 +145,8 @@ void CSceneGame::Update()
 		{
 			/* 即シーン変更 */
 			Change();
+
+			CSoundManger::RefInstance().StopAll();
 		}
 	}
 }

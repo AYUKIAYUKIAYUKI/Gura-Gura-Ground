@@ -49,9 +49,22 @@ public:
 		m_mupSoundInstance.find(sKey)->second->SetVolume(fVolume);
 	}
 	
+	// サウンドを停止
 	inline void Stop(std::string sKey)
 	{
 		m_mupSoundInstance.find(sKey)->second->Stop();
+	}
+
+	// 全てのサウンドを停止
+	inline void StopAll()
+	{
+		for (auto& pair : m_mupSoundInstance)
+		{
+			if (pair.second)  // 念のため null チェック
+			{
+				pair.second->Stop();
+			}
+		}
 	}
 
 	// ピッチを設定

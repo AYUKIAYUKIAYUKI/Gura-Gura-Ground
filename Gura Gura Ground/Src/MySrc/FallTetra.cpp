@@ -283,6 +283,6 @@ void TetraState_Fall::Action([[maybe_unused]] CFallTetra* p)
 		//CDust::GenerateSpread(TF.Pos, 10);
 		p->SetDeath();
 		// Œø‰Ê‰¹F—‰º‰¹
-		CSoundManger::RefInstance().Play("FallTetra", false, -0.5f, 1.5f);
+		CSoundManger::RefInstance().Play("FallTetra", false, -0.5f, 0.2f);
 	}
 }
