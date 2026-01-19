@@ -33,6 +33,18 @@
       "Data\\TEXTURE\\aaa.jpg"
     ],
     [
+      "Human.A",
+      "Data\\TEXTURE\\chintori.png"
+    ],
+    [
+      "Human.B",
+      "Data\\TEXTURE\\zuum_gx.png"
+    ],
+    [
+      "Human.C",
+      "Data\\TEXTURE\\jim.png"
+    ],
+    [
       "Human.D",
       "Data\\TEXTURE\\china.png"
     ],
@@ -67,6 +79,14 @@
     [
       "Frame",
       "Data\\TEXTURE\\frame.png"
+    ],
+    [
+      "Hihu",
+      "Data\\TEXTURE\\hihu.png"
+    ],
+    [
+      "Reticle",
+      "Data\\TEXTURE\\reticle.png"
     ],
     [
       "ResultNum0",
@@ -189,16 +209,8 @@
       "Data\\TEXTURE\\Result\\BattleTime_Text.png"
     ],
     [
-      "C3",
-      "Data\\TEXTURE\\cnt3.png"
-    ],
-    [
-      "C2",
-      "Data\\TEXTURE\\cnt2.png"
-    ],
-    [
-      "C1",
-      "Data\\TEXTURE\\cnt1.png"
+      "Uchiyama",
+      "Data\\TEXTURE\\uchiyama.png"
     ]
   ]
 }
