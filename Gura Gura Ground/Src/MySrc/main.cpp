@@ -114,6 +114,9 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hInstancePre
 
 		// オブジェクトマネージャーの明示的な破棄
 		CObjectManager::ExplicitRelease();
+
+		//DirectX11より先に破棄しないとエラー
+		CEffectManager::ExplicitRelease();
 	}
 	catch (const std::exception& Error)
 	{

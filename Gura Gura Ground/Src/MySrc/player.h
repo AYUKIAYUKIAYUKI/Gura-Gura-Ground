@@ -11,12 +11,14 @@
 // インクルードファイル
 //****************************************************
 #include "API.physics.model.h"
+#include "debuff_behavior.h"
 
 //****************************************************
 // 前方宣言
 //****************************************************
 class CField;
-class FallTetra_Behavior;
+class Debuff_Behavior;
+
 
 //****************************************************
 // プレイヤークラスの定義
@@ -71,16 +73,20 @@ public:
 	void UpdateDustStep(const DirectX::XMFLOAT3& Direction);
 
 	//ぺちゃんこ状態の管理
-	std::shared_ptr<FallTetra_Behavior> GetFallTetraBehavior() { return m_pFallTetraBehavior; }
-	//外部からぺちゃんこ有効化するための関数
-	void EnableFallTetraBehavior() {
-		if (m_pFallTetraBehavior != nullptr) {
-			m_pFallTetraBehavior.reset();
-			return;
-		}
-		m_pFallTetraBehavior = std::make_shared<FallTetra_Behavior>();
+	std::shared_ptr<Debuff_Behavior> GetFallTetraBehavior() { return m_pDebuffBehavior; }
+	//外部からデバフ有効化するための関数
+	void EnableStamp() {
+		if (DB_UseCheck())return;
+		m_pDebuffBehavior = std::make_shared<Stamp_DB>();
 	}
-
+	void EnableBird() {
+		if (DB_UseCheck())return;
+		m_pDebuffBehavior = std::make_shared<Bird_DB>();
+	}
+	void EnableOil() {
+		if (DB_UseCheck())return;
+		m_pDebuffBehavior = std::make_shared<Oil_DB>();
+	}
 private:
 
 	//****************************************************
@@ -97,21 +103,15 @@ private:
 	int                           m_nLostControlDuration; // 操作不能期間
 	int                           m_nStepCounter;         // 進行カウンター
 
-	std::shared_ptr<FallTetra_Behavior> m_pFallTetraBehavior;
+	std::shared_ptr<Debuff_Behavior> m_pDebuffBehavior;
+
+	//既にデバフが有効なら時間だけ戻すよ
+	inline bool DB_UseCheck()	{
+		if (m_pDebuffBehavior != nullptr) {
+			m_pDebuffBehavior.reset();
+			return true;
+		}
+		return false;
+	}
 };
 
-//仮でドッスン関連の挙動実装するクラス追加
-class FallTetra_Behavior
-{
-public:
-	FallTetra_Behavior() :m_Timer(180), m_DecayValue(0.3f){}
-	float GetDecayValue() { return m_DecayValue; }
-	bool GetTimer() {
-		--m_Timer;
-		return m_Timer > 0;
-	}
-	void TimerReset() { m_Timer = 180; }
-private:
-	float m_DecayValue;
-	int m_Timer;
-};

@@ -341,6 +341,9 @@
     <ClInclude Include="Src\MySrc\Oil.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
+    <ClInclude Include="Src\MySrc\debuff_behavior.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp">
