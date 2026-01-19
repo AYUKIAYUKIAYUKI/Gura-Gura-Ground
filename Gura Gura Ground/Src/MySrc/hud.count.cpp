@@ -87,7 +87,7 @@ void CHudCount::SetHudCountIdx(unsigned char wIdx)
 		break;
 
 	default:
-		SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNumCoron"));
+		SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
 		break;
 	}
 
