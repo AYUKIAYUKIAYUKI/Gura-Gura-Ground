@@ -30,13 +30,13 @@ namespace
 	btVector3 INIT = { 0.0f, 0.0f, 0.0f };   //btVector3用初期化マクロ
 
 	const int MAX_RECASTTIME = 60;           //プレイヤーのリキャストタイムの最大値
-	const int MAX_RECASTTIME_MOVE = 180;     //ゲーム開始時の移動までの時間
+	const int MAX_RECASTTIME_MOVE = 240;     //ゲーム開始時の移動までの時間
 	const int MAX_RECASTTIME_IN_BAR = 60;    //バーのリキャストタイムの最大値
 
-	const float PREDICTION_TIME = 0.15f;     //バーのリキャストタイムの最大値
+	const float PREDICTION_TIME_DEF = 0.15f;  //デフォルトで足し合わせる未来視の時間
+	const float PREDICTION_TIME = 0.15f;      //乱数で出す未来視の最小大数
  
 	//プレイヤーと同じ数値にする&&プレイヤーから直接同期->処理も変更しないと多分無理
-	const float MOVE = 6.5f;                 //自身の移動値 (今はdebugで似てる速度を目視で設定中)
 	const float JUMPPOWER = 13.5f;           //自身のジャンプ力
 	const float DROPPOWER = JUMPPOWER * 1.5f;  //自身のドロップ速度
 }
@@ -61,9 +61,9 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :
 	searchBar();     //障害物を探す(初めにプレイヤーが生成されてるのが条件)
 
 	//あらかじめパラメータを設定
-	m_params.predictionTime = PREDICTION_TIME +RandomRange(-PREDICTION_TIME, PREDICTION_TIME); //ある程度の値の大きさを持たせる	
-	m_params.noiseangle= RandomRange(-0.05f, 0.05f); //ある程度の値の大きさを持たせる	
-	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));                     // モデルのバインド
+	m_params.predictionTime = PREDICTION_TIME_DEF +RandomRange(0.0f, PREDICTION_TIME); //ある程度の値の大きさを持たせる	
+	m_params.noiseangle= RandomSplit(0.15f, 0.25f);                                    //角度の調整値
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));             // モデルのバインド
 
 	m_State = ENEMY_STATE::STATE_BASE;}
 
@@ -74,7 +74,7 @@ CEnemyPlayer::~CEnemyPlayer()
 {
 	//ポインターの情報を消す
 	std::vector<std::weak_ptr<CPlayer>>().swap(m_pwPlayer);
-	//std::vector<std::weak_ptr<CEnemyPlayer>>().swap(m_pwSelf);
+	std::vector<std::weak_ptr<CEnemyPlayer>>().swap(m_pwSelf);
 	m_pBar = nullptr;
 }
 
@@ -128,6 +128,8 @@ void CEnemyPlayer::Update()
 	case ENEMY_STATE::STATE_IN_JUMP: State_In_Jump(); break;
 	case ENEMY_STATE::STATE_BAR:     State_Bar();     break;
 	}
+	// 衝撃波の作成と、弱参照の設定
+	
 
 	//基底クラスの更新
 	CPhysicsModel::Update();
@@ -192,8 +194,10 @@ void CEnemyPlayer::State_Base_Search()
 		predictedPos.z - SelfPos.z
 	);
 
+	float TragetAngle = predictedAngle + m_params.noiseangle;
+
 	//Comparison に渡す angle を差し替える
-	Comparison(predictedPos, SelfPos, predictedAngle+ m_params.noiseangle);
+	Comparison(predictedPos, SelfPos, TragetAngle);
 }
 
 //======================================
@@ -201,15 +205,36 @@ void CEnemyPlayer::State_Base_Search()
 //======================================
 void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3 targetPos, const DirectX::XMFLOAT3 SelfPos, float angle)
 {
-	const float RADIUS = 3.0f;         //当たり半径
+	const float RADIUS = 2.5f;         //当たり半径
 
 	//当たっているかどうか判定
 	if (CheckCollision(targetPos, SelfPos, RADIUS))
 	{
-		if (m_bJump)
+		if (m_params.jumpcount < 3)
 		{
-			Jump_Base();                             //飛ぶ前の準備段階               
-			ChangeState(ENEMY_STATE::STATE_IN_JUMP); //状態をジャンプ中に変更
+			//初動が完了
+			if (m_bJump && m_bStart)
+			{
+				++m_params.jumpcount;                    //ジャンプ数カウント
+				Jump_Base();                             //飛ぶ前の準備段階               
+				ChangeState(ENEMY_STATE::STATE_IN_JUMP); //状態をジャンプ中に変更
+			}
+			else if (!m_bStart)
+			{
+				++m_nStart;
+
+				//初動どれだけ動かないか
+				if (m_nStart >= MAX_RECASTTIME_MOVE)
+				{
+					m_bStart = true;
+				}
+			}
+		}
+		else
+		{
+			//未来視リセット
+			m_params.predictionTime = PREDICTION_TIME_DEF + RandomRange(0.0f, PREDICTION_TIME);
+			m_params.jumpcount = 0;
 		}
 	}
 	else
@@ -217,7 +242,8 @@ void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3 targetPos, const DirectX::
 		//初動が完了
 		if (m_bJump && m_bStart)
 		{
-			MoveAtPlayer(angle, MOVE); //移動
+			if (m_params.jumpcount != 0)m_params.jumpcount = 0;  //ジャンプ数の初期化
+			MoveAtPlayer(angle, 6.5f);                           //移動
 		}
 		else if (!m_bStart)
 		{
@@ -552,7 +578,7 @@ bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
 	//多少強引に一回だけ衝撃波を呼ぶ処理を実行
 	else if (RecastTme <= 1)
 	{
-		CreateShockWave(Collision::SHAPETYPE::BOX, { 5.0f, 1.0f, 5.0f }, 10);
+		CreateShockWave(Collision::SHAPETYPE::BOX, { 4.0f, 1.0f, 4.0f }, 10);
 	}
 
 	return false;
@@ -628,7 +654,6 @@ void CEnemyPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMF
 	// 期間の設定
 	spShockWave->SetDuration(nDuration);
 }
-
 
 //======================================
 //描画処理

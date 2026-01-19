@@ -54,12 +54,11 @@ private: //構造体
 	//AIの応用パラメータ
 	struct AIParams
 	{
+		int jumpcount = 0;
 		float predictionTime;         //先読み時間
-		float weightDistance = 2.0f;  //距離を最重要に
-		//float weightAngle = 0.5f;   //正面優先は補助的に
-		//float weightSpeed = 0.3f;   //遅い敵優先は弱め
-		float weightApproach = 1.5f;  //接近度は強め
 		float noiseangle;
+		float weightDistance = 2.0f;  //距離を最重要に
+		float weightApproach = 1.5f;  //接近度は強め
 	};
 
 	//各状態のタイプ
@@ -194,6 +193,30 @@ private: //その他
 		std::uniform_real_distribution<float> dist(min, max);
 		return dist(mt);
 	}
+
+	/**
+	 * @brief min～maxの間の数値を乱数で渡し１/２で+-が変わる
+	 * [in] 最小値、最大値
+	 */
+	double RandomSplit(float min, float max)
+	{
+		static std::mt19937 mt(std::random_device{}());
+
+		// 0 or 1 をランダムに選ぶ
+		std::uniform_int_distribution<int> choose(0, 1);
+
+		// min～max の乱数
+		std::uniform_real_distribution<double> dist(min, max);
+
+		double v = dist(mt);
+
+		// 50% の確率で負にする
+		if (choose(mt) == 1)
+			v = -v;
+
+		return v;
+	}
+
 
 	/**
 	 * @brief 正規化する処理
