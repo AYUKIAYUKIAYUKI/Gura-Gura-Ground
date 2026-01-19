@@ -22,11 +22,13 @@ public:
 
 private:
 	enum class ANIM_PHASE {
-		WIN_TEXT_FADEIN,
-		WIN_WAIT,
-		PLAYER_TEXT_SCALEUP,
-		PLAYER_WAIT,
-		SHOW_OTHERS,
+		TITLE_MOVE,				// 結果発表タイトル
+		TITLE_WAIT,				// アニメーション待機
+		WIN_TEXT_FADEIN,        // WinTextのα加算
+		WIN_WAIT,               // アニメーション待機
+		PLAYER_TEXT_SCALEUP,    // 勝者テキスト拡大
+		PLAYER_WAIT,            // アニメーション待機
+		SHOW_OTHERS,            // BG以外HUDのα加算
 		FINISHED
 	};
 	ANIM_PHASE m_animPhase = ANIM_PHASE::WIN_TEXT_FADEIN;
@@ -46,6 +48,8 @@ private:
 	std::vector<CHud*> m_vpNumbers;
 	int m_nResultValue;
 	float m_fGameTime;
+	int m_resultTitleIdx = -1;
+	DirectX::XMFLOAT3 m_resultTitleTargetPos;
 	std::vector<float> m_playerSurvivalTimes;
 	std::vector<std::vector<CHud*>> m_vvPlayerNumbers;
 	std::vector<CHud*> m_vpPlayerLights;
