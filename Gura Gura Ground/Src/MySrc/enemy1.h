@@ -59,6 +59,7 @@ private: //構造体
 		//float weightAngle = 0.5f;   //正面優先は補助的に
 		//float weightSpeed = 0.3f;   //遅い敵優先は弱め
 		float weightApproach = 1.5f;  //接近度は強め
+		float noiseangle;
 	};
 
 	//各状態のタイプ

@@ -33,6 +33,8 @@ namespace
 	const int MAX_RECASTTIME_MOVE = 180;     //ゲーム開始時の移動までの時間
 	const int MAX_RECASTTIME_IN_BAR = 60;    //バーのリキャストタイムの最大値
 
+	const float PREDICTION_TIME = 0.15f;     //バーのリキャストタイムの最大値
+ 
 	//プレイヤーと同じ数値にする&&プレイヤーから直接同期->処理も変更しないと多分無理
 	const float MOVE = 6.5f;                 //自身の移動値 (今はdebugで似てる速度を目視で設定中)
 	const float JUMPPOWER = 13.5f;           //自身のジャンプ力
@@ -59,8 +61,9 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :
 	searchBar();     //障害物を探す(初めにプレイヤーが生成されてるのが条件)
 
 	//あらかじめパラメータを設定
-	m_params.predictionTime = 0.295f +RandomRange(-0.05f, 0.05f); //ある程度の値の大きさを持たせる	// モデルのバインド
-	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+	m_params.predictionTime = PREDICTION_TIME +RandomRange(-PREDICTION_TIME, PREDICTION_TIME); //ある程度の値の大きさを持たせる	
+	m_params.noiseangle= RandomRange(-0.05f, 0.05f); //ある程度の値の大きさを持たせる	
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));                     // モデルのバインド
 
 	m_State = ENEMY_STATE::STATE_BASE;}
 
@@ -190,7 +193,7 @@ void CEnemyPlayer::State_Base_Search()
 	);
 
 	//Comparison に渡す angle を差し替える
-	Comparison(predictedPos, SelfPos, predictedAngle);
+	Comparison(predictedPos, SelfPos, predictedAngle+ m_params.noiseangle);
 }
 
 //======================================
@@ -549,7 +552,7 @@ bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
 	//多少強引に一回だけ衝撃波を呼ぶ処理を実行
 	else if (RecastTme <= 1)
 	{
-		CreateShockWave(Collision::SHAPETYPE::BOX, { 7.0f, 1.0f, 7.0f }, 10);
+		CreateShockWave(Collision::SHAPETYPE::BOX, { 5.0f, 1.0f, 5.0f }, 10);
 	}
 
 	return false;
