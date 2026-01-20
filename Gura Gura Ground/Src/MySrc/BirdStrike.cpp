@@ -203,7 +203,7 @@ void CBirdStrike::ToPlayer()
 			// Õ“Ë‚ªŠm”Fo—ˆ‚½‚ç
 			if (CallBack.m_bHit)
 			{
-				pPlayerObj->EnableFallTetraBehavior();
+				pPlayerObj->EnableBird();
 			}
 		}
 	}

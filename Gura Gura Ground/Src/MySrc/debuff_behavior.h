@@ -18,6 +18,10 @@ public:
 	//Ý’è‚µ‚½’l‚ð•Ô‚·ŠÖ”
 	float GetDecayValue() { return m_DecayValue; }
 	float GetInertiaValue() { return m_InertiaValue; }
+
+	void SetDecayValue(float f) { m_DecayValue = f; }
+	void SetInertiaValue(float f) { m_InertiaValue = f; }
+
 	bool GetTimer() {
 		--m_Timer;
 		return m_Timer > 0;
