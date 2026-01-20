@@ -123,7 +123,6 @@ void CBarrel::Draw()
 //============================================================================
 void CBarrel::Action()
 {
-
 	// 進行方向をコピー
 	btVector3 MoveDir = { m_Direction.x, m_Direction.y, m_Direction.z };
 

@@ -133,7 +133,7 @@ void CBoomerang::FactoryCollider(float fWidth, float fHeight, float fDepth)
     rb->setGravity(btVector3(0, 0, 0));
 
     // 効果音：ブーメラン
-    CSoundManger::RefInstance().Play("Boomerang", true, -0.5f, 0.2f);
+    CSoundManger::RefInstance().Play("Boomerang", false, -0.5f, 0.2f);
 
     Appear();
 }
@@ -287,11 +287,11 @@ void CBoomerang::Loop()
         m_Time = 0.0f;
 
         // 効果音：ブーメラン
-        CSoundManger::RefInstance().Stop("Boomerang");
+        //CSoundManger::RefInstance().Stop("Boomerang");
 
         SetDeath();
 
-        CDust::GenerateSpread(TF.Pos, 10);
+        //CDust::GenerateSpread(TF.Pos, 10);
     }
 
     Print_Pos(TF);
