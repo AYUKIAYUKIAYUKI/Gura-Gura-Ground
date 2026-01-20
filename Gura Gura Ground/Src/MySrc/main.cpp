@@ -100,7 +100,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hInstancePre
 						CObjectManager::RefInstance().Update();
 
 						// エフェクトマネージャーの更新
-						//CEffectManager::RefInstance().Update();
+						CEffectManager::RefInstance().Update();
 					});
 
 				// レンダラーの描画処理
@@ -111,12 +111,15 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hInstancePre
 						CObjectManager::RefInstance().Draw();
 
 						// エフェクトマネージャーの描画
-						//CEffectManager::RefInstance().Draw();
+						CEffectManager::RefInstance().Draw();
 					});
 			});
 
 		// オブジェクトマネージャーの明示的な破棄
 		CObjectManager::ExplicitRelease();
+
+		//DirectX11より先に破棄しないとエラー
+		CEffectManager::ExplicitRelease();
 	}
 	catch (const std::exception& Error)
 	{

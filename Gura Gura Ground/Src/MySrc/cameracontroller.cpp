@@ -15,6 +15,9 @@
 #include "API.object.manager.h"
 #include "obstacle.h"
 
+/* 追加 */
+#include "enemy1.h"
+
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
@@ -72,6 +75,16 @@ bool CCameraController::Initialize()
 	{
 		std::weak_ptr<CPlayer> Player = std::dynamic_pointer_cast<CPlayer>(ite);
 		m_Players.push_back(Player);
+	}
+
+	/* CPUタイプのオブジェクトリストを参照 */
+	const auto& rListCPU = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::CPU);
+
+	/* CPUを弱参照を保有*/
+	for (const auto& rIt : rListCPU)
+	{
+		std::weak_ptr<CEnemyPlayer> wpCPU = std::dynamic_pointer_cast<CEnemyPlayer>(rIt);
+		m_vwpCPUs.push_back(wpCPU);
 	}
 
 	return true;
@@ -191,6 +204,22 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 		MinPlayersPos.z = min(MinPlayersPos.z, Player->GetTransform().Pos.z);
 
 		Count++;
+	}
+
+	/* CPU全体で最小と最大の位置を取得 */
+	for (const auto& rIt : m_vwpCPUs)
+	{
+		/* CPUが存在すれば */
+		if (std::shared_ptr<CEnemyPlayer> spCPU = rIt.lock())
+		{
+			/* X座標の最小最大 */
+			MaxPlayersPos.x = max(MaxPlayersPos.x, spCPU->GetTransform().Pos.x);
+			MinPlayersPos.x = min(MinPlayersPos.x, spCPU->GetTransform().Pos.x);
+
+			/* Z座標の最小最大 */
+			MaxPlayersPos.z = max(MaxPlayersPos.z, spCPU->GetTransform().Pos.z);
+			MinPlayersPos.z = min(MinPlayersPos.z, spCPU->GetTransform().Pos.z);
+		}
 	}
 
 	// ギミックで最小と最大の位置を取得

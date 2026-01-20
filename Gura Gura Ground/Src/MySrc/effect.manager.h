@@ -18,7 +18,6 @@ private:
 	~CEffectManager();	//デストラクタ
 
 	bool Initialize();		//初期化
-	void Finalize();		//終了
 
 	void SetCameraMtx();
 	void EraseEffect();
@@ -43,7 +42,8 @@ public:
 	{
 		TAG_LIGHTNING = 0,
 		TAG_WATER,
-		TAG_FIRE
+		TAG_FIRE,
+		TAG_HIPDROP
 	};
 	void Update();			//更新
 	void Draw();			//描画
@@ -52,6 +52,8 @@ public:
 	void SetEraseList(int index);
 	void StopAll();
 	bool LoadFile();
+	void Finalize();		//終了
+
 	std::string GetFilename(EFFECT_TAG tag) { if (m_EffectName.size() > tag) return m_EffectName[tag]; }
 
 	inline Effekseer::ManagerRef GetManager() { return m_manager; }
