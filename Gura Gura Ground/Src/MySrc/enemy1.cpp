@@ -578,7 +578,7 @@ bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
 	//‘½­‹­ˆø‚Éˆê‰ñ‚¾‚¯ÕŒ‚”g‚ğŒÄ‚Ôˆ—‚ğÀs
 	else if (RecastTme <= 1)
 	{
-		CreateShockWave(Collision::SHAPETYPE::BOX, { 4.0f, 1.0f, 4.0f }, 10);
+		CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 4.0f, 1.0f, 4.0f }, 10);
 	}
 
 	return false;
