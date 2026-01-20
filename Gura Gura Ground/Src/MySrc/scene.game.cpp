@@ -1,265 +1,456 @@
 //============================================================================
-// 
-// ƒQ[ƒ€ƒV[ƒ“ [scene.game.cpp]
-// Author : •Ÿ“c•àŠó
+//  
+// ã‚²ãƒ¼ãƒ ã‚·ãƒ¼ãƒ³ [scene.game.cpp]
+// Author : ç¦ç”°æ­©å¸Œ
 // 
 //============================================================================
 
 //****************************************************
-// ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹
+// ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«
 //****************************************************
 #include "scene.game.h"
 
-// ‘JˆÚæ‚ÌƒV[ƒ“
+// é·ç§»å…ˆã®ã‚·ãƒ¼ãƒ³
 #include "API.scene.manager.h"
-#include "scene.title.h"
+#include "scene.result.h"
 
-// ƒCƒ“ƒvƒbƒgæ“¾‚Ì‚½‚ß
+// ã‚¤ãƒ³ãƒ—ãƒƒãƒˆå–å¾—ã®ãŸã‚
 #include "API.input.manager.h"
 
-// ƒIƒuƒWƒFƒNƒg¶¬E”jŠü‚Ì‚½‚ß
+// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”Ÿæˆãƒ»ç ´æ£„ã®ãŸã‚
 #include "API.object.manager.h"
+#include "hud.count.h"
 #include "field.h"
 #include "player.h"
+#include "symbol.h"
 #include <enemy1.h>
 
-// ƒCƒxƒ“ƒgˆ—‚Ì‚½‚ß
+// ã‚¤ãƒ™ãƒ³ãƒˆå‡¦ç†ã®ãŸã‚
 #include "cameracontroller.h"
+#include "API.texture.manager.h"
 
-//ÃŞÊŞ¯¸Ş
+//ï¾ƒï¾ï¾Šï¾ï½¯ï½¸ï¾
 #include "Barrel.h"
 #include "effect.manager.h"
 
 //****************************************************
-// ‰¼FÅI“I‚É•K—v‚Æ”»’f‚µ‚½•Ï”‚Íƒƒ“ƒo‚É•t‘®‚µ‚Ä‚­‚¾‚³‚¢
+// ä»®ï¼šæœ€çµ‚çš„ã«å¿…è¦ã¨åˆ¤æ–­ã—ãŸå¤‰æ•°ã¯ãƒ¡ãƒ³ãƒã«ä»˜å±ã—ã¦ãã ã•ã„
 //****************************************************
 namespace
 {
-	// ’è”
+	// å®šæ•°
 	const float fInitDist = 10.0f;
 
-	// ƒIƒuƒWƒFƒNƒg‚ÌoŒ»•ûŒü, 0:c(ã‰º), 1:‰¡(¶‰E)
+	// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å‡ºç¾æ–¹å‘, 0:ç¸¦(ä¸Šä¸‹), 1:æ¨ª(å·¦å³)
 	int g_ObstacleDirection = 0;
 
 	bool g_AutoSpawnEnabled = true;
 
-	// áŠQ•¨‚ÌoŒ»ŠÔŠu(•b), imgui‚Åİ’è
+	// éšœå®³ç‰©ã®å‡ºç¾é–“éš”(ç§’), imguiã§è¨­å®š
 	float g_ObstacleSpawnInterval = 3.0f;
 
-	// ‘O‰ñoŒ»‚µ‚½
+	// å‰å›å‡ºç¾ã—ãŸæ™‚åˆ»
 	float g_ObstacleLastSpawnTime = 0.0f;
 
 	std::chrono::steady_clock::time_point g_LastUpdateTime;
 	float g_GameTime = 0.0f;
-	void DEBUG_WND()
+
+#if 0
+	// ã‚ã‚ã‚
+	void ModifyModelOffset(CField* pField)
 	{
+		// ãƒ¢ãƒ‡ãƒ«ã‚ªãƒ•ã‚»ãƒƒãƒˆã®å–å¾—
+		DirectX::XMFLOAT3 raa = pField->GetModelOffset();
+
 		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
-
-		if(ImGui::Button("Barrel"))
-		{
-			CObjectManager::CreateRaw<CBarrel>([](CBarrel* p)->bool {
-				p->FactoryCollider();
-
-				const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
-				OBJ::Transform TF = {};
-				TF.Pos = { 0.0f,10.0f,14.0f};
-				CBarrel::SetRotate(TF, { 0.0f, 0.0f,1.0f});
-				pRigidBody->SetWorldTransform(TF);
-				p->SetDirection({ 0.0f,0.0f, -5.0f });
-				return true;
-				});
-		}
-		if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_HIPDROP, { 0.0f,0.0f,0.0f },nullptr,1.5f);
-
-		ImGui::Separator();
+		ImGui::DragFloat("Pos X", &raa.x, 0.01f);
+		ImGui::DragFloat("Pos Y", &raa.y, 0.01f);
+		ImGui::DragFloat("Pos Z", &raa.z, 0.01f);
 		ImGui::End();
+
+		// ãƒ¢ãƒ‡ãƒ«ã‚ªãƒ•ã‚»ãƒƒãƒˆã®è¨­å®š
+		pField->SetModelOffset(raa);
 	}
+#endif
 }
 
 //============================================================================
-// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //============================================================================
 CSceneGame::CSceneGame()
+	: m_pHudFinish(nullptr)
+	, m_bStart(false)
+	, m_nStartCount(0)
+	, m_bFinish(false)
+	, m_ObstacleEditer{}
 {
-	/* ƒRƒŠƒWƒ‡ƒ“•`‰æ‚ÌØ‚è‘Ö‚¦ */
-	CCollider::SwitchRenderCollision();
+	// HUDã‚¹ãƒãƒ¼ãƒ³
+	SpawnHUD();
 
-	// ƒJƒƒ‰ƒRƒ“ƒgƒ[ƒ‰[‚Ì‰Šú‰»
-	CCameraController::RefInstance().Initialize();
-
-	// ƒtƒB[ƒ‹ƒhƒXƒ|[ƒ“
+	// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚¹ãƒãƒ¼ãƒ³
 	SpawnField();
 
-	// ƒvƒŒƒCƒ„[ƒXƒ|[ƒ“
-	SpawnPlayer();
-
-	// CPUƒXƒ|[ƒ“
-	SpawnCPU();
-
-	// áŠQ•¨ƒGƒfƒBƒ^[‚Ì‰Šú‰»
-	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //áŠQ•¨ƒpƒ‰ƒ[ƒ^[‚ğ“Ç‚İ‚Ş
-	g_LastUpdateTime = std::chrono::steady_clock::now(); //Œ»İ‚ÌŠÔ‚É‡‚í‚¹‚é
+	// éšœå®³ç‰©ã‚¨ãƒ‡ã‚£ã‚¿ãƒ¼ã®åˆæœŸåŒ–
+	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //éšœå®³ç‰©ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ¼ã‚’èª­ã¿è¾¼ã‚€
+	g_LastUpdateTime = std::chrono::steady_clock::now(); //ç¾åœ¨ã®æ™‚é–“ã«åˆã‚ã›ã‚‹
 	g_GameTime = 0.0f;
 }
 
 //============================================================================
-// ƒfƒXƒgƒ‰ƒNƒ^
+// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //============================================================================
 CSceneGame::~CSceneGame()
 {}
 
 //============================================================================
-// XVˆ—
+// æ›´æ–°å‡¦ç†
 //============================================================================
 void CSceneGame::Update()
 {
 	DEBUG_WND();
 
-	//ƒ^ƒCƒ€Œv‘ª
+	//ã‚¿ã‚¤ãƒ è¨ˆæ¸¬
 	auto now = std::chrono::steady_clock::now();
 	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();
 	g_LastUpdateTime = now;
 	g_GameTime += deltaTime;
 
-	// áŠQ•¨ƒXƒ|[ƒ“ƒƒjƒ…[•\¦
+	// éšœå®³ç‰©ã‚¹ãƒãƒ¼ãƒ³ãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
 	m_ObstacleEditer.EditerMenu();
 
-	// ƒXƒ|[ƒ“ŠÔƒvƒŠƒZƒbƒgƒƒjƒ…[•\¦
+	// ã‚¹ãƒãƒ¼ãƒ³æ™‚é–“ãƒ—ãƒªã‚»ãƒƒãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
 	m_ObstacleEditer.SpawnTimePresetEditor();
 
-	//ƒvƒŒƒCƒ‚[ƒh’†‚Ì©“®ƒXƒ|[ƒ“ˆ—
+	//ãƒ—ãƒ¬ã‚¤ãƒ¢ãƒ¼ãƒ‰ä¸­ã®è‡ªå‹•ã‚¹ãƒãƒ¼ãƒ³å‡¦ç†
 	m_ObstacleEditer.PlayModeSpawn(deltaTime);
-	CCameraController::RefInstance().Update();	// ƒQ[ƒ€ƒZƒbƒg‚µ‚½‚çƒV[ƒ“‘JˆÚ
-	
-	/* ƒQ[ƒ€ƒZƒbƒgƒ`ƒFƒbƒN */
-	if (CheckGameSet())
+
+	// HUDï¼šã‚«ã‚¦ãƒ³ãƒˆã‚»ãƒƒãƒˆ
+	SetHudCount();
+
+	if (m_bStart)
 	{
-		/* ‘¦ƒV[ƒ“•ÏX */
-		Change();
+		// ã‚«ãƒ¡ãƒ©ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®æ›´æ–°
+		CCameraController::RefInstance().Update();
+
+		// ã‚·ãƒ³ãƒœãƒ«ã‚»ãƒƒãƒˆ
+		SetSymbol();
+
+		// ã‚²ãƒ¼ãƒ ã‚»ãƒƒãƒˆã—ãŸã‚‰ã‚·ãƒ¼ãƒ³é·ç§»
+		/* ã‚²ãƒ¼ãƒ ã‚»ãƒƒãƒˆãƒã‚§ãƒƒã‚¯ */
+		if (CheckGameSet())
+		{
+			/* å³ã‚·ãƒ¼ãƒ³å¤‰æ›´ */
+			Change();
+		}
 	}
 }
 
 //============================================================================
-// ƒV[ƒ“•ÏX
+// ã‚·ãƒ¼ãƒ³å¤‰æ›´
 //============================================================================
 void CSceneGame::Change()
 {
-	// ‘SƒIƒuƒWƒFƒNƒg‚É€–Sƒtƒ‰ƒO‚ğ—§‚Ä‚é
+	// å…¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«æ­»äº¡ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
 	CObjectManager::RefInstance().SetDeathAll();
 
-	// ƒ^ƒCƒgƒ‹ƒV[ƒ“‚Ö
-	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+	//ç”Ÿå­˜æ™‚é–“
+	std::vector<float> times = CPlayer::s_vSurvivalTimes;
+	auto resultScene = std::make_unique<CSceneResult>(times);
+
+	//é·ç§»æ™‚ã«ç”Ÿå­˜æ™‚é–“ã‚‚æ¸¡ã™
+	CSceneManager::RefInstance().ChangeScene(std::move(resultScene));
+}
+//============================================================================
+// ã‚²ãƒ¼ãƒ é–‹å§‹ã‚»ãƒƒãƒˆ
+//============================================================================
+void CSceneGame::SetStartGame()
+{
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚¹ãƒãƒ¼ãƒ³
+	SpawnPlayer();
+
+	// ã‚«ãƒ¡ãƒ©ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®åˆæœŸåŒ–
+	CCameraController::RefInstance().Initialize();
 }
 
 //============================================================================
-// ƒtƒB[ƒ‹ƒhƒXƒ|[ƒ“
+// HUDã‚¹ãƒãƒ¼ãƒ³
+//============================================================================
+void CSceneGame::SpawnHUD()
+{
+	// HUDï¼šã‚«ã‚¦ãƒ³ãƒˆã‚’ç”Ÿæˆ
+	for (unsigned char wIdx = 0; wIdx < MAX_COUNT; ++wIdx)
+	{
+		if (!m_apHudCount[wIdx])
+		{
+			m_apHudCount[wIdx] = CObjectManager::CreateRaw<CHudCount>(
+				[&wIdx](CHudCount* p)  -> bool
+				{
+					// è£œé–“ä¿‚æ•°ã‚’å¤‰æ›´
+					p->SetLerpPower(0.1f);
+
+					// ã‚«ã‚¦ãƒ³ãƒˆæ•°ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹è¨­å®š
+					p->SetHudCountIdx(wIdx);
+
+					return true;
+				},
+				OBJ::TYPE::NONE,
+				OBJ::LAYER::DEFAULT);
+		}
+	}
+
+	// HUDï¼šãƒ•ã‚£ãƒ‹ãƒƒã‚·ãƒ¥ã‚’ç”Ÿæˆ
+	if (!m_pHudFinish)
+	{
+		// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã®è¨­å®šã‚’ä¸€åˆ‡è¡Œã„ã¾ã›ã‚“
+		m_pHudFinish = CObjectManager::CreateRaw<CHud>(
+			[](CHud* p)  -> bool
+			{
+				/* ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®è¨­å®š */
+				p->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
+
+				return true;
+			},
+			OBJ::TYPE::NONE,
+			OBJ::LAYER::DEFAULT);
+	}
+}
+
+//============================================================================
+// HUDï¼šã‚«ã‚¦ãƒ³ãƒˆã‚»ãƒƒãƒˆ	
+//============================================================================
+void CSceneGame::SetHudCount()
+{
+	// ã‚²ãƒ¼ãƒ é–‹å§‹ã—ã¦ã„ãŸã‚‰ä½•ã‚‚ã—ãªã„
+	if (m_bStart)
+	{
+		return;
+	}
+
+	/* ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼ãŒã‚ã£ãŸã®ã§ã€ã¤ã‹ã‚ã—ã¦ã‚‚ã‚‰ã„ã¾ã™ */
+	m_nStartCount = static_cast<int>(g_GameTime);
+
+	// ç¾åœ¨ã®ã‚«ã‚¦ãƒ³ãƒˆæ•°ã¨è¨­å®šæ¸ˆã¿ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã§è‡ªå‹•è¡¨ç¤º
+	for (const auto& rIt : m_apHudCount)
+	{
+		rIt->SetNowCount(static_cast<unsigned char>(m_nStartCount));
+	}
+
+	// ã‚«ã‚¦ãƒ³ãƒˆã®æœ€å¤§å€¤ã‚’è¶…ãˆãŸã‚‰é–‹å§‹ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
+	if (m_nStartCount > MAX_COUNT)
+	{
+		m_bStart = true;
+
+		SetStartGame();
+	}
+}
+
+//============================================================================
+// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚¹ãƒãƒ¼ãƒ³
 //============================================================================
 void CSceneGame::SpawnField()
 {
-	// ƒtƒB[ƒ‹ƒh‚Ì…•½•ûŒü‚Ì‘å‚«‚³
-	const float fSpanField = 15.0f;
-	
-	// ’n–Ê‚ğ¶¬
+	// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã®æ°´å¹³æ–¹å‘ã®å¤§ãã•
+	const float fSpanField  = 15.0f;
+	const float fSpanAdjust = 0.95f;
+
+	// åœ°é¢ã‚’ç”Ÿæˆ
 	CObjectManager::CreateShare<CField>(
-		[&fSpanField](CField* p) -> bool
+		[&fSpanField, &fSpanAdjust](CField* p) -> bool
 		{
-			// ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚Ìİ’è
+			// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã®è¨­å®š
 			p->SetTransform(
 				{
-					{ fSpanField, 1.0f, fSpanField },
+					{ fSpanField * fSpanAdjust, fSpanField, fSpanField * fSpanAdjust },
 					{ 0.0f, 0.0f, 0.0f, 1.0f },
 					{ 0.0f, 5.0f, 0.0f }
 				});
 
-			// ƒRƒ‰ƒCƒ_[‚Ì¶¬
-			p->FactoryCollider(fSpanField * 2.0f, 1.0f * 2.0f, fSpanField * 2.0f);
+			// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ç”Ÿæˆ
+			p->FactoryCollider(fSpanField, 1.0f, fSpanField);
 
 			return true;
 		},
-		OBJ::TYPE::FIELD);
+		OBJ::TYPE::FIELD,
+		OBJ::LAYER::BG);
 }
 
 //============================================================================
-// ƒvƒŒƒCƒ„[ƒXƒ|[ƒ“
+// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚¹ãƒãƒ¼ãƒ³
 //============================================================================
 void CSceneGame::SpawnPlayer()
 {
-	// ƒvƒŒƒCƒ„[‚Ì‰Šúƒgƒ‰ƒ“ƒXƒtƒH[ƒ€
-	OBJ::Transform PlayersInitTransform = 
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åˆæœŸãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ 
+	OBJ::Transform PlayersInitTransform =
 	{
 		{ 0.5f, 0.5f, 0.5f },
 		{ 0.0f, 0.0f, 0.0f, 1.0f},
 		{ -fInitDist, 25.0f, -fInitDist }
 	};
 
+	// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ã‚¹ãƒ‘ãƒ³
+	const float fColliderSpan = 0.5f;
+
+	// ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®æ¥ç¶šæ•°ã‚’å–å¾—
+	unsigned char wConnectedPadNum = CInputManager::RefInstance().GetConnectedGamePadNum();
+
 	for (unsigned char wPlayerIndex = 0; wPlayerIndex < MAX_PLYAER; ++wPlayerIndex)
 	{
-		// —Ç‚¢Š´‚¶‚Él•û‚ÉU‚ç‚Î‚ç‚¹‚é
+		// è‰¯ã„æ„Ÿã˜ã«å››æ–¹ã«æ•£ã‚‰ã°ã‚‰ã›ã‚‹
 		if (wPlayerIndex % 2 == 0) PlayersInitTransform.Pos.z *= -1.0f;
 		if (wPlayerIndex % 2 == 1) PlayersInitTransform.Pos.x *= -1.0f;
 
-		// ƒvƒŒƒCƒ„[¶¬
-		const std::shared_ptr<CPlayer>& spPlayer = CObjectManager::CreateShare<CPlayer>(
-			[&PlayersInitTransform, wPlayerIndex](CPlayer* p) -> bool
+		if (wPlayerIndex < wConnectedPadNum)
+		{
+			// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç”Ÿæˆ
+			const std::shared_ptr<CPlayer>& spPlayer = CObjectManager::CreateShare<CPlayer>(
+				[wPlayerIndex, &PlayersInitTransform, fColliderSpan](CPlayer* p) -> bool
+				{
+					// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æ±ºå®š
+					p->SetIdxPlayer(wPlayerIndex);
+
+					// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã®è¨­å®š
+					p->SetTransform(PlayersInitTransform);
+
+					// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ç”Ÿæˆ
+					p->FactoryCollider(fColliderSpan, fColliderSpan, fColliderSpan);
+
+					return true;
+				},
+				OBJ::TYPE::PLAYER);
+
+			// ã‚²ãƒ¼ãƒ ã‚·ãƒ¼ãƒ³ç”¨ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å¼±å‚ç…§ã‚’ä¿æœ‰
+			m_apwPlayers[wPlayerIndex] = spPlayer;
+		}
+		else
+		{
+			// CPUã‚¹ãƒãƒ¼ãƒ³
+			std::shared_ptr<CEnemyPlayer> spCPU = CObjectManager::CreateShare<CEnemyPlayer>(
+				[&PlayersInitTransform, fColliderSpan](CEnemyPlayer* p) -> bool
+				{
+					// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã®è¨­å®š
+					p->SetTransform(PlayersInitTransform);
+
+					// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ç”Ÿæˆ
+					p->FactoryCollider(fColliderSpan, fColliderSpan, fColliderSpan);
+
+					return true;
+				},
+				OBJ::TYPE::CPU);
+
+			// è‡ªåˆ†è‡ªèº«ã®å…±æœ‰ãƒã‚¤ãƒ³ã‚¿ã‚’ä¿æœ‰
+			spCPU->searchEnemy(spCPU);
+
+			// ã‚²ãƒ¼ãƒ ã‚·ãƒ¼ãƒ³ç”¨ã®CPUã®å¼±å‚ç…§ã‚’ä¿æœ‰
+			m_vpwCPUs.push_back(spCPU);
+
+			// CPUç”¨ã®ã‚·ãƒ³ãƒœãƒ«ã¯ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ä¸è¦ã®ãŸã‚ã“ã“ã§ä½œæˆ
+			m_vpSymbol.push_back(CObjectManager::CreateRaw<CSymbol>(
+				[](CSymbol* pSymbol) -> bool
+				{
+					// ã‚·ãƒ³ãƒœãƒ«ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹è¨­å®š
+					pSymbol->SetSymbolIdx(MAX_PLYAER);
+
+					return true;
+				}));
+		}
+	}
+
+	// ã‚·ãƒ³ãƒœãƒ«ã‚¹ãƒãƒ¼ãƒ³
+	SpawnSymbol();
+}
+
+//============================================================================
+// ã‚·ãƒ³ãƒœãƒ«ã‚¹ãƒãƒ¼ãƒ³
+//============================================================================
+void CSceneGame::SpawnSymbol()
+{
+	// ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®æ¥ç¶šæ•°ã‚’å–å¾—
+	unsigned char wConnectedPadNum = CInputManager::RefInstance().GetConnectedGamePadNum();
+
+	for (unsigned char wPlayerIndex = 0; wPlayerIndex < wConnectedPadNum; ++wPlayerIndex)
+	{
+		// ã‚·ãƒ³ãƒœãƒ«ç”Ÿæˆ
+		m_apSymbol[wPlayerIndex] = CObjectManager::CreateRaw<CSymbol>(
+			[&wPlayerIndex](CSymbol* pSymbol) -> bool
 			{
-				// ƒvƒŒƒCƒ„[ƒCƒ“ƒfƒbƒNƒX‚ğŒˆ’è
-				p->SetIdxPlayer(wPlayerIndex);
-
-				// ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚Ìİ’è
-				p->SetTransform(PlayersInitTransform);
-
-				// ƒRƒ‰ƒCƒ_[¶‚Ì¬
-				p->FactoryCollider(1.0f, 1.0f, 1.0f);
+				// ã‚·ãƒ³ãƒœãƒ«ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹è¨­å®š
+				pSymbol->SetSymbolIdx(wPlayerIndex);
 
 				return true;
-			},
-			OBJ::TYPE::PLAYER);
-
-		// ƒvƒŒƒCƒ„[‚ÌãQÆ‚ğì¬
-		m_apwPlayers[wPlayerIndex] = spPlayer;
-
-		// ƒJƒƒ‰ƒRƒ“ƒgƒ[ƒ‰[‚ÖƒvƒŒƒCƒ„[‚ğ“o˜^
-		/* o—ˆ‚ê‚Î¶ƒ|ƒCƒ“ƒ^‚Å‚È‚­ãQÆ‚ğ—p‚¢‚Ä‚­‚¾‚³‚¢ */
-		CCameraController::RefInstance().Regist(spPlayer.get());
+			});
 	}
 }
 
 //============================================================================
-// CPUƒXƒ|[ƒ“
+// ã‚·ãƒ³ãƒœãƒ«ã‚»ãƒƒãƒˆ
 //============================================================================
-void CSceneGame::SpawnCPU()
+void CSceneGame::SetSymbol()
 {
-	// “G‚ÌŠe•Ó‚ÌƒXƒpƒ“
-	const float fSize = 1.0f;
-
-	// “G¶¬
-	CObjectManager::CreateRaw<CEnemy1>(
-		[fSize](CEnemy1* p) -> bool
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å¼±å‚ç…§é…åˆ—ã‚’èµ°æŸ»
+	for (unsigned char wIdx = 0; wIdx < MAX_PLYAER; ++wIdx)
+	{
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒå­˜åœ¨ã—ã¦ã„ãŸã‚‰
+		if (std::shared_ptr<CPlayer> spPlayer = m_apwPlayers[wIdx].lock())
 		{
-			// ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚Ìİ’è
-			p->SetTransform(
-				{
-					{ fSize, fSize, fSize },
-					{ 0.0f,  0.0f,  0.0f, 1.0f },
-					{ 2.0f,  15.0f, 2.0f }
-				});
+			// ã‚·ãƒ³ãƒœãƒ«ã®ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã®å–å¾—
+			OBJ::Transform SymbolTransform = m_apSymbol[wIdx]->GetTransform();
 
-			// ƒRƒ‰ƒCƒ_[‚Ì¶¬
-			p->FactoryCollider(fSize, fSize, fSize);
+			// ã‚·ãƒ³ãƒœãƒ«ã®ä½ç½®ã‚’ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ä½ç½®ã«åˆã‚ã›ã‚‹
+			SymbolTransform.Pos    = spPlayer->GetTransform().Pos;
+			SymbolTransform.Pos.y += m_apSymbol[wIdx]->GetSymbolOffsetY();
 
-			return true;
-		},
-		OBJ::TYPE::NONE); //TYPE‚ÍENEMY‚Æ‚©•Ê˜g‚ÅŠm•Û‚µ‚½}
+			// ã‚·ãƒ³ãƒœãƒ«ã®ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‚’è¨­å®š
+			m_apSymbol[wIdx]->SetTransform(SymbolTransform);
+		}
+		else
+		{
+			// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒå­˜åœ¨ã—ãªã‹ã£ãŸã‚‰ã‚·ãƒ³ãƒœãƒ«ã‚’æ¶ˆã™
+			if (m_apSymbol[wIdx])
+			{
+				m_apSymbol[wIdx]->SetDeath();
+			}
+		}
+	}
+
+	// CPUã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç”¨
+	unsigned char wIdxCPU = 0;
+
+	// CPUã®å¼±å‚ç…§é…åˆ—ã‚’èµ°æŸ»
+	for (const auto& rItCPU : m_vpwCPUs)
+	{
+		if (std::shared_ptr<CEnemyPlayer> spCPU = rItCPU.lock())
+		{
+			// ã‚·ãƒ³ãƒœãƒ«ã®ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã®å–å¾—
+			OBJ::Transform SymbolTransform = m_vpSymbol[wIdxCPU]->GetTransform();
+
+			// ã‚·ãƒ³ãƒœãƒ«ã®ä½ç½®ã‚’ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ä½ç½®ã«åˆã‚ã›ã‚‹
+			SymbolTransform.Pos    = spCPU->GetTransform().Pos;
+			SymbolTransform.Pos.y += m_vpSymbol[wIdxCPU]->GetSymbolOffsetY();
+
+			// ã‚·ãƒ³ãƒœãƒ«ã®ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‚’è¨­å®š
+			m_vpSymbol[wIdxCPU]->SetTransform(SymbolTransform);
+		}
+		else
+		{
+			// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒå­˜åœ¨ã—ãªã‹ã£ãŸã‚‰ã‚·ãƒ³ãƒœãƒ«ã‚’æ¶ˆã™
+			if (m_vpSymbol[wIdxCPU])
+			{
+				m_vpSymbol[wIdxCPU]->SetDeath();
+			}
+		}
+
+		++wIdxCPU;
+	}
 }
 
 //============================================================================
-// ƒQ[ƒ€ƒZƒbƒgƒ`ƒFƒbƒN
+// ã‚²ãƒ¼ãƒ ã‚»ãƒƒãƒˆãƒã‚§ãƒƒã‚¯
 //============================================================================
 bool CSceneGame::CheckGameSet()
 {
 	for (const auto& wpPlayer : m_apwPlayers)
 	{
-		/* ƒvƒŒƒCƒ„[‚ª1l‚Å‚à¶‚«‚Ä‚¢‚½‚çƒQ[ƒ€Œp‘± */
+		/* ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒ1äººã§ã‚‚ç”Ÿãã¦ã„ãŸã‚‰ã‚²ãƒ¼ãƒ ç¶™ç¶š */
 		if (!wpPlayer.expired())
 		{
 			return false;

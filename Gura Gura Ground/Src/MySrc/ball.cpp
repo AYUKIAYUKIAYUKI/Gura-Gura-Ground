@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "ball.h"
+#include "API.sound.manager.h"
 
 // 物理挙動作成のため
 #include "API.world.h"
@@ -99,6 +100,15 @@ void CBall::Update()
 	// 挙動
 	Action();
 
+	// ワールドトランスフォームから位置を取得
+	CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
+	const DirectX::XMFLOAT3& Pos = pRB->GetWorldTransform().Pos;
+	if (Pos.y < 3.0f)
+	{
+		// 自身の死亡フラグを立てる
+		SetDeath();
+	}
+
 	//// 戻る
 	//Loop();
 
@@ -142,7 +152,7 @@ void CBall::EditParam()
 //============================================================================
 void CBall::Appear()
 {
-	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
+	const auto& param = m_ObstacleEditer.m_ParamSets[GetParamSetIndex()].subParams[GetSubParamIndex()];
 	const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(GetCollider());
 	OBJ::Transform TF = {};
 
@@ -167,6 +177,15 @@ void CBall::Action()
 	// 現在の加速度をコピー
 	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
 
+	// ★★★ ここから追加：跳ねた瞬間の検知 ★★★
+	if (m_PrevVelY < 0.0f && rCurrentVel.getY() > 0.0f)
+	{
+		// 効果音：跳ねる音
+		CSoundManger::RefInstance().Play("Ball", false, -0.5f, 1.0f);
+	}
+	m_PrevVelY = rCurrentVel.getY();
+	// ★★★ 追加ここまで ★★★
+
 	// リジッドボディのアクティブ化
 	pRB->SetActive();
 
@@ -176,7 +195,6 @@ void CBall::Action()
 	// 新しい加速度をセット
 	pRB->SetLinearVelocity(MoveDir);
 }
-
 //============================================================================
 // 戻る
 //============================================================================
@@ -200,7 +218,7 @@ void CBall::Loop()
 		Appear();
 
 		// 塵：拡散発生
-		CDust::GenerateSpread(TF.Pos, 10);
+		//CDust::GenerateSpread(TF.Pos, 10);
 	}
 
 	/* 位置を出力*/

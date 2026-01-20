@@ -31,6 +31,7 @@ class CPlayer : public CPhysicsModel
 
 	// 塵生成の最大ステップ数
 	static constexpr int DUST_STEP_COUNT_MAX = 15;
+	static constexpr size_t MAX_PLAYER_COUNT = 4;
 
 public:
 
@@ -72,6 +73,8 @@ public:
 	// 塵の進行更新
 	void UpdateDustStep(const DirectX::XMFLOAT3& Direction);
 
+	static std::vector<float> s_vSurvivalTimes; //生存時間 
+
 	//ぺちゃんこ状態の管理
 	std::shared_ptr<Debuff_Behavior> GetFallTetraBehavior() { return m_pDebuffBehavior; }
 	//外部からデバフ有効化するための関数
@@ -87,6 +90,11 @@ public:
 		if (DB_UseCheck())return;
 		m_pDebuffBehavior = std::make_shared<Oil_DB>();
 	}
+	//プレイヤーごとの生存時間取得
+	static float GetSurvivalTimeForIndex(size_t idx) {if (idx < s_vSurvivalTimes.size()) return s_vSurvivalTimes[idx];return 0.0f;}
+	//生存時間削除
+	static void ClearAllSurvivalTimes() { std::fill(s_vSurvivalTimes.begin(), s_vSurvivalTimes.end(), 0.0f); }
+
 private:
 
 	//****************************************************
@@ -113,5 +121,7 @@ private:
 		}
 		return false;
 	}
+protected:
+	bool m_bIsDead; //死亡したかどうか
 };
 

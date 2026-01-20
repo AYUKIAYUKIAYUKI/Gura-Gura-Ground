@@ -12,6 +12,7 @@
 //****************************************************
 #include "obstacle.h"
 #include "API.rigidbody.h"
+#include <obstacle_editer.h>
 
 //‘O•ûéŒ¾
 class Tetra_State;

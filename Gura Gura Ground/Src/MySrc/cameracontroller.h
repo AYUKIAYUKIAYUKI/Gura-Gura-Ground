@@ -19,6 +19,9 @@ class CCamera;
 class CPlayer;
 class CObstacle;
 
+/* 追加 */
+class CEnemyPlayer;
+
 //****************************************************
 // カメラの移動制御クラスの定義
 //****************************************************
@@ -44,12 +47,6 @@ public:
 
 	// 更新処理
 	void Update();
-
-	// プレイヤーの登録
-	void Regist(CPlayer* player);
-
-	// プレイヤーの削除
-	void UnRegist(CPlayer* player);
 private:
 
 	//****************************************************
@@ -77,16 +74,21 @@ private:
 	// 外周移動ギミック
 	void HasPerimeterGimmick();
 
+	// 既に削除されてるプレイヤーを除外
+	void RemoveExpiredPlayers();
 	//****************************************************
 	// data
 	//****************************************************
-	CCamera* m_Camera;						// カメラの情報
-	std::list<CPlayer*> m_Players;			// プレイヤーを格納
-	std::list<CObstacle*> m_Obstacles;		// ギミックを格納
-	DirectX::XMFLOAT3 m_CameraTargetPos;	// カメラの移動位置
-	DirectX::XMFLOAT3 m_FirstCameraPos;		// カメラの最初の位置
-	float m_BaseCameraDistance;				// カメラ基本の距離
-	float m_MaxCameraDistance;				// カメラの最大の距離
-	bool m_IsMovingGimmickActive;			// 特定方向に移動するギミックが出現しているか
-	bool m_IsPerimeterGimmickActive;		// 外周を移動するギミックが出現しているか
+	CCamera* m_Camera;								// カメラの情報
+	std::vector<std::weak_ptr<CPlayer>> m_Players;	// プレイヤーを格納
+	std::list<CObstacle*> m_Obstacles;				// ギミックを格納
+	DirectX::XMFLOAT3 m_CameraTargetPos;			// カメラの移動位置
+	DirectX::XMFLOAT3 m_FirstCameraPos;				// カメラの最初の位置
+	float m_BaseCameraDistance;						// カメラ基本の距離
+	float m_MaxCameraDistance;						// カメラの最大の距離
+	bool m_IsMovingGimmickActive;					// 特定方向に移動するギミックが出現しているか
+	bool m_IsPerimeterGimmickActive;				// 外周を移動するギミックが出現しているか
+
+	/* 追加 */
+	std::vector<std::weak_ptr<CEnemyPlayer>> m_vwpCPUs; /* CPUの弱参照配列 */
 };

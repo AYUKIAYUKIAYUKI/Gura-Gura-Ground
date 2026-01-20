@@ -109,7 +109,7 @@ CBirdStrike::~CBirdStrike()
 void CBirdStrike::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
 	// デフォルトのゴーストを生成
-	SetCollider(CGhost::CreateGhost(GetTransform(), Collision::SHAPETYPE::SPHERE, ShpireHalf, ShpireHalf, ShpireHalf));
+	SetCollider(CGhost::CreateGhost(GetTransform(), Collision::SHAPETYPE::SPHERE, fWidth, fHeight, fDepth));
 		
 	// コライダーをゴーストにキャスト
 	CGhost* const pGs = dynamic_cast<CGhost*>(GetCollider());
@@ -176,8 +176,6 @@ void CBirdStrike::Action()
 
 	//時間を経過させる
 	++m_nTime;
-
-	if (m_nTime > MoveTime)SetDeath();
 }
 
 //============================================================================
@@ -205,7 +203,7 @@ void CBirdStrike::ToPlayer()
 			// 衝突が確認出来たら
 			if (CallBack.m_bHit)
 			{
-				pPlayerObj->EnableBird();
+				pPlayerObj->EnableFallTetraBehavior();
 			}
 		}
 	}

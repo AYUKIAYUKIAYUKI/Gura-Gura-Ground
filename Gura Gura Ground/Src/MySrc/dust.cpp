@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "dust.h"
+#include "API.gltf.manager.h"
 #include "API.rigidbody.h"
 #include "API.world.h"
 
@@ -19,8 +20,11 @@
 // デフォルトコンストラクタ
 //============================================================================
 CDust::CDust(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CPhysicsObject(Type, Layer)
-{}
+	 : CPhysicsModel(Type, Layer)
+{
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Dust"));
+}
 
 //============================================================================
 // デストラクタ
@@ -34,7 +38,7 @@ CDust::~CDust()
 void CDust::FactoryCollider()
 {
 	// 軸方向のスパン
-	const float fSpan = 0.25f;
+	const float fSpan = RB_SPAN;
 
 	// ボール用のリジッドボディの生成
 	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, fSpan, fSpan, fSpan));
@@ -46,10 +50,10 @@ void CDust::FactoryCollider()
 	pRB->SetMass(0.1f);
 
 	// 弾性力を設定
-	pRB->SetRestitution(0.5f);
+	pRB->SetRestitution(0.35f);
 
 	// 摩擦力を設定
-	pRB->SetFriction(0.5f);
+	pRB->SetFriction(0.8f);
 }
 
 //============================================================================
@@ -64,7 +68,7 @@ void CDust::Update()
 	}
 
 	// 物理オブジェクト用の更新処理
-	CPhysicsObject::Update();
+	CPhysicsModel::Update();
 }
 
 //============================================================================
@@ -73,7 +77,7 @@ void CDust::Update()
 void CDust::Draw()
 {
 	// 物理オブジェクト用の描画処理
-	CPhysicsObject::Draw();
+	CPhysicsModel::Draw();
 }
 
 //============================================================================
@@ -88,11 +92,12 @@ void CDust::GenerateSpread(const DirectX::XMFLOAT3& Pos, int nNum)
 				const DirectX::XMFLOAT3 GeneratePos =
 				{
 					Pos.x + useful::GetRandomValue<float>() * 0.005f,
-					Pos.y + useful::GetRandomValue<float>() * 0.005f,
+					Pos.y,
 					Pos.z + useful::GetRandomValue<float>() * 0.005f
 				};
 
 				OBJ::Transform TF = {};
+				TF.Size = TF_SPAN;
 				TF.Pos = GeneratePos;
 				pObj->SetTransform(TF);
 
@@ -108,7 +113,7 @@ void CDust::GenerateSpread(const DirectX::XMFLOAT3& Pos, int nNum)
 				};
 
 				pRB->SetImpulse(Dir);
-				pRB->SetTorqueImpulse(Dir);
+				pRB->SetTorqueImpulse(Dir * 0.05f);
 
 				return true;
 			});
@@ -130,6 +135,7 @@ void CDust::GenerateLinear(const DirectX::XMFLOAT3& Pos, const DirectX::XMFLOAT3
 			};
 
 			OBJ::Transform TF = {};
+			TF.Size = TF_SPAN;
 			TF.Pos = GeneratePos;
 			pObj->SetTransform(TF);
 

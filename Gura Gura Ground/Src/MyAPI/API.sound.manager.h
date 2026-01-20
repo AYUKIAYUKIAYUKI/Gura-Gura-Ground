@@ -49,6 +49,11 @@ public:
 		m_mupSoundInstance.find(sKey)->second->SetVolume(fVolume);
 	}
 	
+	inline void Stop(std::string sKey)
+	{
+		m_mupSoundInstance.find(sKey)->second->Stop();
+	}
+
 	// ƒsƒbƒ`‚ðÝ’è
 	inline void SetPitch(std::string sKey, float fPitch) { m_mupSoundInstance.find(sKey)->second->SetPitch(fPitch); }
 

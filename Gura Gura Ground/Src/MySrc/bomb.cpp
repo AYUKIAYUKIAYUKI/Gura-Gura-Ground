@@ -10,6 +10,7 @@
 //****************************************************
 #include "bomb.h"
 #include "API.object.manager.h"
+#include "API.sound.manager.h"
 
 // 物理挙動作成のため
 #include "API.rigidbody.h"
@@ -53,7 +54,7 @@ void CBomb::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	pRB->SetRestitution(0.25f);
 
 	// パラメータ参照
-	const auto& param = m_ObstacleEditer.m_ParamSets[m_ParamSetIndex].subParams[m_SubParamIndex];
+	const auto& param = m_ObstacleEditer.m_ParamSets[GetParamSetIndex()].subParams[GetSubParamIndex()];
 	OBJ::Transform TF = {};
 
 	TF.Pos = { param.ObstacleSpawnX, param.ObstacleSpawnY, param.ObstacleSpawnZ };
@@ -135,6 +136,8 @@ void CBomb::Action()
 
 	if (m_nTimer <= 0)
 	{
+		CSoundManger::RefInstance().Play("Bomb", false, -0.5f, 1.0f);
+
 		SetDeath();
 
 		// 衝撃波の作成

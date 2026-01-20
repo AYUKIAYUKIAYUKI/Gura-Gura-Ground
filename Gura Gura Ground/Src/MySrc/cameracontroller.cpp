@@ -15,6 +15,9 @@
 #include "API.object.manager.h"
 #include "obstacle.h"
 
+/* 追加 */
+#include "enemy1.h"
+
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
@@ -41,6 +44,8 @@ CCameraController::~CCameraController()
 //============================================================================
 bool CCameraController::Initialize()
 {
+	using namespace useful;
+
 	// 初期化
 	m_Players.clear();
 	m_Obstacles.clear();
@@ -62,6 +67,26 @@ bool CCameraController::Initialize()
 	// カメラの最初の位置
 	m_FirstCameraPos = m_Camera->GetPos();
 
+	// プレイヤーリスト取得
+	auto Players = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
+
+	// プレイヤー全体で最小と最大の位置を取得
+	for (auto ite : Players)
+	{
+		std::weak_ptr<CPlayer> Player = std::dynamic_pointer_cast<CPlayer>(ite);
+		m_Players.push_back(Player);
+	}
+
+	/* CPUタイプのオブジェクトリストを参照 */
+	const auto& rListCPU = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::CPU);
+
+	/* CPUを弱参照を保有*/
+	for (const auto& rIt : rListCPU)
+	{
+		std::weak_ptr<CEnemyPlayer> wpCPU = std::dynamic_pointer_cast<CEnemyPlayer>(rIt);
+		m_vwpCPUs.push_back(wpCPU);
+	}
+
 	return true;
 }
 
@@ -76,6 +101,9 @@ void CCameraController::Finalize()
 //============================================================================
 void CCameraController::Update()
 {
+	// 既に削除されてるプレイヤーを除外
+	RemoveExpiredPlayers();
+
 	// ギミックを取得
 	GetObstacles();
 
@@ -96,31 +124,9 @@ void CCameraController::Update()
 	
 	// カメラの変更位置を設定
 	m_Camera->SetPosTarget(m_CameraTargetPos);
-}
 
-//============================================================================
-// プレイヤーの登録
-//============================================================================
-void CCameraController::Regist(CPlayer* player)
-{
-	m_Players.push_back(player);
-}
-
-//============================================================================
-// プレイヤーの削除
-//============================================================================
-void CCameraController::UnRegist(CPlayer* player)
-{
-	for (auto ite = m_Players.begin(); ite != m_Players.end(); ite++)
-	{
-		if (*ite == player)
-		{// 同じとき
-
-			// 削除
-			ite = m_Players.erase(ite);
-			break;
-		}
-	}
+	// 保存したギミックの情報全部消す
+	m_Obstacles.clear();
 }
 
 //============================================================================
@@ -181,21 +187,39 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 	// プレイヤー全体で最小と最大の位置を取得
 	for (auto ite : m_Players)
 	{
+		auto Player = ite.lock();
+
 		if (Count == 0)
 		{
-			MinPlayersPos = ite->GetTransform().Pos;
-			MaxPlayersPos = ite->GetTransform().Pos;
+			MinPlayersPos = Player->GetTransform().Pos;
+			MaxPlayersPos = Player->GetTransform().Pos;
 		}
 
 		// X座標の最小最大
-		MaxPlayersPos.x = max(MaxPlayersPos.x, ite->GetTransform().Pos.x);
-		MinPlayersPos.x = min(MinPlayersPos.x, ite->GetTransform().Pos.x);
+		MaxPlayersPos.x = max(MaxPlayersPos.x, Player->GetTransform().Pos.x);
+		MinPlayersPos.x = min(MinPlayersPos.x, Player->GetTransform().Pos.x);
 		
 		// Z座標の最小最大
-		MaxPlayersPos.z = max(MaxPlayersPos.z, ite->GetTransform().Pos.z);
-		MinPlayersPos.z = min(MinPlayersPos.z, ite->GetTransform().Pos.z);
+		MaxPlayersPos.z = max(MaxPlayersPos.z, Player->GetTransform().Pos.z);
+		MinPlayersPos.z = min(MinPlayersPos.z, Player->GetTransform().Pos.z);
 
 		Count++;
+	}
+
+	/* CPU全体で最小と最大の位置を取得 */
+	for (const auto& rIt : m_vwpCPUs)
+	{
+		/* CPUが存在すれば */
+		if (std::shared_ptr<CEnemyPlayer> spCPU = rIt.lock())
+		{
+			/* X座標の最小最大 */
+			MaxPlayersPos.x = max(MaxPlayersPos.x, spCPU->GetTransform().Pos.x);
+			MinPlayersPos.x = min(MinPlayersPos.x, spCPU->GetTransform().Pos.x);
+
+			/* Z座標の最小最大 */
+			MaxPlayersPos.z = max(MaxPlayersPos.z, spCPU->GetTransform().Pos.z);
+			MinPlayersPos.z = min(MinPlayersPos.z, spCPU->GetTransform().Pos.z);
+		}
 	}
 
 	// ギミックで最小と最大の位置を取得
@@ -226,11 +250,19 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 void CCameraController::GetObstacles()
 {
 	// 障害物リスト取得
-	auto List = CObjectManager::RefInstance().RefListRaw(OBJ::TYPE::OBSTACLE);
+	auto ListRaw = CObjectManager::RefInstance().RefListRaw(OBJ::TYPE::OBSTACLE);
+	auto ListShare = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::OBSTACLE);
 
-	for (auto ite : List)
+	for (auto ite : ListRaw)
 	{
 		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite);
+
+		m_Obstacles.push_back(Obstacle);
+	}
+
+	for (auto ite : ListShare)
+	{
+		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite.get());
 
 		m_Obstacles.push_back(Obstacle);
 	}
@@ -291,4 +323,23 @@ void CCameraController::HasPerimeterGimmick()
 		// 距離設定
 		m_Camera->SetDistanceTarget(Distance);
 	}
+}
+
+//============================================================================
+// 既に削除されてるプレイヤーを除外
+//============================================================================
+void CCameraController::RemoveExpiredPlayers()
+{
+	// weak_ptrがExpiredかどうか判定
+	auto IsExpired =
+		[](const std::weak_ptr<CPlayer>& wp)
+	{
+		return wp.expired();
+	};
+
+	// Expiredな要素を後方に移動して整理
+	auto newEnd = std::remove_if(m_Players.begin(), m_Players.end(), IsExpired);
+
+	// 条件にあうものを削除
+	m_Players.erase(newEnd, m_Players.end());
 }

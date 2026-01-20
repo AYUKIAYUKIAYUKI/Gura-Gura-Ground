@@ -52,12 +52,12 @@ public:
 	static constexpr float FWINDOW_HEIGHT = 720.0f;
 
 	// スクリーン横幅
-	static const WORD  WSCREEN_WIDTH;
-	static const float FSCREEN_WIDTH;
+	static constexpr WORD  WSCREEN_WIDTH = 1920;
+	static constexpr float FSCREEN_WIDTH = 1920.0f;
 
 	// スクリーン縦幅
-	static const WORD  WSCREEN_HEIGHT;
-	static const float FSCREEN_HEIGHT;
+	static constexpr WORD  WSCREEN_HEIGHT = 1080;
+	static constexpr float FSCREEN_HEIGHT = 1080.0f;
 
 	//****************************************************
 	// function
@@ -74,6 +74,10 @@ public:
 	// fp -> 更新処理
 	template <typename T>
 	void MessageLoop(T&& fpMainLoop);
+
+	// フルスクリーン制御
+	void ChangeScreenMode(bool bEnable);
+	inline bool GetFullscreenState() const { return m_bFullscreen; }
 
 	//****************************************************
 	// inline function
@@ -117,6 +121,11 @@ private:
 	// デバッグウィンドウ用
 	HANDLE              m_hPipe;       // デバッグウィンドウ用パイプ
 	PROCESS_INFORMATION m_ProcessInfo; // プロセス情報
+
+	// フルスクリーン制御用
+	bool  m_bFullscreen;
+	DWORD m_dwWindowedStyle;
+	DWORD m_dwWindowedExStyle;
 };
 
 // テンプレート実装ファイル
