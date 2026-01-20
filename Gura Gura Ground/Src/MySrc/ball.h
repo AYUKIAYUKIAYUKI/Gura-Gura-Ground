@@ -62,4 +62,5 @@ private:
 	// data
 	//****************************************************
 	DirectX::XMFLOAT3 m_Direction; // is•ûŒü
+	float m_PrevVelY = 0.0f;
 };

@@ -13,6 +13,7 @@
 #include "API.object.manager.h"
 #include "player.h"
 #include "API.collision.h"
+#include "API.sound.manager.h"
 
 // •¨—‹““®ì¬‚Ì‚½‚ß
 #include "API.world.h"
@@ -281,5 +282,7 @@ void TetraState_Fall::Action([[maybe_unused]] CFallTetra* p)
 		// oFŠgU”­¶
 		//CDust::GenerateSpread(TF.Pos, 10);
 		p->SetDeath();
+		// Œø‰Ê‰¹F—‰º‰¹
+		CSoundManger::RefInstance().Play("FallTetra", false, -0.5f, 1.5f);
 	}
 }

@@ -18,6 +18,7 @@
 #include "bomb.h"
 #include "player.h"
 #include "API.object.manager.h"
+#include "API.sound.manager.h"
 
 //============================================================================
 // デフォルトコンストラクタ
@@ -60,6 +61,9 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// 位置セット
 	pGhost->SetWorldTransform(TF);
+
+	// 効果音：風の音
+	CSoundManger::RefInstance().Play("Tornado", false, -0.5f, 1.0f);
 }
 
 //============================================================================

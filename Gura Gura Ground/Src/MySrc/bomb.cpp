@@ -10,6 +10,7 @@
 //****************************************************
 #include "bomb.h"
 #include "API.object.manager.h"
+#include "API.sound.manager.h"
 
 // •¨—‹““®ì¬‚Ì‚½‚ß
 #include "API.rigidbody.h"
@@ -135,6 +136,8 @@ void CBomb::Action()
 
 	if (m_nTimer <= 0)
 	{
+		CSoundManger::RefInstance().Play("Bomb", false, -0.5f, 1.0f);
+
 		SetDeath();
 
 		// ÕŒ‚”g‚Ìì¬

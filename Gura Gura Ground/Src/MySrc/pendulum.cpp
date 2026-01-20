@@ -1,4 +1,5 @@
-﻿//============================================================================
+﻿
+//============================================================================
 // 
 // 振り子 [pendulum.cpp]
 // Author : 大竹熙
@@ -9,6 +10,7 @@
 // インクルードファイル
 //****************************************************
 #include "pendulum.h"
+#include "API.sound.manager.h"
 
 // 物理挙動作成のため
 #include "API.world.h"
@@ -169,8 +171,21 @@ void CPendulum::Update()
 	// 挙動
 	Action();
 
+	// 1往復周期 = 2π / ω（端→端）
+	const float period = 2.0f * DirectX::XM_PI / PendulumParams::Omega;
+
+	// 現在のワールドトランスフォームを取得
+	OBJ::Transform TF = {};
+	m_pRB->GetWorldTransform(TF);
+
+	if (m_Time >= period)
+	{
+		// 自身の死亡フラグを立てる
+		SetDeath();
+	}
+
 	// 戻る
-	Loop();
+	//Loop();
 
 	CheckHitPlayer();
 
@@ -223,6 +238,20 @@ void CPendulum::Action()
 
 	const float theta = PendulumParams::MaxAngle * sinf(PendulumParams::Omega * m_Time + m_Phase);
 
+	const float threshold = 0.8f; // ← ここを大きくするともっと早く鳴る
+	if (fabs(theta) < threshold)
+	{
+		if (!m_hasPlayedNearCenter)
+		{
+			CSoundManger::RefInstance().Play("Pendulum", false, -0.5f, 1.0f);
+			m_hasPlayedNearCenter = true;
+		}
+	}
+	else
+	{
+		m_hasPlayedNearCenter = false;
+	}
+
 	const float groundY = g_fAxisY_Despawn;
 	const float r = PendulumParams::PendulumRadius;
 	const float safety = PendulumParams::MarginY;
@@ -234,22 +263,22 @@ void CPendulum::Action()
 	const float swing = PendulumParams::Length * sinf(theta);
 	const float swingY = pivotY - Ls * cosf(theta);
 
-    OBJ::Transform TF{};
+	OBJ::Transform TF{};
 
 	// エディターで設定した値が運動基点として加算し、中心座標となるようにする
-    if (m_Direction.z != 0.0f)
-    {
-        TF.Pos.x = m_OriginPos.x;
-        TF.Pos.y = swingY;
-        TF.Pos.z = m_OriginPos.z + swing;
-    }
-    else
-    {
-        TF.Pos.x = m_OriginPos.x + swing;
-        TF.Pos.y = swingY;
-        TF.Pos.z = m_OriginPos.z;
-    }
-    m_pRB->SetWorldTransform(TF);
+	if (m_Direction.z != 0.0f)
+	{
+		TF.Pos.x = m_OriginPos.x;
+		TF.Pos.y = swingY;
+		TF.Pos.z = m_OriginPos.z + swing;
+	}
+	else
+	{
+		TF.Pos.x = m_OriginPos.x + swing;
+		TF.Pos.y = swingY;
+		TF.Pos.z = m_OriginPos.z;
+	}
+	m_pRB->SetWorldTransform(TF);
 }
 
 //============================================================================
