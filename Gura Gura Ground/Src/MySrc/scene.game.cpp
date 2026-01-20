@@ -29,6 +29,10 @@
 #include "cameracontroller.h"
 #include "API.texture.manager.h"
 
+//ﾃﾞﾊﾞｯｸﾞ
+#include "Barrel.h"
+#include "effect.manager.h"
+
 //****************************************************
 // 仮：最終的に必要と判断した変数はメンバに付属してください
 //****************************************************
@@ -103,6 +107,8 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
+	DEBUG_WND();
+
 	//タイム計測
 	auto now = std::chrono::steady_clock::now();
 	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();

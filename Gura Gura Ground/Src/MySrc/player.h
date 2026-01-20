@@ -11,12 +11,14 @@
 // インクルードファイル
 //****************************************************
 #include "API.physics.model.h"
+#include "debuff_behavior.h"
 
 //****************************************************
 // 前方宣言
 //****************************************************
 class CField;
-class FallTetra_Behavior;
+class Debuff_Behavior;
+
 
 //****************************************************
 // プレイヤークラスの定義
@@ -74,13 +76,20 @@ public:
 	static std::vector<float> s_vSurvivalTimes; //生存時間 
 
 	//ぺちゃんこ状態の管理
-	std::shared_ptr<FallTetra_Behavior> GetFallTetraBehavior() { return m_pFallTetraBehavior; }
-	//外部からぺちゃんこ有効化するための関数
-	void EnableFallTetraBehavior() {
-		if (m_pFallTetraBehavior != nullptr)m_pFallTetraBehavior.reset();
-		m_pFallTetraBehavior = std::make_shared<FallTetra_Behavior>();
+	std::shared_ptr<Debuff_Behavior> GetFallTetraBehavior() { return m_pDebuffBehavior; }
+	//外部からデバフ有効化するための関数
+	void EnableStamp() {
+		if (DB_UseCheck())return;
+		m_pDebuffBehavior = std::make_shared<Stamp_DB>();
 	}
-
+	void EnableBird() {
+		if (DB_UseCheck())return;
+		m_pDebuffBehavior = std::make_shared<Bird_DB>();
+	}
+	void EnableOil() {
+		if (DB_UseCheck())return;
+		m_pDebuffBehavior = std::make_shared<Oil_DB>();
+	}
 	//プレイヤーごとの生存時間取得
 	static float GetSurvivalTimeForIndex(size_t idx) {if (idx < s_vSurvivalTimes.size()) return s_vSurvivalTimes[idx];return 0.0f;}
 	//生存時間削除
@@ -102,24 +111,17 @@ private:
 	int                           m_nLostControlDuration; // 操作不能期間
 	int                           m_nStepCounter;         // 進行カウンター
 
-	std::shared_ptr<FallTetra_Behavior> m_pFallTetraBehavior;
+	std::shared_ptr<Debuff_Behavior> m_pDebuffBehavior;
+
+	//既にデバフが有効なら時間だけ戻すよ
+	inline bool DB_UseCheck()	{
+		if (m_pDebuffBehavior != nullptr) {
+			m_pDebuffBehavior.reset();
+			return true;
+		}
+		return false;
+	}
 protected:
 	bool m_bIsDead; //死亡したかどうか
 };
 
-//仮でドッスン関連の挙動実装するクラス追加 ←結局本実装になるやつ
-class FallTetra_Behavior
-{
-public:
-	FallTetra_Behavior() :m_Timer(180), m_DecayValue(0.3f){}
-	float GetDecayValue() { return m_DecayValue; }
-	void SetDecayValue(float v) { m_DecayValue = v; }
-	bool GetTimer() {
-		--m_Timer;
-		return m_Timer > 0;
-	}
-	void TimerReset() { m_Timer = 180; }
-private:
-	float m_DecayValue;
-	int m_Timer;
-};
