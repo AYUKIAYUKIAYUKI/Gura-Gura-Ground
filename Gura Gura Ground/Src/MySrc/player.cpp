@@ -11,6 +11,7 @@
 #include "player.h"
 #include "API.gltf.manager.h"
 #include "API.input.manager.h"
+#include "effect.manager.h"
 
 // “–‚½‚è”»’è—p
 #include "API.collision.h"
@@ -490,6 +491,8 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	// ’n–Ê‚ÆÚ’n‚µ‚½‚ç
 	if (CheckLand(rStateMachine))
 	{
+		useful::Vec3 EffectVec3 = { rStateMachine.m_rPalyer.GetTransform().Pos.x,6.25f,rStateMachine.m_rPalyer.GetTransform().Pos.z };
+		CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3,nullptr,1.6f);
 		// ÕŒ‚”g‚Ìì¬
 		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 6.0f, 1.0f, 6.0f }, 10);
 

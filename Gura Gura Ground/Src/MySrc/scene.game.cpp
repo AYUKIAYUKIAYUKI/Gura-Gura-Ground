@@ -107,7 +107,6 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
-	DEBUG_WND();
 
 	//タイム計測
 	auto now = std::chrono::steady_clock::now();
