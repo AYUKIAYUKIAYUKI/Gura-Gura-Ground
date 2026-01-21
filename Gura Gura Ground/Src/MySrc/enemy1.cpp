@@ -35,6 +35,7 @@ namespace
 
 	const float PREDICTION_TIME_DEF = 0.15f;  //デフォルトで足し合わせる未来視の時間
 	const float PREDICTION_TIME = 0.15f;      //乱数で出す未来視の最小大数
+	const float ShockWaveSize = 6.0f;         //衝撃波（ｘ。ｚ）の大きさ
  
 	//プレイヤーと同じ数値にする&&プレイヤーから直接同期->処理も変更しないと多分無理
 	const float JUMPPOWER = 13.5f;           //自身のジャンプ力
@@ -51,8 +52,7 @@ using namespace useful;
 //======================================
 //コンストラクタ
 //======================================
-CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :
-	CPhysicsModel(Type, Layer)  
+CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsModel(Type, Layer)  
 , m_nRecasttime(0), m_bJump(true), m_pBar(nullptr)                                           
 , m_pShockWave(nullptr), m_bGoDown(false), m_btOldVel(INIT)                    
 , m_nStart(0), m_bStart(false), m_pwPlayer{}, m_State(ENEMY_STATE::STATE_BASE)
@@ -64,18 +64,14 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :
 	m_params.predictionTime = PREDICTION_TIME_DEF +RandomRange(0.0f, PREDICTION_TIME); //ある程度の値の大きさを持たせる	
 	m_params.noiseangle= RandomSplit(0.15f, 0.25f);                                    //角度の調整値
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));             // モデルのバインド
-
-	m_State = ENEMY_STATE::STATE_BASE;}
+}
 
 //======================================
 //デストラクタ
 //======================================
 CEnemyPlayer::~CEnemyPlayer()
 {
-	//ポインターの情報を消す
-	std::vector<std::weak_ptr<CPlayer>>().swap(m_pwPlayer);
-	std::vector<std::weak_ptr<CEnemyPlayer>>().swap(m_pwSelf);
-	m_pBar = nullptr;
+	
 }
 
 //======================================
@@ -156,7 +152,7 @@ void CEnemyPlayer::State_Base_Search()
 {
 	std::vector<TargetInfo> targets;   //まとめて比較する用変数(構造体により、型が違くても比較可能)
 
-	auto SelfPos = GetTransform().Pos; //自身の位置
+	const auto SelfPos = GetTransform().Pos; //自身の位置
 
 	//targetsに各情報を入れる
 	CollectTargetInfo(m_pwPlayer, targets, SelfPos); //プレイヤーの情報
@@ -205,7 +201,7 @@ void CEnemyPlayer::State_Base_Search()
 //======================================
 void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3 targetPos, const DirectX::XMFLOAT3 SelfPos, float angle)
 {
-	const float RADIUS = 2.5f;         //当たり半径
+	const float RADIUS = (ShockWaveSize * 0.5f);        //当たり半径
 
 	//当たっているかどうか判定
 	if (CheckCollision(targetPos, SelfPos, RADIUS))
@@ -321,13 +317,13 @@ void CEnemyPlayer::State_Base_Bar()
 		const float size = 1.0f; //当たり判定の大きさ
 
 		//自身のトランスフォーム情報
-		auto SelfTransform = GetTransform();
+		const auto SelfTransform = GetTransform();
 		XMFLOAT3 SelfSize = { size, size, size };                                                  //「ファクトリーコライダーの値」を参照      
 		GameObject self_GO = SetObbInfo(self_GO, SelfTransform.Pos, SelfSize, SelfTransform.Rot);
 
 		//バーのトランスフォーム情報
 		CRigidBody* pRB_Bar = DownCast<CRigidBody>(m_pBar->GetCollider());
-		auto BarTransform = pRB_Bar->GetWorldTransform();
+		const auto BarTransform = pRB_Bar->GetWorldTransform();
 		XMFLOAT3 BarSize = { size, 15.0f, size };                                                  //「ファクトリーコライダーの値」を参照
 		GameObject bar_GO = SetObbInfo(bar_GO, BarTransform.Pos, BarSize, BarTransform.Rot);
 
@@ -406,10 +402,10 @@ void CEnemyPlayer::State_Bar()
 void CEnemyPlayer::searchPlayer()
 {
 	//オブジェクトマネージャーのシェアポインターからプレイヤータイプを見つける
-	auto  playerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::PLAYER);
+	const auto  playerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 
 	//範囲baseでプレイヤー情報の基盤を取得
-	for (auto Obj : playerlist)
+	for (const auto Obj : playerlist)
 	{
 		//キャストしてプレイヤーの情報を入れる
 		auto pPlayer = std::dynamic_pointer_cast<CPlayer>(Obj);
@@ -487,10 +483,10 @@ float CEnemyPlayer::CheckDistance(const XMFLOAT3& c1, const XMFLOAT3& c2)
 void CEnemyPlayer::searchBar()
 {
 	//オブジェクトマネージャーのシェアポインターからオブジェクトタイプを取得
-	auto Obstaclelist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::OBSTACLE);
+	const auto Obstaclelist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::OBSTACLE);
 
 	//範囲baseで探す
-	for (auto& Obj : Obstaclelist)
+	for (const auto& Obj : Obstaclelist)
 	{
 		//Objの中身がcBarかどうかを判定(同じオブジェクトタイプでの判定)
 		if (auto bar = std::dynamic_pointer_cast<CBar>(Obj))
@@ -578,7 +574,7 @@ bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
 	//多少強引に一回だけ衝撃波を呼ぶ処理を実行
 	else if (RecastTme <= 1)
 	{
-		CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 4.0f, 1.0f, 4.0f }, 10);
+		CreateShockWave(Collision::SHAPETYPE::CYLINDER, { ShockWaveSize, 1.0f, ShockWaveSize }, 10);
 	}
 
 	return false;

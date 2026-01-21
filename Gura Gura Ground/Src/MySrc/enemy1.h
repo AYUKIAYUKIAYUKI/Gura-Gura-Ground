@@ -198,21 +198,20 @@ private: //その他
 	 * @brief min～maxの間の数値を乱数で渡し１/２で+-が変わる
 	 * [in] 最小値、最大値
 	 */
-	double RandomSplit(float min, float max)
+	float RandomSplit(float min, float max)
 	{
 		static std::mt19937 mt(std::random_device{}());
 
-		// 0 or 1 をランダムに選ぶ
-		std::uniform_int_distribution<int> choose(0, 1);
+		std::uniform_real_distribution<float> dist(min, max);
 
-		// min～max の乱数
-		std::uniform_real_distribution<double> dist(min, max);
+		// coinに代入した数値分　trueが出やすくなる（max 1.0）例coin(0.7)-> true:false=0.7:0.3の確率
+		std::bernoulli_distribution coin(1.0);
 
-		double v = dist(mt);
+		float v = dist(mt);
+		v = coin(mt) ? v : -v;
 
-		// 50% の確率で負にする
-		if (choose(mt) == 1)
-			v = -v;
+		// 小数第2位に丸める
+		v = std::round(v * 100.0f) / 100.0f;
 
 		return v;
 	}
