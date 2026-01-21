@@ -8,6 +8,7 @@
 
 #include "API.renderer.h"
 
+
 namespace {
     static int SelectNum = 0;
     std::vector<std::string> TagName;
@@ -34,6 +35,7 @@ namespace {
 
 CEffect::~CEffect()
 {
+    Uninit();
 }
 
 //==========================================================================================
@@ -52,10 +54,9 @@ void CEffect::Init()
 //==========================================================================================
 void CEffect::Uninit()
 {
-    if (m_effects != nullptr)
-    {
-        m_effects->Release();
-        m_effects = nullptr;
+    if (m_effects != nullptr)    {
+        m_effects.Reset();
+
     }
 }
 
@@ -133,7 +134,11 @@ CEffect* CEffect::Create(CEffectManager::EFFECT_TAG tag, useful::Vec3 pos, int* 
     if (handle != nullptr)handle = &pEffect->m_handle;
     return pEffect;
 }
-CEffectManager::CEffectManager() 
+
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------
+//ここから下は管理クラス
+CEffectManager::CEffectManager()
 {
 
 }
@@ -141,10 +146,6 @@ CEffectManager::CEffectManager()
 CEffectManager::~CEffectManager()
 {
 }
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------------
-//ここから下は管理クラス
-
 
 //==========================================================================================
 //初期化処理
@@ -185,10 +186,18 @@ bool CEffectManager::Initialize()
 //==========================================================================================
 void CEffectManager::Finalize()
 {
-
+    m_manager->StopAllEffects();
+    for (auto& e : m_effectsList)
+    {
+        delete e;
+    }
     m_effectsList.clear();
-    m_manager = nullptr;
-    m_renderer = nullptr;
+    if (m_manager != nullptr) {
+        m_manager.Reset();
+    }
+    if (m_renderer != nullptr)    {
+        m_renderer.Reset();
+    }
     
 }
 
@@ -205,7 +214,6 @@ void CEffectManager::Update()
         i->Update();
     }
     EraseEffect();
-
 }
 
 //==========================================================================================

@@ -11,6 +11,7 @@
 #include "player.h"
 #include "API.gltf.manager.h"
 #include "API.input.manager.h"
+#include "effect.manager.h"
 
 // 当たり判定用
 #include "API.collision.h"
@@ -200,9 +201,11 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 		// 移動速度スケール
 		float fSpeed = fSpeedArg;
 
+		//何かしらのデバフが有効なら移動速度に倍率を掛ける
 		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr)
 		{
-			fSpeed *= rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetDecayValue();
+			float Decay = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetDecayValue();
+			fSpeed *= Decay;
 		}
 
 #if 0
@@ -239,10 +242,15 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 
 		/* ああ…btVector3をXMFLOAT3に変換 */
 		DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
-		DirectX::XMFLOAT3 TargeVel_XMFLOAT   = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
+		DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
 
 		/* ああ…要素ずつ指数減衰 */
-		const float fCoef = 0.25f;
+		float fCoef = 0.25f;
+		//何かしらのデバフが有効なら慣性に倍率を掛ける
+		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
+			float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
+			fCoef *= Inertia;
+		}
 		useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
 		useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
 
@@ -270,7 +278,12 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 		float fCurrentZ = rCurrentVel.getZ();
 
 		// 加速度：XZ軸：減衰をかける
-		const float fCoef = 0.05f;
+		float fCoef = 0.05f;
+		//何かしらのデバフが有効なら慣性に倍率を掛ける
+		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
+			float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
+			fCoef *= Inertia;
+		}
 		useful::ExponentialDecay(fCurrentX, 0.0f, fCoef);
 		useful::ExponentialDecay(fCurrentZ, 0.0f, fCoef);
 
@@ -478,6 +491,8 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	// 地面と接地したら
 	if (CheckLand(rStateMachine))
 	{
+		useful::Vec3 EffectVec3 = { rStateMachine.m_rPalyer.GetTransform().Pos.x,6.25f,rStateMachine.m_rPalyer.GetTransform().Pos.z };
+		CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
 		// 衝撃波の作成
 		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 6.0f, 1.0f, 6.0f }, 10);
 
@@ -499,7 +514,7 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 	, m_wIdxPlayer(0)
 	, m_nLostControlDuration(0)
 	, m_nStepCounter(0)
-	, m_pFallTetraBehavior(nullptr)
+	, m_pDebuffBehavior(nullptr)
 {
 	// シェアポインタのオブジェクトリストの参照
 	const std::list<std::shared_ptr<CObject>>& rFieldList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
@@ -555,7 +570,7 @@ void CPlayer::Update()
 	--m_nLostControlDuration;
 
 	//生存時間計測
-	if (m_bIsDead) 
+	if (m_bIsDead)
 	{
 		if (m_wIdxPlayer < s_vSurvivalTimes.size())
 			s_vSurvivalTimes[m_wIdxPlayer] += 1.0f / 60.0f; // 60FPSで換算
@@ -566,15 +581,14 @@ void CPlayer::Update()
 	{
 		m_upStateMachine->ExecuteState();
 	}
-	if (m_pFallTetraBehavior != nullptr)
+	if (m_pDebuffBehavior != nullptr)
 	{
-		if (!m_pFallTetraBehavior->GetTimer())
+		if (!m_pDebuffBehavior->GetTimer())
 		{
-			m_pFallTetraBehavior.reset();
-			m_pFallTetraBehavior = nullptr;
+			m_pDebuffBehavior.reset();
+			m_pDebuffBehavior = nullptr;
 		}
 	}
-
 	// 死亡判定
 	CheckDeath();
 

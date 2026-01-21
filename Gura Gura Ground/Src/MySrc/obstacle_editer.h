@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "debuff_behavior.h"
+
 //****************************************************
 // 障害物エディタークラスの定義
 //****************************************************
@@ -56,6 +58,12 @@ public:
         std::vector<SubObstacleParam> subParams; // 複数障害物情報をまとめる
     };
 
+    struct DebuffConfig {
+        float DecayValue = 0.3f;
+        float InertiaValue = 1.0f;
+    };
+    static DebuffConfig s_StampConfig, s_BirdConfig, s_OilConfig;
+
     static const int PARAM_SET_MAX = 5;                // パラメータセット最大数
     static const int SPAWN_PRESET_MAX = 50;
 
@@ -86,4 +94,5 @@ private:
     static std::vector<bool> s_SpawnedFlags;
     static std::vector<int> s_SpawnPlayerThresholds;
     static std::vector<int> s_ForcedParamSetIndices;
+
 };
