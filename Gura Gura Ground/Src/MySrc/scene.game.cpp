@@ -112,6 +112,7 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
+
 	//タイム計測
 	auto now = std::chrono::steady_clock::now();
 	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();
@@ -160,6 +161,9 @@ void CSceneGame::Change()
 {
 	// 全オブジェクトに死亡フラグを立てる
 	CObjectManager::RefInstance().SetDeathAll();
+
+	// エフェクトを全て停止
+	CEffectManager::RefInstance().StopAll();
 
 	//生存時間
 	std::vector<float> times = CPlayer::s_vSurvivalTimes;
