@@ -35,6 +35,7 @@ namespace {
 
 CEffect::~CEffect()
 {
+    Uninit();
 }
 
 //==========================================================================================
@@ -53,10 +54,9 @@ void CEffect::Init()
 //==========================================================================================
 void CEffect::Uninit()
 {
-    if (m_effects != nullptr)
-    {
-        m_effects->Release();
-        m_effects = nullptr;
+    if (m_effects != nullptr)    {
+        m_effects.Reset();
+
     }
 }
 
@@ -186,9 +186,13 @@ bool CEffectManager::Initialize()
 //==========================================================================================
 void CEffectManager::Finalize()
 {
+    m_manager->StopAllEffects();
+    for (auto& e : m_effectsList)
+    {
+        delete e;
+    }
     m_effectsList.clear();
     if (m_manager != nullptr) {
-        m_manager->StopAllEffects();
         m_manager.Reset();
     }
     if (m_renderer != nullptr)    {
@@ -210,7 +214,6 @@ void CEffectManager::Update()
         i->Update();
     }
     EraseEffect();
-
 }
 
 //==========================================================================================
