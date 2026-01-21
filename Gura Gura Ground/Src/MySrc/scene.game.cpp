@@ -358,7 +358,7 @@ void CSceneGame::SpawnPlayer()
 	}
 
 	// CPUの数を取得
-	unsigned char wEnemyNum = m_vpwCPUs.size();
+	unsigned char wEnemyNum = static_cast<unsigned char>(m_vpwCPUs.size());
 
 	// 保有しているCPUを使用して設定
 	for (unsigned char i = 0; i < wEnemyNum; ++i)
