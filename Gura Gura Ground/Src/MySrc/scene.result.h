@@ -24,12 +24,6 @@ public:
 
 	void Update() override;
 	void Change() override;
-	void ComputeWinners(const std::vector<float>& survivalTimes);
-
-	DirectX::XMMATRIX m_matViewTest;
-	DirectX::XMMATRIX m_matProjTest;
-	D3D11_VIEWPORT    m_viewportTest;
-	std::unique_ptr<CCamera> m_upCameraResult;
 
 private:
 	enum class ANIM_PHASE {
