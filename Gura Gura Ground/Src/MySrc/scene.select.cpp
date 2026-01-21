@@ -200,13 +200,36 @@ void CSceneSelect::WhileEvent_CursorTrack()
 	++fTick;
 	fRotZ = sinf(fTick * 0.5f);
 
-	// マウスカーソルの位置を取得
-	const float fPosX_Mouse = static_cast<float>(CInputManager::RefInstance().GetStateMouse().x);
-	const float fPosY_Mouse = static_cast<float>(CInputManager::RefInstance().GetStateMouse().y);
+	int a = CInputManager::RefInstance().GetConnectedGamePadNum();
 
-	// カーソル位置を元にHUDのトランスフォームを作成
-	const OBJ::Transform NewTF = { { fSpan, fSpan, 0.0f }, { 0.0f, 0.0f, fRotZ, 0.0f }, { fPosX_Mouse, fPosY_Mouse, 0.0f } };
+	// 入力方向を取得
+	const std::optional<float>& InputToMoveDirection = CInputManager::RefInstance().ConvertInputToMoveDirection(0);
 
-	// 目標トランスフォームを上書き
-	m_pCursor->SetTransformTarget(NewTF);
+	// 入力されてる
+	if (InputToMoveDirection)
+	{
+		// 数値を取得
+		float MoveDirection = InputToMoveDirection.value();
+
+		//元の位置を取得
+		DirectX::XMFLOAT3 Pos = m_pCursor->GetTransform().Pos;
+
+		// 新しい位置を計算
+		DirectX::XMFLOAT3 NewPos =
+		{
+			Pos.x + sinf(MoveDirection)*200.0f,
+			Pos.y - cosf(MoveDirection)*200.0f,
+			0.0f
+		};
+
+		// カーソル位置を元にHUDのトランスフォームを作成
+		const OBJ::Transform NewTF = {
+			{ fSpan, fSpan, 0.0f },
+			{ 0.0f, 0.0f, fRotZ, 0.0f },
+			 NewPos
+		};
+
+		// 目標トランスフォームを上書き
+		m_pCursor->SetTransformTarget(NewTF);
+	}
 }
