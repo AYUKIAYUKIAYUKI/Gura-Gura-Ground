@@ -50,11 +50,11 @@ public:
 
 	void RegistEffect(CEffect* pEffect);
 	void SetEraseList(int index);
-	void StopAll();
 	bool LoadFile();
 	void Finalize();		//I—¹
 
 	std::string GetFilename(EFFECT_TAG tag) { if (m_EffectName.size() > tag) return m_EffectName[tag]; }
+	void StopAll() { m_manager->StopAllEffects(); }
 
 	inline Effekseer::ManagerRef GetManager() { return m_manager; }
 	inline EffekseerRendererDX11::RendererRef GetRenderer() { return m_renderer; };
