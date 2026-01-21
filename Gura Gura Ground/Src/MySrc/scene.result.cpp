@@ -31,6 +31,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     : m_pBackground(nullptr), m_nResultValue(0), m_fGameTime(0.0f),
     m_playerSurvivalTimes(playerSurvivalTimes)
 {
+
     const int SCREEN_W = 1920;
     const int SCREEN_H = 1080;
     const float CENTER_X = SCREEN_W / 2.0f;
@@ -52,6 +53,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         m_pBackground->SetColTarget(color);
         m_bgDarkRatio = 0.0f;
     }
+
 
     const float BASE_Y = 980.0f;
 
@@ -89,12 +91,16 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     int rankNumber = 1;
     int prevTime = -1;
     int usedRank = rankNumber;
+
     for (size_t sortedPos = 0; sortedPos < sortList.size(); ++sortedPos)
     {
         const auto& info = sortList[sortedPos];
-        if (sortedPos == 0 || info.timeInt != prevTime) {
+
+        if (sortedPos == 0 || info.timeInt != prevTime)
+        {
             usedRank = rankNumber;
         }
+
         indexToRank[info.idx] = usedRank;
         prevTime = info.timeInt;
         rankNumber++;
@@ -127,6 +133,23 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     pWinText->SetCol(winTextCol);
     m_winTextIdx = m_vpPlayerIcons.size();
     m_vpPlayerIcons.push_back(pWinText);
+
+    m_spTestModel = CObjectManager::CreateShare<CPhysicsModel>(
+        [](CPhysicsModel* p) -> bool
+        {
+            p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+
+            // Transform設定
+            OBJ::Transform tf;
+            tf.Pos = { -12.0f, 0.0f, 0.0f };
+            tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+            p->SetTransform(tf);
+
+            p->FactoryCollider(1.0f, 1.0f, 1.0f);
+
+            return true;
+        },
+        OBJ::TYPE::NONE,OBJ::LAYER::FRONT);
 
     int maxTimeInt = -1;
     for (size_t i = 0; i < playerCount; ++i) 
@@ -197,7 +220,6 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
             m_vpPlayerTextImgs.push_back(pText);
         }
     }
-
 
     // プレイヤー数分UI表示
     for (size_t playerIdx = 0; playerIdx < playerCount; ++playerIdx)

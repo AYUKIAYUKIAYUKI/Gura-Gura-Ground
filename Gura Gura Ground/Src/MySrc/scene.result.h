@@ -50,7 +50,7 @@ private:
 	std::vector<int> m_otherHudIdxs;
 
 	CHud* m_pBackground;
-	CPhysicsModel* m_pTestModel = nullptr;
+	std::shared_ptr<CPhysicsModel> m_spTestModel;
 	std::vector<CHud*> m_vpNumbers;
 	int m_nResultValue;
 	float m_fGameTime;

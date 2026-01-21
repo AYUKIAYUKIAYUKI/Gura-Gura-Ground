@@ -109,7 +109,6 @@ CSceneGame::~CSceneGame()
 //============================================================================
 void CSceneGame::Update()
 {
-
 	//タイム計測
 	auto now = std::chrono::steady_clock::now();
 	float deltaTime = std::chrono::duration<float>(now - g_LastUpdateTime).count();
