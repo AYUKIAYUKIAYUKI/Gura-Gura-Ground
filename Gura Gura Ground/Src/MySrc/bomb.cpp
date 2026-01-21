@@ -17,6 +17,7 @@
 
 // 衝撃波の作成のため
 #include "shockwave.h"
+#include "warning.h"
 #include <obstacle_editer.h>
 
 //============================================================================
@@ -62,6 +63,11 @@ void CBomb::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// 位置セット
 	pRB->SetWorldTransform(TF);
+
+	/* ！！！ 警告表示の作成 ！！！ */
+	CWarning* pWarning = CObjectManager::CreateRaw<CWarning>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pWarning->SetTrackTarget(spObstacle);
 }
 
 //============================================================================

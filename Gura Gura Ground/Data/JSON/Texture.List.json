@@ -203,6 +203,22 @@
     [
       "C1",
       "Data\\TEXTURE\\cnt1.png"
+    ],
+    [
+      "GO",
+      "Data\\TEXTURE\\cnt1.png"
+    ],
+    [
+      "Warning",
+      "Data\\TEXTURE\\reticle.png"
+    ],
+    [
+      "Route",
+      "Data\\TEXTURE\\gauge_bar.png"
+    ],
+    [
+      "Arch",
+      "Data\\TEXTURE\\arch.png"
     ]
   ]
 }

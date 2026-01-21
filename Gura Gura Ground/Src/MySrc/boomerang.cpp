@@ -15,7 +15,7 @@
 #include "API.collision.h"
 
 // エフェクト
-#include "dust.h"
+#include "arch.h"
 
 //****************************************************
 // usingディレクティブ
@@ -113,6 +113,16 @@ void CBoomerang::FactoryCollider(float fWidth, float fHeight, float fDepth)
     rb->setGravity(btVector3(0, 0, 0));
 
     Appear();
+
+    /* ！！！ コライダーの大きさでトランスフォームを設定 ！！！ */
+    OBJ::Transform TF = {};
+	TF.Size = { fWidth, fHeight, fDepth };
+	SetTransform(TF);
+
+    /* ！！！ アーチを生成 ！！！ */
+    CArch* pArch = CObjectManager::CreateRaw<CArch>();
+    std::shared_ptr<CBoomerang> spBoomerang = std::dynamic_pointer_cast<CBoomerang>(shared_from_this());
+    pArch->SetTrackTarget(spBoomerang);
 }
 
 //============================================================================

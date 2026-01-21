@@ -15,7 +15,8 @@
 #include "API.rigidbody.h"
 
 // エフェクト
-#include "dust.h"
+#include "API.object.manager.h"
+#include "route.h"
 #include <obstacle_editer.h>
 
 //****************************************************
@@ -82,6 +83,16 @@ void CBar::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// 出現
 	Appear();
+
+	/* ！！！ トランスフォームのサイズをコライダーのもので設定 ！！！ */
+	OBJ::Transform TF = {};
+	TF.Size = { fWidth, fHeight, fDepth };
+	SetTransform(TF);
+
+	/* ！！！ 警告表示の作成 ！！！ */
+	CRoute* pRoute = CObjectManager::CreateRaw<CRoute>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pRoute->SetTrackTarget(spObstacle);
 }
 
 //============================================================================

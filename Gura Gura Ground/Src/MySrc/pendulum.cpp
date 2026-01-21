@@ -17,7 +17,7 @@
 #include "API.collision.h"
 
 // エフェクト
-#include "dust.h"
+#include "route.h"
 
 //****************************************************
 // usingディレクティブ
@@ -158,6 +158,16 @@ void CPendulum::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	rb->setGravity(btVector3(0, 0, 0));
 
 	Appear();
+
+	/* ！！！ トランスフォームのサイズをコライダーのもので設定 ！！！ */
+	OBJ::Transform TF = {};
+	TF.Size = { fWidth, fHeight, fDepth };
+	SetTransform(TF);
+
+	/* ！！！ 警告表示の作成 ！！！*/
+	CRoute* pRoute = CObjectManager::CreateRaw<CRoute>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pRoute->SetTrackTarget(spObstacle);
 }
 
 //============================================================================

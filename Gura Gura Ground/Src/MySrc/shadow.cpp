@@ -9,7 +9,6 @@
 // インクルードファイル
 //****************************************************
 #include "shadow.h"
-#include "API.renderer.h"
 #include "API.texture.manager.h"
 #include "API.physics.model.h"
 
@@ -28,7 +27,7 @@ CShadow::CShadow(OBJ::TYPE Type, OBJ::LAYER Layer)
 	SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Shadow"));
 
 	// ブレンドタイプの設定：減算合成
-	SetBlendType(1);
+	SetBlendType(CRenderer::BlendType::SUB);
 }
 
 //============================================================================
@@ -60,10 +59,10 @@ void CShadow::Update()
 
 			/* 地面の位置 */
 			const float fFieldY = 5.0f + 1.08f;
-
+		
 			// 高低差の調整値
 			const float fAdjust = (TF.Pos.y - fFieldY);
-
+	
 			// 位置に応じてトランスフォームを調整
 			SetTransform({
 				{ (TF.Size.x * 5.0f) + fAdjust * 0.5f , (TF.Size.y * 5.0f) + fAdjust * 0.5f , 0.0f },
