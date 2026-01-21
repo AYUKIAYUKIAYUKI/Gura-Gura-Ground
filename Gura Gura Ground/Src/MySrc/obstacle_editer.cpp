@@ -32,15 +32,21 @@ std::vector<std::pair<int, int>> ObstacleEditer::s_AssignedSpawnParamIndices = {
 std::vector<ObstacleEditer::ObstacleParam> ObstacleEditer::m_ParamSets(ObstacleEditer::PARAM_SET_MAX);
 std::vector<int> ObstacleEditer::s_SpawnPlayerThresholds(ObstacleEditer::SPAWN_PRESET_MAX, 4);
 std::vector<int> ObstacleEditer::s_ForcedParamSetIndices(ObstacleEditer::SPAWN_PRESET_MAX, 0);
+
 float ObstacleEditer::s_DecayValue = 0.3f;
 
 std::vector<bool> ObstacleEditer::s_SpawnedFlags = {};
+
+ObstacleEditer::DebuffConfig ObstacleEditer::s_StampConfig{0.3f, 1.0f};
+ObstacleEditer::DebuffConfig ObstacleEditer::s_BirdConfig{0.5f, 1.2f};
+ObstacleEditer::DebuffConfig ObstacleEditer::s_OilConfig{0.8f, 8.5f};
 
 //============================================================================
 // 障害物パラメーター編集処理
 //============================================================================
 void ObstacleEditer::EditCommonParams()
 {
+
     auto& paramSet = RefParam();
 
     static int selectedSubParamIndex = 0; 
@@ -62,9 +68,10 @@ void ObstacleEditer::EditCommonParams()
         auto fallTetra = player->GetFallTetraBehavior();
         if (fallTetra) {
             // FallTetra_Behaviorのm_DecayValueへ値を渡すsetter関数
-            fallTetra->SetDecayValue(s_DecayValue);
+
         }
     }
+
 
     if (selectedSubParamIndex >= 0 && selectedSubParamIndex < (int)paramSet.subParams.size())
     {
@@ -230,6 +237,7 @@ void ObstacleEditer::EditCommonParams()
 //============================================================================
 void ObstacleEditer::EditerMenu()
 {
+
     useful::MIS::MyImGuiShortcut_BeginWindow(reinterpret_cast<const char*>(u8"障害物設定メニュー"));
 
     bool lastPlayMode = m_PlayMode;
@@ -274,7 +282,6 @@ void ObstacleEditer::EditerMenu()
     {
         SaveParams("Data\\JSON\\obscale_table.json");
     }
-
 
     const char* paramSetLabels[PARAM_SET_MAX] = { "Preset 1", "Preset 2", "Preset 3", "Preset 4", "Preset 5" };
     ImGui::Combo(reinterpret_cast<const char*>(u8"編集するプリセット"), &m_CurrentParamIndex, paramSetLabels, PARAM_SET_MAX);
@@ -506,7 +513,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 TF.Pos = { -Pos, 0.0f, Pos };
                                 p->SetTransform(TF);
                                 p->SetStartPos(TF.Pos);
-                                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                                 p->SetDepth(Pos * 2.0f); // 奥行き
                                 p->SetWidth(Pos * 2.0f); // 幅
                                 return true;
@@ -518,7 +525,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
                                 // 幅・高さ・奥行きをセット
-                                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                                 OBJ::Transform TF = {};
                                 TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
                                 p->SetTransform(TF);
@@ -541,7 +548,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                         CObjectManager::CreateShare<CBoomerang>([sub, subIdx, paramSetIdx](CBoomerang* p) -> bool {
                             p->SetParamSetIndex(paramSetIdx);
                             p->SetSubParamIndex(static_cast<int>(subIdx));
-                            p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                            p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                             p->SetMovePattern(sub.BoomerangMovePattern);
                             OBJ::Transform TF = {};
                             TF.Pos = { sub.ObstacleSpawnX, 9.0f, sub.ObstacleSpawnZ };
@@ -721,7 +728,8 @@ void ObstacleEditer::TryManualSpawn()
                 }, OBJ::TYPE::OBSTACLE);
             break;
         case OBS_TYPE::BOOMERANG:
-            CObjectManager::CreateShare<CBoomerang>([sub, subIdx, thisSetIdx](CBoomerang* p) -> bool {
+            CObjectManager::CreateShare<CBoomerang>([sub, subIdx, thisSetIdx](CBoomerang* p) -> bool
+                {
                 p->SetParamSetIndex(thisSetIdx);
                 p->SetSubParamIndex(static_cast<int>(subIdx));
                 p->SetMovePattern(sub.BoomerangMovePattern);
@@ -850,7 +858,13 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
     jsRoot["spawn_enable_time"] = 3.0f;
     jsRoot["preset_count"] = s_SpawnTimePresetCount;
 
-    jsRoot["falltetra_decay_value"] = s_DecayValue;
+    //デバフ状態時の値
+    jsRoot["debuff_stamp"]["decay"] = s_StampConfig.DecayValue;
+    jsRoot["debuff_stamp"]["inertia"] = s_StampConfig.InertiaValue;
+    jsRoot["debuff_bird"]["decay"] = s_BirdConfig.DecayValue;
+    jsRoot["debuff_bird"]["inertia"] = s_BirdConfig.InertiaValue;
+    jsRoot["debuff_oil"]["decay"] = s_OilConfig.DecayValue;
+    jsRoot["debuff_oil"]["inertia"] = s_OilConfig.InertiaValue;
 
     std::ofstream ofs(fileName);
     ofs << jsRoot.dump(4);
@@ -867,11 +881,11 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
     m_CurrentParamIndex = 0;
     m_PlayModeElapsedTime = 0.0f;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
     m_PlayMode = false;
 #endif
 
-#ifdef _RELEASE
+#ifdef NDEBUG
     m_PlayMode = true;
 #endif
 
@@ -936,12 +950,18 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
         s_SpawnPlayerThresholds.assign(SPAWN_PRESET_MAX, 4);
     }
 
-    if (jsRoot.contains("falltetra_decay_value")) 
-    {
-        s_DecayValue = jsRoot["falltetra_decay_value"].get<float>();
+    //デバフ状態時の値
+    if (jsRoot.contains("debuff_stamp")) {
+        s_StampConfig.DecayValue = jsRoot["debuff_stamp"].value("decay", 0.3f);
+        s_StampConfig.InertiaValue = jsRoot["debuff_stamp"].value("inertia", 1.0f);
     }
-    else {
-        s_DecayValue = 0.3f; // デフォルト値
+    if (jsRoot.contains("debuff_bird")) {
+        s_BirdConfig.DecayValue = jsRoot["debuff_bird"].value("decay", 0.5f);
+        s_BirdConfig.InertiaValue = jsRoot["debuff_bird"].value("inertia", 1.2f);
+    }
+    if (jsRoot.contains("debuff_oil")) {
+        s_OilConfig.DecayValue = jsRoot["debuff_oil"].value("decay", 0.8f);
+        s_OilConfig.InertiaValue = jsRoot["debuff_oil"].value("inertia", 8.5f);
     }
 
     // プリセット数/生成時間
@@ -1060,24 +1080,22 @@ void ObstacleEditer::AssignRandomSpawnTimes()
 
 void ObstacleEditer::ShowGlobalGimmickSettingsWindow()
 {
-    static bool show = true; // 必要に応じて他所で切り替えてください（常時表示ならstatic不要）
+    static bool show = true;
 
-    // 必要ならウィンドウタイトルで開閉（外部から show フラグ制御OK）
-    if (ImGui::Begin(reinterpret_cast<const char*>(u8"ギミック効果全体設定"), &show))
+    if (ImGui::Begin(reinterpret_cast<const char*>(u8"ギミック全体の設定"), &show))
     {
-        ImGui::Text(reinterpret_cast<const char*>(u8"ドッスン直撃時のプレイヤー移動減速値"));
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"減速値"), &s_DecayValue, 0.01f, 0.0f, 1.0f);
+        // 各デバフ値を編集
+        // スタンプ
+        ImGui::Text(reinterpret_cast<const char*>(u8"ドッスン直撃時デバフ設定"));
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##STAMP"), &s_StampConfig.DecayValue, 0.0f, 2.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##STAMP"), &s_StampConfig.InertiaValue, 0.0f, 10.0f);
+        ImGui::Text(reinterpret_cast<const char*>(u8"鳥の群れ直撃時デバフ設定"));
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##BIRD"), &s_BirdConfig.DecayValue, 0.0f, 2.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##BIRD"), &s_BirdConfig.InertiaValue, 0.0f, 10.0f);
+        ImGui::Text(reinterpret_cast<const char*>(u8"オイルデバフ設定"));
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##OIL"), &s_OilConfig.DecayValue, 0.0f, 2.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##OIL"), &s_OilConfig.InertiaValue, 0.0f, 10.0f);
 
-        auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
-        for (auto& playerObj : playerList)
-        {
-            auto player = std::dynamic_pointer_cast<CPlayer>(playerObj);
-            if (!player) continue;
-            auto fallTetra = player->GetFallTetraBehavior();
-            if (fallTetra) {
-                fallTetra->SetDecayValue(s_DecayValue);
-            }
-        }
     }
     ImGui::End();
 }

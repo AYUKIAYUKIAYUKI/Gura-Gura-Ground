@@ -35,7 +35,7 @@ namespace
 	// フィールドサイズ
 	float g_fFieldSpan = 15.0f;
 	float g_fFieldHalf = g_fFieldSpan * 0.5f;
-	
+
 	// その他設定値
 	float ShpireHalf = 3.0f;		//生成球半径
 	float SideHeight = 8.0f;		//生成高さ
@@ -110,12 +110,12 @@ void CBirdStrike::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
 	// デフォルトのゴーストを生成
 	SetCollider(CGhost::CreateGhost(GetTransform(), Collision::SHAPETYPE::SPHERE, fWidth, fHeight, fDepth));
-		
+
 	// コライダーをゴーストにキャスト
 	CGhost* const pGs = dynamic_cast<CGhost*>(GetCollider());
 
 	//配列を設定
-	if(Target.size() <= 0)	InitalizePosVec();
+	if (Target.size() <= 0)	InitalizePosVec();
 
 	//始点と終点を設定
 	OBJ::Transform transform{};
@@ -124,7 +124,7 @@ void CBirdStrike::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	XMFLOAT3 Vec3 = Target[StartNum];
 	int GoalNum = StartNum + A::GetRandomMT(8, 11);
 	if (GoalNum > TargetMax)GoalNum -= TargetMax;
-	
+
 	m_Start = Target[StartNum];
 	m_Goal = Target[GoalNum];
 	transform.Pos = Vec3;
@@ -168,7 +168,7 @@ void CBirdStrike::Action()
 	float timeValue = (1.0f / MoveTime) * m_nTime;
 
 	XMFLOAT3 F3Value = A::LerpFloat3(m_Start, m_Goal, timeValue);
-	
+
 	OBJ::Transform transform = pGs->GetWorldTransform();
 	transform.Pos = F3Value;
 
@@ -196,7 +196,7 @@ void CBirdStrike::ToPlayer()
 		{
 			CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(pPlayerObj->GetCollider());
 			// 衝突判定
-			
+
 			Collision::MyContactCallbackGhostAndRigidBody CallBack(pGs, pRigidBody);
 			CWorld::RefInstance().RefDynamicsWorldConst()->contactPairTest(pGs->GetGhost(), pRigidBody->GetRigidBody(), CallBack);
 

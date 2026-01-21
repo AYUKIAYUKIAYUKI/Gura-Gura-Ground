@@ -7,7 +7,7 @@
 
 #pragma once
 
-
+#include "obstacle_editer.h"
 
 //デバフ周りの数値を管理するクラス群
 class Debuff_Behavior

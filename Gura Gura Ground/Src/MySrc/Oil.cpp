@@ -34,7 +34,7 @@ namespace
 	// フィールドサイズ
 	float g_fFieldSpan = 15.0f;
 	float g_fFieldHalf = g_fFieldSpan * 0.5f;
-	
+
 	// その他設定値
 	float CylinderHeight = 0.5f;	//生成球半径
 	float Cylinderhalf = 0.1f;		//生成高さ
@@ -46,8 +46,8 @@ namespace
 	{
 
 	}
-	
-	
+
+
 }
 
 //============================================================================
@@ -71,7 +71,7 @@ void COil::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
 	// デフォルトのゴーストを生成
 	SetCollider(CGhost::CreateGhost(GetTransform(), Collision::SHAPETYPE::CYLINDER, fHeight, CylinderHeight, fHeight));
-		
+
 	// コライダーをゴーストにキャスト
 	CGhost* const pGs = dynamic_cast<CGhost*>(GetCollider());
 
@@ -128,7 +128,7 @@ void COil::ToPlayer()
 		{
 			CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(pPlayerObj->GetCollider());
 			// 衝突判定
-			
+
 			Collision::MyContactCallbackGhostAndRigidBody CallBack(pGs, pRigidBody);
 			CWorld::RefInstance().RefDynamicsWorldConst()->contactPairTest(pGs->GetGhost(), pRigidBody->GetRigidBody(), CallBack);
 
