@@ -32,15 +32,21 @@ std::vector<std::pair<int, int>> ObstacleEditer::s_AssignedSpawnParamIndices = {
 std::vector<ObstacleEditer::ObstacleParam> ObstacleEditer::m_ParamSets(ObstacleEditer::PARAM_SET_MAX);
 std::vector<int> ObstacleEditer::s_SpawnPlayerThresholds(ObstacleEditer::SPAWN_PRESET_MAX, 4);
 std::vector<int> ObstacleEditer::s_ForcedParamSetIndices(ObstacleEditer::SPAWN_PRESET_MAX, 0);
+
 float ObstacleEditer::s_DecayValue = 0.3f;
 
 std::vector<bool> ObstacleEditer::s_SpawnedFlags = {};
+
+ObstacleEditer::DebuffConfig ObstacleEditer::s_StampConfig{0.3f, 1.0f};
+ObstacleEditer::DebuffConfig ObstacleEditer::s_BirdConfig{0.5f, 1.2f};
+ObstacleEditer::DebuffConfig ObstacleEditer::s_OilConfig{0.8f, 8.5f};
 
 //============================================================================
 // 障害物パラメーター編集処理
 //============================================================================
 void ObstacleEditer::EditCommonParams()
 {
+
     auto& paramSet = RefParam();
 
     static int selectedSubParamIndex = 0; 
@@ -62,9 +68,10 @@ void ObstacleEditer::EditCommonParams()
         auto fallTetra = player->GetFallTetraBehavior();
         if (fallTetra) {
             // FallTetra_Behaviorのm_DecayValueへ値を渡すsetter関数
-            fallTetra->SetDecayValue(s_DecayValue);
+
         }
     }
+
 
     if (selectedSubParamIndex >= 0 && selectedSubParamIndex < (int)paramSet.subParams.size())
     {
@@ -230,6 +237,7 @@ void ObstacleEditer::EditCommonParams()
 //============================================================================
 void ObstacleEditer::EditerMenu()
 {
+
     useful::MIS::MyImGuiShortcut_BeginWindow(reinterpret_cast<const char*>(u8"障害物設定メニュー"));
 
     bool lastPlayMode = m_PlayMode;
@@ -274,7 +282,6 @@ void ObstacleEditer::EditerMenu()
     {
         SaveParams("Data\\JSON\\obscale_table.json");
     }
-
 
     const char* paramSetLabels[PARAM_SET_MAX] = { "Preset 1", "Preset 2", "Preset 3", "Preset 4", "Preset 5" };
     ImGui::Combo(reinterpret_cast<const char*>(u8"編集するプリセット"), &m_CurrentParamIndex, paramSetLabels, PARAM_SET_MAX);
@@ -721,7 +728,8 @@ void ObstacleEditer::TryManualSpawn()
                 }, OBJ::TYPE::OBSTACLE);
             break;
         case OBS_TYPE::BOOMERANG:
-            CObjectManager::CreateShare<CBoomerang>([sub, subIdx, thisSetIdx](CBoomerang* p) -> bool {
+            CObjectManager::CreateShare<CBoomerang>([sub, subIdx, thisSetIdx](CBoomerang* p) -> bool
+                {
                 p->SetParamSetIndex(thisSetIdx);
                 p->SetSubParamIndex(static_cast<int>(subIdx));
                 p->SetMovePattern(sub.BoomerangMovePattern);
@@ -867,11 +875,11 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
     m_CurrentParamIndex = 0;
     m_PlayModeElapsedTime = 0.0f;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
     m_PlayMode = false;
 #endif
 
-#ifdef _RELEASE
+#ifdef NDEBUG
     m_PlayMode = true;
 #endif
 
@@ -1060,24 +1068,22 @@ void ObstacleEditer::AssignRandomSpawnTimes()
 
 void ObstacleEditer::ShowGlobalGimmickSettingsWindow()
 {
-    static bool show = true; // 必要に応じて他所で切り替えてください（常時表示ならstatic不要）
+    static bool show = true;
 
-    // 必要ならウィンドウタイトルで開閉（外部から show フラグ制御OK）
-    if (ImGui::Begin(reinterpret_cast<const char*>(u8"ギミック効果全体設定"), &show))
+    if (ImGui::Begin(reinterpret_cast<const char*>(u8"ギミック全体の設定"), &show))
     {
-        ImGui::Text(reinterpret_cast<const char*>(u8"ドッスン直撃時のプレイヤー移動減速値"));
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"減速値"), &s_DecayValue, 0.01f, 0.0f, 1.0f);
+        // 各デバフ値を編集
+        // スタンプ
+        ImGui::Text(reinterpret_cast<const char*>(u8"ドッスン直撃時デバフ設定"));
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##STAMP"), &s_StampConfig.DecayValue, 0.0f, 2.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##STAMP"), &s_StampConfig.InertiaValue, 0.0f, 10.0f);
+        ImGui::Text(reinterpret_cast<const char*>(u8"鳥の群れ直撃時デバフ設定"));
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##BIRD"), &s_BirdConfig.DecayValue, 0.0f, 2.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##BIRD"), &s_BirdConfig.InertiaValue, 0.0f, 10.0f);
+        ImGui::Text(reinterpret_cast<const char*>(u8"オイルデバフ設定"));
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##OIL"), &s_OilConfig.DecayValue, 0.0f, 2.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##OIL"), &s_OilConfig.InertiaValue, 0.0f, 10.0f);
 
-        auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
-        for (auto& playerObj : playerList)
-        {
-            auto player = std::dynamic_pointer_cast<CPlayer>(playerObj);
-            if (!player) continue;
-            auto fallTetra = player->GetFallTetraBehavior();
-            if (fallTetra) {
-                fallTetra->SetDecayValue(s_DecayValue);
-            }
-        }
     }
     ImGui::End();
 }
