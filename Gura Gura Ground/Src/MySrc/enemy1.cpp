@@ -48,6 +48,7 @@ using namespace DirectX;
 using namespace useful;
 
 #include "API.gltf.manager.h"
+#include <shadow.h>
 
 //======================================
 //コンストラクタ
@@ -99,13 +100,21 @@ void CEnemyPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
 
 	// 重力の設定
-	pRB->SetGravity({ 0.0f, -20.0f, 0.0f }); //プレイヤーより軽く設定(debug)
+	pRB->SetGravity({ 0.0f, -25.0f, 0.0f });
 
 	// 摩擦力を設定
 	pRB->SetFriction(1.0f);
 
 	// Y軸以外の回転をロック
 	pRB->SetAngularFactor(INIT);
+
+	// 影の作成
+	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(
+		OBJ::TYPE::NONE,
+		OBJ::LAYER::DEFAULT);
+
+	// 影の追従対象として自身を設定
+	pShadow->SetTrackTarget(shared_from_this());
 }
 
 
@@ -199,57 +208,38 @@ void CEnemyPlayer::State_Base_Search()
 //======================================
 //比較処理(当たった時の判定や初動動かない処理)
 //======================================
-void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3 targetPos, const DirectX::XMFLOAT3 SelfPos, float angle)
+void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX::XMFLOAT3& SelfPos, float angle)
 {
-	const float RADIUS = (ShockWaveSize * 0.5f);        //当たり半径
-
-	//当たっているかどうか判定
-	if (CheckCollision(targetPos, SelfPos, RADIUS))
+	// 初動がまだ終わっていない
+	if (!m_bStart)
 	{
-		if (m_params.jumpcount < 3)
-		{
-			//初動が完了
-			if (m_bJump && m_bStart)
-			{
-				++m_params.jumpcount;                    //ジャンプ数カウント
-				Jump_Base();                             //飛ぶ前の準備段階               
-				ChangeState(ENEMY_STATE::STATE_IN_JUMP); //状態をジャンプ中に変更
-			}
-			else if (!m_bStart)
-			{
-				++m_nStart;
+		if (++m_nStart >= MAX_RECASTTIME_MOVE)
+			m_bStart = true;
 
-				//初動どれだけ動かないか
-				if (m_nStart >= MAX_RECASTTIME_MOVE)
-				{
-					m_bStart = true;
-				}
-			}
-		}
-		else
+		return; // 初動中はここで終了
+	}
+
+	//飛べる
+	if (m_bJump)
+	{
+		//定期的に未来視をリセットするこ事で単調さを消す
+		if (m_params.jumpcount > 2)
 		{
-			//未来視リセット
+			// 未来視リセット
 			m_params.predictionTime = PREDICTION_TIME_DEF + RandomRange(0.0f, PREDICTION_TIME);
 			m_params.jumpcount = 0;
 		}
-	}
-	else
-	{
-		//初動が完了
-		if (m_bJump && m_bStart)
-		{
-			if (m_params.jumpcount != 0)m_params.jumpcount = 0;  //ジャンプ数の初期化
-			MoveAtPlayer(angle, 6.5f);                           //移動
-		}
-		else if (!m_bStart)
-		{
-			++m_nStart;
 
-			//初動どれだけ動かないか
-			if (m_nStart >= MAX_RECASTTIME_MOVE)
-			{
-				m_bStart = true;
-			}
+		//範囲内
+		if (CheckCollision(targetPos, SelfPos, ShockWaveSize * 0.5f))
+		{
+			++m_params.jumpcount;
+			Jump_Base();
+			ChangeState(ENEMY_STATE::STATE_IN_JUMP);
+		}
+		else
+		{
+			MoveAtPlayer(angle, 6.5f); //移動
 		}
 	}
 }
@@ -415,9 +405,9 @@ void CEnemyPlayer::searchPlayer()
 }
 
 //======================================
-//プレイヤーの方へ移動する処理
+//プレイヤーの方へ移動する処理(角度、移動速度)
 //======================================
-void CEnemyPlayer::MoveAtPlayer(float Angle, float speed)
+void CEnemyPlayer::MoveAtPlayer(const float Angle, const float speed)
 {
 	//リジットボディを取得
 	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
@@ -444,7 +434,7 @@ void CEnemyPlayer::MoveAtPlayer(float Angle, float speed)
 //======================================
 //当たり判定チェック処理
 //======================================
-bool CEnemyPlayer::CheckCollision(const XMFLOAT3& c1pos, const XMFLOAT3& c2pos, float Radius)
+bool CEnemyPlayer::CheckCollision(const XMFLOAT3& c1pos, const XMFLOAT3& c2pos,const float Radius)
 {
 	//対角線を算出
 	float centerDistance = CheckDistance(c1pos, c2pos);
@@ -649,6 +639,37 @@ void CEnemyPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMF
 
 	// 期間の設定
 	spShockWave->SetDuration(nDuration);
+}
+
+//============================================================================
+//乱数
+//============================================================================
+float CEnemyPlayer::RandomRange(float min, float max)
+{
+	static std::mt19937 mt{ std::random_device{}() };
+	std::uniform_real_distribution<float> dist(min, max);
+	return dist(mt);
+}
+
+//============================================================================
+//min～maxの間の数値を乱数で渡し１/２で+-が変わる
+//============================================================================
+float CEnemyPlayer::RandomSplit(float min, float max)
+{
+	static std::mt19937 mt(std::random_device{}());
+
+	std::uniform_real_distribution<float> dist(min, max);
+
+	// coinに代入した数値分　trueが出やすくなる（max 1.0）例coin(0.7)-> true:false=0.7:0.3の確率
+	std::bernoulli_distribution coin(1.0);
+
+	float v = dist(mt);
+	v = coin(mt) ? v : -v;
+
+	// 小数第2位に丸める
+	v = std::round(v * 100.0f) / 100.0f;
+
+	return v;
 }
 
 //======================================

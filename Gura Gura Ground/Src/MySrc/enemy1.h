@@ -105,7 +105,7 @@ private: //プレイヤーに関する関数群
 	 * @brief 敵をプレイヤーの方へ移動する関数
 	 * @param [in] 角度、速度
 	 */
-	void MoveAtPlayer(float fAngle, float speed);
+	void MoveAtPlayer(const float fAngle, const float speed);
 
 	/**
 	 * @brief プレイヤーを探す処理
@@ -116,7 +116,7 @@ private: //プレイヤーに関する関数群
 	 * @brief 自身とプレイヤーの当たり判定チェック処理
 	 * @param [in] 対象の位置情報、自身の位置情報,範囲
 	 */
-	bool CheckCollision(const DirectX::XMFLOAT3& c1, const DirectX::XMFLOAT3& c2, float Radius);
+	bool CheckCollision(const DirectX::XMFLOAT3& c1, const DirectX::XMFLOAT3& c2, const float Radius);
 
 	/**
 	 * @brief 距離を算出する処理
@@ -153,7 +153,7 @@ private: //共通する関数群
 	/**
 	 * @brief 状態遷移関数
 	 */
-	void ChangeState(ENEMY_STATE next)
+	void ChangeState(const ENEMY_STATE next)
 	{
 		m_State = next;
 	}
@@ -167,7 +167,7 @@ private: //共通する関数群
 	 * @brief 比較処理(当たった時の判定や初動動かない処理)
 	 * @param [in] 対象の位置,自身の位置,角度
 	 */
-	void Comparison(const DirectX::XMFLOAT3 targetPos, const DirectX::XMFLOAT3 SelfPos,float angle);
+	void Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX::XMFLOAT3& SelfPos,float angle);
 
 private: //その他
 
@@ -187,34 +187,13 @@ private: //その他
 	 * @brief 乱数
 	 * [in] 最小値、最大値
 	 */
-	float RandomRange(float min, float max)
-	{
-		static std::mt19937 mt{ std::random_device{}() };
-		std::uniform_real_distribution<float> dist(min, max);
-		return dist(mt);
-	}
+	float RandomRange(float min, float max);
 
 	/**
 	 * @brief min～maxの間の数値を乱数で渡し１/２で+-が変わる
 	 * [in] 最小値、最大値
 	 */
-	float RandomSplit(float min, float max)
-	{
-		static std::mt19937 mt(std::random_device{}());
-
-		std::uniform_real_distribution<float> dist(min, max);
-
-		// coinに代入した数値分　trueが出やすくなる（max 1.0）例coin(0.7)-> true:false=0.7:0.3の確率
-		std::bernoulli_distribution coin(1.0);
-
-		float v = dist(mt);
-		v = coin(mt) ? v : -v;
-
-		// 小数第2位に丸める
-		v = std::round(v * 100.0f) / 100.0f;
-
-		return v;
-	}
+	float RandomSplit(float min, float max);
 
 
 	/**
