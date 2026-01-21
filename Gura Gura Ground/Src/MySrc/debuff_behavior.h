@@ -7,7 +7,7 @@
 
 #pragma once
 
-
+#include "obstacle_editer.h"
 
 //デバフ周りの数値を管理するクラス群
 class Debuff_Behavior
@@ -18,6 +18,10 @@ public:
 	//設定した値を返す関数
 	float GetDecayValue() { return m_DecayValue; }
 	float GetInertiaValue() { return m_InertiaValue; }
+
+	void SetDecayValue(float f) { m_DecayValue = f; }
+	void SetInertiaValue(float f) { m_InertiaValue = f; }
+
 	bool GetTimer() {
 		--m_Timer;
 		return m_Timer > 0;

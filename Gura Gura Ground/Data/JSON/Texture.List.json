@@ -69,6 +69,10 @@
       "Data\\TEXTURE\\frame.png"
     ],
     [
+      "ResultTitle_Text",
+      "Data\\TEXTURE\\Result\\ResultTitle_Text.png"
+    ],
+    [
       "ResultNum0",
       "Data\\TEXTURE\\Number\\ResultNum0.png"
     ],
