@@ -152,6 +152,9 @@ void CSceneGame::Change()
 	// 全オブジェクトに死亡フラグを立てる
 	CObjectManager::RefInstance().SetDeathAll();
 
+	// エフェクトを全て停止
+	CEffectManager::RefInstance().StopAll();
+
 	//生存時間
 	std::vector<float> times = CPlayer::s_vSurvivalTimes;
 	auto resultScene = std::make_unique<CSceneResult>(times);
