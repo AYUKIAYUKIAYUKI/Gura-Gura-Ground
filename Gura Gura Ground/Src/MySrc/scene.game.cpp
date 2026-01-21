@@ -13,29 +13,26 @@
 
 // 遷移先のシーン
 #include "API.scene.manager.h"
-#include "scene.title.h"
+#include "scene.result.h"
 
 // インプット取得のため
 #include "API.input.manager.h"
 
 // オブジェクト生成・破棄のため
 #include "API.object.manager.h"
+#include "effect.manager.h"
 #include "hud.count.h"
 #include "field.h"
 #include "player.h"
 #include "symbol.h"
 #include <enemy1.h>
-#include "tornado.h"
 
 // イベント処理のため
 #include "cameracontroller.h"
 
-#include "scene.result.h"
-
-// a
-CEnemyPlayer* g_pEnemy;
-
+/* 仮 */
 #include "API.texture.manager.h"
+
 
 //****************************************************
 // 仮：最終的に必要と判断した変数はメンバに付属してください
