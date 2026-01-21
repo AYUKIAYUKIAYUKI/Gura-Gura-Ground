@@ -122,7 +122,6 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     OBJ::Transform WIN_TEXT_TR = { {275, 146, 0}, {0,0,0,0}, {1500.0f, 300.0f, 0} };
     pWinText->SetTransform(WIN_TEXT_TR);
     pWinText->SetTransformTarget(WIN_TEXT_TR);
-    // 最初アルファ0
     DirectX::XMFLOAT4 winTextCol = DirectX::XMFLOAT4(1, 1, 1, 0);
     pWinText->SetColTarget(winTextCol);
     pWinText->SetCol(winTextCol);
@@ -198,6 +197,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
             m_vpPlayerTextImgs.push_back(pText);
         }
     }
+
 
     // プレイヤー数分UI表示
     for (size_t playerIdx = 0; playerIdx < playerCount; ++playerIdx)
