@@ -122,7 +122,6 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     OBJ::Transform WIN_TEXT_TR = { {275, 146, 0}, {0,0,0,0}, {1500.0f, 300.0f, 0} };
     pWinText->SetTransform(WIN_TEXT_TR);
     pWinText->SetTransformTarget(WIN_TEXT_TR);
-    // 最初アルファ0
     DirectX::XMFLOAT4 winTextCol = DirectX::XMFLOAT4(1, 1, 1, 0);
     pWinText->SetColTarget(winTextCol);
     pWinText->SetCol(winTextCol);
@@ -198,6 +197,18 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
             m_vpPlayerTextImgs.push_back(pText);
         }
     }
+
+    m_pTestModel = new CPhysicsModel(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+
+    m_pTestModel->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+    // 配置 (左上 -20, -20くらい、適宜調整)
+    OBJ::Transform tfTestField = m_pTestModel->GetTransform();
+    tfTestField.Pos.x = 0.0f;  // 少し内側に
+    tfTestField.Pos.y = 50.0f;  // 少し下に
+    tfTestField.Pos.z = -10.0f;
+    m_pTestModel->SetTransform(tfTestField);
+    // モデルオフセットも必要ならセット (例: field.cpp参照)
+    m_pTestModel->SetModelOffset({ 1.15f, 0.8f, -0.3f });
 
     // プレイヤー数分UI表示
     for (size_t playerIdx = 0; playerIdx < playerCount; ++playerIdx)

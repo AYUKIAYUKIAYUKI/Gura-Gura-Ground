@@ -513,7 +513,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 TF.Pos = { -Pos, 0.0f, Pos };
                                 p->SetTransform(TF);
                                 p->SetStartPos(TF.Pos);
-                                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                                 p->SetDepth(Pos * 2.0f); // 奥行き
                                 p->SetWidth(Pos * 2.0f); // 幅
                                 return true;
@@ -525,7 +525,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 p->SetParamSetIndex(paramSetIdx);
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
                                 // 幅・高さ・奥行きをセット
-                                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                                p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                                 OBJ::Transform TF = {};
                                 TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
                                 p->SetTransform(TF);
@@ -548,7 +548,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                         CObjectManager::CreateShare<CBoomerang>([sub, subIdx, paramSetIdx](CBoomerang* p) -> bool {
                             p->SetParamSetIndex(paramSetIdx);
                             p->SetSubParamIndex(static_cast<int>(subIdx));
-                            p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+                            p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
                             p->SetMovePattern(sub.BoomerangMovePattern);
                             OBJ::Transform TF = {};
                             TF.Pos = { sub.ObstacleSpawnX, 9.0f, sub.ObstacleSpawnZ };
@@ -858,7 +858,13 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
     jsRoot["spawn_enable_time"] = 3.0f;
     jsRoot["preset_count"] = s_SpawnTimePresetCount;
 
-    jsRoot["falltetra_decay_value"] = s_DecayValue;
+    //デバフ状態時の値
+    jsRoot["debuff_stamp"]["decay"] = s_StampConfig.DecayValue;
+    jsRoot["debuff_stamp"]["inertia"] = s_StampConfig.InertiaValue;
+    jsRoot["debuff_bird"]["decay"] = s_BirdConfig.DecayValue;
+    jsRoot["debuff_bird"]["inertia"] = s_BirdConfig.InertiaValue;
+    jsRoot["debuff_oil"]["decay"] = s_OilConfig.DecayValue;
+    jsRoot["debuff_oil"]["inertia"] = s_OilConfig.InertiaValue;
 
     std::ofstream ofs(fileName);
     ofs << jsRoot.dump(4);
@@ -944,12 +950,18 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
         s_SpawnPlayerThresholds.assign(SPAWN_PRESET_MAX, 4);
     }
 
-    if (jsRoot.contains("falltetra_decay_value")) 
-    {
-        s_DecayValue = jsRoot["falltetra_decay_value"].get<float>();
+    //デバフ状態時の値
+    if (jsRoot.contains("debuff_stamp")) {
+        s_StampConfig.DecayValue = jsRoot["debuff_stamp"].value("decay", 0.3f);
+        s_StampConfig.InertiaValue = jsRoot["debuff_stamp"].value("inertia", 1.0f);
     }
-    else {
-        s_DecayValue = 0.3f; // デフォルト値
+    if (jsRoot.contains("debuff_bird")) {
+        s_BirdConfig.DecayValue = jsRoot["debuff_bird"].value("decay", 0.5f);
+        s_BirdConfig.InertiaValue = jsRoot["debuff_bird"].value("inertia", 1.2f);
+    }
+    if (jsRoot.contains("debuff_oil")) {
+        s_OilConfig.DecayValue = jsRoot["debuff_oil"].value("decay", 0.8f);
+        s_OilConfig.InertiaValue = jsRoot["debuff_oil"].value("inertia", 8.5f);
     }
 
     // プリセット数/生成時間

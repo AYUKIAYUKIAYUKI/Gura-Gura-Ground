@@ -9,6 +9,10 @@
 
 #include "API.scene.h"
 #include "beamlight.h" 
+#include "API.gltf.manager.h"
+#include "API.model.gltf.h"
+#include "API.physics.model.h"
+#include "API.camera.h"
 
 class CHud;
 
@@ -21,6 +25,11 @@ public:
 	void Update() override;
 	void Change() override;
 	void ComputeWinners(const std::vector<float>& survivalTimes);
+
+	DirectX::XMMATRIX m_matViewTest;
+	DirectX::XMMATRIX m_matProjTest;
+	D3D11_VIEWPORT    m_viewportTest;
+	std::unique_ptr<CCamera> m_upCameraResult;
 
 private:
 	enum class ANIM_PHASE {
@@ -47,6 +56,7 @@ private:
 	std::vector<int> m_otherHudIdxs;
 
 	CHud* m_pBackground;
+	CPhysicsModel* m_pTestModel = nullptr;
 	std::vector<CHud*> m_vpNumbers;
 	int m_nResultValue;
 	float m_fGameTime;
