@@ -11,6 +11,7 @@
 #include "player.h"
 #include "API.gltf.manager.h"
 #include "API.input.manager.h"
+#include "effect.manager.h"
 
 // 当たり判定用
 #include "API.collision.h"
@@ -241,12 +242,12 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 
 		/* ああ…btVector3をXMFLOAT3に変換 */
 		DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
-		DirectX::XMFLOAT3 TargeVel_XMFLOAT   = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
+		DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
 
 		/* ああ…要素ずつ指数減衰 */
 		float fCoef = 0.25f;
 		//何かしらのデバフが有効なら慣性に倍率を掛ける
-		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr)	{
+		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
 			float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
 			fCoef *= Inertia;
 		}
@@ -490,6 +491,8 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	// 地面と接地したら
 	if (CheckLand(rStateMachine))
 	{
+		useful::Vec3 EffectVec3 = { rStateMachine.m_rPalyer.GetTransform().Pos.x,6.25f,rStateMachine.m_rPalyer.GetTransform().Pos.z };
+		CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
 		// 衝撃波の作成
 		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 6.0f, 1.0f, 6.0f }, 10);
 
@@ -567,7 +570,7 @@ void CPlayer::Update()
 	--m_nLostControlDuration;
 
 	//生存時間計測
-	if (m_bIsDead) 
+	if (m_bIsDead)
 	{
 		if (m_wIdxPlayer < s_vSurvivalTimes.size())
 			s_vSurvivalTimes[m_wIdxPlayer] += 1.0f / 60.0f; // 60FPSで換算
