@@ -13,6 +13,7 @@
 #include "API.object.manager.h"
 #include "player.h"
 #include "API.collision.h"
+#include "API.sound.manager.h"
 
 // •¨—‹““®ì¬‚Ì‚½‚ß
 #include "API.world.h"
@@ -131,6 +132,8 @@ void CBirdStrike::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	pGs->SetWorldTransform(transform);
 
+	// Œø‰Ê‰¹F’µ‚Ë‚é‰¹
+	CSoundManger::RefInstance().Play("BirdStrike", false, -0.5f, 0.4f);
 }
 
 //============================================================================
