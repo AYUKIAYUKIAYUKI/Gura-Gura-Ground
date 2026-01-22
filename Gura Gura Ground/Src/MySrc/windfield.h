@@ -18,6 +18,9 @@
 // インクルードファイル
 //****************************************************
 #include "API.physics.model.h"
+#include <API.collision.h>      //btVector3の使用
+
+#include <random>
 
 //===================================================
 //前方宣言
@@ -30,6 +33,21 @@ class CRigidBody;
 //****************************************************
 class CWindField : public CPhysicsModel
 {
+private:
+
+	//風ギミックに必要な情報群
+	struct Parameter
+	{
+		float m_WindAngle = 0.0f;  //風の角度
+		float m_WindSpeed = 1.0f;  //風の強さ
+
+		float m_Timer = 0.0f;      //測定時間観測用
+		float m_BlowTime = 120.0f; //風が吹く時間
+		float m_StopTime = 180.0f; //風が止む時間
+
+		bool m_IsBlowing = false;  //今風が吹いているか？
+	};
+
 public:
 
 	//****************************************************
@@ -78,7 +96,26 @@ private:
 	 */
 	void ApplyWindToBody(CRigidBody* pRB, float Angle, float speed);
 
+	void Window();
+
+	/**
+	 * @brief 乱数
+	 * [in] 最小値、最大値
+	 */
+	float RandomRange(float min, float max)
+	{
+		static std::mt19937 mt{ std::random_device{}() };
+		std::uniform_real_distribution<float> dist(min, max);
+		return dist(mt);
+	}
+
+
 private:
-	std::vector<std::shared_ptr<CPlayer>>m_pwPlayer;           //プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
-	std::vector<std::shared_ptr<CEnemyPlayer>>m_pwEnemyPlayer; //敵プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
+	Parameter m_Parameter;                                     //基本パラメータ
+
+	btVector3 m_SaverCurrentVel;
+
+	//weekじゃないと情報をもち続け、バグる
+	std::vector<std::weak_ptr<CPlayer>>m_pwPlayer;           //プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
+	std::vector<std::weak_ptr<CEnemyPlayer>>m_pwEnemyPlayer; //敵プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
 };

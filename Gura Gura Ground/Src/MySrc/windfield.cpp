@@ -23,6 +23,7 @@
 
 // コライダーの作成用
 #include "API.rigidbody.h"
+#include <numbers> // C++20
 
 //================================================
 //名前空間（無名）
@@ -32,8 +33,9 @@ namespace
 	//マクロ定義
 	btVector3 INIT = { 0.0f, 0.0f, 0.0f };   //btVector3用初期化マクロ
 
-	 int PLAYER_SIZE; //プレイヤーの人数
-	 int CPU_SIZE;    //CPUの人数
+	int PLAYER_SIZE; //プレイヤーの人数
+	int CPU_SIZE;    //CPUの人数
+
 }
 
 //================================================
@@ -106,7 +108,7 @@ void CWindField::UpdatePlayersSystem()
 	}
 	else
 	{
-		MovePlayer(1.57f, 1.0f, PLAYER_SIZE, CPU_SIZE);
+		Window();
 	}
 }
 
@@ -144,40 +146,111 @@ void CWindField::MovePlayer(float Angle, float speed, int PlayerSize, int CPUSiz
 	// プレイヤー
 	for (int nPlayerCount = 0; nPlayerCount < PlayerSize; ++nPlayerCount)
 	{
-		CRigidBody* pRB = DownCast<CRigidBody>(m_pwPlayer[nPlayerCount]->GetCollider());
+		auto sp = m_pwPlayer[nPlayerCount].lock();
+
+		//削除されていたらスキップ
+		if (!sp) continue;
+
+		CRigidBody* pRB = DownCast<CRigidBody>(sp->GetCollider());
+		if (!pRB) continue; //念のため
+
 		ApplyWindToBody(pRB, Angle, speed);
 	}
 
 	// CPU
 	for (int CPUCount = 0; CPUCount < CPUSize; ++CPUCount)
 	{
-		CRigidBody* pRB = DownCast<CRigidBody>(m_pwEnemyPlayer[CPUCount]->GetCollider());
+		auto sp = m_pwEnemyPlayer[CPUCount].lock();
+
+		//削除されていたらスキップ
+		if (!sp) continue;
+
+		CRigidBody* pRB = DownCast<CRigidBody>(sp->GetCollider());
+		if (!pRB) continue;
+
 		ApplyWindToBody(pRB, Angle, speed);
 	}
 }
 
 //============================================================================
-// 移動させる時の必要処理(まとめる用)
+// 移動させる時の必要処理(まとめる用)そもそもあってるこのやり方？ああああああああ
 //============================================================================
 void CWindField::ApplyWindToBody(CRigidBody* pRB, float Angle, float speed)
 {
-	// 現在の加速度を参照
-	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
+	 btVector3 rCurrentVel = pRB->GetLinearVelocity();
 
-	// アクティブ化
+	//加速値が無い時＝直前の加速値を仮代入 「いいやりかた欲しいね、、、、、」
+	if (rCurrentVel == INIT)
+	{
+		rCurrentVel = m_SaverCurrentVel;
+	}
+	else
+	{
+		m_SaverCurrentVel = rCurrentVel;
+	}
+
 	pRB->SetActive();
 
-	// 移動方向
-	btVector3 MoveDir(INIT);
+	// 現在速度をコピー(値を変えるのでconstは×)
+	btVector3 newVel = rCurrentVel;
 
-	MoveDir.setX(sinf(Angle) * speed);
-	MoveDir.setZ(cosf(Angle) * speed);
+	// 風の方向
+	btVector3 windDir(sinf(Angle),0.0f,cosf(Angle));
 
-	// Y は重力の影響を維持
-	MoveDir.setY(rCurrentVel.getY());
+	// 風を加算
+	newVel += windDir * speed;
 
-	// 速度を設定
-	pRB->SetLinearVelocity(MoveDir);
+	// 風と逆方向に動いているか判定
+	float dot = rCurrentVel.dot(windDir);
+
+	if (dot < 0.0f)
+	{
+		// 抵抗力（逆方向のときだけ速度を弱める）
+		float resistance = 0.5f; // 0.0～1.0（大きいほど抵抗が強い）
+		newVel = newVel.lerp(windDir * speed, resistance);
+	}
+
+	// 移動方向：Y軸：現在の重力速度を維持
+	newVel.setY(rCurrentVel.getY());
+
+	//加速度の設定
+	pRB->SetLinearVelocity(newVel+ rCurrentVel);
+}
+
+
+//============================================================================
+//風のギミックの処理
+//============================================================================
+void CWindField::Window()
+{
+	++m_Parameter.m_Timer;
+
+	if (m_Parameter.m_IsBlowing)
+	{
+		if (m_Parameter.m_Timer >= m_Parameter.m_BlowTime)
+		{
+			m_Parameter.m_Timer = 0.0f;
+			m_Parameter.m_IsBlowing = false; // 風を止める
+		}
+		else
+		{
+			// プレイヤーとCPUを風で動かす
+			MovePlayer(m_Parameter.m_WindAngle, m_Parameter.m_WindSpeed, PLAYER_SIZE, CPU_SIZE);
+		}
+	}
+	else
+	{
+		// 風が止んでいる状態
+		if (m_Parameter.m_Timer >= m_Parameter.m_StopTime)
+		{
+			m_Parameter.m_Timer = 0.0f;
+			m_Parameter.m_IsBlowing = true; // 風を吹かせる
+
+			// 新しい風向きをランダム生成
+			m_Parameter.m_WindAngle = 3.14f;
+			m_Parameter.m_WindSpeed = 1.0f;
+		}
+	}
 }
 
 
