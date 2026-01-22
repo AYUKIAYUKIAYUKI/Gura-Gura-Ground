@@ -163,9 +163,12 @@ void ObstacleEditer::EditCommonParams()
         }
 
         // スポーン座標 (竜巻以外)
-        if (obs.ManualObstacleType != OBS_TYPE::TORNADO && obs.ManualObstacleType != OBS_TYPE::BIRDSTRIKE)
+        if (obs.ManualObstacleType != OBS_TYPE::TORNADO )
         {
-            ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 X"), &obs.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
+            if (obs.ManualObstacleType != OBS_TYPE::BIRDSTRIKE)
+            {
+                ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 X"), &obs.ObstacleSpawnX, 0.1f, -100.0f, 100.0f);
+            }
 
             if (obs.ManualObstacleType == OBS_TYPE::FALLTETRA)
             {
@@ -188,7 +191,10 @@ void ObstacleEditer::EditCommonParams()
                 ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Y"), &obs.ObstacleSpawnY, 0.1f, 5.0f, 100.0f);
             }
 
-            ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Z"), &obs.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
+            if (obs.ManualObstacleType != OBS_TYPE::BIRDSTRIKE)
+            {
+                ImGui::DragFloat(reinterpret_cast<const char*>(u8"スポーン座標 Z"), &obs.ObstacleSpawnZ, 0.1f, -100.0f, 100.0f);
+            }
         }
 
         // 移動速度 (ドッスンと竜巻、振り子、ブーメラン、鳥の群れ以外)
@@ -573,7 +579,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
                                 p->SetSubParamIndex(static_cast<int>(subIdx));
                                 p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
                                 OBJ::Transform TF = {};
-                                TF.Pos = { 0.0f, 0.0f, 0.0f };
+                                TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
                                 p->SetTransform(TF);
                                 return true;
                             }, OBJ::TYPE::OBSTACLE);

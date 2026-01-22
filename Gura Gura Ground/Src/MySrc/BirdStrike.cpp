@@ -48,29 +48,33 @@ namespace
 	{
 
 	}
-	void InitalizePosVec()
+
+	std::vector<XMFLOAT3> InitalizePosVec(float height)
 	{
+		std::vector<XMFLOAT3> targets;
 		for (int i = 0; i < 7; ++i)
 		{
-			Target.push_back({ -20.0f + (40 / 7 * i),SideHeight,20.0f });
+			targets.push_back({ -20.0f + (40.f / 7.f * i), height, 20.0f });
 		}
 		for (int i = 0; i < 4; ++i)
 		{
-			Target.push_back({ 20.0f,SideHeight,20.0f - (40 / 7 * i) });
+			targets.push_back({ 20.0f, height, 20.0f - (40.f / 7.f * i) });
 		}
 		for (int i = 0; i < 7; ++i)
 		{
-			Target.push_back({ 20.0f - (40 / 7 * i),SideHeight,-20.0f });
+			targets.push_back({ 20.0f - (40.f / 7.f * i), height, -20.0f });
 		}
 		for (int i = 0; i < 4; ++i)
 		{
-			Target.push_back({ -20.0f,SideHeight,-20.0f + (40 / 7 * i) });
+			targets.push_back({ -20.0f, height, -20.0f + (40.f / 7.f * i) });
 		}
 		for (int i = 0; i < 4; ++i)
 		{
-			Target.erase(Target.begin() + ((i + 1) * (7 - i)));
+			targets.erase(targets.begin() + ((i + 1) * (7 - i)));
 		}
+		return targets;
 	}
+
 	namespace A {
 		int GetRandomMT(int min, int max) {
 			std::random_device rnd;				// 非決定的な乱数生成器でシード生成機を生成
@@ -114,23 +118,27 @@ void CBirdStrike::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	// コライダーをゴーストにキャスト
 	CGhost* const pGs = dynamic_cast<CGhost*>(GetCollider());
 
+	//パラメーター値取得
+	const auto& param = m_ObstacleEditer.m_ParamSets[GetParamSetIndex()].subParams[GetSubParamIndex()];
+	float height = param.ObstacleSpawnY;
+
 	//配列を設定
-	if (Target.size() <= 0)	InitalizePosVec();
+	m_Targets = InitalizePosVec(height);
+
+	int TargetMax = m_Targets.size() - 1;
 
 	//始点と終点を設定
-	OBJ::Transform transform{};
-	int TargetMax = Target.size() - 1;
 	int StartNum = A::GetRandomMT(0, TargetMax);
-	XMFLOAT3 Vec3 = Target[StartNum];
+	XMFLOAT3 Vec3 = m_Targets[StartNum];
 	int GoalNum = StartNum + A::GetRandomMT(8, 11);
-	if (GoalNum > TargetMax)GoalNum -= TargetMax;
+	if (GoalNum > TargetMax) GoalNum -= TargetMax;
 
-	m_Start = Target[StartNum];
-	m_Goal = Target[GoalNum];
+	m_Start = m_Targets[StartNum];
+	m_Goal = m_Targets[GoalNum];
+	OBJ::Transform transform{};
+
 	transform.Pos = Vec3;
-
 	pGs->SetWorldTransform(transform);
-
 }
 
 //============================================================================

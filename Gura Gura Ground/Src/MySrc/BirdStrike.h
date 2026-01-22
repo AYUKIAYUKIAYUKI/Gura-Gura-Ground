@@ -12,6 +12,7 @@
 //****************************************************
 #include "obstacle.h"
 #include "API.rigidbody.h"
+#include "obstacle_editer.h"
 
 
 //****************************************************
@@ -63,6 +64,7 @@ private:
 	//補間の始点と終点
 	DirectX::XMFLOAT3 m_Start;
 	DirectX::XMFLOAT3 m_Goal;
+	std::vector<DirectX::XMFLOAT3> m_Targets;
 
 	//移動補間用時間
 	int m_nTime;

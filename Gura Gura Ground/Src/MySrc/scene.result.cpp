@@ -31,7 +31,6 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     : m_pBackground(nullptr), m_nResultValue(0), m_fGameTime(0.0f),
     m_playerSurvivalTimes(playerSurvivalTimes)
 {
-
     const int SCREEN_W = 1920;
     const int SCREEN_H = 1080;
     const float CENTER_X = SCREEN_W / 2.0f;
@@ -53,7 +52,6 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         m_pBackground->SetColTarget(color);
         m_bgDarkRatio = 0.0f;
     }
-
 
     const float BASE_Y = 980.0f;
 
@@ -77,11 +75,13 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     std::vector<PlayerRankInfo> sortList;
     for (size_t i = 0; i < playerCount; ++i)
     {
-        sortList.push_back(PlayerRankInfo{ (int)i, (int)m_playerSurvivalTimes[i], m_playerSurvivalTimes[i] });
+        int time = static_cast<int>(m_playerSurvivalTimes[i]);
+        int cappedTime = (time > 599) ? 599 : time;  // 9分59秒（599秒）を上限
+        sortList.push_back(PlayerRankInfo{ (int)i, cappedTime, m_playerSurvivalTimes[i] });
     }
 
     std::sort(sortList.begin(), sortList.end(),
-        [](const PlayerRankInfo& a, const PlayerRankInfo& b) 
+        [](const PlayerRankInfo& a, const PlayerRankInfo& b)
         {
             return a.timeInt > b.timeInt || (a.timeInt == b.timeInt && a.idx < b.idx);
         }
@@ -149,10 +149,10 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
 
             return true;
         },
-        OBJ::TYPE::NONE,OBJ::LAYER::FRONT);
+        OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
 
     int maxTimeInt = -1;
-    for (size_t i = 0; i < playerCount; ++i) 
+    for (size_t i = 0; i < playerCount; ++i)
     {
         if ((int)m_playerSurvivalTimes[i] > maxTimeInt)
             maxTimeInt = (int)m_playerSurvivalTimes[i];
@@ -164,6 +164,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
             winners.push_back((int)i);
         }
     }
+
     const float SINGLE_WIN_IMG_X = 1500.0f;
     const float SINGLE_WIN_IMG_Y = 500.0f;
     const float WIN_IMG_W = 664.0f;
@@ -221,16 +222,28 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         }
     }
 
+
     // プレイヤー数分UI表示
     for (size_t playerIdx = 0; playerIdx < playerCount; ++playerIdx)
     {
         std::vector<CHud*> vpNums;
         float surv = m_playerSurvivalTimes[playerIdx];
         int totalSec = static_cast<int>(surv);
-        int minutes = totalSec / 60;
-        int seconds = totalSec % 60;
+        int minutes, seconds;
+
+        // totalSec599以上の場合強制的に9:59にする
+        if (totalSec >= 599) {
+            minutes = 9;
+            seconds = 59;
+        }
+        else {
+            minutes = totalSec / 60;
+            seconds = totalSec % 60;
+        }
 
         float baseX = leftmostX + playerIdx * TIMER_INTERVAL;
+
+        auto clamp_num = [](int x) { return (x < 0) ? 0 : ((x > 9) ? 9 : x); }; //表記を0～9に限定する
 
         // PlayerLight画像
         std::string playerLightTex = "PlayerLight00" + std::to_string(playerIdx + 1);
@@ -290,12 +303,14 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
 
         // 分・コロン・秒の数字HUD
         auto pMin = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
-        pMin->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNum" + std::to_string(minutes)));
+        int min_num = clamp_num(minutes);
+        pMin->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNum" + std::to_string(min_num)));
         pMin->SetTransform({ {32, 48, 0}, {0,0,0,0}, {baseX + TIMER_ADJUST, BASE_Y, 0} });
         pMin->SetTransformTarget(pMin->GetTransform());
         pMin->SetColTarget(col);
         pMin->SetCol(col);
         vpNums.push_back(pMin);
+
 
         auto pColon = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
         pColon->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNumCoron"));
@@ -306,7 +321,8 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         vpNums.push_back(pColon);
 
         auto pSec10 = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
-        pSec10->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNum" + std::to_string(seconds / 10)));
+        int sec10_num = clamp_num(seconds / 10);
+        pSec10->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNum" + std::to_string(sec10_num)));
         pSec10->SetTransform({ {32, 48, 0}, {0,0,0,0}, {baseX + 60 + TIMER_ADJUST, BASE_Y, 0} });
         pSec10->SetTransformTarget(pSec10->GetTransform());
         pSec10->SetColTarget(col);
@@ -314,12 +330,14 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         vpNums.push_back(pSec10);
 
         auto pSec1 = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
-        pSec1->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNum" + std::to_string(seconds % 10)));
+        int sec1_num = clamp_num(seconds % 10);
+        pSec1->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNum" + std::to_string(sec1_num)));
         pSec1->SetTransform({ {32, 48, 0}, {0,0,0,0}, {baseX + 92 + TIMER_ADJUST, BASE_Y, 0} });
         pSec1->SetTransformTarget(pSec1->GetTransform());
         pSec1->SetColTarget(col);
         pSec1->SetCol(col);
         vpNums.push_back(pSec1);
+
 
         m_vvPlayerNumbers.push_back(vpNums);
     }
@@ -340,6 +358,18 @@ CSceneResult::~CSceneResult()
 //============================================================================
 void CSceneResult::Update()
 {
+    CCamera* pCamera = CRenderer::RefInstance().GetCamera();
+    if (pCamera) {
+        //地面と平行にする。ヨーは既存値維持したい場合
+        DirectX::XMFLOAT3 pos = pCamera->GetPos();
+        DirectX::XMFLOAT3 rot = pCamera->GetRot();
+        pos.x = 0.0f; pos.y = 0.0f; pos.z = 0.0f;
+        rot.x = 0.0f; rot.y = 0.0f; rot.z = 0.0f;
+
+        pCamera->SetPos(pos);
+        pCamera->SetRot(rot);
+    }
+
     float deltaT = 1.0f / 60.0f; // フレーム時間
 
     bool drawBeam = true;
@@ -519,11 +549,11 @@ void CSceneResult::Update()
 
 void CSceneResult::Change()
 {
-	// 全オブジェクトに死亡フラグを立てる
-	CObjectManager::RefInstance().SetDeathAll();
+    // 全オブジェクトに死亡フラグを立てる
+    CObjectManager::RefInstance().SetDeathAll();
 
     //生存時間を破棄
     CPlayer::ClearAllSurvivalTimes();
 
-	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+    CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }
