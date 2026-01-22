@@ -2,7 +2,9 @@
   "EffectList": {
     "Thunder": "Data\\EFFECT\\Effect\\LightningStrike_2.efkefc",
     "Water": "Data\\EFFECT\\Effect\\ToonWater.efkefc",
-    "Fire": "Data\\EFFECT\\Effect\\Simple_Turbulence_Fireworks.efkefc",
-    "HipDrop": "Data\\EFFECT\\Effect\\HipDrop_Impact.efkefc"
+    "FireWorks": "Data\\EFFECT\\Effect\\Fireworks.efkefc",
+    "HipDrop": "Data\\EFFECT\\Effect\\HipDrop_Impact.efkefc",
+    "FireWorks_single": "Data\\EFFECT\\Effect\\Fireworks_Single.efkefc"
+
   }
 }

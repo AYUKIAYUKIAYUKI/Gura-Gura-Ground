@@ -42,8 +42,9 @@ public:
 	{
 		TAG_LIGHTNING = 0,
 		TAG_WATER,
-		TAG_FIRE,
-		TAG_HIPDROP
+		TAG_FIREWORKS,
+		TAG_HIPDROP,
+		TAG_FIREWORKS_SINGLE
 	};
 	void Update();			//çXêV
 	void Draw();			//ï`âÊ

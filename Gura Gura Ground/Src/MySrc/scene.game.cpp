@@ -36,6 +36,7 @@
 CEnemyPlayer* g_pEnemy;
 
 #include "API.texture.manager.h"
+#include "effect.manager.h"
 
 //****************************************************
 // 仮：最終的に必要と判断した変数はメンバに付属してください
