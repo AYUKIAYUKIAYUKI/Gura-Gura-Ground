@@ -24,12 +24,14 @@
 #include "scene.title.h"
 #include <player.h>
 
+extern size_t gConnectedHumanPlayerNum = {};
+
+
 //============================================================================
 // コンストラクタ
 //============================================================================
-CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
-    : m_pBackground(nullptr), m_nResultValue(0), m_fGameTime(0.0f),
-    m_playerSurvivalTimes(playerSurvivalTimes)
+CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU)
+    : m_playerSurvivalTimes(times), m_nHumanPlayerNum(nHuman), m_nCPUNum(nCPU)
 {
     const int SCREEN_W = 1920;
     const int SCREEN_H = 1080;
@@ -43,7 +45,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     pBG->SetTransformTarget(TF_BG);
     m_pBackground = pBG;
 
-    // BGを初期暗色にセット
+    // BG暗転カラー設定
     if (m_pBackground)
     {
         float dark = 0.25f;
@@ -76,7 +78,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     for (size_t i = 0; i < playerCount; ++i)
     {
         int time = static_cast<int>(m_playerSurvivalTimes[i]);
-        int cappedTime = (time > 599) ? 599 : time;  // 9分59秒（599秒）を上限
+        int cappedTime = (time > 599) ? 599 : time;
         sortList.push_back(PlayerRankInfo{ (int)i, cappedTime, m_playerSurvivalTimes[i] });
     }
 
@@ -95,25 +97,22 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     for (size_t sortedPos = 0; sortedPos < sortList.size(); ++sortedPos)
     {
         const auto& info = sortList[sortedPos];
-
-        if (sortedPos == 0 || info.timeInt != prevTime)
-        {
+        if (sortedPos == 0 || info.timeInt != prevTime) {
             usedRank = rankNumber;
         }
-
         indexToRank[info.idx] = usedRank;
         prevTime = info.timeInt;
         rankNumber++;
     }
 
-    float titleTargetY = 100.0f;   // 規定の最終Y位置
-    float titleStartY = -200.0f;   // 画面外(上)
+    float titleTargetY = 100.0f;
+    float titleStartY = -200.0f;
     m_resultTitleTargetPos = DirectX::XMFLOAT3(CENTER_X, titleTargetY, 0);
 
     auto pResultTitle = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
     pResultTitle->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultTitle_Text"));
     OBJ::Transform TR = {
-        DirectX::XMFLOAT3(483.0f, 200.0f, 0),// サイズ
+        DirectX::XMFLOAT3(483.0f, 200.0f, 0),
         DirectX::XMFLOAT4A(0,0,0,1),
         DirectX::XMFLOAT3(CENTER_X, titleStartY, 0)
     };
@@ -138,19 +137,16 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         [](CPhysicsModel* p) -> bool
         {
             p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
-
-            // Transform設定
             OBJ::Transform tf;
             tf.Pos = { -12.0f, 0.0f, 0.0f };
             tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
             p->SetTransform(tf);
-
             p->FactoryCollider(1.0f, 1.0f, 1.0f);
-
             return true;
         },
         OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
 
+    // 勝者判定
     int maxTimeInt = -1;
     for (size_t i = 0; i < playerCount; ++i)
     {
@@ -179,7 +175,11 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
     if (winners.size() == 1)
     {
         int winnerIndex = winners[0];
-        std::string textPlayerTex = "TextPlayer00" + std::to_string(winnerIndex + 1);
+        bool isHumanWinner = (winnerIndex < m_nHumanPlayerNum);
+        int dispIdx = isHumanWinner ? (winnerIndex + 1) : (winnerIndex + 1 - m_nHumanPlayerNum);
+        std::string textPlayerTex = isHumanWinner
+            ? "TextPlayer00" + std::to_string(dispIdx)
+            : "TextCPU00" + std::to_string(dispIdx);
         auto pText = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
         pText->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey(textPlayerTex));
         OBJ::Transform TEXT_PLAYER_TR = {
@@ -187,7 +187,6 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
             DirectX::XMFLOAT4A(0,0,0,1),
             DirectX::XMFLOAT3(PLAYER_TXT_BASE_X, PLAYER_TXT_BASE_Y, 0)
         };
-
         pText->SetTransform(TEXT_PLAYER_TR);
         pText->SetTransformTarget(TEXT_PLAYER_TR);
         DirectX::XMFLOAT4 col = DirectX::XMFLOAT4(1, 1, 1, 0);
@@ -202,7 +201,11 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         float topY = PLAYER_TXT_BASE_Y - (totalH * 0.5f) + (HALF_WIN_IMG_H * 0.5f);
         for (size_t k = 0; k < winners.size(); ++k) {
             int winnerIndex = winners[k];
-            std::string textPlayerTex = "TextPlayer00" + std::to_string(winnerIndex + 1);
+            bool isHumanWinner = (winnerIndex < m_nHumanPlayerNum);
+            int dispIdx = isHumanWinner ? (winnerIndex + 1) : (winnerIndex + 1 - m_nHumanPlayerNum);
+            std::string textPlayerTex = isHumanWinner
+                ? "TextPlayer00" + std::to_string(dispIdx)
+                : "TextCPU00" + std::to_string(dispIdx);
             auto pText = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
             pText->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey(textPlayerTex));
             float posX = PLAYER_TXT_BASE_X;
@@ -222,8 +225,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         }
     }
 
-
-    // プレイヤー数分UI表示
+    // プレイヤーとCPU全員分のUI生成
     for (size_t playerIdx = 0; playerIdx < playerCount; ++playerIdx)
     {
         std::vector<CHud*> vpNums;
@@ -231,7 +233,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         int totalSec = static_cast<int>(surv);
         int minutes, seconds;
 
-        // totalSec599以上の場合強制的に9:59にする
+		// totalSec599以上の場合強制的に9:59にする
         if (totalSec >= 599) {
             minutes = 9;
             seconds = 59;
@@ -242,23 +244,30 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         }
 
         float baseX = leftmostX + playerIdx * TIMER_INTERVAL;
+        auto clamp_num = [](int x) { return (x < 0) ? 0 : ((x > 9) ? 9 : x); };
 
-        auto clamp_num = [](int x) { return (x < 0) ? 0 : ((x > 9) ? 9 : x); }; //表記を0～9に限定する
+        // プレイヤーかCPUかを判定
+        bool isHuman = (playerIdx < m_nHumanPlayerNum);
+        int dispIdx = isHuman ? (playerIdx + 1) : (playerIdx + 1 - m_nHumanPlayerNum);
 
         // PlayerLight画像
-        std::string playerLightTex = "PlayerLight00" + std::to_string(playerIdx + 1);
+        std::string lightTex = isHuman
+            ? "PlayerLight00" + std::to_string(dispIdx)
+            : "CPULight00" + std::to_string(dispIdx);
         auto pLight = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
-        pLight->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey(playerLightTex));
+        pLight->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey(lightTex));
         OBJ::Transform TF_Light = { {705, 610, 0}, {0,0,0,0}, {baseX + 10.0f, 910.0f, 0} };
         pLight->SetTransform(TF_Light);
         pLight->SetTransformTarget(TF_Light);
-        DirectX::XMFLOAT4 col = DirectX::XMFLOAT4(1, 1, 1, 0); // アルファ0
+        DirectX::XMFLOAT4 col = DirectX::XMFLOAT4(1, 1, 1, 0);
         pLight->SetColTarget(col);
         pLight->SetCol(col);
         m_vpPlayerLights.push_back(pLight);
 
-        // IconPlayer00X画像
-        std::string iconTex = "IconPlayer00" + std::to_string(playerIdx + 1);
+        // プレイヤーアイコン表示
+        std::string iconTex = isHuman
+            ? "IconPlayer00" + std::to_string(dispIdx)
+            : "IconCPU00" + std::to_string(dispIdx);
         auto pIcon = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
         pIcon->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey(iconTex));
         float iconX = baseX - 220 + TIMER_ADJUST;
@@ -281,7 +290,7 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         pRank->SetCol(col);
         m_vpPlayerRankImgs.push_back(pRank);
 
-        // RankText画像
+        // RankText
         auto pIndivRANKTEXT = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
         OBJ::Transform INDIV_RANK_TEXT = { {107, 59, 0.0f}, {0,0,0,0}, {baseX - 210 + TIMER_ADJUST, BASE_Y - 90.0f, 0.0f} };
         pIndivRANKTEXT->SetTransform(INDIV_RANK_TEXT);
@@ -311,7 +320,6 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         pMin->SetCol(col);
         vpNums.push_back(pMin);
 
-
         auto pColon = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
         pColon->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNumCoron"));
         pColon->SetTransform({ {20, 48, 0}, {0,0,0,0}, {baseX + 36 + TIMER_ADJUST, BASE_Y, 0} });
@@ -337,7 +345,6 @@ CSceneResult::CSceneResult(const std::vector<float>& playerSurvivalTimes)
         pSec1->SetColTarget(col);
         pSec1->SetCol(col);
         vpNums.push_back(pSec1);
-
 
         m_vvPlayerNumbers.push_back(vpNums);
     }

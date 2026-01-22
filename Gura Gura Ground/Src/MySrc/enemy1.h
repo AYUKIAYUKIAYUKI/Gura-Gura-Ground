@@ -100,6 +100,10 @@ public: //自身に関する関数群
 	 */
 	void searchEnemy(std::shared_ptr<CEnemyPlayer> pSelf);
 
+	static std::vector<float> s_vSurvivalTimes;
+	void   SetIdxCPU(unsigned char idx) { m_wIdxCPU = idx; }
+	unsigned char GetIdxCPU() const { return m_wIdxCPU; }
+
 private: //プレイヤーに関する関数群
 	/**
 	 * @brief 敵をプレイヤーの方へ移動する関数
@@ -125,6 +129,8 @@ private: //プレイヤーに関する関数群
 	float CheckDistance(const DirectX::XMFLOAT3& c1, const DirectX::XMFLOAT3& c2);
 
 private: //バーに関する関数群
+
+	unsigned char m_wIdxCPU = 0;
 
 	/**
 	 * @brief バーの探す処理

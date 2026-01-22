@@ -84,6 +84,9 @@ private:
 	std::array<CSymbol*, MAX_PLYAER> m_apSymbol; // シンボル：プレイヤー用
 	std::vector<CSymbol*>            m_vpSymbol; // シンボル：エネミー用
 
+	static int s_nHumanPlayerNum;  // 人間プレイヤー数
+	static int s_nCPUNum;          // CPUプレイヤー数
+
 	// 障害物エディター
 	ObstacleEditer m_ObstacleEditer;
 };

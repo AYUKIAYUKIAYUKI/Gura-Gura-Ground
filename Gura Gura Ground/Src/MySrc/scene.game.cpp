@@ -32,6 +32,11 @@
 /* 仮 */
 #include "API.texture.manager.h"
 
+std::vector<float> times;
+
+int CSceneGame::s_nHumanPlayerNum = {};
+int CSceneGame::s_nCPUNum = {};
+
 //****************************************************
 // プリプロセッサディレクティブ
 //****************************************************
@@ -114,6 +119,15 @@ CSceneGame::CSceneGame()
 	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
 	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
 	g_GameTime = 0.0f;
+
+	s_nHumanPlayerNum = CInputManager::RefInstance().GetConnectedGamePadNum();
+	s_nCPUNum = MAX_PLYAER - s_nHumanPlayerNum;
+
+	CPlayer::s_vSurvivalTimes.resize(s_nHumanPlayerNum);
+	std::fill(CPlayer::s_vSurvivalTimes.begin(), CPlayer::s_vSurvivalTimes.end(), 0.0f);
+
+	CEnemyPlayer::s_vSurvivalTimes.resize(s_nCPUNum);
+	std::fill(CEnemyPlayer::s_vSurvivalTimes.begin(), CEnemyPlayer::s_vSurvivalTimes.end(), 0.0f);
 }
 
 //============================================================================
@@ -140,6 +154,7 @@ void CSceneGame::Update()
 
 	// スポーン時間プリセットメニュー表示
 	m_ObstacleEditer.SpawnTimePresetEditor();
+
 #endif
 
 	if (m_bStart)
@@ -171,6 +186,11 @@ void CSceneGame::Update()
 			Change();
 		}
 	}
+
+	if (CInputManager::RefInstance().GetTrackerKeyboard().pressed.R)
+	{
+		Change();
+	}
 }
 
 //============================================================================
@@ -194,11 +214,10 @@ void CSceneGame::Change()
 	// エフェクトを全て停止
 	CEffectManager::RefInstance().StopAll();
 
-	//生存時間
-	std::vector<float> times = CPlayer::s_vSurvivalTimes;
-	auto resultScene = std::make_unique<CSceneResult>(times);
-
-	//遷移時に生存時間も渡す
+	std::vector<float> times;
+	for (int i = 0; i < CSceneGame::s_nHumanPlayerNum; ++i) times.push_back(CPlayer::s_vSurvivalTimes[i]);
+	for (int i = 0; i < CSceneGame::s_nCPUNum; ++i) times.push_back(CEnemyPlayer::s_vSurvivalTimes[i]);
+	auto resultScene = std::make_unique<CSceneResult>(times, CSceneGame::s_nHumanPlayerNum, CSceneGame::s_nCPUNum);
 	CSceneManager::RefInstance().ChangeScene(std::move(resultScene));
 #endif
 }
@@ -210,6 +229,7 @@ void CSceneGame::SetStartGame()
 {
 	// プレイヤースポーン
 	SpawnPlayer();
+
 
 	// カメラコントローラーの初期化
 	CCameraController::RefInstance().Initialize();
@@ -340,6 +360,8 @@ void CSceneGame::SpawnPlayer()
 	// コントローラーの接続数を取得
 	unsigned char wConnectedPadNum = CInputManager::RefInstance().GetConnectedGamePadNum();
 
+	int cpuIdx = 0;
+
 #if ENDLESS_BATTLE
 	unsigned char wTotalPlayerNum = MAX_PLYAER;
 	if (!g_bUseCPU)
@@ -379,32 +401,26 @@ void CSceneGame::SpawnPlayer()
 		}
 		else
 		{
-			// CPUスポーン
+			// キャプチャリストでcpuIdxをキャプチャ（値/参照どちらでもOK。ここではコピー）
 			std::shared_ptr<CEnemyPlayer> spCPU = CObjectManager::CreateShare<CEnemyPlayer>(
-				[&PlayersInitTransform, fColliderSpan](CEnemyPlayer* p) -> bool
+				[cpuIdx, &PlayersInitTransform, fColliderSpan](CEnemyPlayer* p) -> bool
 				{
-					// トランスフォームの設定
+					p->SetIdxCPU(cpuIdx);
 					p->SetTransform(PlayersInitTransform);
-
-					// コライダーの生成
 					p->FactoryCollider(fColliderSpan, fColliderSpan, fColliderSpan);
-
 					return true;
 				},
 				OBJ::TYPE::CPU);
 
-			// ゲームシーン用のCPUの弱参照を保有
 			m_vpwCPUs.push_back(spCPU);
 
-			// CPU用のシンボルはインデックス不要のためここで作成
 			m_vpSymbol.push_back(CObjectManager::CreateRaw<CSymbol>(
 				[](CSymbol* pSymbol) -> bool
 				{
-					// シンボルのインデックス設定
 					pSymbol->SetSymbolIdx(MAX_PLYAER);
-
 					return true;
 				}));
+			cpuIdx++;
 		}
 	}
 
@@ -455,7 +471,8 @@ void CSceneGame::SpawnSymbol()
 void CSceneGame::SetSymbol()
 {
 	// プレイヤーの弱参照配列を走査
-	for (unsigned char wIdx = 0; wIdx < MAX_PLYAER; ++wIdx)
+	unsigned char validPlayers = (unsigned char)s_nHumanPlayerNum; //もしくはm_apSymbol.size()でも
+	for (unsigned char wIdx = 0; wIdx < validPlayers; ++wIdx)
 	{
 		// プレイヤーが存在していたら
 		if (std::shared_ptr<CPlayer> spPlayer = m_apwPlayers[wIdx].lock())

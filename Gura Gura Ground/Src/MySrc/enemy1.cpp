@@ -21,6 +21,8 @@
 //必要なインクルード
 #include "API.object.manager.h" //オブジェクト情報を探すのに使用
 
+std::vector<float> CEnemyPlayer::s_vSurvivalTimes = {};
+
 //================================================
 //名前空間（無名）
 namespace
@@ -115,6 +117,14 @@ void CEnemyPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //======================================
 void CEnemyPlayer::Update()
 {
+	//生存時間の計測
+	if (!GetDeath()) 
+	{
+		if (m_wIdxCPU < s_vSurvivalTimes.size()) {
+			s_vSurvivalTimes[m_wIdxCPU] += 1.0f / 60.0f; // 60FPS想定
+		}
+	}
+
 	//情報があるか確認
 	CheckInfo();
 

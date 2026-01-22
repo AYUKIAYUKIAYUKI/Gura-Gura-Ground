@@ -137,6 +137,22 @@
       "Data\\TEXTURE\\Result\\TextPlayer004.png"
     ],
     [
+      "TextCPU001",
+      "Data\\TEXTURE\\Result\\TextCPU000.png"
+    ],
+    [
+      "TextCPU002",
+      "Data\\TEXTURE\\Result\\TextCPU000.png"
+    ],
+    [
+      "TextCPU003",
+      "Data\\TEXTURE\\Result\\TextCPU000.png"
+    ],
+    [
+      "TextCPU004",
+      "Data\\TEXTURE\\Result\\TextCPU000.png"
+    ],
+    [
       "RankText",
       "Data\\TEXTURE\\Result\\Rank_Text.png"
     ],
@@ -173,6 +189,22 @@
       "Data\\TEXTURE\\Result\\IconPlayer004.png"
     ],
     [
+      "IconCPU001",
+      "Data\\TEXTURE\\Result\\IconCPU000.png"
+    ],
+    [
+      "IconCPU002",
+      "Data\\TEXTURE\\Result\\IconCPU000.png"
+    ],
+    [
+      "IconCPU003",
+      "Data\\TEXTURE\\Result\\IconCPU000.png"
+    ],
+    [
+      "IconCPU004",
+      "Data\\TEXTURE\\Result\\IconCPU000.png"
+    ],
+    [
       "PlayerLight001",
       "Data\\TEXTURE\\Result\\PlayerLight001.png"
     ],
@@ -187,6 +219,22 @@
     [
       "PlayerLight004",
       "Data\\TEXTURE\\Result\\PlayerLight004.png"
+    ],
+    [
+      "CPULight001",
+      "Data\\TEXTURE\\Result\\CPULight000.png"
+    ],
+    [
+      "CPULight002",
+      "Data\\TEXTURE\\Result\\CPULight000.png"
+    ],
+    [
+      "CPULight003",
+      "Data\\TEXTURE\\Result\\CPULight000.png"
+    ],
+    [
+      "CPULight004",
+      "Data\\TEXTURE\\Result\\CPULight000.png"
     ],
     [
       "BattleTimeText",

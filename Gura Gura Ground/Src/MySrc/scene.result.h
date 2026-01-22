@@ -19,7 +19,7 @@ class CHud;
 class CSceneResult final : public CScene
 {
 public:
-	CSceneResult(const std::vector<float>& playerSurvivalTimes);
+	CSceneResult(const std::vector<float>& times, int nHuman, int nCPU);
 	~CSceneResult() override;
 
 	void Update() override;
@@ -66,4 +66,7 @@ private:
 	std::vector<CHud*> m_vpPlayerRankImgs;
 	std::vector<CHud*> m_vpPlayerTextImgs;
 	std::vector<CBeamLight*> m_vpBeamLight;
+
+	int m_nHumanPlayerNum = 0;
+	int m_nCPUNum = 0;
 };
