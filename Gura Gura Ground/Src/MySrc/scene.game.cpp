@@ -59,6 +59,8 @@ namespace
 	std::chrono::steady_clock::time_point g_LastUpdateTime;
 	float g_GameTime = 0.0f;
 
+	static bool g_bUseCPU = false;
+
 #if 0
 	// あああ
 	void ModifyModelOffset(CField* pField)
@@ -74,6 +76,20 @@ namespace
 
 		// モデルオフセットの設定
 		pField->SetModelOffset(raa);
+	}
+#endif
+
+#if ENDLESS_BATTLE
+	void GameSceneUnkoOshiko()
+	{
+		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
+		if (ImGui::TreeNode("[ GameScene ]"))
+		{
+			ImGui::Checkbox("CPU Enable", &g_bUseCPU);
+			ImGui::TreePop();
+		}
+		ImGui::Separator();
+		ImGui::End();
 	}
 #endif
 }
@@ -132,6 +148,10 @@ void CSceneGame::Update()
 		m_ObstacleEditer.PlayModeSpawn(deltaTime);
 	}
 
+#if ENDLESS_BATTLE
+	GameSceneUnkoOshiko();
+#endif // ENDLESS_BATTLE
+
 	// HUD：カウントセット
 	SetHudCount();
 
@@ -182,6 +202,7 @@ void CSceneGame::Change()
 	CSceneManager::RefInstance().ChangeScene(std::move(resultScene));
 #endif
 }
+
 //============================================================================
 // ゲーム開始セット
 //============================================================================
@@ -319,7 +340,16 @@ void CSceneGame::SpawnPlayer()
 	// コントローラーの接続数を取得
 	unsigned char wConnectedPadNum = CInputManager::RefInstance().GetConnectedGamePadNum();
 
+#if ENDLESS_BATTLE
+	unsigned char wTotalPlayerNum = MAX_PLYAER;
+	if (!g_bUseCPU)
+	{
+		wTotalPlayerNum = 1;
+	}
+	for (unsigned char wPlayerIndex = 0; wPlayerIndex < wTotalPlayerNum; ++wPlayerIndex)
+#else
 	for (unsigned char wPlayerIndex = 0; wPlayerIndex < MAX_PLYAER; ++wPlayerIndex)
+#endif
 	{
 		// 良い感じに四方に散らばらせる
 		if (wPlayerIndex % 2 == 0) PlayersInitTransform.Pos.z *= -1.0f;
