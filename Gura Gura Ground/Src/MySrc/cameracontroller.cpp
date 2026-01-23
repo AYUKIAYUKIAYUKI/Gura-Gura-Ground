@@ -14,6 +14,7 @@
 #include "player.h"
 #include "API.object.manager.h"
 #include "obstacle.h"
+#include "field.h"
 
 /* 追加 */
 #include "enemy1.h"
@@ -189,20 +190,23 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 	{
 		auto Player = ite.lock();
 
-		if (Count == 0)
+		if (InRange(Player.get()->GetTransform().Pos))
 		{
-			MinPlayersPos = Player->GetTransform().Pos;
-			MaxPlayersPos = Player->GetTransform().Pos;
+			if (Count == 0)
+			{
+				MinPlayersPos = Player->GetTransform().Pos;
+				MaxPlayersPos = Player->GetTransform().Pos;
+			}
+
+			// X座標の最小最大
+			MaxPlayersPos.x = max(MaxPlayersPos.x, Player->GetTransform().Pos.x);
+			MinPlayersPos.x = min(MinPlayersPos.x, Player->GetTransform().Pos.x);
+
+			// Z座標の最小最大
+			MaxPlayersPos.z = max(MaxPlayersPos.z, Player->GetTransform().Pos.z);
+			MinPlayersPos.z = min(MinPlayersPos.z, Player->GetTransform().Pos.z);
 		}
-
-		// X座標の最小最大
-		MaxPlayersPos.x = max(MaxPlayersPos.x, Player->GetTransform().Pos.x);
-		MinPlayersPos.x = min(MinPlayersPos.x, Player->GetTransform().Pos.x);
 		
-		// Z座標の最小最大
-		MaxPlayersPos.z = max(MaxPlayersPos.z, Player->GetTransform().Pos.z);
-		MinPlayersPos.z = min(MinPlayersPos.z, Player->GetTransform().Pos.z);
-
 		Count++;
 	}
 
@@ -212,13 +216,16 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 		/* CPUが存在すれば */
 		if (std::shared_ptr<CEnemyPlayer> spCPU = rIt.lock())
 		{
-			/* X座標の最小最大 */
-			MaxPlayersPos.x = max(MaxPlayersPos.x, spCPU->GetTransform().Pos.x);
-			MinPlayersPos.x = min(MinPlayersPos.x, spCPU->GetTransform().Pos.x);
+			if (InRange(spCPU.get()->GetTransform().Pos))
+			{
+				/* X座標の最小最大 */
+				MaxPlayersPos.x = max(MaxPlayersPos.x, spCPU->GetTransform().Pos.x);
+				MinPlayersPos.x = min(MinPlayersPos.x, spCPU->GetTransform().Pos.x);
 
-			/* Z座標の最小最大 */
-			MaxPlayersPos.z = max(MaxPlayersPos.z, spCPU->GetTransform().Pos.z);
-			MinPlayersPos.z = min(MinPlayersPos.z, spCPU->GetTransform().Pos.z);
+				/* Z座標の最小最大 */
+				MaxPlayersPos.z = max(MaxPlayersPos.z, spCPU->GetTransform().Pos.z);
+				MinPlayersPos.z = min(MinPlayersPos.z, spCPU->GetTransform().Pos.z);
+			}
 		}
 	}
 
@@ -257,14 +264,20 @@ void CCameraController::GetObstacles()
 	{
 		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite);
 
-		m_Obstacles.push_back(Obstacle);
+		if (InRange(Obstacle->GetTransform().Pos))
+		{
+			m_Obstacles.push_back(Obstacle);
+		}
 	}
 
 	for (auto ite : ListShare)
 	{
 		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite.get());
 
-		m_Obstacles.push_back(Obstacle);
+		if (InRange(Obstacle->GetTransform().Pos))
+		{
+			m_Obstacles.push_back(Obstacle);
+		}
 	}
 }
 
@@ -342,4 +355,33 @@ void CCameraController::RemoveExpiredPlayers()
 
 	// 条件にあうものを削除
 	m_Players.erase(newEnd, m_Players.end());
+}
+
+//============================================================================
+// 範囲内にいるか
+//============================================================================
+bool CCameraController::InRange(DirectX::XMFLOAT3 pos)
+{
+	// 地面を取得
+	auto ListShare = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
+
+	CField* Field = nullptr;
+
+	for (auto ite : ListShare)
+	{
+		Field = dynamic_cast<CField*>(ite.get());
+	}
+	
+	const float fSpanField = 15.0f;	// 地面の大きさ
+	const float Range = 0.0f;		// 範囲
+
+	if (pos.x >= Field->GetTransform().Pos.x + fSpanField + Range
+		|| pos.x <= Field->GetTransform().Pos.x - fSpanField - Range
+		|| pos.z >= Field->GetTransform().Pos.z + fSpanField + Range
+		|| pos.z <= Field->GetTransform().Pos.z - fSpanField - Range)
+	{
+		return false;
+	}
+
+	return true;
 }
