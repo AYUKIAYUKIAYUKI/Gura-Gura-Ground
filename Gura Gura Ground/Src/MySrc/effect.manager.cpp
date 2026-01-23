@@ -22,7 +22,7 @@ namespace {
         if(ImGui::Button("Instance"))CEffectManager::RefInstance();
         if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_LIGHTNING, {20.0f,0.0f,0.0f});
         ImGui::SameLine();
-        if (ImGui::Button("Water"))CEffect::Create(L"Data\\EFFECT\\Effect\\Simple_Turbulence_Fireworks.efkefc", { -20.0f,0.0f,0.0f },nullptr,1.0f);
+        if (ImGui::Button("Water"))CEffect::Create(L"Data\\EFFECT\\Effect\\Fireworks.efkefc", { -20.0f,0.0f,0.0f },nullptr,1.0f);
 
         ImGui::Button("<");
         ImGui::SameLine();
@@ -65,10 +65,9 @@ void CEffect::Uninit()
 //==========================================================================================
 void CEffect::Update()
 {
-    if (m_bPlaying)return;
+    if (!m_bPlaying)return;
     Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
     Effekseer::Vector3D a = { m_pos.x,m_pos.y,m_pos.z };
-
     if(m_effects == nullptr)throw std::runtime_error("Effect is nullptr");
     if (!m_manager->Exists(m_handle))
     {
@@ -242,10 +241,13 @@ void CEffectManager::RegistEffect(CEffect* peff)
 //==========================================================================================
 void CEffectManager::EraseEffect()
 {
-    for (const auto& e : m_effectsList)
+    for (auto& e : m_effectsList)
     {
         //実行済みかどうか確認
         if (e->GetPlaying())continue;
+        e->Uninit();
+        delete e;
+        e = nullptr;
         //リストから除外(アクセス違反を防ぐためErase-removeイディオムを使用)
         m_effectsList.erase(std::remove(m_effectsList.begin(), m_effectsList.end(),e));
     }

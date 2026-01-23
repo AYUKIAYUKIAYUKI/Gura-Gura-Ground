@@ -44,13 +44,13 @@ public:
 		TAG_WATER,
 		TAG_FIREWORKS,
 		TAG_HIPDROP,
-		TAG_FIREWORKS_SINGLE
+		TAG_FIREWORKS_SINGLE,
+		TAG_TORNADE
 	};
 	void Update();			//çXêV
 	void Draw();			//ï`âÊ
 
 	void RegistEffect(CEffect* pEffect);
-	void SetEraseList(int index);
 	bool LoadFile();
 	void Finalize();		//èIóπ
 

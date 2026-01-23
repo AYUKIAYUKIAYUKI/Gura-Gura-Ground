@@ -78,27 +78,10 @@ public:
 	//ぺちゃんこ状態の管理
 	std::shared_ptr<Debuff_Behavior> GetFallTetraBehavior() { return m_pDebuffBehavior; }
 	//外部からデバフ有効化するための関数
-	void EnableStamp() {
-		if (DB_UseCheck())return;
-		auto db = std::make_shared<Stamp_DB>();
-		db->SetDecayValue(ObstacleEditer::s_StampConfig.DecayValue);
-		db->SetInertiaValue(ObstacleEditer::s_StampConfig.InertiaValue);
-		m_pDebuffBehavior = db;
-	}
-	void EnableBird() {
-		if (DB_UseCheck())return;
-		auto db = std::make_shared<Bird_DB>();
-		db->SetDecayValue(ObstacleEditer::s_BirdConfig.DecayValue);
-		db->SetInertiaValue(ObstacleEditer::s_BirdConfig.InertiaValue);
-		m_pDebuffBehavior = db;
-	}
-	void EnableOil() {
-		if (DB_UseCheck())return;
-		auto db = std::make_shared<Oil_DB>();
-		db->SetDecayValue(ObstacleEditer::s_OilConfig.DecayValue);
-		db->SetInertiaValue(ObstacleEditer::s_OilConfig.InertiaValue);
-		m_pDebuffBehavior = db;
-	}
+	void EnableStamp();		//潰され状態
+	void EnableBird();		//鳥纏い状態
+	void EnableOil();		//オイル状態
+
 	//プレイヤーごとの生存時間取得
 	static float GetSurvivalTimeForIndex(size_t idx) {if (idx < s_vSurvivalTimes.size()) return s_vSurvivalTimes[idx];return 0.0f;}
 	//生存時間削除
@@ -110,7 +93,7 @@ private:
 	// function
 	//****************************************************
 	void CheckDeath(); // 死亡チェック
-
+	void SetDebuffValue(const std::shared_ptr<Debuff_Behavior> pDB);
 	//****************************************************
 	// data
 	//****************************************************

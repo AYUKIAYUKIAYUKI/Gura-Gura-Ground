@@ -4,7 +4,8 @@
     "Water": "Data\\EFFECT\\Effect\\ToonWater.efkefc",
     "FireWorks": "Data\\EFFECT\\Effect\\Fireworks.efkefc",
     "HipDrop": "Data\\EFFECT\\Effect\\HipDrop_Impact.efkefc",
-    "FireWorks_single": "Data\\EFFECT\\Effect\\Fireworks_Single.efkefc"
+    "FireWorks_single": "Data\\EFFECT\\Effect\\Fireworks_Single.efkefc",
+    "Tornade": "Data\\EFFECT\\Effect\\Tornade.efkefc"
 
   }
 }

@@ -246,11 +246,6 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 
 		/* ああ…要素ずつ指数減衰 */
 		float fCoef = 0.25f;
-		//何かしらのデバフが有効なら慣性に倍率を掛ける
-		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
-			float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
-			fCoef *= Inertia;
-		}
 		useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
 		useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
 
@@ -279,14 +274,9 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 
 		// 加速度：XZ軸：減衰をかける
 		float fCoef = 0.05f;
-		//何かしらのデバフが有効なら慣性に倍率を掛ける
-		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
-			float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
-			fCoef *= Inertia;
-		}
 		useful::ExponentialDecay(fCurrentX, 0.0f, fCoef);
 		useful::ExponentialDecay(fCurrentZ, 0.0f, fCoef);
-
+		
 		// 移動方向：XZ軸：減衰を反映
 		// 　　　　：Y軸 ：現在の重力速度を維持
 		MoveDir.setX(fCurrentX);
@@ -524,6 +514,7 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 
 	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+
 }
 
 //============================================================================
@@ -576,6 +567,8 @@ void CPlayer::Update()
 			s_vSurvivalTimes[m_wIdxPlayer] += 1.0f / 60.0f; // 60FPSで換算
 	}
 
+	// コライダーをリジッドボディにキャスト
+	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(GetCollider());
 	// 状態実行
 	if (m_upStateMachine)
 	{
@@ -585,6 +578,7 @@ void CPlayer::Update()
 	{
 		if (!m_pDebuffBehavior->GetTimer())
 		{
+			pRigidBody->SetFriction(1.0f);
 			m_pDebuffBehavior.reset();
 			m_pDebuffBehavior = nullptr;
 		}
@@ -712,4 +706,39 @@ void CPlayer::CheckDeath()
 		m_bIsDead = true;
 		SetDeath();
 	}
+}
+
+void CPlayer::EnableStamp() {
+	if (DB_UseCheck())return;	//既に有効ならタイマーだけ戻す
+
+	auto db = std::make_shared<Stamp_DB>();
+	db->SetDecayValue(ObstacleEditer::s_StampConfig.DecayValue);
+	db->SetInertiaValue(ObstacleEditer::s_StampConfig.InertiaValue);
+	SetDebuffValue(db);			//摩擦などを変更
+	m_pDebuffBehavior = db;
+}
+void CPlayer::EnableBird() {
+	if (DB_UseCheck())return;	//既に有効ならタイマーだけ戻す
+
+	auto db = std::make_shared<Bird_DB>();
+	db->SetDecayValue(ObstacleEditer::s_BirdConfig.DecayValue);
+	db->SetInertiaValue(ObstacleEditer::s_BirdConfig.InertiaValue);
+	SetDebuffValue(db);			//摩擦などを変更
+	m_pDebuffBehavior = db;
+}
+void CPlayer::EnableOil() {
+	if (DB_UseCheck())return;	//既に有効ならタイマーだけ戻す
+
+	auto db = std::make_shared<Oil_DB>();
+	db->SetDecayValue(ObstacleEditer::s_OilConfig.DecayValue);
+	db->SetInertiaValue(ObstacleEditer::s_OilConfig.InertiaValue);
+	SetDebuffValue(db);			//摩擦などを変更
+	m_pDebuffBehavior = db;
+}
+void CPlayer::SetDebuffValue(const std::shared_ptr<Debuff_Behavior> pDB)
+{
+	// コライダーをリジッドボディにキャスト
+	const CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(GetCollider());
+	float Friction = 1 / pDB->GetInertiaValue();
+	pRigidBody->SetFriction(Friction);
 }
