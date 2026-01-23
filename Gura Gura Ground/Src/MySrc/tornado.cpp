@@ -63,7 +63,7 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	pGhost->SetWorldTransform(TF);
 
 	// 効果音：風の音
-	CSoundManger::RefInstance().Play("Tornado", false, -0.5f, 1.0f);
+	CSoundManger::RefInstance().Play("Tornado", false, -0.5f, 0.2f);
 }
 
 //============================================================================
@@ -223,6 +223,9 @@ void CTornado::MoveOutOfScreen()
 	// 変更する位置に設定
 	TF.Pos.x = TF.Pos.x + m_MoveDir.x * fSpeed;
 	TF.Pos.z = TF.Pos.z + m_MoveDir.z * fSpeed;
+
+	// 効果音：風の音
+	CSoundManger::RefInstance().Stop("Tornado");
 
 	// ワールドトランスフォームに反映
 	pGhost->SetWorldTransform(TF);

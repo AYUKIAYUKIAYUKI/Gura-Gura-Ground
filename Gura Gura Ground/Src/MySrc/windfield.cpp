@@ -23,7 +23,8 @@
 
 // コライダーの作成用
 #include "API.rigidbody.h"
-#include <numbers> // C++20
+#include <numbers> 
+#include "API.input.manager.h"
 
 //================================================
 //名前空間（無名）
@@ -31,7 +32,9 @@ namespace
 {
 	//===================================================
 	//マクロ定義
-	btVector3 INIT = { 0.0f, 0.0f, 0.0f };   //btVector3用初期化マクロ
+	btVector3 INIT = { 0.0f, 0.0f, 0.0f };                    //btVector3用初期化マクロ
+	btVector3 INIT_PLYER_VELOCITY = { 0.0f, 1.144f, 0.0f };   //ゲーム開始時のプレイヤーの初期加速値を疑似的に設定
+	float ANGLE = (float)std::numbers::pi;             //右から始まるよ
 
 	int PLAYER_SIZE; //プレイヤーの人数
 	int CPU_SIZE;    //CPUの人数
@@ -48,6 +51,7 @@ using namespace useful;
 //============================================================================
 CWindField::CWindField(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CPhysicsModel(Type, Layer)
+	, m_WindowAngle(ANGLE), m_SaverCurrentVel(INIT_PLYER_VELOCITY)
 {
 	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Field"));
@@ -104,7 +108,7 @@ void CWindField::UpdatePlayersSystem()
 
 		//必ず探した後で処理+何回もsize呼ぶのちーがうからあらかじめ取得
 		PLAYER_SIZE = (int)m_pwPlayer.size();
-		CPU_SIZE    = (int)m_pwEnemyPlayer.size();
+		CPU_SIZE = (int)m_pwEnemyPlayer.size();
 	}
 	else
 	{
@@ -119,7 +123,7 @@ void CWindField::SearchInfo()
 {
 	//オブジェクトマネージャーのシェアポインターからプレイヤータイプを見つける
 	const auto  playerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::PLAYER);
-	const auto  enemyplayerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::NONE);
+	const auto  enemyplayerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::CPU);
 
 	//範囲baseでプレイヤー情報の基盤を取得
 	for (auto Obj : playerlist)
@@ -154,69 +158,85 @@ void CWindField::MovePlayer(float Angle, float speed, int PlayerSize, int CPUSiz
 		CRigidBody* pRB = DownCast<CRigidBody>(sp->GetCollider());
 		if (!pRB) continue; //念のため
 
-		ApplyWindToBody(pRB, Angle, speed);
+		ApplyWindToBody(pRB, Angle, speed, m_pwPlayer[nPlayerCount]);
 	}
 
 	// CPU
 	for (int CPUCount = 0; CPUCount < CPUSize; ++CPUCount)
 	{
-		auto sp = m_pwEnemyPlayer[CPUCount].lock();
+		auto CUP = m_pwEnemyPlayer[CPUCount].lock();
 
 		//削除されていたらスキップ
-		if (!sp) continue;
+		if (!CUP) continue;
 
-		CRigidBody* pRB = DownCast<CRigidBody>(sp->GetCollider());
+		CRigidBody* pRB = DownCast<CRigidBody>(CUP->GetCollider());
 		if (!pRB) continue;
 
-		ApplyWindToBody(pRB, Angle, speed);
+		ApplyWindCommon(pRB, Angle, speed, nullptr); // CPUは補正なし
 	}
 }
 
 //============================================================================
-// 移動させる時の必要処理(まとめる用)そもそもあってるこのやり方？ああああああああ
+// 移動させる時の必要処理(まとめる用)
 //============================================================================
-void CWindField::ApplyWindToBody(CRigidBody* pRB, float Angle, float speed)
+void CWindField::ApplyWindToBody(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CPlayer > pwPlayer)
 {
-	 btVector3 rCurrentVel = pRB->GetLinearVelocity();
+	const auto& opDirection =
+		CInputManager::RefInstance().ConvertInputToMoveDirection(pwPlayer.lock()->GetIdxPlayer());
 
-	//加速値が無い時＝直前の加速値を仮代入 「いいやりかた欲しいね、、、、、」
+	ApplyWindCommon(pRB, Angle, speed,
+		[&](btVector3& vel)
+		{
+			//入力有り
+			if (opDirection)
+			{
+				vel *= 1.15f; // 横/斜め移動補正
+			}
+		});
+}
+
+//============================================================================
+//風の影響を適用する
+//============================================================================
+void CWindField::ApplyWindCommon(CRigidBody* pRB, float Angle, float speed, std::function<void(btVector3&)> velocityModifier)
+{
+	btVector3 rCurrentVel = pRB->GetLinearVelocity();
+
+	//加速値がない（移動してない）
 	if (rCurrentVel == INIT)
 	{
 		rCurrentVel = m_SaverCurrentVel;
 	}
-	else
-	{
-		m_SaverCurrentVel = rCurrentVel;
-	}
 
 	pRB->SetActive();
 
-	// 現在速度をコピー(値を変えるのでconstは×)
 	btVector3 newVel = rCurrentVel;
 
-	// 風の方向
-	btVector3 windDir(sinf(Angle),0.0f,cosf(Angle));
+	// 風方向
+	btVector3 windDir(sinf(Angle), 0.0f, cosf(Angle));
 
 	// 風を加算
-	newVel += windDir * speed;
+	newVel += (windDir * speed);
 
-	// 風と逆方向に動いているか判定
+	// 逆方向なら抵抗
 	float dot = rCurrentVel.dot(windDir);
-
-	if (dot < 0.0f)
-	{
-		// 抵抗力（逆方向のときだけ速度を弱める）
-		float resistance = 0.5f; // 0.0～1.0（大きいほど抵抗が強い）
+	if (dot < 0.0f) {
+		float resistance = 0.5f;
 		newVel = newVel.lerp(windDir * speed, resistance);
 	}
 
-	// 移動方向：Y軸：現在の重力速度を維持
+	// Y軸は重力速度を維持
 	newVel.setY(rCurrentVel.getY());
 
-	//加速度の設定
-	pRB->SetLinearVelocity(newVel+ rCurrentVel);
-}
+	// プレイヤー/CPU固有の補正を適用
+	if (velocityModifier)
+	{
+		velocityModifier(newVel);
+	}
 
+	// 最終速度を設定
+	pRB->SetLinearVelocity(newVel);
+}
 
 //============================================================================
 //風のギミックの処理
@@ -243,12 +263,19 @@ void CWindField::Window()
 		// 風が止んでいる状態
 		if (m_Parameter.m_Timer >= m_Parameter.m_StopTime)
 		{
-			m_Parameter.m_Timer = 0.0f;
-			m_Parameter.m_IsBlowing = true; // 風を吹かせる
+			m_Parameter.m_Timer = 0.0f;     //タイマーリセット
+			m_Parameter.m_IsBlowing = true; //風を吹かせる
 
-			// 新しい風向きをランダム生成
-			m_Parameter.m_WindAngle = 3.14f;
-			m_Parameter.m_WindSpeed = 1.0f;
+			//m_Parameter.m_WindAngle = RandomRange(-(float)std::numbers::pi, (float)std::numbers::pi); //風の向き
+			m_Parameter.m_WindAngle = m_WindowAngle; //風の向き
+			m_Parameter.m_WindSpeed = 1.0f;  //風の強さ
+
+			//念のため一周したら初期化
+			if (m_WindowAngle >= ANGLE * 4.0f)
+			{
+				m_WindowAngle = 0.0f;
+			}
+			m_WindowAngle += ANGLE;
 		}
 	}
 }

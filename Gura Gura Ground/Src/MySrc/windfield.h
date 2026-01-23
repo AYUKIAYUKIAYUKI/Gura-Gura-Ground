@@ -33,7 +33,7 @@ class CRigidBody;
 //****************************************************
 class CWindField : public CPhysicsModel
 {
-private:
+private: //構造体
 
 	//風ギミックに必要な情報群
 	struct Parameter
@@ -42,7 +42,7 @@ private:
 		float m_WindSpeed = 1.0f;  //風の強さ
 
 		float m_Timer = 0.0f;      //測定時間観測用
-		float m_BlowTime = 120.0f; //風が吹く時間
+		float m_BlowTime = 60.0f; //風が吹く時間
 		float m_StopTime = 180.0f; //風が止む時間
 
 		bool m_IsBlowing = false;  //今風が吹いているか？
@@ -88,14 +88,23 @@ private:
 	 * @brief 移動処理
 	 * @param [in] 向き、移動速度、プレイヤーの人数、CPUの人数
 	 */
-	void MovePlayer(float Angle, float speed,int PlayerSize,int CPUSize);
+	void MovePlayer(float Angle, float speed, int PlayerSize, int CPUSize);
 
 	/**
 	 * @brief 移動させる時に必要な処理群
 	 * @param [in] リジットボディのポインター、向き、移動速度
 	 */
-	void ApplyWindToBody(CRigidBody* pRB, float Angle, float speed);
+	void ApplyWindToBody(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CPlayer> m_pwPlayer);
 
+	/**
+	 * @brief 共通する風の影響処理
+	 * @param [in] リジットボディ、向き、移動速度、加速値
+	 */
+	void ApplyWindCommon(CRigidBody* pRB, float Angle, float speed, std::function<void(btVector3&)> velocityModifier);
+
+	/**
+	 * @brief 風の処理(強さなど)
+	 */
 	void Window();
 
 	/**
@@ -109,13 +118,12 @@ private:
 		return dist(mt);
 	}
 
-
 private:
-	Parameter m_Parameter;                                     //基本パラメータ
+	Parameter m_Parameter;       //基本パラメータ
+	btVector3 m_SaverCurrentVel; //取得した加速値を保存する用
 
-	btVector3 m_SaverCurrentVel;
+	float m_WindowAngle;
 
-	//weekじゃないと情報をもち続け、バグる
 	std::vector<std::weak_ptr<CPlayer>>m_pwPlayer;           //プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
 	std::vector<std::weak_ptr<CEnemyPlayer>>m_pwEnemyPlayer; //敵プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
 };
