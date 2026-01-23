@@ -21,7 +21,7 @@ CObstacle* CObstacle::s_pPickingObstacle = nullptr;
 // デフォルトコンストラクタ
 //============================================================================
 CObstacle::CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObsType)
-	: CPhysicsObject(Type, Layer)
+	: CPhysicsModel(Type, Layer)
 	, m_ObsType(ObsType)
 {}
 
@@ -36,8 +36,8 @@ CObstacle::~CObstacle()
 //============================================================================
 void CObstacle::Update()
 {
-	// 物理オブジェクト用の更新処理
-	CPhysicsObject::Update();
+	// 物理モデル用の更新処理
+	CPhysicsModel::Update();
 }
 
 //============================================================================
@@ -45,8 +45,8 @@ void CObstacle::Update()
 //============================================================================
 void CObstacle::Draw()
 {
-	// 物理オブジェクト用の描画処理
-	CPhysicsObject::Draw();
+	// 物理モデル用の描画処理
+	CPhysicsModel::Draw();
 }
 
 //============================================================================

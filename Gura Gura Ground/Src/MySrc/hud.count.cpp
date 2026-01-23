@@ -18,7 +18,7 @@
 // 画面中央のトランスフォーム：表示
 const OBJ::Transform CHudCount::TRANSFORM_CENTER_DISP =
 {
-	DirectX::XMFLOAT3(600.0f, 600.0f, 0.0f),
+	DirectX::XMFLOAT3(400.0f, 400.0f, 0.0f),
 	DirectX::XMFLOAT4A(0.0f, 0.0f, 0.0f, 1.0f),
 	CHudCount::POS_CENTER
 };
@@ -87,7 +87,7 @@ void CHudCount::SetHudCountIdx(unsigned char wIdx)
 		break;
 
 	default:
-		SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
+		SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("GO"));
 		break;
 	}
 
@@ -112,7 +112,10 @@ void CHudCount::SetNowCount(unsigned char wIdx)
 		SetTransform(TF);
 
 		// 該当インデックスの場合、中央にて大きく表示
-		SetTransformTarget(TRANSFORM_CENTER_DISP);
+		OBJ::Transform Transform = TRANSFORM_CENTER_DISP;
+		Transform.Size.x += wIdx * 200.0f;
+		Transform.Size.y += wIdx * 200.0f;
+		SetTransformTarget(Transform);
 	}
 	else
 	{

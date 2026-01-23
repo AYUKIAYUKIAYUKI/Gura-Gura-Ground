@@ -15,6 +15,7 @@
 // インクルードファイル
 //****************************************************
 #include "API.object.h"
+#include "API.renderer.h"
 
 //****************************************************
 // 四角形(3D)クラスの定義
@@ -71,7 +72,7 @@ public:
 		  void               SetCol(const DirectX::XMFLOAT4& Col);
 
 	// ブレンドタイプの設定
-	void SetBlendType(int nType);
+	void SetBlendType(CRenderer::BlendType Type);
 
 private:
 

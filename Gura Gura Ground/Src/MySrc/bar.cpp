@@ -9,13 +9,15 @@
 // インクルードファイル
 //****************************************************
 #include "bar.h"
+#include "API.gltf.manager.h"
 
 // 物理挙動作成のため
 #include "API.world.h"
 #include "API.rigidbody.h"
 
 // エフェクト
-#include "dust.h"
+#include "API.object.manager.h"
+#include "route.h"
 #include <obstacle_editer.h>
 
 //****************************************************
@@ -58,7 +60,9 @@ namespace
 CBar::CBar(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::MOVING)
 	, m_Direction(VEC3_ZERO_INIT)
-{}
+{
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Bar"));
+}
 
 //============================================================================
 // デストラクタ
@@ -82,6 +86,16 @@ void CBar::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// 出現
 	Appear();
+
+	/* ！！！ トランスフォームのサイズを無理やり固定 ！！！ */
+	OBJ::Transform TF = {};
+	TF.Size = { fWidth * 0.4f, fHeight * 0.055f, fDepth * 0.4f };
+	SetTransform(TF);
+
+	/* ！！！ 警告表示の作成 ！！！ */
+	CRoute* pRoute = CObjectManager::CreateRaw<CRoute>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pRoute->SetTrackTarget(spObstacle);
 }
 
 //============================================================================
@@ -104,8 +118,8 @@ void CBar::Update()
 		SetDeath();
 	}
 
-	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
-	CPhysicsObject::Update();
+	// 障害物クラスの更新
+	CObstacle::Update();
 }
 
 //============================================================================
@@ -113,8 +127,8 @@ void CBar::Update()
 //============================================================================
 void CBar::Draw()
 {
-	// 物理オブジェクト用の描画：モデルの描画
-	CPhysicsObject::Draw();
+	// 障害物クラスの描画
+	CObstacle::Draw();
 }
 
 

@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "BirdStrike.h"
+#include "API.gltf.manager.h"
 #include <random>
 #include "API.object.manager.h"
 #include "player.h"
@@ -19,6 +20,7 @@
 #include "API.ghost.h"
 
 // エフェクト
+#include "Shadow.h"
 #include "dust.h"
 
 //****************************************************
@@ -95,7 +97,10 @@ namespace
 CBirdStrike::CBirdStrike(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::MOVING)
 	, m_nTime(0)
-{}
+{
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Bird"));
+}
 
 //============================================================================
 // デストラクタ
@@ -131,6 +136,9 @@ void CBirdStrike::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	pGs->SetWorldTransform(transform);
 
+	/* ！！！ 影の生成 ！！！ */
+	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+	pShadow->SetTrackTarget(shared_from_this());
 }
 
 //============================================================================
@@ -144,8 +152,8 @@ void CBirdStrike::Update()
 	//プレイヤーとの接触
 	ToPlayer();
 
-	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
-	CPhysicsObject::Update();
+	// 障害物の更新
+	CObstacle::Update();
 }
 
 //============================================================================
@@ -153,8 +161,8 @@ void CBirdStrike::Update()
 //============================================================================
 void CBirdStrike::Draw()
 {
-	// 物理オブジェクト用の描画：モデルの描画
-	CPhysicsObject::Draw();
+	// 障害物の描画
+	CObstacle::Draw();
 }
 
 //============================================================================

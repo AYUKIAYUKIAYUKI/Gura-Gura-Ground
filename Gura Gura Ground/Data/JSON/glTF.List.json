@@ -14,11 +14,35 @@
     ],
     [
       "Ball",
-      "Data\\MODEL\\GLB\\Ball\\ball.glb"
+      "Data\\MODEL\\GLB\\Gimmick\\ball.glb"
     ],
     [
       "Bar",
-      "Data\\MODEL\\GLB\\Stick\\stick.glb"
+      "Data\\MODEL\\GLB\\Gimmick\\stick.glb"
+    ],
+    [
+      "Bird",
+      "Data\\MODEL\\GLB\\Gimmick\\ForBird.glb"
+    ],
+    [
+      "Bomb",
+      "Data\\MODEL\\GLB\\Gimmick\\bomb.glb"
+    ],
+    [
+      "Boomerang",
+      "Data\\MODEL\\GLB\\Gimmick\\Boomerang.glb"
+    ],
+    [
+      "Dosun",
+      "Data\\MODEL\\GLB\\Gimmick\\100t.glb"
+    ],
+    [
+      "Pendulum",
+      "Data\\MODEL\\GLB\\Gimmick\\Pendulum.glb"
+    ],
+    [
+      "Tornado",
+      "Data\\MODEL\\GLB\\Gimmick\\Tornado.glb"
     ]
   ]
 }
