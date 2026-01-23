@@ -13,6 +13,7 @@
 #include "API.texture.manager.h"
 
 // 追従対象の取得のため
+#include "ball.h"
 #include "bar.h"
 #include "pendulum.h"
 #include "API.rigidbody.h"
@@ -58,64 +59,49 @@ void CRoute::Update()
 		// 追従対象のトランスフォームを取得
 		const OBJ::Transform Transform = spTarget->GetTransform();
 
-		// コライダーをリジッドボディにキャスト
-		CRigidBody* pRigidBody = useful::DownCast<CRigidBody>(spTarget->GetCollider());
-
-		// ワールドトランスフォームをリジッドボディから取得
-		const OBJ::Transform& WorldTransform = pRigidBody->GetWorldTransform();
-
 		/* 地面の大きさ */
 		const float fFieldSize = 30.0f;
 
 		/* 地面の位置 */
 		const float fFieldY = 5.0f + 1.08f;
 
+		// 進行方向の初期化
+		DirectX::XMFLOAT3 Direction = useful::VEC3_ZERO_INIT;
+
 		// 特定の型の障害物に応じてトランスフォームを調整
-		if (const std::shared_ptr<CBar> spBar = std::dynamic_pointer_cast<CBar>(spTarget))
+		/* とんでもない処理だ… */
+		if (const std::shared_ptr<CBall> spBall = std::dynamic_pointer_cast<CBall>(spTarget))
 		{
 			// 進行方向を取得
-			const DirectX::XMFLOAT3& Direction = spBar->GetDirection();
-
-			// 進行方向から、X方向移動かZ方向移動かを判定しトランスフォームを調整
-			if (std::abs(Direction.x) > std::abs(Direction.z))
-			{
-				// X方向移動
-				SetTransform({
-					{ fFieldSize, Transform.Size.y * 2.0f, 0.0f },
-					{ DirectX::XM_PI * -0.5f, DirectX::XM_PI, 0.0f, 1.0f },
-					{ 0.0f, fFieldY, WorldTransform.Pos.z } });
-			}
-			else
-			{
-				// Z方向移動
-				SetTransform({
-					{ fFieldSize, Transform.Size.y * 2.0f, 0.0f },
-					{ DirectX::XM_PI * -0.5f, DirectX::XM_PI * 0.5f, 0.0f, 1.0f },
-					{ WorldTransform.Pos.x, fFieldY, 0.0f } });
-			}
+			Direction = spBall->GetDirection();
+		}
+		else if (const std::shared_ptr<CBar> spBar = std::dynamic_pointer_cast<CBar>(spTarget))
+		{
+			// 進行方向を取得
+			Direction = spBar->GetDirection();
 		}
 		else if (const std::shared_ptr<CPendulum> spPendulum = std::dynamic_pointer_cast<CPendulum>(spTarget))
 		{
 			// 進行方向を取得
-			const DirectX::XMFLOAT3& Direction = spPendulum->GetDirection();
+			Direction = spPendulum->GetDirection();
+		}
 
-			// 進行方向から、X方向移動かZ方向移動かを判定しトランスフォームを調整
-			if (std::abs(Direction.x) > std::abs(Direction.z))
-			{
-				// X方向移動
-				SetTransform({
-					{ fFieldSize, Transform.Size.y * 2.0f, 0.0f },
-					{ DirectX::XM_PI * -0.5f, DirectX::XM_PI, 0.0f, 1.0f },
-					{ 0.0f, fFieldY, WorldTransform.Pos.z } });
-			}
-			else
-			{
-				// Z方向移動
-				SetTransform({
-					{ fFieldSize, Transform.Size.y * 2.0f, 0.0f },
-					{ DirectX::XM_PI * -0.5f, DirectX::XM_PI * 0.5f, 0.0f, 1.0f },
-					{ WorldTransform.Pos.x, fFieldY, 0.0f } });
-			}
+		// 進行方向から、X方向移動かZ方向移動かを判定しトランスフォームを調整
+		if (std::abs(Direction.x) > std::abs(Direction.z))
+		{
+			// X方向移動
+			SetTransform({
+				{ fFieldSize, Transform.Size.y * 2.0f, 0.0f },
+				{ DirectX::XM_PI * -0.5f, DirectX::XM_PI, 0.0f, 1.0f },
+				{ 0.0f, fFieldY, Transform.Pos.z } });
+		}
+		else
+		{
+			// Z方向移動
+			SetTransform({
+				{ fFieldSize, Transform.Size.y * 2.0f, 0.0f },
+				{ DirectX::XM_PI * -0.5f, DirectX::XM_PI * 0.5f, 0.0f, 1.0f },
+				{ Transform.Pos.x, fFieldY, 0.0f } });
 		}
 
 		// 位置に応じて色を調整
@@ -146,46 +132,6 @@ void CRoute::SetTrackTarget(const std::shared_ptr<CObstacle>& spTarget)
 {
 	// 弱参照を作成しておく
 	m_wpTrackTarget = spTarget;
-
-	// 棒クラスにキャスト
-	if (const std::shared_ptr<CBar> spBar = std::dynamic_pointer_cast<CBar>(spTarget))
-	{
-		// 追従対象のトランスフォームを取得
-		const OBJ::Transform Transform = spBar->GetTransform();
-
-		// コライダーをリジッドボディにキャスト
-		CRigidBody* pRigidBody = useful::DownCast<CRigidBody>(spBar->GetCollider());
-
-		// ワールドトランスフォームをリジッドボディから取得
-		const OBJ::Transform& WorldTransform = pRigidBody->GetWorldTransform();
-
-		// 進行方向を取得
-		const DirectX::XMFLOAT3& Direction = spBar->GetDirection();
-
-		/* 地面の大きさ */
-		const float fFieldSize = 15.0f;
-
-		/* 地面の位置 */
-		const float fFieldY = 5.0f + 1.08f;
-
-		// 進行方向から、X方向移動かZ方向移動かを判定しトランスフォームを調整
-		if (std::abs(Direction.x) > std::abs(Direction.z))
-		{
-			// X方向移動
-			SetTransform({
-				{ fFieldSize, Transform.Size.y * 2.0f, 0.0f },
-				{ DirectX::XM_PI * -0.5f, DirectX::XM_PI, 0.0f, 1.0f },
-				{ 0.0f, fFieldY, WorldTransform.Pos.z } });
-		}
-		else
-		{
-			// Z方向移動
-			SetTransform({
-				{ fFieldSize, Transform.Size.y * 2.0f, 0.0f },
-				{ DirectX::XM_PI * -0.5f, DirectX::XM_PI * 0.5f, 0.0f, 1.0f },
-				{ WorldTransform.Pos.x, fFieldY, 0.0f } });
-		}
-	}
 }
 
 //============================================================================

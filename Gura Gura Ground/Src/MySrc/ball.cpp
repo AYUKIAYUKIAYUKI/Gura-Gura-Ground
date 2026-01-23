@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "ball.h"
+#include "API.gltf.manager.h"
 #include "API.sound.manager.h"
 
 // 物理挙動作成のため
@@ -16,6 +17,9 @@
 #include "API.rigidbody.h"
 
 // エフェクト
+#include "API.object.manager.h"
+#include "shadow.h"
+#include "route.h"
 #include "dust.h"
 #include <obstacle_editer.h>
 
@@ -66,7 +70,10 @@ namespace
 CBall::CBall(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::MOVING)
 	, m_Direction(useful::VEC3_ZERO_INIT)
-{}
+{
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Ball"));
+}
 
 //============================================================================
 // デストラクタ
@@ -88,6 +95,20 @@ void CBall::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	// 弾性力を設定
 	pRB->SetRestitution(1.0f);
 
+	/* ！！！ 影の生成 ！！！ */
+	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+	pShadow->SetTrackTarget(shared_from_this());
+	
+	/* ！！！ トランスフォームのサイズをコライダーのもので設定 ！！！ */
+	OBJ::Transform TF = {};
+	TF.Size = { fWidth, fHeight, fDepth };
+	SetTransform(TF);
+
+	/* ！！！ 警告表示の作成 ！！！ */
+	CRoute* pRoute = CObjectManager::CreateRaw<CRoute>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pRoute->SetTrackTarget(spObstacle);
+
 	// 出現
 	Appear();
 }
@@ -103,7 +124,7 @@ void CBall::Update()
 	// ワールドトランスフォームから位置を取得
 	CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
 	const DirectX::XMFLOAT3& Pos = pRB->GetWorldTransform().Pos;
-	if (Pos.y < 3.0f)
+	if (Pos.y < -3.0f)
 	{
 		// 自身の死亡フラグを立てる
 		SetDeath();
@@ -113,7 +134,7 @@ void CBall::Update()
 	//Loop();
 
 	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
-	CPhysicsObject::Update();
+	CObstacle::Update();
 
 	// ImGui
 	ValueControl();
@@ -125,7 +146,7 @@ void CBall::Update()
 void CBall::Draw()
 {
 	// 物理オブジェクト用の描画：モデルの描画
-	CPhysicsObject::Draw();
+	CObstacle::Draw();
 }
 
 //============================================================================

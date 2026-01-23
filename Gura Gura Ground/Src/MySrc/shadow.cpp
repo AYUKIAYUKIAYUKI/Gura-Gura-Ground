@@ -11,6 +11,7 @@
 #include "shadow.h"
 #include "API.texture.manager.h"
 #include "API.physics.model.h"
+#include "API.rigidbody.h"
 
 //============================================================================
 // デフォルトコンストラクタ
@@ -51,26 +52,26 @@ void CShadow::Update()
 	// 追従対象のオブジェクトが有効なら
 	if (std::shared_ptr<CObject> spTarget = m_wpTrackTarget.lock())
 	{
-		// 追従対象が物理モデルなら
-		if (std::shared_ptr<CPhysicsModel> spModel = std::dynamic_pointer_cast<CPhysicsModel>(spTarget))
+		// 追従対象が物理オブジェクトなら
+		if (std::shared_ptr<CPhysicsObject> spPhysicsTraget = std::dynamic_pointer_cast<CPhysicsObject>(spTarget))
 		{
 			// 追従対象のトランスフォームを取得
-			const OBJ::Transform TF = spModel->GetTransform();
-
+			const OBJ::Transform Transform = spPhysicsTraget->GetTransform();
+			
 			/* 地面の位置 */
 			const float fFieldY = 5.0f + 1.08f;
 		
 			// 高低差の調整値
-			const float fAdjust = (TF.Pos.y - fFieldY);
+			const float fAdjust = (Transform.Pos.y - fFieldY);
 	
 			// 位置に応じてトランスフォームを調整
 			SetTransform({
-				{ (TF.Size.x * 5.0f) + fAdjust * 0.5f , (TF.Size.y * 5.0f) + fAdjust * 0.5f , 0.0f },
+				{ Transform.Size.x + fAdjust * 0.75f, Transform.Size.y + fAdjust * 0.75f, 0.0f },
 				{ DirectX::XM_PI * -0.5f, 0.0f, 0.0f, 1.0f },
-				{ TF.Pos.x, fFieldY, TF.Pos.z } });
+				{ Transform.Pos.x, fFieldY, Transform.Pos.z } });
 
 			// 位置に応じて色を調整
-			SetCol({ 1.0f, 1.0f, 1.0f, 1.0f - fAdjust * 0.2f });
+			SetCol({ 1.0f, 1.0f, 1.0f, 1.0f - fAdjust * 0.1f });
 		}
 	}
 	else
