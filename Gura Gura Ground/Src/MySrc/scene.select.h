@@ -49,6 +49,7 @@ private:
 	//****************************************************
 	void WhileEvent_QueInstantiateLight(); // ビームライトの生成キュー
 	void WhileEvent_CursorTrack();         // カーソルの追従
+	void StageChange();					   // ステージ変更
 
 	//****************************************************
 	// data

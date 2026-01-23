@@ -27,6 +27,8 @@
 /* デバッグ */
 namespace
 {
+	static int StageNum = 3;
+
 	static float fW = 1980.0f / 1280.0f;
 	static float fH = 1080.0f / 720.0f;
 
@@ -83,19 +85,26 @@ CSceneTitle::CSceneTitle()
 	m_pBackCurtain = pBG;
 
 	// 額縁を生成
-	auto pFrame = CObjectManager::CreateRaw<CHud>();
-	pFrame->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Frame"));
-	TF = { { 500.0f * fW, 500.0f * fW, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX * fW, WCY * fH, 0.0f } };
-	pFrame->SetTransform(TF);
-	pFrame->SetTransformTarget(TF);
-
+	float Posx = WCX* 0.5f;
+	for (int i = 0; i < StageNum; i++)
+	{
+		auto pFrame = CObjectManager::CreateRaw<CHud>();
+		pFrame->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Frame"));
+		TF = { { 500.0f * fW, 500.0f * fW, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { (Posx +(Posx *i)) * fW, WCY * fH, 0.0f } };
+		pFrame->SetTransform(TF);
+		pFrame->SetTransformTarget(TF);
+	}
+	
 	// 無を生成
-	auto pPicture = CObjectManager::CreateRaw<CHud>();
-	pPicture->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
-	TF = { { fA * fW, fB * fH, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX * fW, WCY * fH, 0.0f } };
-	pPicture->SetTransform(TF);
-	pPicture->SetTransformTarget(TF);
-	Ijiru = pPicture;
+	for (int i = 0; i < StageNum; i++)
+	{
+		auto pPicture = CObjectManager::CreateRaw<CHud>();
+		pPicture->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
+		TF = { { fA * fW, fB * fH, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { (Posx + (Posx * i)) * fW, WCY * fH, 0.0f } };
+		pPicture->SetTransform(TF);
+		pPicture->SetTransformTarget(TF);
+		Ijiru = pPicture;
+	}
 
 	// 緞帳(左)を生成
 	auto pSatinCurtain = CObjectManager::CreateRaw<CHud>();

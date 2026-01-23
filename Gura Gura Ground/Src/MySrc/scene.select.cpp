@@ -46,6 +46,16 @@ namespace
 		ImGui::Separator();
 		ImGui::End();
 	}
+
+	enum STAGE
+	{
+		FIRST = 0,
+		SECOND,
+		THARD,
+		MAX,
+	};
+	
+	int NowStage = FIRST;
 }
 
 //============================================================================
@@ -95,6 +105,9 @@ void CSceneSelect::Update()
 
 	// ビームライトの生成キュー
 	WhileEvent_QueInstantiateLight();
+
+	// ステージの変更
+	StageChange();
 
 	// カーソルの追従
 	WhileEvent_CursorTrack();
@@ -189,47 +202,88 @@ void CSceneSelect::WhileEvent_QueInstantiateLight()
 //============================================================================
 void CSceneSelect::WhileEvent_CursorTrack()
 {
-	// カーソルのスパンを設定
-	const float fSpan = 32.0f;
+	//// カーソルのスパンを設定
+	//const float fSpan = 32.0f;
+	///* 消去 */
+	//static float fRotZ = 0.0f;
+	//static float fTick = 0.0f;
+	///* 向き：Z軸：ゆらゆら */
+	//++fTick;
+	//fRotZ = sinf(fTick * 0.5f);
+	//// 移動速度
+	//float speed = 200.0f;
+	//float MoveDirection = 0.0f;
+	//// 接続数取得
+	//int ConnectedGamePadNum = CInputManager::RefInstance().GetConnectedGamePadNum();
+	//for (int i = 0; i < ConnectedGamePadNum; i++)
+	//{
+	//	// 入力方向を取得
+	//	const std::optional<float>& InputToMoveDirection = CInputManager::RefInstance().ConvertInputToMoveDirection(i);
+	//	// 入力されてる
+	//	if (InputToMoveDirection)
+	//	{
+	//		// 数値を取得
+	//		MoveDirection = InputToMoveDirection.value();
+	//		//元の位置を取得
+	//		DirectX::XMFLOAT3 Pos = m_pCursor->GetTransform().Pos;
+	//		// 新しい位置を計算
+	//		DirectX::XMFLOAT3 NewPos =
+	//		{
+	//			Pos.x + sinf(MoveDirection) * speed,
+	//			Pos.y - cosf(MoveDirection) * speed,
+	//			0.0f
+	//		};
+	//		// カーソル位置を元にHUDのトランスフォームを作成
+	//		const OBJ::Transform NewTF = {
+	//			{ fSpan, fSpan, 0.0f },
+	//			{ 0.0f, 0.0f, -1.57f, 0.0f },
+	//			 NewPos
+	//		};
+	//		// 目標トランスフォームを上書き
+	//		m_pCursor->SetTransformTarget(NewTF);
+	//	}
+	//}
 
-	/* 消去 */
-	static float fRotZ = 0.0f;
-	static float fTick = 0.0f;
 
-	/* 向き：Z軸：ゆらゆら */
-	++fTick;
-	fRotZ = sinf(fTick * 0.5f);
+	const float WCX = OBJ::CalcCenterOfWindow().x;	// 画面の中心
+	float fW = 1980.0f / 1280.0f;
+	float Posx = WCX * 0.5f;						// 半分の位置
 
-	int a = CInputManager::RefInstance().GetConnectedGamePadNum();
+	OBJ::Transform TF = m_pCursor->GetTransform();
 
-	// 入力方向を取得
-	const std::optional<float>& InputToMoveDirection = CInputManager::RefInstance().ConvertInputToMoveDirection(0);
+	TF = {
+		{ 32.0f,32.0f,0.0f },
+		{ 0.0f, 0.0f, -1.57f,0.0f },
+		{ (Posx + (Posx * NowStage)) * fW,100.0f,0.0f },
+	};
+	m_pCursor->SetTransform(TF);
+	//m_pCursor->SetTransformTarget(TF);
+}
 
-	// 入力されてる
-	if (InputToMoveDirection)
+//============================================================================
+// ステージ変更
+//============================================================================
+void CSceneSelect::StageChange()
+{
+	if (CInputManager::RefInstance().GetTrackerGamePad(0).leftStickLeft == DirectX::GamePad::ButtonStateTracker::PRESSED)
 	{
-		// 数値を取得
-		float MoveDirection = InputToMoveDirection.value();
+		int Num = static_cast<int>(NowStage) - 1;
 
-		//元の位置を取得
-		DirectX::XMFLOAT3 Pos = m_pCursor->GetTransform().Pos;
-
-		// 新しい位置を計算
-		DirectX::XMFLOAT3 NewPos =
+		if (Num < 0)
 		{
-			Pos.x + sinf(MoveDirection)*200.0f,
-			Pos.y - cosf(MoveDirection)*200.0f,
-			0.0f
-		};
+			Num = static_cast<int>(THARD);
+		}
 
-		// カーソル位置を元にHUDのトランスフォームを作成
-		const OBJ::Transform NewTF = {
-			{ fSpan, fSpan, 0.0f },
-			{ 0.0f, 0.0f, fRotZ, 0.0f },
-			 NewPos
-		};
+		NowStage = static_cast<STAGE>(Num);
 
-		// 目標トランスフォームを上書き
-		m_pCursor->SetTransformTarget(NewTF);
+	}
+	if (CInputManager::RefInstance().GetTrackerGamePad(0).leftStickRight == DirectX::GamePad::ButtonStateTracker::PRESSED)
+	{
+		NowStage = static_cast<STAGE>(static_cast<int>(NowStage) + 1);
+
+		if (NowStage == MAX)
+		{
+			NowStage = FIRST;
+		}
 	}
 }
