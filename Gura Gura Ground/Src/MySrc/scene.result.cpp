@@ -23,6 +23,7 @@
 
 #include "scene.title.h"
 #include <player.h>
+#include <effect.manager.h>
 
 extern size_t gConnectedHumanPlayerNum = {};
 
@@ -377,6 +378,7 @@ CSceneResult::~CSceneResult()
 void CSceneResult::Update()
 {
     float deltaT = 1.0f / 60.0f; // フレーム時間
+    float fireworkTimer = 0.0f;
 
     // カメラ高さ制御ロジック
     if (m_animPhase < ANIM_PHASE::PLAYER_TEXT_SCALEUP) 
@@ -447,6 +449,29 @@ void CSceneResult::Update()
         DirectX::XMFLOAT4 newColor(colorLerp, colorLerp, colorLerp, 1.0f);
         m_pBackground->SetCol(newColor);
         m_pBackground->SetColTarget(newColor);
+    }
+
+
+    static auto lastFireworkTime = std::chrono::steady_clock::now();
+
+    // PLAYER_WAIT以降で花火を生成
+    if (m_animPhase >= ANIM_PHASE::PLAYER_WAIT)
+    {
+        auto now = std::chrono::steady_clock::now();
+        float interval = 0.5f; // 秒
+
+        std::chrono::duration<float> elapsed = now - lastFireworkTime;
+        if (elapsed.count() >= interval)
+        {
+            lastFireworkTime = now;
+            float randX = -6.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (12.0f)));
+            CEffect::Create(CEffectManager::TAG_FIREWORKS_SINGLE, { randX, -23.5f, 0.0f });
+        }
+    }
+    else
+    {
+        // フェーズがそれ以前のときは最新の時刻でリセット
+        lastFireworkTime = std::chrono::steady_clock::now();
     }
 
     switch (m_animPhase)
@@ -598,6 +623,9 @@ void CSceneResult::Change()
 {
     // 全オブジェクトに死亡フラグを立てる
     CObjectManager::RefInstance().SetDeathAll();
+
+    // エフェクトを全て停止
+    CEffectManager::RefInstance().StopAll();
 
     //生存時間を破棄
     CPlayer::ClearAllSurvivalTimes();

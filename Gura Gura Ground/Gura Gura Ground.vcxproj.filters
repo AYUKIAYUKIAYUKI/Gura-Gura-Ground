@@ -386,6 +386,15 @@
     <ClInclude Include="Src\MySrc\field.ice.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Src\MySrc\debuff_behavior.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\pendulum.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\obstacle_editer.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp">

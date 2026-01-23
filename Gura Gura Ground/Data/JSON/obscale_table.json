@@ -15,10 +15,10 @@
         {
             "sub_params": [
                 {
-                    "collider_depth": 3.0,
-                    "collider_height": 3.0,
-                    "collider_width": 3.0,
-                    "manual_type": 1,
+                    "collider_depth": 1.0,
+                    "collider_height": 1.0,
+                    "collider_width": 1.0,
+                    "manual_type": 9,
                     "spawnX": 0.0,
                     "spawnY": 8.0,
                     "spawnZ": 15.0,
