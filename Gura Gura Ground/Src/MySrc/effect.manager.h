@@ -77,6 +77,8 @@ public:
 
 	bool GetPlaying() { return m_bPlaying; }
 	int GetHandle() { return m_handle; }
+	void SetDeath();
+
 	void SetLocation(useful::Vec3 pos) { m_pos = pos; }
 
 	static CEffect* Create(const std::wstring& filename, useful::Vec3 pos,int* handle = nullptr,float sizevalue = 1.0f);	//ファイル名、座標、ハンドルのポインタ(任意)、拡大率(任意)
