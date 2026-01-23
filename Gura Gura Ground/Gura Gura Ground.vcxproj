@@ -112,11 +112,13 @@
     <ClInclude Include="Src\MySrc\bomb.h" />
     <ClInclude Include="Src\MySrc\boomerang.h" />
     <ClInclude Include="Src\MySrc\cameracontroller.h" />
+    <ClInclude Include="Src\MySrc\debuff_behavior.h" />
     <ClInclude Include="Src\MySrc\dust.h" />
     <ClInclude Include="Src\MySrc\effect.manager.h" />
     <ClInclude Include="Src\MySrc\enemy1.h" />
     <ClInclude Include="Src\MySrc\FallTetra.h" />
     <ClInclude Include="Src\MySrc\field.ice.h" />
+    <ClInclude Include="Src\MySrc\obstacle_editer.h" />
     <ClInclude Include="Src\MySrc\pendulum.h" />
     <ClInclude Include="Src\MySrc\field.h" />
     <ClInclude Include="Src\MySrc\gimmick.manager.h" />
