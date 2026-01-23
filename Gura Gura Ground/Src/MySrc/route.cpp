@@ -15,6 +15,8 @@
 // 追従対象の取得のため
 #include "ball.h"
 #include "bar.h"
+#include "barrel.h"
+#include "birdstrike.h"
 #include "pendulum.h"
 #include "API.rigidbody.h"
 
@@ -80,6 +82,11 @@ void CRoute::Update()
 			// 進行方向を取得
 			Direction = spBar->GetDirection();
 		}
+		else if (const std::shared_ptr<CBarrel> spBarrel = std::dynamic_pointer_cast<CBarrel>(spTarget))
+		{
+			// 進行方向を取得
+			Direction = spBarrel->GetDirection();
+		}
 		else if (const std::shared_ptr<CPendulum> spPendulum = std::dynamic_pointer_cast<CPendulum>(spTarget))
 		{
 			// 進行方向を取得
@@ -102,6 +109,18 @@ void CRoute::Update()
 				{ fFieldSize, Transform.Size.y * 2.0f, 0.0f },
 				{ DirectX::XM_PI * -0.5f, DirectX::XM_PI * 0.5f, 0.0f, 1.0f },
 				{ Transform.Pos.x, fFieldY, 0.0f } });
+		}
+
+		/* やばすぎる */
+		if (const std::shared_ptr<CBirdStrike> spBirdStrike = std::dynamic_pointer_cast<CBirdStrike>(spTarget))
+		{
+			// 進行方向を取得
+			Direction = spBirdStrike->GetDirection();
+
+			SetTransform({
+				{ fFieldSize * 1.5f, Transform.Size.y * 2.0f, 0.0f },
+				{ DirectX::XM_PI * -0.5f, DirectX::XM_PI + atan2f(-Direction.z, Direction.x), 0.0f, 1.0f},
+				{ Transform.Pos.x, fFieldY, Transform.Pos.z } });
 		}
 
 		// 位置に応じて色を調整

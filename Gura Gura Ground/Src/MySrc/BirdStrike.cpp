@@ -20,6 +20,7 @@
 #include "API.ghost.h"
 
 // エフェクト
+#include "route.h"
 #include "Shadow.h"
 #include "dust.h"
 
@@ -139,6 +140,11 @@ void CBirdStrike::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	/* ！！！ 影の生成 ！！！ */
 	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
 	pShadow->SetTrackTarget(shared_from_this());
+
+	/* ！！！ 警告表示の作成 ！！！ */
+	CRoute* pRoute = CObjectManager::CreateRaw<CRoute>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pRoute->SetTrackTarget(spObstacle);
 }
 
 //============================================================================
