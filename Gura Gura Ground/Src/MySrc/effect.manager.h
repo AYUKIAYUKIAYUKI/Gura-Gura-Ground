@@ -45,7 +45,10 @@ public:
 		TAG_FIREWORKS,
 		TAG_HIPDROP,
 		TAG_FIREWORKS_SINGLE,
-		TAG_TORNADE
+		TAG_TORNADE,
+		TAG_BOMB,
+		TAG_FLASH,
+		TAG_SMOKE
 	};
 	void Update();			//çXêV
 	void Draw();			//ï`âÊ
