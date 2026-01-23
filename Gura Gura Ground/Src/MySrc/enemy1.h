@@ -54,10 +54,10 @@ private: //構造体
 	//AIの応用パラメータ
 	struct AIParams
 	{
+		int jumpcount = 0;
 		float predictionTime;         //先読み時間
+		float noiseangle;
 		float weightDistance = 2.0f;  //距離を最重要に
-		//float weightAngle = 0.5f;   //正面優先は補助的に
-		//float weightSpeed = 0.3f;   //遅い敵優先は弱め
 		float weightApproach = 1.5f;  //接近度は強め
 	};
 
@@ -105,7 +105,7 @@ private: //プレイヤーに関する関数群
 	 * @brief 敵をプレイヤーの方へ移動する関数
 	 * @param [in] 角度、速度
 	 */
-	void MoveAtPlayer(float fAngle, float speed);
+	void MoveAtPlayer(const float fAngle, const float speed);
 
 	/**
 	 * @brief プレイヤーを探す処理
@@ -116,7 +116,7 @@ private: //プレイヤーに関する関数群
 	 * @brief 自身とプレイヤーの当たり判定チェック処理
 	 * @param [in] 対象の位置情報、自身の位置情報,範囲
 	 */
-	bool CheckCollision(const DirectX::XMFLOAT3& c1, const DirectX::XMFLOAT3& c2, float Radius);
+	bool CheckCollision(const DirectX::XMFLOAT3& c1, const DirectX::XMFLOAT3& c2, const float Radius);
 
 	/**
 	 * @brief 距離を算出する処理
@@ -153,7 +153,7 @@ private: //共通する関数群
 	/**
 	 * @brief 状態遷移関数
 	 */
-	void ChangeState(ENEMY_STATE next)
+	void ChangeState(const ENEMY_STATE next)
 	{
 		m_State = next;
 	}
@@ -167,7 +167,7 @@ private: //共通する関数群
 	 * @brief 比較処理(当たった時の判定や初動動かない処理)
 	 * @param [in] 対象の位置,自身の位置,角度
 	 */
-	void Comparison(const DirectX::XMFLOAT3 targetPos, const DirectX::XMFLOAT3 SelfPos,float angle);
+	void Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX::XMFLOAT3& SelfPos,float angle);
 
 private: //その他
 
@@ -187,12 +187,14 @@ private: //その他
 	 * @brief 乱数
 	 * [in] 最小値、最大値
 	 */
-	float RandomRange(float min, float max)
-	{
-		static std::mt19937 mt{ std::random_device{}() };
-		std::uniform_real_distribution<float> dist(min, max);
-		return dist(mt);
-	}
+	float RandomRange(float min, float max);
+
+	/**
+	 * @brief min～maxの間の数値を乱数で渡し１/２で+-が変わる
+	 * [in] 最小値、最大値
+	 */
+	float RandomSplit(float min, float max);
+
 
 	/**
 	 * @brief 正規化する処理

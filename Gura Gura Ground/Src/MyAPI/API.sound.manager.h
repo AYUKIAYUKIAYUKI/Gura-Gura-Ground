@@ -58,6 +58,18 @@ public:
 		}
 	}
 
+	// 全てのサウンドを停止
+	inline void StopAll()
+	{
+		for (auto& pair : m_mupSoundInstance)
+		{
+			if (pair.second)  // 念のため null チェック
+			{
+				pair.second->Stop();
+			}
+		}
+	}
+
 	// ピッチを設定
 	inline void SetPitch(std::string sKey, float fPitch) { m_mupSoundInstance.find(sKey)->second->SetPitch(fPitch); }
 

@@ -46,7 +46,7 @@ public:
 
     // is•ûŒü‚Ìİ’è
     inline void SetDirection(const DirectX::XMFLOAT3& Direction) { m_Direction = Direction; }
-    void SetBoomerangParams(float omega,float radius,float basePower,float addBySpeed,float maxFinalPower,int hitCooldown);
+    void SetBoomerangParams(float omega, float radius, float basePower, float addBySpeed, float maxFinalPower, int hitCooldown);
     void SetMovePattern(int pattern) { m_MovePattern = pattern; }
     int m_MovePattern = 0;
 

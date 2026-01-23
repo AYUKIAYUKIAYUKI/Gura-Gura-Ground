@@ -202,7 +202,7 @@ void CBall::Action()
 	if (m_PrevVelY < 0.0f && rCurrentVel.getY() > 0.0f)
 	{
 		// Œø‰Ê‰¹F’µ‚Ë‚é‰¹
-		CSoundManger::RefInstance().Play("Ball", false, -0.5f, 1.0f);
+		CSoundManger::RefInstance().Play("Ball", false, -0.5f, 0.2f);
 	}
 	m_PrevVelY = rCurrentVel.getY();
 	// ššš ’Ç‰Á‚±‚±‚Ü‚Å ššš
