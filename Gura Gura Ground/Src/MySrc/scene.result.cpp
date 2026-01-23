@@ -271,7 +271,17 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
         auto pIcon = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
         pIcon->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey(iconTex));
         float iconX = baseX - 220 + TIMER_ADJUST;
-        OBJ::Transform ICON_TR = { {ICON_SIZE_W, ICON_SIZE_H, 0}, {0,0,0,0}, {iconX, 800.0f, 0} };
+
+        OBJ::Transform ICON_TR;
+        if (!isHuman) {
+            // CPUアイコンのみサイズを変更する
+            ICON_TR = { {124.0f, ICON_SIZE_H, 0}, {0,0,0,0}, {iconX, 800.0f, 0} };
+        }
+        else 
+        {
+            ICON_TR = { {ICON_SIZE_W, ICON_SIZE_H, 0}, {0,0,0,0}, {iconX, 800.0f, 0} };
+        }
+
         pIcon->SetTransform(ICON_TR);
         pIcon->SetTransformTarget(ICON_TR);
         pIcon->SetColTarget(col);

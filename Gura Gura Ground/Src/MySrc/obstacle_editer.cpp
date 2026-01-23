@@ -23,6 +23,7 @@
 using json = nlohmann::json;
 
 int ObstacleEditer::m_CurrentParamIndex = 0;
+int ObstacleEditer::m_selectedSubParamIndex = 0;
 float ObstacleEditer::s_LoadedSpawnX = 0.0f, ObstacleEditer::s_LoadedSpawnY = 0.0f, ObstacleEditer::s_LoadedSpawnZ = 0.0f;
 float ObstacleEditer::s_LoadedSpeedX = 0.0f, ObstacleEditer::s_LoadedSpeedY = 0.0f, ObstacleEditer::s_LoadedSpeedZ = 0.0f;
 int ObstacleEditer::s_SpawnTimePresetCount = ObstacleEditer::SPAWN_PRESET_MAX;
@@ -49,16 +50,8 @@ void ObstacleEditer::EditCommonParams()
 
     auto& paramSet = RefParam();
 
-    static int selectedSubParamIndex = 0;
-
     static SubObstacleParam s_CopiedSubParam;
     static bool s_ParamCopied = false;
-
-    // 障害物を追加
-    if (ImGui::Button(reinterpret_cast<const char*>(u8"障害物を追加")))
-    {
-        paramSet.subParams.push_back(SubObstacleParam{});
-    }
 
     auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
     for (auto& playerObj : playerList)
@@ -72,24 +65,25 @@ void ObstacleEditer::EditCommonParams()
         }
     }
 
+    ImGui::Separator();
 
-    if (selectedSubParamIndex >= 0 && selectedSubParamIndex < (int)paramSet.subParams.size())
+    if (m_selectedSubParamIndex >= 0 && m_selectedSubParamIndex < (int)paramSet.subParams.size())
     {
         // コピー
         if (ImGui::Button(reinterpret_cast<const char*>(u8"編集中の障害物パラメーターをコピー")))
         {
-            s_CopiedSubParam = paramSet.subParams[selectedSubParamIndex];
+            s_CopiedSubParam = paramSet.subParams[m_selectedSubParamIndex];
             s_ParamCopied = true;
         }
         ImGui::SameLine();
         // ペースト
         bool canPaste = s_ParamCopied &&
-            (selectedSubParamIndex >= 0 && selectedSubParamIndex < (int)paramSet.subParams.size());
+            (m_selectedSubParamIndex >= 0 && m_selectedSubParamIndex < (int)paramSet.subParams.size());
         ImGui::BeginDisabled(!canPaste);
         if (ImGui::Button(reinterpret_cast<const char*>(u8"コピーしたパラメーターをペースト"))) {
             if (canPaste) {
                 // ManualObstacleTypeを除きすべてのパラメータをペースト
-                auto& dst = paramSet.subParams[selectedSubParamIndex];
+                auto& dst = paramSet.subParams[m_selectedSubParamIndex];
                 OBS_TYPE prevType = dst.ManualObstacleType;
                 int prevPattern = dst.BoomerangMovePattern;
 
@@ -102,6 +96,28 @@ void ObstacleEditer::EditCommonParams()
         ImGui::EndDisabled();
     }
 
+
+    if (ImGui::Button(reinterpret_cast<const char*>(u8"現在のセットを一時保存"))) 
+    {
+        SaveCurrentSubObstacleParam("Data\\JSON\\edit_obscale_param.json");
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button(reinterpret_cast<const char*>(u8"一時保存セットを読み込み")))
+    {
+        LoadCurrentSubObstacleParam("Data\\JSON\\edit_obscale_param.json");
+    }
+
+    ImGui::Separator();
+
+
+    // 障害物を追加
+    if (ImGui::Button(reinterpret_cast<const char*>(u8"障害物を追加")))
+    {
+        paramSet.subParams.push_back(SubObstacleParam{});
+    }
+
     // 障害物(subParams)の一覧UI
     // リスト表示
     ImGui::Text(reinterpret_cast<const char*>(u8"障害物リスト:"));
@@ -110,9 +126,9 @@ void ObstacleEditer::EditCommonParams()
         char label[32];
         snprintf(label, sizeof(label), reinterpret_cast<const char*>(u8"障害物[%d]"), i + 1);
         // 選択型リストボタン
-        if (ImGui::Selectable(reinterpret_cast<const char*>(label), selectedSubParamIndex == i))
+        if (ImGui::Selectable(reinterpret_cast<const char*>(label), m_selectedSubParamIndex == i))
         {
-            selectedSubParamIndex = i;
+            m_selectedSubParamIndex = i;
         }
         // 削除ボタン
         char deleteLabel[32];
@@ -120,13 +136,13 @@ void ObstacleEditer::EditCommonParams()
         if (ImGui::Button(reinterpret_cast<const char*>(deleteLabel)))
         {
             paramSet.subParams.erase(paramSet.subParams.begin() + i);
-            if (selectedSubParamIndex >= i && selectedSubParamIndex > 0)
+            if (m_selectedSubParamIndex >= i && m_selectedSubParamIndex > 0)
             {
-                selectedSubParamIndex--; // 削除時選択インデックス調整
+                m_selectedSubParamIndex--; // 削除時選択インデックス調整
             }
             if (paramSet.subParams.empty())
             {
-                selectedSubParamIndex = -1; // 空になったら未選択
+                m_selectedSubParamIndex = -1; // 空になったら未選択
             }
             break;
         }
@@ -134,12 +150,12 @@ void ObstacleEditer::EditCommonParams()
     ImGui::NewLine();
 
     // 選択された障害物パラメータ編集
-    if (selectedSubParamIndex >= 0 && selectedSubParamIndex < (int)paramSet.subParams.size())
+    if (m_selectedSubParamIndex >= 0 && m_selectedSubParamIndex < (int)paramSet.subParams.size())
     {
-        SubObstacleParam& obs = paramSet.subParams[selectedSubParamIndex];
+        SubObstacleParam& obs = paramSet.subParams[m_selectedSubParamIndex];
 
         ImGui::Separator();
-        ImGui::Text(reinterpret_cast<const char*>(u8"障害物パラメーター [%d]"), selectedSubParamIndex + 1);
+        ImGui::Text(reinterpret_cast<const char*>(u8"障害物パラメーター [%d]"), m_selectedSubParamIndex + 1);
 
         // 障害物タイプ
         int currentType = static_cast<int>(obs.ManualObstacleType);
@@ -982,6 +998,84 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
         }
     }
     AssignRandomSpawnTimes();
+}
+//============================================================================
+// 編集中のパラメータセット1つだけを保存
+//============================================================================
+void ObstacleEditer::SaveCurrentSubObstacleParam(const std::string& fileName)
+{
+    auto& paramSet = m_ParamSets[m_CurrentParamIndex];
+    // UIで選択されてるindex取得 (static int m_selectedSubParamIndex; に一致させてください)
+
+    if (m_selectedSubParamIndex < 0 || m_selectedSubParamIndex >= (int)paramSet.subParams.size()) return;
+
+    const auto& sub = paramSet.subParams[m_selectedSubParamIndex];
+    nlohmann::json jSub;
+    jSub["spawnX"] = sub.ObstacleSpawnX;
+    jSub["spawnY"] = sub.ObstacleSpawnY;
+    jSub["spawnZ"] = sub.ObstacleSpawnZ;
+    jSub["speedX"] = sub.ObstacleSpeedX;
+    jSub["speedY"] = sub.ObstacleSpeedY;
+    jSub["speedZ"] = sub.ObstacleSpeedZ;
+    jSub["collider_width"] = sub.ColliderWidth;
+    jSub["collider_height"] = sub.ColliderHeight;
+    jSub["collider_depth"] = sub.ColliderDepth;
+    jSub["manual_type"] = sub.ManualObstacleType;
+
+    if (sub.ManualObstacleType == ObstacleEditer::OBS_TYPE::BOMB) {
+        jSub["bomb_timer"] = sub.BombTimer;
+    }
+    if (sub.ManualObstacleType == ObstacleEditer::OBS_TYPE::BOOMERANG) {
+        jSub["boomerang_move_pattern"] = sub.BoomerangMovePattern;
+        jSub["boomerang_omega"] = sub.BoomerangOmega;
+        jSub["boomerang_radius"] = sub.BoomerangRadius;
+        jSub["boomerang_base_power"] = sub.BoomerangBasePower;
+        jSub["boomerang_add_by_speed"] = sub.BoomerangAddBySpeed;
+        jSub["boomerang_max_final_power"] = sub.BoomerangMaxFinalPower;
+        jSub["boomerang_hit_cooldown"] = sub.BoomerangHitCooldown;
+    }
+
+    std::ofstream ofs(fileName);
+    ofs << jSub.dump(4);
+    ofs.close();
+}
+
+//============================================================================
+// 上記のパラメータセットをロード
+//============================================================================
+void ObstacleEditer::LoadCurrentSubObstacleParam(const std::string& fileName)
+{
+    auto& paramSet = m_ParamSets[m_CurrentParamIndex];
+    if (m_selectedSubParamIndex < 0 || m_selectedSubParamIndex >= (int)paramSet.subParams.size()) return;
+
+    std::ifstream ifs(fileName);
+    if (!ifs) return;
+    nlohmann::json jSub;
+    ifs >> jSub;
+
+    SubObstacleParam sub;
+    sub.ObstacleSpawnX = jSub.value("spawnX", 0.0f);
+    sub.ObstacleSpawnY = jSub.value("spawnY", 10.0f);
+    sub.ObstacleSpawnZ = jSub.value("spawnZ", 0.0f);
+    sub.ObstacleSpeedX = jSub.value("speedX", 0.0f);
+    sub.ObstacleSpeedY = jSub.value("speedY", 0.0f);
+    sub.ObstacleSpeedZ = jSub.value("speedZ", -5.0f);
+    sub.ColliderWidth = jSub.value("collider_width", 3.0f);
+    sub.ColliderHeight = jSub.value("collider_height", 3.0f);
+    sub.ColliderDepth = jSub.value("collider_depth", 3.0f);
+    int manualTypeValue = jSub.value("manual_type", static_cast<int>(OBS_TYPE::NONE));
+    sub.ManualObstacleType = static_cast<OBS_TYPE>(manualTypeValue);
+
+    sub.BoomerangMovePattern = jSub.value("boomerang_move_pattern", 0);
+    sub.BombTimer = jSub.value("bomb_timer", 300);
+    sub.BoomerangOmega = jSub.value("boomerang_omega", 1.0f);
+    sub.BoomerangRadius = jSub.value("boomerang_radius", 12.0f);
+    sub.BoomerangBasePower = jSub.value("boomerang_base_power", 20.0f);
+    sub.BoomerangAddBySpeed = jSub.value("boomerang_add_by_speed", 80.0f);
+    sub.BoomerangMaxFinalPower = jSub.value("boomerang_max_final_power", 350.0f);
+    sub.BoomerangHitCooldown = jSub.value("boomerang_hit_cooldown", 10);
+
+    paramSet.subParams[m_selectedSubParamIndex] = sub;
 }
 
 //============================================================================

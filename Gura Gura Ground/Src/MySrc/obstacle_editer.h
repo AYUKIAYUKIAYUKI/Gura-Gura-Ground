@@ -73,6 +73,8 @@ public:
     void TryManualSpawn();                      // 手動生成
     void SaveParams(const std::string& fileName);    // パラメータ保存
     void LoadParams(const std::string& fileName);    // パラメータ読み込み
+    void SaveCurrentSubObstacleParam(const std::string& fileName);   // 現在のパラメータセットだけ保存
+    void LoadCurrentSubObstacleParam(const std::string& fileName);   // 上記のパラメータセットの読み込み
     void AssignRandomSpawnTimes();              // スポーンタイム割り当て（ランダム化）
     void PlayModeSpawn(float deltaTime);        // プレイモード・自動生成処理
     void ResetPlayMode();                       // プレイモードリセット
@@ -85,6 +87,7 @@ public:
     static ObstacleParam& RefParam() { return m_ParamSets[m_CurrentParamIndex]; }
     static float s_DecayValue; //上部落下障害物に接触した時の減速値
 private:
+    static int m_selectedSubParamIndex;
     static int s_SpawnTimePresetCount;
     static float s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ; // 出現位置
     static float s_LoadedSpeedX, s_LoadedSpeedY, s_LoadedSpeedZ; // 出現速度
