@@ -68,6 +68,7 @@ void CEffect::Update()
     if (!m_bPlaying)return;
     Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
     Effekseer::Vector3D a = { m_pos.x,m_pos.y,m_pos.z };
+    m_manager->SetLocation(m_handle, a);
     if(m_effects == nullptr)throw std::runtime_error("Effect is nullptr");
     if (!m_manager->Exists(m_handle))
     {
@@ -97,7 +98,7 @@ CEffect* CEffect::Create(const std::wstring& filename, useful::Vec3 pos,int* han
     if(pEffect->m_effects == nullptr)throw std::runtime_error("Effect is nullptr!!!!!!");
     pEffect->m_pos = pos;
     pEffect->Init();
-    if (handle != nullptr)handle = &pEffect->m_handle;
+    if (handle != nullptr)*handle = pEffect->m_handle;
     return pEffect;
 }
 //==========================================================================================
@@ -130,7 +131,7 @@ CEffect* CEffect::Create(CEffectManager::EFFECT_TAG tag, useful::Vec3 pos, int* 
 
     pEffect->m_pos = pos;
     pEffect->Init();
-    if (handle != nullptr)handle = &pEffect->m_handle;
+    if (handle != nullptr)*handle = pEffect->m_handle;
     return pEffect;
 }
 
