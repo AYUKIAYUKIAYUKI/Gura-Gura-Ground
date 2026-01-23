@@ -39,6 +39,7 @@
     <ClCompile Include="Src\MySrc\enemy1.cpp" />
     <ClCompile Include="Src\MySrc\FallTetra.cpp" />
     <ClCompile Include="Src\MySrc\field.cpp" />
+    <ClCompile Include="Src\MySrc\field.ice.cpp" />
     <ClCompile Include="Src\MySrc\gimmick.manager.cpp" />
     <ClCompile Include="Src\MySrc\hud.count.cpp" />
     <ClCompile Include="Src\MySrc\IronBall.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="Src\MySrc\effect.manager.h" />
     <ClInclude Include="Src\MySrc\enemy1.h" />
     <ClInclude Include="Src\MySrc\FallTetra.h" />
+    <ClInclude Include="Src\MySrc\field.ice.h" />
     <ClInclude Include="Src\MySrc\pendulum.h" />
     <ClInclude Include="Src\MySrc\field.h" />
     <ClInclude Include="Src\MySrc\gimmick.manager.h" />
