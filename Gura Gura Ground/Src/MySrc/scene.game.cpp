@@ -33,6 +33,11 @@
 #include "API.texture.manager.h"
 
 //****************************************************
+// プリプロセッサディレクティブ
+//****************************************************
+#define ENDLESS_BATTLE 1
+
+//****************************************************
 // 仮：最終的に必要と判断した変数はメンバに付属してください
 //****************************************************
 namespace
@@ -54,6 +59,8 @@ namespace
 	std::chrono::steady_clock::time_point g_LastUpdateTime;
 	float g_GameTime = 0.0f;
 
+	static bool g_bUseCPU = false;
+
 #if 0
 	// あああ
 	void ModifyModelOffset(CField* pField)
@@ -69,6 +76,20 @@ namespace
 
 		// モデルオフセットの設定
 		pField->SetModelOffset(raa);
+	}
+#endif
+
+#if ENDLESS_BATTLE
+	void GameSceneUnkoOshiko()
+	{
+		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
+		if (ImGui::TreeNode("[ GameScene ]"))
+		{
+			ImGui::Checkbox("CPU Enable", &g_bUseCPU);
+			ImGui::TreePop();
+		}
+		ImGui::Separator();
+		ImGui::End();
 	}
 #endif
 }
@@ -99,7 +120,8 @@ CSceneGame::CSceneGame()
 // デストラクタ
 //============================================================================
 CSceneGame::~CSceneGame()
-{}
+{
+}
 
 //============================================================================
 // 更新処理
@@ -125,6 +147,10 @@ void CSceneGame::Update()
 		//プレイモード中の自動スポーン処理
 		m_ObstacleEditer.PlayModeSpawn(deltaTime);
 	}
+
+#if ENDLESS_BATTLE
+	GameSceneUnkoOshiko();
+#endif // ENDLESS_BATTLE
 
 	// HUD：カウントセット
 	SetHudCount();
@@ -152,6 +178,16 @@ void CSceneGame::Update()
 //============================================================================
 void CSceneGame::Change()
 {
+#if ENDLESS_BATTLE
+	// 全オブジェクトに死亡フラグを立てる
+	CObjectManager::RefInstance().SetDeathAll();
+
+	// エフェクトを全て停止
+	CEffectManager::RefInstance().StopAll();
+
+	// ゲームシーンをリセットして再度シーンを設定
+	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneGame>());
+#else
 	// 全オブジェクトに死亡フラグを立てる
 	CObjectManager::RefInstance().SetDeathAll();
 
@@ -164,7 +200,9 @@ void CSceneGame::Change()
 
 	//遷移時に生存時間も渡す
 	CSceneManager::RefInstance().ChangeScene(std::move(resultScene));
+#endif
 }
+
 //============================================================================
 // ゲーム開始セット
 //============================================================================
@@ -232,7 +270,11 @@ void CSceneGame::SetHudCount()
 	}
 
 	/* カウンターがあったので、つかわしてもらいます */
+#if ENDLESS_BATTLE
+	m_nStartCount = static_cast<int>(MAX_COUNT + 1);
+#else
 	m_nStartCount = static_cast<int>(g_GameTime);
+#endif
 
 	// 現在のカウント数と設定済みのインデックスで自動表示
 	for (const auto& rIt : m_apHudCount)
@@ -255,7 +297,7 @@ void CSceneGame::SetHudCount()
 void CSceneGame::SpawnField()
 {
 	// フィールドの水平方向の大きさ
-	const float fSpanField  = 15.0f;
+	const float fSpanField = 15.0f;
 	const float fSpanAdjust = 0.95f;
 
 	// 地面を生成
@@ -298,7 +340,16 @@ void CSceneGame::SpawnPlayer()
 	// コントローラーの接続数を取得
 	unsigned char wConnectedPadNum = CInputManager::RefInstance().GetConnectedGamePadNum();
 
+#if ENDLESS_BATTLE
+	unsigned char wTotalPlayerNum = MAX_PLYAER;
+	if (!g_bUseCPU)
+	{
+		wTotalPlayerNum = 1;
+	}
+	for (unsigned char wPlayerIndex = 0; wPlayerIndex < wTotalPlayerNum; ++wPlayerIndex)
+#else
 	for (unsigned char wPlayerIndex = 0; wPlayerIndex < MAX_PLYAER; ++wPlayerIndex)
+#endif
 	{
 		// 良い感じに四方に散らばらせる
 		if (wPlayerIndex % 2 == 0) PlayersInitTransform.Pos.z *= -1.0f;
@@ -413,7 +464,7 @@ void CSceneGame::SetSymbol()
 			OBJ::Transform SymbolTransform = m_apSymbol[wIdx]->GetTransform();
 
 			// シンボルの位置をプレイヤーの位置に合わせる
-			SymbolTransform.Pos    = spPlayer->GetTransform().Pos;
+			SymbolTransform.Pos = spPlayer->GetTransform().Pos;
 			SymbolTransform.Pos.y += m_apSymbol[wIdx]->GetSymbolOffsetY();
 
 			// シンボルのトランスフォームを設定
@@ -441,7 +492,7 @@ void CSceneGame::SetSymbol()
 			OBJ::Transform SymbolTransform = m_vpSymbol[wIdxCPU]->GetTransform();
 
 			// シンボルの位置をプレイヤーの位置に合わせる
-			SymbolTransform.Pos    = spCPU->GetTransform().Pos;
+			SymbolTransform.Pos = spCPU->GetTransform().Pos;
 			SymbolTransform.Pos.y += m_vpSymbol[wIdxCPU]->GetSymbolOffsetY();
 
 			// シンボルのトランスフォームを設定
