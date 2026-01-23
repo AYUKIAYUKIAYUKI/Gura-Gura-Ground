@@ -237,13 +237,16 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 			continue;
 		}
 
-		// X座標の最小最大
-		MaxPlayersPos.x = max(MaxPlayersPos.x, ite->GetTransform().Pos.x);
-		MinPlayersPos.x = min(MinPlayersPos.x, ite->GetTransform().Pos.x);
+		if (InRange(ite->GetTransform().Pos))
+		{
+			// X座標の最小最大
+			MaxPlayersPos.x = max(MaxPlayersPos.x, ite->GetTransform().Pos.x);
+			MinPlayersPos.x = min(MinPlayersPos.x, ite->GetTransform().Pos.x);
 
-		// Z座標の最小最大
-		MaxPlayersPos.z = max(MaxPlayersPos.z, ite->GetTransform().Pos.z);
-		MinPlayersPos.z = min(MinPlayersPos.z, ite->GetTransform().Pos.z);
+			// Z座標の最小最大
+			MaxPlayersPos.z = max(MaxPlayersPos.z, ite->GetTransform().Pos.z);
+			MinPlayersPos.z = min(MinPlayersPos.z, ite->GetTransform().Pos.z);
+		}
 	}
 
 	// 位置を設定
@@ -264,20 +267,15 @@ void CCameraController::GetObstacles()
 	{
 		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite);
 
-		if (InRange(Obstacle->GetTransform().Pos))
-		{
-			m_Obstacles.push_back(Obstacle);
-		}
+		m_Obstacles.push_back(Obstacle);
+
 	}
 
 	for (auto ite : ListShare)
 	{
 		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite.get());
 
-		if (InRange(Obstacle->GetTransform().Pos))
-		{
-			m_Obstacles.push_back(Obstacle);
-		}
+		m_Obstacles.push_back(Obstacle);
 	}
 }
 
