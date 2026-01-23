@@ -1,4 +1,3 @@
-
 // ※ このファイルは公開インターフェース用のヘッダーファイルです
 // 　 利用者によるファイル内の実装変更を想定していないので直接行わないでください
 
@@ -45,7 +44,7 @@ public:
 	//****************************************************
 	// function
 	//****************************************************
-	
+
 	// 更新処理
 	void Update();
 
@@ -68,12 +67,12 @@ public:
 		// 好きなコントローラーのA, B, X, Y, START, BACKのボタンどれか 
 		for (unsigned char wIdxGamePad = 0; wIdxGamePad < MAX_GAMEPAD; ++wIdxGamePad)
 		{
-			if (m_aGamePadTracker[wIdxGamePad].a     == DirectX::GamePad::ButtonStateTracker::PRESSED ||
-				m_aGamePadTracker[wIdxGamePad].b     == DirectX::GamePad::ButtonStateTracker::PRESSED ||
-				m_aGamePadTracker[wIdxGamePad].x     == DirectX::GamePad::ButtonStateTracker::PRESSED ||
-				m_aGamePadTracker[wIdxGamePad].y     == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+			if (m_aGamePadTracker[wIdxGamePad].a == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+				m_aGamePadTracker[wIdxGamePad].b == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+				m_aGamePadTracker[wIdxGamePad].x == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+				m_aGamePadTracker[wIdxGamePad].y == DirectX::GamePad::ButtonStateTracker::PRESSED ||
 				m_aGamePadTracker[wIdxGamePad].start == DirectX::GamePad::ButtonStateTracker::PRESSED ||
-				m_aGamePadTracker[wIdxGamePad].back  == DirectX::GamePad::ButtonStateTracker::PRESSED)
+				m_aGamePadTracker[wIdxGamePad].back == DirectX::GamePad::ButtonStateTracker::PRESSED)
 			{
 				return true;
 			}
@@ -120,6 +119,24 @@ public:
 
 	// ゲームパッドトラッカーの取得
 	inline const DirectX::GamePad::ButtonStateTracker& GetTrackerGamePad(unsigned char wPadIdx = 0) { return m_aGamePadTracker[wPadIdx]; }
+
+	// ゲームパッドの接続数の判別を行い、その数をそんまま返す
+	inline unsigned char GetConnectedGamePadNum() const
+	{
+		for (unsigned char wIdxPad = 0; wIdxPad < MAX_GAMEPAD; ++wIdxPad)
+		{
+			// ゲームパッドのステートの取得
+			const auto& rState = m_upGamePad->GetState(wIdxPad);
+
+			// 接続が失われていたら
+			if (!rState.IsConnected())
+			{
+				return wIdxPad;
+			}
+		}
+
+		return MAX_GAMEPAD;
+	}
 
 private:
 
