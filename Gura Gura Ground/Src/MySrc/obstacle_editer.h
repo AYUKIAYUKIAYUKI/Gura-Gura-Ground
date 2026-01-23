@@ -64,7 +64,7 @@ public:
     };
     static DebuffConfig s_StampConfig, s_BirdConfig, s_OilConfig;
 
-    static const int PARAM_SET_MAX = 5;                // パラメータセット最大数
+    static const int PARAM_SET_MAX = 6;                // パラメータセット最大数
     static const int SPAWN_PRESET_MAX = 50;
 
     void EditCommonParams();                    // 共通パラメータ編集UI

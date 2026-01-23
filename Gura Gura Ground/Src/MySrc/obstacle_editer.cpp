@@ -889,6 +889,7 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
     jsRoot["debuff_oil"]["inertia"] = s_OilConfig.InertiaValue;
 
     std::ofstream ofs(fileName);
+    ofs << std::fixed << std::setprecision(3);
     ofs << jsRoot.dump(4);
     ofs.close();
 }
@@ -1036,6 +1037,7 @@ void ObstacleEditer::SaveCurrentSubObstacleParam(const std::string& fileName)
     }
 
     std::ofstream ofs(fileName);
+    ofs << std::fixed << std::setprecision(3);
     ofs << jSub.dump(4);
     ofs.close();
 }
@@ -1178,23 +1180,29 @@ void ObstacleEditer::AssignRandomSpawnTimes()
     }
 }
 
+//============================================================================
+// デバフパラメーター値編集ウィンドウ
+//============================================================================
 void ObstacleEditer::ShowGlobalGimmickSettingsWindow()
 {
     static bool show = true;
 
     if (ImGui::Begin(reinterpret_cast<const char*>(u8"ギミック全体の設定"), &show))
     {
-        // 各デバフ値を編集
-        // スタンプ
+        // ドッスンデバフ
         ImGui::Text(reinterpret_cast<const char*>(u8"ドッスン直撃時デバフ設定"));
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##STAMP"), &s_StampConfig.DecayValue, 0.0f, 2.0f);
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##STAMP"), &s_StampConfig.InertiaValue, 0.0f, 10.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##STAMP"), &s_StampConfig.DecayValue, 0.01f, 0.0f, 2.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##STAMP"), &s_StampConfig.InertiaValue, 0.01f, 0.0f, 10.0f);
+
+        // 鳥デバフ
         ImGui::Text(reinterpret_cast<const char*>(u8"鳥の群れ直撃時デバフ設定"));
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##BIRD"), &s_BirdConfig.DecayValue, 0.0f, 2.0f);
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##BIRD"), &s_BirdConfig.InertiaValue, 0.0f, 10.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##BIRD"), &s_BirdConfig.DecayValue, 0.01f, 0.0f, 2.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##BIRD"), &s_BirdConfig.InertiaValue, 0.01f, 0.0f, 10.0f);
+
+        // 油デバフ
         ImGui::Text(reinterpret_cast<const char*>(u8"オイルデバフ設定"));
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##OIL"), &s_OilConfig.DecayValue, 0.0f, 2.0f);
-        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##OIL"), &s_OilConfig.InertiaValue, 0.0f, 10.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動減速の倍率##OIL"), &s_OilConfig.DecayValue, 0.01f, 0.0f, 2.0f);
+        ImGui::DragFloat(reinterpret_cast<const char*>(u8"プレイヤー移動慣性の倍率##OIL"), &s_OilConfig.InertiaValue, 0.01f, 0.0f, 10.0f);
 
     }
     ImGui::End();

@@ -140,6 +140,7 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
             OBJ::Transform tf;
             tf.Pos = { -12.0f, 0.0f, 0.0f };
             tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+
             p->SetTransform(tf);
             p->FactoryCollider(1.0f, 1.0f, 1.0f);
             return true;
@@ -375,19 +376,41 @@ CSceneResult::~CSceneResult()
 //============================================================================
 void CSceneResult::Update()
 {
+    float deltaT = 1.0f / 60.0f; // フレーム時間
+
+    // カメラ高さ制御ロジック
+    if (m_animPhase < ANIM_PHASE::PLAYER_TEXT_SCALEUP) 
+    {
+        m_cameraHeight = -15.0f;
+    }
+
+    else if (m_animPhase == ANIM_PHASE::PLAYER_TEXT_SCALEUP) 
+    {
+        if (m_cameraHeight < 0.0f) 
+        {
+            float cameraUpSpeed = 0.5f; //カメラ移動速度
+            m_cameraHeight += cameraUpSpeed;
+            if (m_cameraHeight > 0.0f) m_cameraHeight = 0.0f;
+        }
+    }
+
+    else if (m_animPhase > ANIM_PHASE::PLAYER_TEXT_SCALEUP) 
+    {
+        m_cameraHeight = 0.0f;
+    }
+
+    // カメラ位置反映
     CCamera* pCamera = CRenderer::RefInstance().GetCamera();
     if (pCamera) {
-        //地面と平行にする。ヨーは既存値維持したい場合
         DirectX::XMFLOAT3 pos = pCamera->GetPos();
         DirectX::XMFLOAT3 rot = pCamera->GetRot();
-        pos.x = 0.0f; pos.y = 0.0f; pos.z = 0.0f;
+        pos.x = 0.0f;
+        pos.y = m_cameraHeight;
+        pos.z = 0.0f;
         rot.x = 0.0f; rot.y = 0.0f; rot.z = 0.0f;
-
         pCamera->SetPos(pos);
         pCamera->SetRot(rot);
     }
-
-    float deltaT = 1.0f / 60.0f; // フレーム時間
 
     bool drawBeam = true;
 
@@ -506,7 +529,8 @@ void CSceneResult::Update()
                 m_vpBeamLight.push_back(pBeam);
             }
         }
-        if (m_playerTextScale >= 1.0f) {
+        if (m_playerTextScale >= 1.0f && m_cameraHeight >= 0.0f)
+        {
             m_animPhase = ANIM_PHASE::PLAYER_WAIT;
             m_animTimer = 0.0f;
         }
@@ -524,19 +548,24 @@ void CSceneResult::Update()
         if (m_otherAlpha > 255.0f) m_otherAlpha = 255.0f;
         {
             float a = m_otherAlpha / 255.0f;
-            for (auto& pHud : m_vpPlayerLights) {
+            for (auto& pHud : m_vpPlayerLights) 
+            {
                 if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = a; pHud->SetColTarget(col); pHud->SetCol(col); }
             }
-            for (auto& pHud : m_vpPlayerIcons) {
+            for (auto& pHud : m_vpPlayerIcons) 
+            {
                 if (pHud && pHud != m_vpPlayerIcons[m_winTextIdx]) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = a; pHud->SetColTarget(col); pHud->SetCol(col); }
             }
-            for (auto& pHud : m_vpPlayerBattleTexts) {
+            for (auto& pHud : m_vpPlayerBattleTexts)
+            {
                 if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = a; pHud->SetColTarget(col); pHud->SetCol(col); }
             }
-            for (auto& pHud : m_vpPlayerRankImgs) {
+            for (auto& pHud : m_vpPlayerRankImgs)
+            {
                 if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = a; pHud->SetColTarget(col); pHud->SetCol(col); }
             }
-            for (auto& vv : m_vvPlayerNumbers) {
+            for (auto& vv : m_vvPlayerNumbers)
+            {
                 for (auto& pHud : vv) {
                     if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = a; pHud->SetColTarget(col); pHud->SetCol(col); }
                 }
@@ -555,7 +584,8 @@ void CSceneResult::Update()
     }
 
     if (m_beamLightAppeared) {
-        for (auto* beam : m_vpBeamLight) {
+        for (auto* beam : m_vpBeamLight) 
+        {
             if (beam) {
                 beam->Update();
                 beam->Draw();

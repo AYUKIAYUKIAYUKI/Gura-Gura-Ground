@@ -1,11 +1,11 @@
 {
     "debuff_bird": {
-        "decay": 0.6000000238418579,
+        "decay": 0.5,
         "inertia": 1.2000000476837158
     },
     "debuff_oil": {
-        "decay": 0.8999999761581421,
-        "inertia": 1.0
+        "decay": 0.800000011920929,
+        "inertia": 8.5
     },
     "debuff_stamp": {
         "decay": 0.30000001192092896,
@@ -322,6 +322,9 @@
                     "speedZ": -5.0
                 }
             ]
+        },
+        {
+            "sub_params": []
         }
     ],
     "preset_count": 5,

@@ -66,6 +66,7 @@ private:
 	std::vector<CHud*> m_vpPlayerRankImgs;
 	std::vector<CHud*> m_vpPlayerTextImgs;
 	std::vector<CBeamLight*> m_vpBeamLight;
+	float m_cameraHeight = -15.0f;
 
 	int m_nHumanPlayerNum = 0;
 	int m_nCPUNum = 0;
