@@ -34,11 +34,11 @@ namespace
 	//マクロ定義
 	btVector3 INIT = { 0.0f, 0.0f, 0.0f };                    //btVector3用初期化マクロ
 	btVector3 INIT_PLYER_VELOCITY = { 0.0f, 1.144f, 0.0f };   //ゲーム開始時のプレイヤーの初期加速値を疑似的に設定
-	float ANGLE = (float)std::numbers::pi;             //右から始まるよ
+	const float ANGLE = (float)std::numbers::pi*0.5f;         //右から始まるよ
+	const float AIR_SPEED = 0.65f;                            //空中時の風の強さ調整値(ある程度の速度を残しつつ即死を防ぐ)
 
 	int PLAYER_SIZE; //プレイヤーの人数
 	int CPU_SIZE;    //CPUの人数
-
 }
 
 //================================================
@@ -102,14 +102,18 @@ void CWindField::Update()
 void CWindField::UpdatePlayersSystem()
 {
 	//情報がないなら探す、あるなら処理
-	if (m_pwPlayer.empty() && m_pwEnemyPlayer.empty())
+	if (m_pwPlayer.empty())
 	{
-		SearchInfo(); //プレイヤーとCPUの情報を探す
-
-		//必ず探した後で処理+何回もsize呼ぶのちーがうからあらかじめ取得
+		SearchPYInfo(); //プレイヤーとCPUの情報を探す
 		PLAYER_SIZE = (int)m_pwPlayer.size();
+	}
+	else if (m_pwEnemyPlayer.empty())
+	{
+		SearchCPUInfo(); //プレイヤーとCPUの情報を探す
 		CPU_SIZE = (int)m_pwEnemyPlayer.size();
 	}
+	
+	//上記が揃ってから起動＝むらを無くせるし、安全
 	else
 	{
 		Window();
@@ -119,11 +123,10 @@ void CWindField::UpdatePlayersSystem()
 //============================================================================
 // 各情報を探す処理
 //============================================================================
-void CWindField::SearchInfo()
+void CWindField::SearchPYInfo()
 {
 	//オブジェクトマネージャーのシェアポインターからプレイヤータイプを見つける
 	const auto  playerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::PLAYER);
-	const auto  enemyplayerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::CPU);
 
 	//範囲baseでプレイヤー情報の基盤を取得
 	for (auto Obj : playerlist)
@@ -132,6 +135,15 @@ void CWindField::SearchInfo()
 		auto pPlayer = std::dynamic_pointer_cast<CPlayer>(Obj);
 		m_pwPlayer.push_back(pPlayer);
 	}
+}
+
+//============================================================================
+// 各情報を探す処理
+//============================================================================
+void CWindField::SearchCPUInfo()
+{
+	//オブジェクトマネージャーのシェアポインターからプレイヤータイプを見つける
+	const auto  enemyplayerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::CPU);
 
 	//範囲baseで敵プレイヤー情報の基盤を取得
 	for (auto Obj1 : enemyplayerlist)
@@ -158,7 +170,7 @@ void CWindField::MovePlayer(float Angle, float speed, int PlayerSize, int CPUSiz
 		CRigidBody* pRB = DownCast<CRigidBody>(sp->GetCollider());
 		if (!pRB) continue; //念のため
 
-		ApplyWindToBody(pRB, Angle, speed, m_pwPlayer[nPlayerCount]);
+		ApplyWindToBody_PY(pRB, Angle, speed, m_pwPlayer[nPlayerCount]);
 	}
 
 	// CPU
@@ -172,33 +184,52 @@ void CWindField::MovePlayer(float Angle, float speed, int PlayerSize, int CPUSiz
 		CRigidBody* pRB = DownCast<CRigidBody>(CUP->GetCollider());
 		if (!pRB) continue;
 
-		ApplyWindCommon(pRB, Angle, speed, nullptr); // CPUは補正なし
+		ApplyWindToBody_CPU(pRB, Angle, speed, m_pwEnemyPlayer[CPUCount]); // CPUは補正なし
 	}
 }
 
 //============================================================================
-// 移動させる時の必要処理(まとめる用)
+// 移動させる時の必要処理(まとめる用)プレイヤー用
 //============================================================================
-void CWindField::ApplyWindToBody(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CPlayer > pwPlayer)
+void CWindField::ApplyWindToBody_PY(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CPlayer > pwPlayer)
 {
 	const auto& opDirection =
 		CInputManager::RefInstance().ConvertInputToMoveDirection(pwPlayer.lock()->GetIdxPlayer());
 
-	ApplyWindCommon(pRB, Angle, speed,
-		[&](btVector3& vel)
-		{
-			//入力有り
-			if (opDirection)
-			{
-				vel *= 1.15f; // 横/斜め移動補正
-			}
-		});
+	//空中にいる時
+	if (!CheckLand(pwPlayer))
+	{
+		speed = speed * AIR_SPEED;
+	}
+
+	//入力時、強める
+	if (opDirection)
+	{
+		speed = speed * 1.15f;
+	}
+
+	ApplyWindCommon(pRB, Angle, speed);
+}
+
+
+//============================================================================
+// 移動させる時の必要処理(まとめる用)CPU用
+//============================================================================
+void CWindField::ApplyWindToBody_CPU(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CEnemyPlayer> pwCPU)
+{
+	//空中にいる時
+	if (!CheckLand(pwCPU))
+	{
+		speed = speed * AIR_SPEED;
+	}
+
+	ApplyWindCommon(pRB, Angle, speed);
 }
 
 //============================================================================
 //風の影響を適用する
 //============================================================================
-void CWindField::ApplyWindCommon(CRigidBody* pRB, float Angle, float speed, std::function<void(btVector3&)> velocityModifier)
+void CWindField::ApplyWindCommon(CRigidBody* pRB, float Angle, float speed)
 {
 	btVector3 rCurrentVel = pRB->GetLinearVelocity();
 
@@ -227,12 +258,6 @@ void CWindField::ApplyWindCommon(CRigidBody* pRB, float Angle, float speed, std:
 
 	// Y軸は重力速度を維持
 	newVel.setY(rCurrentVel.getY());
-
-	// プレイヤー/CPU固有の補正を適用
-	if (velocityModifier)
-	{
-		velocityModifier(newVel);
-	}
 
 	// 最終速度を設定
 	pRB->SetLinearVelocity(newVel);
@@ -268,14 +293,14 @@ void CWindField::Window()
 
 			//m_Parameter.m_WindAngle = RandomRange(-(float)std::numbers::pi, (float)std::numbers::pi); //風の向き
 			m_Parameter.m_WindAngle = m_WindowAngle; //風の向き
-			m_Parameter.m_WindSpeed = 1.0f;  //風の強さ
+			m_Parameter.m_WindSpeed = 0.9f;          //風の強さ
 
-			//念のため一周したら初期化
+			//念のため一周したら初期化(右回り時のif分)
 			if (m_WindowAngle >= ANGLE * 4.0f)
 			{
 				m_WindowAngle = 0.0f;
 			}
-			m_WindowAngle += ANGLE;
+			m_WindowAngle += ANGLE; //向きを加算
 		}
 	}
 }

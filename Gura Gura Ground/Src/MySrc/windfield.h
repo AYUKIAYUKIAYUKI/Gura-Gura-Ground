@@ -5,10 +5,6 @@
 // 
 //============================================================================
 
-//============================================================================
-//主にプレイヤーとCPUの処理を分けずそのまま関数でまとめてます
-//============================================================================
-
 
 //============================================================================
 //インクルードガード
@@ -42,8 +38,8 @@ private: //構造体
 		float m_WindSpeed = 1.0f;  //風の強さ
 
 		float m_Timer = 0.0f;      //測定時間観測用
-		float m_BlowTime = 60.0f; //風が吹く時間
-		float m_StopTime = 180.0f; //風が止む時間
+		float m_BlowTime = 60.0f;  //風が吹く時間
+		float m_StopTime = 60.0f*5.0f; //風が止む時間
 
 		bool m_IsBlowing = false;  //今風が吹いているか？
 	};
@@ -82,7 +78,8 @@ private:
 	/**
 	 * @brief 情報を探す処理
 	 */
-	void SearchInfo();
+	void SearchPYInfo();
+	void SearchCPUInfo();
 
 	/**
 	 * @brief 移動処理
@@ -94,13 +91,19 @@ private:
 	 * @brief 移動させる時に必要な処理群
 	 * @param [in] リジットボディのポインター、向き、移動速度
 	 */
-	void ApplyWindToBody(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CPlayer> m_pwPlayer);
+	void ApplyWindToBody_PY(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CPlayer> m_pwPlayer);
+
+	/**
+	 * @brief 移動させる時に必要な処理群
+	 * @param [in] リジットボディのポインター、向き、移動速度
+	 */
+	void ApplyWindToBody_CPU(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CEnemyPlayer> pwCPU);
 
 	/**
 	 * @brief 共通する風の影響処理
 	 * @param [in] リジットボディ、向き、移動速度、加速値
 	 */
-	void ApplyWindCommon(CRigidBody* pRB, float Angle, float speed, std::function<void(btVector3&)> velocityModifier);
+	void ApplyWindCommon(CRigidBody* pRB, float Angle, float speed);
 
 	/**
 	 * @brief 風の処理(強さなど)
@@ -116,6 +119,39 @@ private:
 		static std::mt19937 mt{ std::random_device{}() };
 		std::uniform_real_distribution<float> dist(min, max);
 		return dist(mt);
+	}
+
+	//============================================================================
+// 着地判定：状態共通
+//============================================================================
+	template<class T>
+	bool CheckLand(std::weak_ptr<T> t)
+	{
+		// プレイヤーのリジッドボディの取得
+		CRigidBody* const pPlayerRigidBody = dynamic_cast<CRigidBody*>(t.lock()->GetCollider());
+
+		//// 上昇中は着地判定を行わない
+		//if (pPlayerRigidBody->GetLinearVelocity().getY() > 0.0f)
+		//{
+		//	return false;
+		//}
+
+		// 衝突判定の結果
+		bool m_bHit = false;
+
+		// 生ポインタのオブジェクトのリジッドボディと衝突判定
+		if (Collision::CheckHitToRigidBodyRaw(pPlayerRigidBody))
+		{
+			m_bHit = true;
+		}
+
+		// シェアポインタのオブジェクトのリジッドボディと衝突判定
+		if (Collision::CheckHitToRigidBodyShare(pPlayerRigidBody))
+		{
+			m_bHit = true;
+		}
+
+		return m_bHit;
 	}
 
 private:

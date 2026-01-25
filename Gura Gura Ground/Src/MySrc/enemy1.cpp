@@ -409,26 +409,54 @@ void CEnemyPlayer::searchPlayer()
 //======================================
 void CEnemyPlayer::MoveAtPlayer(const float Angle, const float speed)
 {
-	//リジットボディを取得
-	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
+	// プレイヤーのリジッドボディの取得
+	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(GetCollider());
 
-	//現在の加速度を参照
-	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
+	// 現在の加速度をコピー
+	const btVector3& rCurrentVel = pRigidBody->GetLinearVelocity();
 
-	//アクティブ化
-	pRB->SetActive();
+	// 数値を先行して取得
+	float fDirectionValue = Angle;
 
-	//位置情報設定用
-	btVector3   MoveDir = { INIT };
+	// 移動速度スケールの作成
+	//const float fSpeed = fSpeedArg;
+	btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
-	//各位置の設定
-	MoveDir.setX(sinf(Angle) * speed);
-	MoveDir.setZ(cosf(Angle) * speed);
+	// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
+	MoveDir.setX(sinf(fDirectionValue));
+	MoveDir.setZ(cosf(fDirectionValue));
 
-	// 移動方向：Y軸：現在の重力速度を維持
-	MoveDir.setY(rCurrentVel.getY());
+	// 目標の加速度作成
+	const btVector3& TargetVel = MoveDir * speed;
 
-	pRB->SetLinearVelocity(MoveDir); //加速度の設定
+	/* ああ…btVector3をXMFLOAT3に変換 */
+	DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
+	DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
+
+	/* ああ…要素ずつ指数減衰 */
+	float fCoef = 0.25f;
+
+	////何かしらのデバフが有効なら慣性に倍率を掛ける
+	//if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
+	//	float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
+	//	fCoef *= Inertia;
+	//}
+	useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
+	useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
+
+	/* ああ…XMFLOAT3の減衰結果をbtVector3に変換 */
+	btVector3 ResultVel = { CurrentVel_XMFLOAT.x, rCurrentVel.getY(), CurrentVel_XMFLOAT.z };
+
+	/* 接地しているかどうか (便宜的にシェアポインタのリジッドボディに接触しているか) に応じて速度の加え方を変更 */
+	pRigidBody->SetActive();
+	if (Collision::CheckHitToRigidBodyShare(pRigidBody))
+	{
+		pRigidBody->SetLinearVelocity(ResultVel);
+	}
+	else
+	{
+		pRigidBody->SetForce((ResultVel - rCurrentVel) * 10.0f);
+	}
 }
 
 //======================================
