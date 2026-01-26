@@ -135,20 +135,6 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
     m_winTextIdx = m_vpPlayerIcons.size();
     m_vpPlayerIcons.push_back(pWinText);
 
-    m_spTestModel = CObjectManager::CreateShare<CPhysicsModel>(
-        [](CPhysicsModel* p) -> bool
-        {
-            p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
-            OBJ::Transform tf;
-            tf.Pos = { -12.0f, 0.0f, 0.0f };
-            tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-            p->SetTransform(tf);
-            p->FactoryCollider(1.0f, 1.0f, 1.0f);
-            return true;
-        },
-        OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
-
     // èüé“îªíË
     int maxTimeInt = -1;
     for (size_t i = 0; i < playerCount; ++i)
@@ -594,6 +580,25 @@ void CSceneResult::Update()
         break;
     case ANIM_PHASE::PLAYER_TEXT_SCALEUP:
     {
+        if (!m_WinnerModelAppeared)
+        {
+            m_spTestModel = CObjectManager::CreateShare<CPhysicsModel>(
+                [](CPhysicsModel* p) -> bool
+                {
+                    p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+                    OBJ::Transform tf;
+                    tf.Pos = { -12.0f, 0.0f, 0.0f };
+                    tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+                    p->SetTransform(tf);
+                    p->FactoryCollider(1.0f, 1.0f, 1.0f);
+                    return true;
+                },
+                OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
+
+            m_WinnerModelAppeared = true;
+        }
+
         m_playerTextScale += 0.04f;
         if (m_playerTextScale > 1.0f) m_playerTextScale = 1.0f;
         for (auto idx : m_playerTextIdxs) {

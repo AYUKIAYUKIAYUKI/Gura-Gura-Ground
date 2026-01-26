@@ -15,10 +15,11 @@
         {
             "sub_params": [
                 {
+                    "bomb_timer": 300,
                     "collider_depth": 1.0,
                     "collider_height": 1.0,
                     "collider_width": 1.0,
-                    "manual_type": 9,
+                    "manual_type": 3,
                     "spawnX": 0.0,
                     "spawnY": 8.0,
                     "spawnZ": 15.0,
@@ -324,7 +325,20 @@
             ]
         },
         {
-            "sub_params": []
+            "sub_params": [
+                {
+                    "collider_depth": 3.0,
+                    "collider_height": 3.0,
+                    "collider_width": 3.0,
+                    "manual_type": 4,
+                    "spawnX": 0.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 10.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                }
+            ]
         }
     ],
     "preset_count": 5,

@@ -57,6 +57,7 @@ private:
 	float m_fGameTime;
 	int m_resultTitleIdx = -1;
 	bool m_beamLightAppeared = false;
+	bool m_WinnerModelAppeared = false;
 	bool m_kirakiraEffectCreated = false;
 	float m_bgDarkRatio = 0.0f;
 	DirectX::XMFLOAT3 m_resultTitleTargetPos;		   // 結果発表テクスチャ移動先
