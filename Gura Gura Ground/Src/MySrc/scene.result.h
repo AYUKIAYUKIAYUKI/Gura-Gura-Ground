@@ -56,6 +56,7 @@ private:
 	float m_fGameTime;
 	int m_resultTitleIdx = -1;
 	bool m_beamLightAppeared = false;
+	bool m_kirakiraEffectCreated = false;
 	float m_bgDarkRatio = 0.0f;
 	DirectX::XMFLOAT3 m_resultTitleTargetPos;
 	std::vector<float> m_playerSurvivalTimes;

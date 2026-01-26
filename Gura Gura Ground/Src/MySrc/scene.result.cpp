@@ -59,7 +59,7 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
     const float BASE_Y = 980.0f;
 
     const int TIMER_ADJUST = 50;
-    const float TIMER_INTERVAL = 455.0f;
+    const float TIMER_INTERVAL = 435.0f;
     const float ICON_Y_OFFSET = -160.0f;
     const float ICON_SIZE_W = 77.0f;
     const float ICON_SIZE_H = 69.0f;
@@ -326,7 +326,7 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
         auto pMin = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
         int min_num = clamp_num(minutes);
         pMin->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNum" + std::to_string(min_num)));
-        pMin->SetTransform({ {32, 48, 0}, {0,0,0,0}, {baseX + TIMER_ADJUST, BASE_Y, 0} });
+        pMin->SetTransform({ {64, 64, 0}, {0,0,0,0}, {baseX + TIMER_ADJUST, BASE_Y, 0} });
         pMin->SetTransformTarget(pMin->GetTransform());
         pMin->SetColTarget(col);
         pMin->SetCol(col);
@@ -334,7 +334,7 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
 
         auto pColon = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
         pColon->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNumCoron"));
-        pColon->SetTransform({ {20, 48, 0}, {0,0,0,0}, {baseX + 36 + TIMER_ADJUST, BASE_Y, 0} });
+        pColon->SetTransform({ {64, 64, 0}, {0,0,0,0}, {baseX + 36 + TIMER_ADJUST, BASE_Y, 0} });
         pColon->SetTransformTarget(pColon->GetTransform());
         pColon->SetColTarget(col);
         pColon->SetCol(col);
@@ -343,7 +343,7 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
         auto pSec10 = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
         int sec10_num = clamp_num(seconds / 10);
         pSec10->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNum" + std::to_string(sec10_num)));
-        pSec10->SetTransform({ {32, 48, 0}, {0,0,0,0}, {baseX + 60 + TIMER_ADJUST, BASE_Y, 0} });
+        pSec10->SetTransform({ {64, 64, 0}, {0,0,0,0}, {baseX + 60 + TIMER_ADJUST, BASE_Y, 0} });
         pSec10->SetTransformTarget(pSec10->GetTransform());
         pSec10->SetColTarget(col);
         pSec10->SetCol(col);
@@ -352,7 +352,7 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
         auto pSec1 = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
         int sec1_num = clamp_num(seconds % 10);
         pSec1->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultNum" + std::to_string(sec1_num)));
-        pSec1->SetTransform({ {32, 48, 0}, {0,0,0,0}, {baseX + 92 + TIMER_ADJUST, BASE_Y, 0} });
+        pSec1->SetTransform({ {64, 64, 0}, {0,0,0,0}, {baseX + 92 + TIMER_ADJUST, BASE_Y, 0} });
         pSec1->SetTransformTarget(pSec1->GetTransform());
         pSec1->SetColTarget(col);
         pSec1->SetCol(col);
@@ -562,6 +562,13 @@ void CSceneResult::Update()
     }
     break;
     case ANIM_PHASE::PLAYER_WAIT:
+        if (!m_kirakiraEffectCreated) 
+        {
+            CEffect::Create(CEffectManager::kirakira, { 21.0f, 1.0f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::kirakira, { 12.6f, 2.8f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::kirakira, { 6.5f, -0.8f, 0.0f }, {}, { 0.5f });
+            m_kirakiraEffectCreated = true;
+        }
         m_animTimer += deltaT;
         if (m_animTimer > 1.0f) {
             m_animPhase = ANIM_PHASE::SHOW_OTHERS;
