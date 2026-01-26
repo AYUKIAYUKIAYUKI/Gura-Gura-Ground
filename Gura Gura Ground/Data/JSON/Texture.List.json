@@ -241,6 +241,18 @@
       "Data\\TEXTURE\\Result\\BattleTime_Text.png"
     ],
     [
+      "ResultSceneSkipText",
+      "Data\\TEXTURE\\Result\\SceneSkip_Text.png"
+    ],
+    [
+      "ResultSceneTitleText",
+      "Data\\TEXTURE\\Result\\SceneTitle_Text.png"
+    ],
+    [
+      "Button_A",
+      "Data\\TEXTURE\\Button\\BTN_A.png"
+    ],
+    [
       "C3",
       "Data\\TEXTURE\\cnt3.png"
     ],

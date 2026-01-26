@@ -23,6 +23,7 @@
 
 #include "scene.title.h"
 #include <player.h>
+#include <enemy1.h>
 #include <effect.manager.h>
 
 extern size_t gConnectedHumanPlayerNum = {};
@@ -227,6 +228,7 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
         }
     }
 
+
     // プレイヤーとCPU全員分のUI生成
     for (size_t playerIdx = 0; playerIdx < playerCount; ++playerIdx)
     {
@@ -361,6 +363,61 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
         m_vvPlayerNumbers.push_back(vpNums);
     }
 
+    auto pSkipText = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+    pSkipText->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultSceneSkipText"));
+    OBJ::Transform SKIP_TEXT_TR = { {169, 44, 0}, {0,0,0,0}, {1825.0f, 1050.0f, 0} };
+    pSkipText->SetTransform(SKIP_TEXT_TR);
+    pSkipText->SetTransformTarget(SKIP_TEXT_TR);
+    DirectX::XMFLOAT4 skipCol = DirectX::XMFLOAT4(1, 1, 1, 0);
+    pSkipText->SetCol(skipCol);
+    pSkipText->SetColTarget(skipCol);
+    m_vpSkipTexts.push_back(pSkipText);
+    m_vSkipTextAlpha.push_back(0.0f);
+
+    auto pTitleText = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+    pTitleText->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("ResultSceneTitleText"));
+    OBJ::Transform TITLE_TEXT_TR = { {169, 44, 0}, {0,0,0,0}, {1825.0f, 1050.0f, 0} };
+    pTitleText->SetTransform(TITLE_TEXT_TR);
+    pTitleText->SetTransformTarget(TITLE_TEXT_TR);
+    DirectX::XMFLOAT4 titleCol = DirectX::XMFLOAT4(1, 1, 1, 0);
+    pTitleText->SetCol(titleCol);
+    pTitleText->SetColTarget(titleCol);
+    m_vpTitleTexts.push_back(pTitleText);
+    m_vTitleTextAlpha.push_back(0.0f);
+
+    float skipX = SKIP_TEXT_TR.Pos.x;
+    float skipY = SKIP_TEXT_TR.Pos.y;
+    float skipW = SKIP_TEXT_TR.Size.x;
+    float skipH = SKIP_TEXT_TR.Size.y;
+    float margin = 15.0f;
+    float buttonW = 44.0f;
+    float buttonH = 44.0f;
+
+    float buttonAX = skipX - skipW / 2.0f - margin - buttonW / 2.0f;
+    float buttonAY = skipY;
+    OBJ::Transform BUTTONA_TR = { {buttonW, buttonH, 0}, {0,0,0,0}, {buttonAX, buttonAY, 0} };
+
+    auto pButtonA = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+    pButtonA->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Button_A"));
+    pButtonA->SetTransform(BUTTONA_TR);
+    pButtonA->SetTransformTarget(BUTTONA_TR);
+    DirectX::XMFLOAT4 buttonCol = DirectX::XMFLOAT4(1, 1, 1, 0);
+    pButtonA->SetCol(buttonCol);
+    pButtonA->SetColTarget(buttonCol);
+    m_vpSkipButtonA.push_back(pButtonA);
+    m_vSkipButtonAAlpha.push_back(0.0f);
+
+    auto pTitleButtonA = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+    pTitleButtonA->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Button_A"));
+    pTitleButtonA->SetTransform(BUTTONA_TR);
+    pTitleButtonA->SetTransformTarget(BUTTONA_TR);
+    DirectX::XMFLOAT4 btnCol = DirectX::XMFLOAT4(1, 1, 1, 0);
+    pTitleButtonA->SetCol(btnCol);
+    pTitleButtonA->SetColTarget(btnCol);
+    m_vpTitleButtonA.push_back(pTitleButtonA);
+    m_vTitleButtonAAlpha.push_back(0.0f);
+
+
     m_animPhase = ANIM_PHASE::TITLE_MOVE;
 }
 
@@ -415,6 +472,15 @@ void CSceneResult::Update()
     }
 
     bool drawBeam = true;
+
+    if (m_animPhase != ANIM_PHASE::FINISHED)
+    {
+        if (CInputManager::RefInstance().EnhancedEnter())
+        {
+            ForceToFinished();
+            return; // それ以降のアニメフェーズごとの処理をスキップ
+        }
+    }
 
     if (m_pBackground)
     {
@@ -615,6 +681,93 @@ void CSceneResult::Update()
         break;
     }
 
+    // スキップテキストフェードイン
+    for (size_t i = 0; i < m_vpSkipTexts.size(); ++i)
+    {
+        CHud* pSkip = m_vpSkipTexts[i];
+        CHud* pButtonA = (i < m_vpSkipButtonA.size()) ? m_vpSkipButtonA[i] : nullptr;
+        if (!pSkip || !pButtonA) continue;
+
+        if (m_animPhase != ANIM_PHASE::FINISHED)
+        {
+            // 同じフェードイン値で管理しましょうか
+            float fadeRate = 10.0f;
+            m_vSkipTextAlpha[i] += fadeRate;
+            if (m_vSkipTextAlpha[i] > 255.0f) m_vSkipTextAlpha[i] = 255.0f;
+
+            float fadeAlpha = m_vSkipTextAlpha[i] / 255.0f;
+
+            DirectX::XMFLOAT4 skipCol = pSkip->GetColTarget();
+            skipCol.w = fadeAlpha;
+            pSkip->SetColTarget(skipCol);
+            pSkip->SetCol(skipCol);
+
+            DirectX::XMFLOAT4 btnCol = pButtonA->GetColTarget();
+            btnCol.w = fadeAlpha;
+            pButtonA->SetColTarget(btnCol);
+            pButtonA->SetCol(btnCol);
+        }
+        else
+        {
+            // 非表示
+            DirectX::XMFLOAT4 skipCol = pSkip->GetColTarget();
+            skipCol.w = 0.0f;
+            pSkip->SetColTarget(skipCol);
+            pSkip->SetCol(skipCol);
+            m_vSkipTextAlpha[i] = 0.0f;
+
+            DirectX::XMFLOAT4 btnCol = pButtonA->GetColTarget();
+            btnCol.w = 0.0f;
+            pButtonA->SetColTarget(btnCol);
+            pButtonA->SetCol(btnCol);
+        }
+    }
+
+    for (size_t i = 0; i < m_vpTitleTexts.size(); ++i)
+    {
+        CHud* pTitle = m_vpTitleTexts[i];
+        CHud* pButtonA = (i < m_vpTitleButtonA.size()) ? m_vpTitleButtonA[i] : nullptr;
+        if (!pTitle) continue;
+        // タイトルテキストのフェードイン
+        if (m_animPhase == ANIM_PHASE::FINISHED)
+        {
+            // タイトルテキスト
+            m_vTitleTextAlpha[i] += 10.0f;
+            if (m_vTitleTextAlpha[i] > 255.0f) m_vTitleTextAlpha[i] = 255.0f;
+            DirectX::XMFLOAT4 titleCol = pTitle->GetColTarget();
+            titleCol.w = m_vTitleTextAlpha[i] / 255.0f;
+            pTitle->SetColTarget(titleCol);
+            pTitle->SetCol(titleCol);
+
+            // タイトルAボタン
+            if (pButtonA) {
+                m_vTitleButtonAAlpha[i] += 10.0f;
+                if (m_vTitleButtonAAlpha[i] > 255.0f) m_vTitleButtonAAlpha[i] = 255.0f;
+                DirectX::XMFLOAT4 btnCol = pButtonA->GetColTarget();
+                btnCol.w = m_vTitleButtonAAlpha[i] / 255.0f;
+                pButtonA->SetColTarget(btnCol);
+                pButtonA->SetCol(btnCol);
+            }
+        }
+        else
+        {
+            DirectX::XMFLOAT4 titleCol = pTitle->GetColTarget();
+            titleCol.w = 0.0f;
+            pTitle->SetColTarget(titleCol);
+            pTitle->SetCol(titleCol);
+            m_vTitleTextAlpha[i] = 0.0f;
+
+            if (pButtonA) {
+                DirectX::XMFLOAT4 btnCol = pButtonA->GetColTarget();
+                btnCol.w = 0.0f;
+                pButtonA->SetColTarget(btnCol);
+                pButtonA->SetCol(btnCol);
+                m_vTitleButtonAAlpha[i] = 0.0f;
+            }
+        }
+    }
+
+    //ビームライトが出ていれば
     if (m_beamLightAppeared) {
         for (auto* beam : m_vpBeamLight) 
         {
@@ -626,6 +779,9 @@ void CSceneResult::Update()
     }
 }
 
+//============================================================================
+// シーン変更
+//============================================================================
 void CSceneResult::Change()
 {
     // 全オブジェクトに死亡フラグを立てる
@@ -636,6 +792,99 @@ void CSceneResult::Change()
 
     //生存時間を破棄
     CPlayer::ClearAllSurvivalTimes();
+    CEnemyPlayer::ClearAllCPUSurvivalTimes();
 
+    //タイトル画面に遷移
     CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+}
+
+//============================================================================
+// 演出スキップ時処理
+//============================================================================
+void CSceneResult::ForceToFinished()
+{
+    // pResultTitleをゴール位置に移動
+    if (m_resultTitleIdx >= 0 && m_resultTitleIdx < (int)m_vpNumbers.size()) {
+        auto pHud = m_vpNumbers[m_resultTitleIdx];
+        OBJ::Transform tr = pHud->GetTransform();
+        tr.Pos.y = m_resultTitleTargetPos.y;
+        pHud->SetTransform(tr);
+        pHud->SetTransformTarget(tr);
+    }
+
+
+    // 各HUDのアルファ値を最大にする
+    for (auto& pHud : m_vpPlayerLights)
+        if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = 1.0f; pHud->SetColTarget(col); pHud->SetCol(col); }
+    for (auto& pHud : m_vpPlayerIcons)
+        if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = 1.0f; pHud->SetColTarget(col); pHud->SetCol(col); }
+    for (auto& pHud : m_vpPlayerBattleTexts)
+        if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = 1.0f; pHud->SetColTarget(col); pHud->SetCol(col); }
+    for (auto& pHud : m_vpPlayerRankImgs)
+        if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = 1.0f; pHud->SetColTarget(col); pHud->SetCol(col); }
+    for (auto& vv : m_vvPlayerNumbers)
+        for (auto& pHud : vv)
+            if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = 1.0f; pHud->SetColTarget(col); pHud->SetCol(col); }
+    for (auto idx : m_playerTextIdxs)
+        if (idx >= 0 && idx < (int)m_vpPlayerTextImgs.size()) {
+            auto pHud = m_vpPlayerTextImgs[idx];
+            if (pHud) {
+                DirectX::XMFLOAT4 col = pHud->GetColTarget();
+                col.w = 1.0f;
+                pHud->SetColTarget(col);
+                pHud->SetCol(col);
+            }
+        }
+    if (m_winTextIdx >= 0 && m_winTextIdx < (int)m_vpPlayerIcons.size()) {
+        auto pHud = m_vpPlayerIcons[m_winTextIdx];
+        DirectX::XMFLOAT4 col = pHud->GetColTarget();
+        col.w = 1.0f;
+        pHud->SetColTarget(col);
+        pHud->SetCol(col);
+    }
+    m_winTextAlpha = 255.0f;
+    m_otherAlpha = 255.0f;
+    m_playerTextScale = 1.0f;
+    m_bgDarkRatio = 1.0f;
+
+    // カメラ座標もリセット
+    m_cameraHeight = 0.0f;
+    CCamera* pCamera = CRenderer::RefInstance().GetCamera();
+    if (pCamera) {
+        DirectX::XMFLOAT3 pos = pCamera->GetPos();
+        DirectX::XMFLOAT3 rot = pCamera->GetRot();
+        pos.x = 0.0f;
+        pos.y = 0.0f;
+        pos.z = 0.0f;
+        rot.x = 0.0f; rot.y = 0.0f; rot.z = 0.0f;
+        pCamera->SetPos(pos);
+        pCamera->SetRot(rot);
+    }
+
+    // kirakiraエフェクト生成
+    if (!m_kirakiraEffectCreated && m_animPhase < ANIM_PHASE::PLAYER_WAIT)
+    {
+        CEffect::Create(CEffectManager::kirakira, { 21.0f, 1.0f, 0.0f }, {}, { 0.5f });
+        CEffect::Create(CEffectManager::kirakira, { 12.6f, 2.8f, 0.0f }, {}, { 0.5f });
+        CEffect::Create(CEffectManager::kirakira, { 6.5f, -0.8f, 0.0f }, {}, { 0.5f });
+        m_kirakiraEffectCreated = true;
+    }
+
+    // ビームライト生成
+    if (!m_beamLightAppeared && m_animPhase < ANIM_PHASE::PLAYER_TEXT_SCALEUP) {
+        m_beamLightAppeared = true;
+        m_vpBeamLight.clear();
+        for (int i = 0; i < 3; ++i) {
+            float time = 5.0f + i;
+            DirectX::XMFLOAT2 pos = { 0.3f * (i == 0 ? 1 : i == 1 ? -1 : 0), 0.75f };
+            auto pBeam = CObjectManager::CreateRaw<CBeamLight>(OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
+            pBeam->SetPos(pos);
+            pBeam->SetTime(time);
+            pBeam->SetEnableTime(true);
+            m_vpBeamLight.push_back(pBeam);
+        }
+    }
+
+    // アニメフェーズをFINISHEDにする
+    m_animPhase = ANIM_PHASE::FINISHED;
 }

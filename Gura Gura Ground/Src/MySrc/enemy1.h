@@ -99,6 +99,8 @@ public: //自身に関する関数群
 	 * @param [in] 自身のポインター
 	 */
 	void searchEnemy(std::shared_ptr<CEnemyPlayer> pSelf);
+	//生存時間削除
+	static void ClearAllCPUSurvivalTimes() { std::fill(s_vSurvivalTimes.begin(), s_vSurvivalTimes.end(), 0.0f); }
 
 	static std::vector<float> s_vSurvivalTimes;
 	void   SetIdxCPU(unsigned char idx) { m_wIdxCPU = idx; }
