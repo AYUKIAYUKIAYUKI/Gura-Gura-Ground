@@ -230,9 +230,18 @@ void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX:
 			m_params.jumpcount = 0;
 		}
 
+
 		//範囲内
 		if (CheckCollision(targetPos, SelfPos, ShockWaveSize * 0.5f))
 		{
+			//重なって自分が上にいる時
+			if (SelfPos.y > targetPos.y)
+			{
+				// 真下にいる → ターゲットとして扱わない
+				MoveAtPlayer(angle+1.57f, 6.5f); //移動(目標向きを外側に明示的に修正)
+				return;                          //ジャンプループを防ぐ
+			}
+
 			++m_params.jumpcount;
 			Jump_Base();
 			ChangeState(ENEMY_STATE::STATE_IN_JUMP);

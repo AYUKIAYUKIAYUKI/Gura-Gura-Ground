@@ -302,8 +302,8 @@ void CSceneGame::SpawnField()
 	const float fSpanAdjust = 0.95f;
 
 	// 地面を生成
-	CObjectManager::CreateShare<CWindField>(
-		[&fSpanField, &fSpanAdjust](CWindField* p) -> bool
+	CObjectManager::CreateShare<CField>(
+		[&fSpanField, &fSpanAdjust](CField* p) -> bool
 		{
 			// トランスフォームの設定
 			p->SetTransform(

@@ -59,6 +59,8 @@ private: //構造体
 		float noiseangle;
 		float weightDistance = 2.0f;  //距離を最重要に
 		float weightApproach = 1.5f;  //接近度は強め
+		float minJumpDistance = 2.0f; // これ追加：これより近いとジャンプしない
+
 	};
 
 	//各状態のタイプ
@@ -263,6 +265,8 @@ private:
 	AIParams      m_params;                           //AIの基本パラメータ
 	int m_nStart;                                     //ゲーム開始の移動までのカウントを進める用
 	bool m_bStart;                                    //ゲーム開始時移動していいかどうか判断用
+	bool m_bInShockRangePrev = false;
+
 
 	//===================================================
 	//共通
