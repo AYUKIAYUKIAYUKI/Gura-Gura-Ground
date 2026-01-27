@@ -33,6 +33,7 @@ namespace
 	const int MAX_RECASTTIME_MOVE = 240;     //ゲーム開始時の移動までの時間
 	const int MAX_RECASTTIME_IN_BAR = 60;    //バーのリキャストタイムの最大値
 
+	const float MOVE_SPEED = 9.0f;
 	const float PREDICTION_TIME_DEF = 0.15f;  //デフォルトで足し合わせる未来視の時間
 	const float PREDICTION_TIME = 0.15f;      //乱数で出す未来視の最小大数
 	const float ShockWaveSize = 6.0f;         //衝撃波（ｘ。ｚ）の大きさ
@@ -234,21 +235,21 @@ void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX:
 		//範囲内
 		if (CheckCollision(targetPos, SelfPos, ShockWaveSize * 0.5f))
 		{
-			//重なって自分が上にいる時
-			if (SelfPos.y > targetPos.y)
-			{
-				// 真下にいる → ターゲットとして扱わない
-				MoveAtPlayer(angle+1.57f, 6.5f); //移動(目標向きを外側に明示的に修正)
-				return;                          //ジャンプループを防ぐ
-			}
+			float radius = RandomRange(1.57f, 3.14f);
 
+			if (CheckCollision(targetPos, SelfPos, ShockWaveSize * 0.2f))
+			{
+				MoveAtPlayer(angle + radius, MOVE_SPEED); //移動(目標向きを外側に明示的に修正)
+				return;                                   //ジャンプループを防ぐ
+			}
+		
 			++m_params.jumpcount;
 			Jump_Base();
 			ChangeState(ENEMY_STATE::STATE_IN_JUMP);
 		}
 		else
 		{
-			MoveAtPlayer(angle, 6.5f); //移動
+			MoveAtPlayer(angle, MOVE_SPEED); //移動
 		}
 	}
 }
