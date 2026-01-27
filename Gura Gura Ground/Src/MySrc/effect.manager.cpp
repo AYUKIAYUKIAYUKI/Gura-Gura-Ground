@@ -22,7 +22,7 @@ namespace {
         if(ImGui::Button("Instance"))CEffectManager::RefInstance();
         if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_LIGHTNING, {20.0f,0.0f,0.0f});
         ImGui::SameLine();
-        if (ImGui::Button("Water"))CEffect::Create(L"Data\\EFFECT\\Effect\\Fireworks.efkefc", { -20.0f,0.0f,0.0f },nullptr,1.0f);
+        if (ImGui::Button("Water"))CEffect::Create(L"Data\\EFFECT\\Effect\\kirakira.efkefc", { 0.0f,10.0f,0.0f },nullptr,1.0f);
 
         ImGui::Button("<");
         ImGui::SameLine();
@@ -68,7 +68,9 @@ void CEffect::Update()
     if (!m_bPlaying)return;
     Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
     Effekseer::Vector3D a = { m_pos.x,m_pos.y,m_pos.z };
+
     m_manager->SetLocation(m_handle, a);
+
     if(m_effects == nullptr)throw std::runtime_error("Effect is nullptr");
     if (!m_manager->Exists(m_handle))
     {
@@ -94,6 +96,25 @@ void CEffect::SetDeath()
     m_bPlaying = false;
 }
 
+//==========================================================================================
+//外部から速度変える処理
+//==========================================================================================
+void CEffect::SetSpeed(float value)
+{
+    Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
+    m_manager->SetSpeed(m_handle, value);
+}
+
+//==========================================================================================
+//外部から速度変える処理
+//==========================================================================================
+void CEffect::SetRotation(useful::Vec3 axis,float angle)
+{
+    Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
+    Effekseer::Vector3D EffAxis = { axis.x,axis.y,axis.z };
+
+    m_manager->SetRotation(m_handle, EffAxis, angle);
+}
 
 //==========================================================================================
 //生成処理

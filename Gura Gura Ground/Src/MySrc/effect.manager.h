@@ -76,18 +76,20 @@ public:
 	void Draw();		//描画
 
 	bool GetPlaying() { return m_bPlaying; }
-	int GetHandle() { return m_handle; }
+	int GetHandle() { return m_handle; }	//ハンドルを取得
+	void SetSpeed(float value);				//再生速度を変える関数
 	void SetDeath();
 
 	void SetLocation(useful::Vec3 pos) { m_pos = pos; }
+	void SetRotation(useful::Vec3 axis,float angle);
 
 	static CEffect* Create(const std::wstring& filename, useful::Vec3 pos,int* handle = nullptr,float sizevalue = 1.0f);	//ファイル名、座標、ハンドルのポインタ(任意)、拡大率(任意)
 	static CEffect* Create(CEffectManager::EFFECT_TAG tag, useful::Vec3 pos, int* handle = nullptr, float sizevalue = 1.0f);	//ファイル名、座標、ハンドルのポインタ(任意)、拡大率(任意)
 
 private:
 
-	bool m_bPlaying;
-	useful::Vec3 m_pos;
+	bool m_bPlaying;		//再生されているか否か
+	useful::Vec3 m_pos;		//位置
 
 	//エフェクシア側の変数
 	Effekseer::EffectRef m_effects;		//エフェクトのポインタ
