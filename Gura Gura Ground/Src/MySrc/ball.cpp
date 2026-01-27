@@ -73,6 +73,9 @@ CBall::CBall(OBJ::TYPE Type, OBJ::LAYER Layer)
 {
 	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Ball"));
+
+	// ピクセルシェーダーのバインド
+	SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
 }
 
 //============================================================================

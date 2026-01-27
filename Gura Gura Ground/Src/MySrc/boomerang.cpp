@@ -113,6 +113,9 @@ CBoomerang::CBoomerang(OBJ::TYPE Type, OBJ::LAYER Layer)
 {
     // モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Boomerang"));
+
+    // ピクセルシェーダーのバインド
+    SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
 }
 
 //============================================================================

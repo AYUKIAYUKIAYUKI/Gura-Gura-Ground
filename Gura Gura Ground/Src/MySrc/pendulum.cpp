@@ -136,6 +136,9 @@ CPendulum::CPendulum(OBJ::TYPE Type, OBJ::LAYER Layer)
 {
 	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Pendulum"));
+
+	// ピクセルシェーダーのバインド
+	SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
 }
 
 //============================================================================
