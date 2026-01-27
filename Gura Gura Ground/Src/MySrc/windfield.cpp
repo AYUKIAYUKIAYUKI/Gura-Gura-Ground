@@ -35,7 +35,7 @@ namespace
 	btVector3 INIT = { 0.0f, 0.0f, 0.0f };                    //btVector3用初期化マクロ
 	btVector3 INIT_PLYER_VELOCITY = { 0.0f, 1.144f, 0.0f };   //ゲーム開始時のプレイヤーの初期加速値を疑似的に設定
 	const float ANGLE = (float)std::numbers::pi*0.5f;         //右から始まるよ
-	const float AIR_SPEED = 0.65f;                            //空中時の風の強さ調整値(ある程度の速度を残しつつ即死を防ぐ)
+	const float AIR_SPEED = 0.55f;                            //空中時の風の強さ調整値(ある程度の速度を残しつつ即死を防ぐ)
 
 	int PLAYER_SIZE; //プレイヤーの人数
 	int CPU_SIZE;    //CPUの人数
@@ -51,9 +51,9 @@ using namespace useful;
 //============================================================================
 CWindField::CWindField(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CPhysicsModel(Type, Layer)
-	, m_WindowAngle(ANGLE), m_SaverCurrentVel(INIT_PLYER_VELOCITY)
+	, m_WindowRotationAngle(ANGLE), m_SaverCurrentVel(INIT_PLYER_VELOCITY)
 {
-	// モデルのバインド
+	// モデルのバインド	
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Field"));
 
 	// モデルオフセットの設定
@@ -292,15 +292,15 @@ void CWindField::Window()
 			m_Parameter.m_IsBlowing = true; //風を吹かせる
 
 			//m_Parameter.m_WindAngle = RandomRange(-(float)std::numbers::pi, (float)std::numbers::pi); //風の向き
-			m_Parameter.m_WindAngle = m_WindowAngle; //風の向き
-			m_Parameter.m_WindSpeed = 0.9f;          //風の強さ
+			m_Parameter.m_WindAngle = m_WindowRotationAngle; //風の向き
+			m_Parameter.m_WindSpeed = 0.9f;                  //風の強さ
 
 			//念のため一周したら初期化(右回り時のif分)
-			if (m_WindowAngle >= ANGLE * 4.0f)
+			if (m_WindowRotationAngle >= ANGLE * 4.0f)
 			{
-				m_WindowAngle = 0.0f;
+				m_WindowRotationAngle = 0.0f;
 			}
-			m_WindowAngle += ANGLE; //向きを加算
+			m_WindowRotationAngle += ANGLE; //向きを加算
 		}
 	}
 }

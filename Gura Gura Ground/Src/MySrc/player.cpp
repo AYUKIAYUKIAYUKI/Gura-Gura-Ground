@@ -17,6 +17,7 @@
 #include "API.collision.h"
 #include "field.h"
 #include "shockwave.h"
+#include "windfield.h"
 
 // 装飾用
 #include "dust.h"
@@ -547,6 +548,7 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 
 	// フィールドの弱参照を設定
 	m_wpField = std::dynamic_pointer_cast<CField>(rFieldList.front());
+	m_wpWindoField = std::dynamic_pointer_cast<CWindField>(rFieldList.front());
 
 	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
@@ -732,6 +734,12 @@ void CPlayer::CheckDeath()
 	if (std::shared_ptr<CField> spField = m_wpField.lock())
 	{
 		fFieldPosY = spField->GetTransform().Pos.y;
+	}
+
+	// 風フィールドの高さを取得
+	else if (std::shared_ptr<CWindField> spField1 = m_wpWindoField.lock())
+	{
+		fFieldPosY = spField1->GetTransform().Pos.y;
 	}
 
 	// Y座標がフィールドの高さを下回ったら

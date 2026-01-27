@@ -158,7 +158,7 @@ private:
 	Parameter m_Parameter;       //基本パラメータ
 	btVector3 m_SaverCurrentVel; //取得した加速値を保存する用
 
-	float m_WindowAngle;
+	float m_WindowRotationAngle; //循環する風の角度を補完するよう(直接代入でもいいかも)
 
 	std::vector<std::weak_ptr<CPlayer>>m_pwPlayer;           //プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
 	std::vector<std::weak_ptr<CEnemyPlayer>>m_pwEnemyPlayer; //敵プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
