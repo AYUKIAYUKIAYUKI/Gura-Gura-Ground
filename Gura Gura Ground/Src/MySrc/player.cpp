@@ -235,7 +235,7 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 			// —Í‚ð‰Á‚¦‚é 
 			if (pRigidBody->GetActive())
 			{
-				pRigidBody->SetForce(MoveDir * fSpeedArg);
+				pRigidBody->SetForce(MoveDir * fSpeed);
 			}
 			else
 			{
@@ -579,7 +579,7 @@ void CPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	pRigidBody->SetFriction(1.0f);
 
 	// Œ¸Š—Í‚ðÝ’è
-	pRigidBody->SetDamping(0.25f, 0.0f);
+	pRigidBody->SetDamping(0.3f, 0.0f);
 
 	// YŽ²ˆÈŠO‚Ì‰ñ“]‚ðƒƒbƒN
 	pRigidBody->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
