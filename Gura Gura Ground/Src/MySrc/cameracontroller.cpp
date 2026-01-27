@@ -14,6 +14,7 @@
 #include "player.h"
 #include "API.object.manager.h"
 #include "obstacle.h"
+#include "field.h"
 
 /* 追加 */
 #include "enemy1.h"
@@ -189,20 +190,24 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 	{
 		auto Player = ite.lock();
 
-		if (Count == 0)
+		// フィールド内にいるかチェック
+		if (InRange(Player.get()->GetTransform().Pos))
 		{
-			MinPlayersPos = Player->GetTransform().Pos;
-			MaxPlayersPos = Player->GetTransform().Pos;
+			if (Count == 0)
+			{
+				MinPlayersPos = Player->GetTransform().Pos;
+				MaxPlayersPos = Player->GetTransform().Pos;
+			}
+
+			// X座標の最小最大
+			MaxPlayersPos.x = max(MaxPlayersPos.x, Player->GetTransform().Pos.x);
+			MinPlayersPos.x = min(MinPlayersPos.x, Player->GetTransform().Pos.x);
+
+			// Z座標の最小最大
+			MaxPlayersPos.z = max(MaxPlayersPos.z, Player->GetTransform().Pos.z);
+			MinPlayersPos.z = min(MinPlayersPos.z, Player->GetTransform().Pos.z);
 		}
-
-		// X座標の最小最大
-		MaxPlayersPos.x = max(MaxPlayersPos.x, Player->GetTransform().Pos.x);
-		MinPlayersPos.x = min(MinPlayersPos.x, Player->GetTransform().Pos.x);
 		
-		// Z座標の最小最大
-		MaxPlayersPos.z = max(MaxPlayersPos.z, Player->GetTransform().Pos.z);
-		MinPlayersPos.z = min(MinPlayersPos.z, Player->GetTransform().Pos.z);
-
 		Count++;
 	}
 
@@ -212,13 +217,17 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 		/* CPUが存在すれば */
 		if (std::shared_ptr<CEnemyPlayer> spCPU = rIt.lock())
 		{
-			/* X座標の最小最大 */
-			MaxPlayersPos.x = max(MaxPlayersPos.x, spCPU->GetTransform().Pos.x);
-			MinPlayersPos.x = min(MinPlayersPos.x, spCPU->GetTransform().Pos.x);
+			// フィールド内にいるかチェック
+			if (InRange(spCPU.get()->GetTransform().Pos))
+			{
+				/* X座標の最小最大 */
+				MaxPlayersPos.x = max(MaxPlayersPos.x, spCPU->GetTransform().Pos.x);
+				MinPlayersPos.x = min(MinPlayersPos.x, spCPU->GetTransform().Pos.x);
 
-			/* Z座標の最小最大 */
-			MaxPlayersPos.z = max(MaxPlayersPos.z, spCPU->GetTransform().Pos.z);
-			MinPlayersPos.z = min(MinPlayersPos.z, spCPU->GetTransform().Pos.z);
+				/* Z座標の最小最大 */
+				MaxPlayersPos.z = max(MaxPlayersPos.z, spCPU->GetTransform().Pos.z);
+				MinPlayersPos.z = min(MinPlayersPos.z, spCPU->GetTransform().Pos.z);
+			}
 		}
 	}
 
@@ -230,13 +239,17 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 			continue;
 		}
 
-		// X座標の最小最大
-		MaxPlayersPos.x = max(MaxPlayersPos.x, ite->GetTransform().Pos.x);
-		MinPlayersPos.x = min(MinPlayersPos.x, ite->GetTransform().Pos.x);
+		// フィールド内にいるかチェック
+		if (InRange(ite->GetTransform().Pos))
+		{
+			// X座標の最小最大
+			MaxPlayersPos.x = max(MaxPlayersPos.x, ite->GetTransform().Pos.x);
+			MinPlayersPos.x = min(MinPlayersPos.x, ite->GetTransform().Pos.x);
 
-		// Z座標の最小最大
-		MaxPlayersPos.z = max(MaxPlayersPos.z, ite->GetTransform().Pos.z);
-		MinPlayersPos.z = min(MinPlayersPos.z, ite->GetTransform().Pos.z);
+			// Z座標の最小最大
+			MaxPlayersPos.z = max(MaxPlayersPos.z, ite->GetTransform().Pos.z);
+			MinPlayersPos.z = min(MinPlayersPos.z, ite->GetTransform().Pos.z);
+		}
 	}
 
 	// 位置を設定
@@ -258,6 +271,7 @@ void CCameraController::GetObstacles()
 		CObstacle* Obstacle = dynamic_cast<CObstacle*>(ite);
 
 		m_Obstacles.push_back(Obstacle);
+
 	}
 
 	for (auto ite : ListShare)
@@ -342,4 +356,29 @@ void CCameraController::RemoveExpiredPlayers()
 
 	// 条件にあうものを削除
 	m_Players.erase(newEnd, m_Players.end());
+}
+
+//============================================================================
+// 範囲内にいるか
+//============================================================================
+bool CCameraController::InRange(DirectX::XMFLOAT3 pos)
+{
+	// 地面を取得
+	auto ListShare = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
+
+	CField* Field = dynamic_cast<CField*>(ListShare.front().get());
+	
+	const float fSpanField = 15.0f;					// 地面の大きさ
+	const float Range = 0.0f;						// 範囲
+	const auto fieldPos = Field->GetTransform().Pos;// 地面の位置
+
+	if (pos.x >= fieldPos.x + fSpanField + Range||
+		pos.x <= fieldPos.x - fSpanField - Range||
+		pos.z >= fieldPos.z + fSpanField + Range||
+		pos.z <= fieldPos.z - fSpanField - Range)
+	{
+		return false;
+	}
+
+	return true;
 }
