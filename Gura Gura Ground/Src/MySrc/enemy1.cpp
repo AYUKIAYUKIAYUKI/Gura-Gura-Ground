@@ -50,6 +50,7 @@ using namespace useful;
 
 #include "API.gltf.manager.h"
 #include <shadow.h>
+#include <field.h>
 
 //======================================
 //コンストラクタ
@@ -66,6 +67,11 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsModel(Type
 	m_params.predictionTime = PREDICTION_TIME_DEF +RandomRange(0.0f, PREDICTION_TIME); //ある程度の値の大きさを持たせる	
 	m_params.noiseangle= RandomSplit(0.15f, 0.25f);                                    //角度の調整値
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));             // モデルのバインド
+
+	// シェアポインタのオブジェクトリストの参照
+	const std::list<std::shared_ptr<CObject>>& rFieldList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
+	// フィールドの弱参照を設定
+	m_wpField = std::dynamic_pointer_cast<CField>(rFieldList.front());
 }
 
 //======================================
@@ -432,40 +438,64 @@ void CEnemyPlayer::MoveAtPlayer(const float Angle, const float speed)
 	//const float fSpeed = fSpeedArg;
 	btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
+	// ★★★ プレイヤーが保持しているフィールド参照から、現在のフィールドタイプを判定する ★★★
+	CField* pField =GetCurrentField();
+	bool bIce = (pField && pField->GetFieldType() == FIELD_TYPE::ICE);
+
+
 	// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
 	MoveDir.setX(sinf(fDirectionValue));
 	MoveDir.setZ(cosf(fDirectionValue));
 
-	// 目標の加速度作成
-	const btVector3& TargetVel = MoveDir * speed;
-
-	/* ああ…btVector3をXMFLOAT3に変換 */
-	DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
-	DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
-
-	/* ああ…要素ずつ指数減衰 */
-	float fCoef = 0.25f;
-
-	////何かしらのデバフが有効なら慣性に倍率を掛ける
-	//if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
-	//	float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
-	//	fCoef *= Inertia;
-	//}
-	useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
-	useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
-
-	/* ああ…XMFLOAT3の減衰結果をbtVector3に変換 */
-	btVector3 ResultVel = { CurrentVel_XMFLOAT.x, rCurrentVel.getY(), CurrentVel_XMFLOAT.z };
-
-	/* 接地しているかどうか (便宜的にシェアポインタのリジッドボディに接触しているか) に応じて速度の加え方を変更 */
-	pRigidBody->SetActive();
-	if (Collision::CheckHitToRigidBodyShare(pRigidBody))
+	// ★★★ フィールドタイプに応じて移動処理を切り替える（ICE → #if1、NORMAL → #else） ★★★
+	if (bIce)
 	{
-		pRigidBody->SetLinearVelocity(ResultVel);
+		// 力を加える 
+		if (pRigidBody->GetActive())
+		{
+			pRigidBody->SetForce(MoveDir * speed);
+		}
+		else
+		{
+			pRigidBody->SetActive();
+			pRigidBody->SetLinearVelocity(MoveDir);
+		}
 	}
 	else
 	{
-		pRigidBody->SetForce((ResultVel - rCurrentVel) * 10.0f);
+		MoveDir.setY(rCurrentVel.getY());
+
+		// 目標の加速度作成
+		const btVector3& TargetVel = MoveDir * speed;
+
+		/* ああ…btVector3をXMFLOAT3に変換 */
+		DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
+		DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
+
+		/* ああ…要素ずつ指数減衰 */
+		float fCoef = 0.25f;
+
+		////何かしらのデバフが有効なら慣性に倍率を掛ける
+		//if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
+		//	float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
+		//	fCoef *= Inertia;
+		//}
+		useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
+		useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
+
+		/* ああ…XMFLOAT3の減衰結果をbtVector3に変換 */
+		btVector3 ResultVel = { CurrentVel_XMFLOAT.x, rCurrentVel.getY(), CurrentVel_XMFLOAT.z };
+
+		/* 接地しているかどうか (便宜的にシェアポインタのリジッドボディに接触しているか) に応じて速度の加え方を変更 */
+		pRigidBody->SetActive();
+		if (Collision::CheckHitToRigidBodyShare(pRigidBody))
+		{
+			pRigidBody->SetLinearVelocity(ResultVel);
+		}
+		else
+		{
+			pRigidBody->SetForce((ResultVel - rCurrentVel) * 10.0f);
+		}
 	}
 }
 

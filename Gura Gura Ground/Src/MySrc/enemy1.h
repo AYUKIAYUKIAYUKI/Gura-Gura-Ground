@@ -27,6 +27,7 @@
 class CPlayer;
 class CShockWave;
 class CBar;
+class CField;
 
 
 //===================================================
@@ -250,8 +251,13 @@ private: //その他
 	void State_Base_Search(); //敵（自身）とプレイヤーのベース（当たった時など）
 	void State_Base_Bar();    //バーベース
 
+	// ★ 今乗っているフィールドを取得
+	CField* GetCurrentField() const
+	{
+		return m_wpField.lock().get();
+	}
 private:
-
+	std::weak_ptr<CField>         m_wpField;              // 地面
 	//===================================================
 	//プレイヤー参照変数
 	CShockWave* m_pShockWave;                         // 衝撃波
