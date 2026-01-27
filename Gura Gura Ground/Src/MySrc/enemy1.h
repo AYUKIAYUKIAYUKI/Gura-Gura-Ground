@@ -28,6 +28,7 @@ class CPlayer;
 class CShockWave;
 class CBar;
 class CField;
+class CWindField;
 
 
 //===================================================
@@ -258,6 +259,7 @@ private: //その他
 	}
 private:
 	std::weak_ptr<CField>         m_wpField;              // 地面
+	std::weak_ptr<CWindField>     m_wpWindoField;         // 風地面
 	//===================================================
 	//プレイヤー参照変数
 	CShockWave* m_pShockWave;                         // 衝撃波

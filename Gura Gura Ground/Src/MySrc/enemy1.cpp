@@ -51,6 +51,8 @@ using namespace useful;
 #include "API.gltf.manager.h"
 #include <shadow.h>
 #include <field.h>
+#include <windfield.h>
+#include <effect.manager.h>
 
 //======================================
 //コンストラクタ
@@ -70,8 +72,10 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsModel(Type
 
 	// シェアポインタのオブジェクトリストの参照
 	const std::list<std::shared_ptr<CObject>>& rFieldList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
+
 	// フィールドの弱参照を設定
 	m_wpField = std::dynamic_pointer_cast<CField>(rFieldList.front());
+	m_wpWindoField = std::dynamic_pointer_cast<CWindField>(rFieldList.front());
 }
 
 //======================================
@@ -100,20 +104,23 @@ void CEnemyPlayer::searchEnemy(std::shared_ptr<CEnemyPlayer>pSelf)
 //============================================================================
 void CEnemyPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
-	// 自身の用のリジッドボディの生成
+	// 自身のリジッドボディの作成
 	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
 
 	// コライダーをリジッドボディにキャスト
-	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
+	const CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(GetCollider());
 
 	// 重力の設定
-	pRB->SetGravity({ 0.0f, -25.0f, 0.0f });
+	pRigidBody->SetGravity({ 0.0f, -25.0f, 0.0f });
 
 	// 摩擦力を設定
-	pRB->SetFriction(1.0f);
+	pRigidBody->SetFriction(1.0f);
+
+	// 減衰力を設定
+	pRigidBody->SetDamping(0.25f, 0.0f);
 
 	// Y軸以外の回転をロック
-	pRB->SetAngularFactor(INIT);
+	pRigidBody->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
 
 	// 影の作成
 	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(
@@ -241,11 +248,9 @@ void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX:
 		//範囲内
 		if (CheckCollision(targetPos, SelfPos, ShockWaveSize * 0.5f))
 		{
-			float radius = RandomRange(1.57f, 3.14f);
-
-			if (CheckCollision(targetPos, SelfPos, ShockWaveSize * 0.2f))
+			if (SelfPos.y > targetPos.y)
 			{
-				MoveAtPlayer(angle + radius, MOVE_SPEED); //移動(目標向きを外側に明示的に修正)
+				MoveAtPlayer(angle + 1.57f, MOVE_SPEED); //移動(目標向きを外側に明示的に修正)
 				return;                                   //ジャンプループを防ぐ
 			}
 		
@@ -652,15 +657,27 @@ void CEnemyPlayer::CheckInfo()
 	//======================================
 	//自身の削除処理（プレイヤーと同じ条件）
 
-	// コライダーをリジッドボディにキャスト
-	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
+	// トランスフォームから高さを取得
+	float fSelfPosY = GetTransform().Pos.y;
 
-	// ワールドトランスフォームから位置を取得
-	const DirectX::XMFLOAT3& Pos = pRB->GetWorldTransform().Pos;
+	// フィールドの高さを保有
+	float fFieldPosY = 0.0f;
 
-	if (Pos.y < 3.0f)
+	// フィールドの高さを取得
+	if (std::shared_ptr<CField> spField = m_wpField.lock())
 	{
-		// 自身の死亡フラグを立てる
+		fFieldPosY = spField->GetTransform().Pos.y;
+	}
+
+	// 風フィールドの高さを取得
+	else if (std::shared_ptr<CWindField> spField1 = m_wpWindoField.lock())
+	{
+		fFieldPosY = spField1->GetTransform().Pos.y;
+	}
+
+	// Y座標がフィールドの高さを下回ったら
+	if (fSelfPosY < fFieldPosY)
+	{
 		SetDeath();
 	}
 }
@@ -689,6 +706,9 @@ void CEnemyPlayer::Jump_Base()
 //============================================================================
 void CEnemyPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
 {
+	useful::Vec3 EffectVec3 = {GetTransform().Pos.x,6.25f,GetTransform().Pos.z };
+	CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
+
 	// 衝撃波の作成と、弱参照の設定
 	const std::shared_ptr<CShockWave>& spShockWave = CObjectManager::CreateShare<CShockWave>
 		(
