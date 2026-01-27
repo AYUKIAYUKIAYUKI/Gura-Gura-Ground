@@ -243,7 +243,8 @@ void CPendulum::Action()
 	{
 		if (!m_hasPlayedNearCenter)
 		{
-			CSoundManger::RefInstance().Play("Pendulum", false, -0.5f, 1.0f);
+			// 効果音：振り子
+			CSoundManger::RefInstance().Play("Pendulum", false, -0.5f, 0.2f);
 			m_hasPlayedNearCenter = true;
 		}
 	}

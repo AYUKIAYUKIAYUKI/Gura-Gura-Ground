@@ -13,6 +13,15 @@
 #include "API.physics.model.h"
 
 //****************************************************
+// フィールドタイプ
+//****************************************************
+enum class FIELD_TYPE
+{
+	NORMAL,
+	ICE,
+};
+
+//****************************************************
 // フィールドクラスの定義
 //****************************************************
 class CField : public CPhysicsModel
@@ -37,4 +46,12 @@ public:
 
 	// 描画処理
 	void Draw() override;
+
+	// ★ フィールドタイプ取得
+	FIELD_TYPE GetFieldType() const { return m_FieldType; }
+
+protected:
+
+	// ★ フィールドタイプ（NORMAL / ICE）
+	FIELD_TYPE m_FieldType = FIELD_TYPE::NORMAL;
 };

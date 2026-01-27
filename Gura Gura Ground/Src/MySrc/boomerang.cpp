@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "boomerang.h"
+#include "API.sound.manager.h"
 
 // 物理挙動作成のため
 #include "API.world.h"
@@ -33,7 +34,7 @@ namespace
     float g_fFieldHalf = g_fFieldSpan * 0.5f;
 
     // 高さ
-    float g_fBoomerangY = 9.0f; 
+    float g_fBoomerangY = 9.0f;
 
     // ブーメランパラメータ
     namespace BoomerangParams
@@ -41,6 +42,9 @@ namespace
         // ================================
         // --- ブーメランの軌道パラメータ ---
         // ================================
+
+        // 速度
+        const float Omega = 1.0;
 
         // 半径（弧の大きさ）
         const float Radius = g_fFieldSpan * 0.8f;
@@ -59,6 +63,22 @@ namespace
         // 擬似速度の上限（安全装置）
         const float MaxSpeed = 20.0f;
 
+        // ヒット後のクールタイム
+        const int HitCooldown = 10;
+
+
+        // ================================
+        // --- 吹っ飛びパワー調整 ---
+        // ================================
+
+        // 基本吹っ飛びパワー
+        const float BasePower = 20.0f;
+
+        // 速度依存の加算パワー
+        const float AddBySpeed = 80.0f;
+
+        // 最終的な吹っ飛びパワーの上限
+        const float MaxFinalPower = 350.0f;
     }
 
     // 位置表示
@@ -111,6 +131,9 @@ void CBoomerang::FactoryCollider(float fWidth, float fHeight, float fDepth)
     rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
     rb->setActivationState(DISABLE_DEACTIVATION);
     rb->setGravity(btVector3(0, 0, 0));
+
+    // 効果音：ブーメラン
+    CSoundManger::RefInstance().Play("Boomerang", false, -0.5f, 0.2f);
 
     Appear();
 }
@@ -254,7 +277,7 @@ void CBoomerang::Loop()
     if (!m_pRB) return;
 
     // 1回の弧で必要な時間 = ArcAngle / Omega
-    const float fullTime = BoomerangParams::ArcAngle / m_Omega;
+    const float fullTime = BoomerangParams::ArcAngle / BoomerangParams::Omega;
 
     OBJ::Transform TF{};
     m_pRB->GetWorldTransform(TF);
@@ -263,7 +286,9 @@ void CBoomerang::Loop()
     {
         m_Time = 0.0f;
 
-        // 削除
+        // 効果音：ブーメラン
+        //CSoundManger::RefInstance().Stop("Boomerang");
+
         SetDeath();
 
         //CDust::GenerateSpread(TF.Pos, 10);
@@ -350,10 +375,10 @@ void CBoomerang::CheckHitPlayer()
         // パワー計算
         float t = speed / BoomerangParams::MaxSpeed;
 
-        float power = m_BasePower
-            + m_AddBySpeed * t;
+        float power = BoomerangParams::BasePower
+            + BoomerangParams::AddBySpeed * t;
 
-        power = std::clamp(power, 0.0f, m_MaxFinalPower);
+        power = std::clamp(power, 0.0f, BoomerangParams::MaxFinalPower);
 
         // 少し浮かせる
         {
