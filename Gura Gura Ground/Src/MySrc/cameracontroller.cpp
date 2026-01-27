@@ -190,6 +190,7 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 	{
 		auto Player = ite.lock();
 
+		// フィールド内にいるかチェック
 		if (InRange(Player.get()->GetTransform().Pos))
 		{
 			if (Count == 0)
@@ -216,6 +217,7 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 		/* CPUが存在すれば */
 		if (std::shared_ptr<CEnemyPlayer> spCPU = rIt.lock())
 		{
+			// フィールド内にいるかチェック
 			if (InRange(spCPU.get()->GetTransform().Pos))
 			{
 				/* X座標の最小最大 */
@@ -237,6 +239,7 @@ void CCameraController::GetPlayersAndObstaclesBounds(DirectX::XMFLOAT3& min, Dir
 			continue;
 		}
 
+		// フィールド内にいるかチェック
 		if (InRange(ite->GetTransform().Pos))
 		{
 			// X座標の最小最大
@@ -363,20 +366,16 @@ bool CCameraController::InRange(DirectX::XMFLOAT3 pos)
 	// 地面を取得
 	auto ListShare = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
 
-	CField* Field = nullptr;
-
-	for (auto ite : ListShare)
-	{
-		Field = dynamic_cast<CField*>(ite.get());
-	}
+	CField* Field = dynamic_cast<CField*>(ListShare.front().get());
 	
-	const float fSpanField = 15.0f;	// 地面の大きさ
-	const float Range = 0.0f;		// 範囲
+	const float fSpanField = 15.0f;					// 地面の大きさ
+	const float Range = 0.0f;						// 範囲
+	const auto fieldPos = Field->GetTransform().Pos;// 地面の位置
 
-	if (pos.x >= Field->GetTransform().Pos.x + fSpanField + Range
-		|| pos.x <= Field->GetTransform().Pos.x - fSpanField - Range
-		|| pos.z >= Field->GetTransform().Pos.z + fSpanField + Range
-		|| pos.z <= Field->GetTransform().Pos.z - fSpanField - Range)
+	if (pos.x >= fieldPos.x + fSpanField + Range||
+		pos.x <= fieldPos.x - fSpanField - Range||
+		pos.z >= fieldPos.z + fSpanField + Range||
+		pos.z <= fieldPos.z - fSpanField - Range)
 	{
 		return false;
 	}
