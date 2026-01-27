@@ -19,6 +19,22 @@
     [
       "Bar",
       "Data\\MODEL\\GLB\\Stick\\stick.glb"
+    ],
+    [
+      "Player_1",
+      "Data\\MODEL\\GLB\\Player\\Player_Red.glb"
+    ],
+    [
+      "Player_2",
+      "Data\\MODEL\\GLB\\Player\\Player_Blue.glb"
+    ],
+    [
+      "Player_3",
+      "Data\\MODEL\\GLB\\Player\\Player_Yellow.glb"
+    ],
+    [
+      "Player_4",
+      "Data\\MODEL\\GLB\\Player\\Player_Green.glb"
     ]
   ]
 }

@@ -584,7 +584,7 @@ void CSceneResult::Update()
             m_spTestModel = CObjectManager::CreateShare<CPhysicsModel>(
                 [](CPhysicsModel* p) -> bool
                 {
-                    p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+                    p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
                     OBJ::Transform tf;
                     tf.Pos = { -12.0f, 0.0f, 0.0f };
                     tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -917,7 +917,7 @@ void CSceneResult::ForceToFinished()
         m_spTestModel = CObjectManager::CreateShare<CPhysicsModel>(
             [](CPhysicsModel* p) -> bool
             {
-                p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+                p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
                 OBJ::Transform tf;
                 tf.Pos = { -12.0f, 0.0f, 0.0f };
                 tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };

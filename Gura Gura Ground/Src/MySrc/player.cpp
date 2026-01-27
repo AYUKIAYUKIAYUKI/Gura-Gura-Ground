@@ -549,7 +549,7 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 	m_wpField = std::dynamic_pointer_cast<CField>(rFieldList.front());
 
 	// モデルのバインド
-	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
 }
 
 //============================================================================
