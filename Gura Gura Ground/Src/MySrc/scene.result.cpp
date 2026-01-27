@@ -142,11 +142,11 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
         if ((int)m_playerSurvivalTimes[i] > maxTimeInt)
             maxTimeInt = (int)m_playerSurvivalTimes[i];
     }
-    std::vector<int> winners;
+
     for (size_t i = 0; i < playerCount; ++i)
     {
         if ((int)m_playerSurvivalTimes[i] == maxTimeInt) {
-            winners.push_back((int)i);
+            m_winners.push_back((int)i);
         }
     }
 
@@ -160,10 +160,9 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
     const float PLAYER_TXT_BASE_Y = SINGLE_WIN_IMG_Y;
     const float IMAGE_SPACING = 26.0f;
 
-    // 勝者TextPlayer00X 初期化
-    if (winners.size() == 1)
+    if (m_winners.size() == 1)
     {
-        int winnerIndex = winners[0];
+        int winnerIndex = m_winners[0];
         bool isHumanWinner = (winnerIndex < m_nHumanPlayerNum);
         int dispIdx = isHumanWinner ? (winnerIndex + 1) : (winnerIndex + 1 - m_nHumanPlayerNum);
         std::string textPlayerTex = isHumanWinner
@@ -184,12 +183,12 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
         m_playerTextIdxs.push_back(m_vpPlayerTextImgs.size());
         m_vpPlayerTextImgs.push_back(pText);
     }
-    else if (winners.size() > 1)
+    else if (m_winners.size() > 1)
     {
-        float totalH = winners.size() * HALF_WIN_IMG_H + (winners.size() - 1) * IMAGE_SPACING;
+        float totalH = m_winners.size() * HALF_WIN_IMG_H + (m_winners.size() - 1) * IMAGE_SPACING;
         float topY = PLAYER_TXT_BASE_Y - (totalH * 0.5f) + (HALF_WIN_IMG_H * 0.5f);
-        for (size_t k = 0; k < winners.size(); ++k) {
-            int winnerIndex = winners[k];
+        for (size_t k = 0; k < m_winners.size(); ++k) {
+            int winnerIndex = m_winners[k];
             bool isHumanWinner = (winnerIndex < m_nHumanPlayerNum);
             int dispIdx = isHumanWinner ? (winnerIndex + 1) : (winnerIndex + 1 - m_nHumanPlayerNum);
             std::string textPlayerTex = isHumanWinner
@@ -633,15 +632,29 @@ void CSceneResult::Update()
     }
     break;
     case ANIM_PHASE::PLAYER_WAIT:
+
         if (!m_kirakiraEffectCreated) 
         {
-            CEffect::Create(CEffectManager::kirakira, { 21.0f, 1.0f, 0.0f }, {}, { 0.5f });
-            CEffect::Create(CEffectManager::kirakira, { 12.6f, 2.8f, 0.0f }, {}, { 0.5f });
-            CEffect::Create(CEffectManager::kirakira, { 6.5f, -0.8f, 0.0f }, {}, { 0.5f });
+            if (m_winners.size() == 1)
+            {
+                CEffect::Create(CEffectManager::kirakira, { 21.0f, 1.0f, 0.0f }, {}, { 0.5f });
+                CEffect::Create(CEffectManager::kirakira, { 12.6f, 2.8f, 0.0f }, {}, { 0.5f });
+                CEffect::Create(CEffectManager::kirakira, { 6.5f, -0.8f, 0.0f }, {}, { 0.5f });
+            }
+
+            else if (m_winners.size() > 1)
+            {
+                CEffect::Create(CEffectManager::kirakira, { 17.8f, 1.0f, 0.0f }, {}, { 0.5f });
+                CEffect::Create(CEffectManager::kirakira, { 12.6f, 3.4f, 0.0f }, {}, { 0.5f });
+                CEffect::Create(CEffectManager::kirakira, { 10.5f, -0.8f, 0.0f }, {}, { 0.5f });
+            }
             m_kirakiraEffectCreated = true;
         }
+
         m_animTimer += deltaT;
-        if (m_animTimer > 1.0f) {
+
+        if (m_animTimer > 1.0f) 
+        {
             m_animPhase = ANIM_PHASE::SHOW_OTHERS;
             m_otherAlpha = 0.0f;
         }
@@ -817,7 +830,6 @@ void CSceneResult::ForceToFinished()
         pHud->SetTransformTarget(tr);
     }
 
-
     // 各HUDのアルファ値を最大にする
     for (auto& pHud : m_vpPlayerLights)
         if (pHud) { DirectX::XMFLOAT4 col = pHud->GetColTarget(); col.w = 1.0f; pHud->SetColTarget(col); pHud->SetCol(col); }
@@ -840,7 +852,8 @@ void CSceneResult::ForceToFinished()
                 pHud->SetCol(col);
             }
         }
-    if (m_winTextIdx >= 0 && m_winTextIdx < (int)m_vpPlayerIcons.size()) {
+    if (m_winTextIdx >= 0 && m_winTextIdx < (int)m_vpPlayerIcons.size())
+    {
         auto pHud = m_vpPlayerIcons[m_winTextIdx];
         DirectX::XMFLOAT4 col = pHud->GetColTarget();
         col.w = 1.0f;
@@ -869,9 +882,19 @@ void CSceneResult::ForceToFinished()
     // kirakiraエフェクト生成
     if (!m_kirakiraEffectCreated && m_animPhase < ANIM_PHASE::PLAYER_WAIT)
     {
-        CEffect::Create(CEffectManager::kirakira, { 21.0f, 1.0f, 0.0f }, {}, { 0.5f });
-        CEffect::Create(CEffectManager::kirakira, { 12.6f, 2.8f, 0.0f }, {}, { 0.5f });
-        CEffect::Create(CEffectManager::kirakira, { 6.5f, -0.8f, 0.0f }, {}, { 0.5f });
+        if (m_winners.size() == 1)
+        {
+            CEffect::Create(CEffectManager::kirakira, { 21.0f, 1.0f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::kirakira, { 12.6f, 2.8f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::kirakira, { 6.5f, -0.8f, 0.0f }, {}, { 0.5f });
+        }
+
+        else if (m_winners.size() > 1)
+        {
+            CEffect::Create(CEffectManager::kirakira, { 17.8f, 1.0f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::kirakira, { 12.6f, 3.4f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::kirakira, { 10.5f, -0.8f, 0.0f }, {}, { 0.5f });
+        }
         m_kirakiraEffectCreated = true;
     }
 
@@ -888,6 +911,24 @@ void CSceneResult::ForceToFinished()
             pBeam->SetEnableTime(true);
             m_vpBeamLight.push_back(pBeam);
         }
+    }
+
+    if (!m_WinnerModelAppeared) {
+        m_spTestModel = CObjectManager::CreateShare<CPhysicsModel>(
+            [](CPhysicsModel* p) -> bool
+            {
+                p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+                OBJ::Transform tf;
+                tf.Pos = { -12.0f, 0.0f, 0.0f };
+                tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+                p->SetTransform(tf);
+                p->FactoryCollider(1.0f, 1.0f, 1.0f);
+                return true;
+            },
+            OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
+
+        m_WinnerModelAppeared = true;
     }
 
     // アニメフェーズをFINISHEDにする

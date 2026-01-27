@@ -61,6 +61,7 @@ private:
 	bool m_kirakiraEffectCreated = false;
 	float m_bgDarkRatio = 0.0f;
 	DirectX::XMFLOAT3 m_resultTitleTargetPos;		   // 結果発表テクスチャ移動先
+	std::vector<int> m_winners;				           // 勝者数
 	std::vector<float> m_playerSurvivalTimes;		   // プレイヤー生存時間
 	std::vector<std::vector<CHud*>> m_vvPlayerNumbers; // プレイヤー数
 	std::vector<CHud*> m_vpPlayerLights;			   // プレイヤーライト背景テクスチャ
