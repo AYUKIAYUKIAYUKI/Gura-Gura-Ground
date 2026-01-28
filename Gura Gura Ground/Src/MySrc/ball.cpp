@@ -127,7 +127,7 @@ void CBall::Update()
 	// ワールドトランスフォームから位置を取得
 	CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
 	const DirectX::XMFLOAT3& Pos = pRB->GetWorldTransform().Pos;
-	if (Pos.y < -3.0f)
+	if (Pos.y < 3.0f)
 	{
 		// 自身の死亡フラグを立てる
 		SetDeath();
