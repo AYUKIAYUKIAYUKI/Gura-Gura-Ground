@@ -45,6 +45,9 @@ public:
 	// パラメータの編集
 	void EditParam() override { int i = 0; }
 
+	// 進行方向の取得
+	inline DirectX::XMFLOAT3 GetDirection() const { return { m_Goal.x - m_Start.x, m_Goal.y - m_Start.y, m_Goal.z - m_Start.z }; }
+
 private:
 
 	//****************************************************

@@ -26,6 +26,7 @@
     <ClCompile Include="Src\External\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="Src\External\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Src\External\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Src\MySrc\arch.cpp" />
     <ClCompile Include="Src\MySrc\ball.cpp" />
     <ClCompile Include="Src\MySrc\bar.cpp" />
     <ClCompile Include="Src\MySrc\Barrel.cpp" />
@@ -57,6 +58,7 @@
     </ClCompile>
     <ClCompile Include="Src\MySrc\pendulum.cpp" />
     <ClCompile Include="Src\MySrc\player.cpp" />
+    <ClCompile Include="Src\MySrc\route.cpp" />
     <ClCompile Include="Src\MySrc\scene.game.cpp" />
     <ClCompile Include="Src\MySrc\scene.result.cpp" />
     <ClCompile Include="Src\MySrc\scene.select.cpp" />
@@ -65,6 +67,8 @@
     <ClCompile Include="Src\MySrc\scene.title.cpp" />
     <ClCompile Include="Src\MySrc\symbol.cpp" />
     <ClCompile Include="Src\MySrc\tornado.cpp" />
+    <ClCompile Include="Src\MySrc\warning.cpp" />
+    <ClCompile Include="Src\MySrc\windfield.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\External\ImGui\imconfig.h" />
@@ -104,6 +108,7 @@
     <ClInclude Include="Src\MyAPI\API.vertexshader.manager.h" />
     <ClInclude Include="Src\MyAPI\API.window.h" />
     <ClInclude Include="Src\MyAPI\API.world.h" />
+    <ClInclude Include="Src\MySrc\arch.h" />
     <ClInclude Include="Src\MySrc\ball.h" />
     <ClInclude Include="Src\MySrc\bar.h" />
     <ClInclude Include="Src\MySrc\Barrel.h" />
@@ -125,8 +130,8 @@
     <ClInclude Include="Src\MySrc\hud.count.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
     <ClInclude Include="Src\MySrc\Oil.h" />
-    <ClInclude Include="Src\MySrc\pendulum.h" />
     <ClInclude Include="Src\MySrc\player.h" />
+    <ClInclude Include="Src\MySrc\route.h" />
     <ClInclude Include="Src\MySrc\scene.game.h" />
     <ClInclude Include="Src\MySrc\main.h" />
     <ClInclude Include="Src\MySrc\obstacle.h" />
@@ -138,6 +143,8 @@
     <ClInclude Include="Src\MySrc\scene.title.h" />
     <ClInclude Include="Src\MySrc\symbol.h" />
     <ClInclude Include="Src\MySrc\tornado.h" />
+    <ClInclude Include="Src\MySrc\warning.h" />
+    <ClInclude Include="Src\MySrc\windfield.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp" />

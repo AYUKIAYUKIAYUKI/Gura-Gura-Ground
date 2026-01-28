@@ -69,6 +69,14 @@
       "Data\\TEXTURE\\frame.png"
     ],
     [
+      "Right",
+      "Data\\TEXTURE\\right.png"
+    ],
+    [
+      "Left",
+      "Data\\TEXTURE\\left.png"
+    ],
+    [
       "ResultTitle_Text",
       "Data\\TEXTURE\\Result\\ResultTitle_Text.png"
     ],
@@ -263,6 +271,22 @@
     [
       "C1",
       "Data\\TEXTURE\\cnt1.png"
+    ],
+    [
+      "GO",
+      "Data\\TEXTURE\\GO.png"
+    ],
+    [
+      "Warning",
+      "Data\\TEXTURE\\reticle.png"
+    ],
+    [
+      "Route",
+      "Data\\TEXTURE\\gauge_bar.png"
+    ],
+    [
+      "Arch",
+      "Data\\TEXTURE\\arch.png"
     ]
   ]
 }

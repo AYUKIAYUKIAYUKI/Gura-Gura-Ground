@@ -48,7 +48,7 @@ namespace
 
 		if (Ijiru && CInputManager::RefInstance().GetStateKeyboard().Space)
 		{
-			OBJ::Transform TF = { { fA, fB, 0.0f }, { useful::VEC4_ZERO_INIT }, { fC, fD, 0.0f } };
+			OBJ::Transform TF = { { fA * fW, fB * fH, 0.0f }, { useful::VEC4_ZERO_INIT }, { fC * fW, fD * fH, 0.0f } };
 			Ijiru->SetTransformTarget(TF);
 		}
 
@@ -82,37 +82,24 @@ CSceneTitle::CSceneTitle()
 	pBG->SetTransformTarget(TF);
 	m_pBackCurtain = pBG;
 
-	// Šz‰‚ğ¶¬
-	auto pFrame = CObjectManager::CreateRaw<CHud>();
-	pFrame->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Frame"));
-	TF = { { 500.0f * fW, 500.0f * fW, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX * fW, WCY * fH, 0.0f } };
-	pFrame->SetTransform(TF);
-	pFrame->SetTransformTarget(TF);
-
-	// –³‚ğ¶¬
-	auto pPicture = CObjectManager::CreateRaw<CHud>();
-	pPicture->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
-	TF = { { fA * fW, fB * fH, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX * fW, WCY * fH, 0.0f } };
-	pPicture->SetTransform(TF);
-	pPicture->SetTransformTarget(TF);
-	Ijiru = pPicture;
-
 	// ãj’ (¶)‚ğ¶¬
 	auto pSatinCurtain = CObjectManager::CreateRaw<CHud>();
-	pSatinCurtain->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
-	TF = { { 600.0f * fW, 720.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 300.0f * fW, WCY * fH, 0.0f } };
+	pSatinCurtain->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Left"));
+	pSatinCurtain->SetLayer(OBJ::LAYER::UI);
+	TF = { { 720.0f * fW, 720.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 300.0f * fW, WCY * fH, 0.0f } };
 	pSatinCurtain->SetTransform(TF);
 	pSatinCurtain->SetTransformTarget(TF);
 	m_vpSatinCurtain.push_back(pSatinCurtain);
 
 	// ãj’ (‰E)‚ğ¶¬
 	pSatinCurtain = CObjectManager::CreateRaw<CHud>();
-	pSatinCurtain->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
+	pSatinCurtain->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Right"));
 	TF = OBJ::Transform{
-		DirectX::XMFLOAT3(600.0f * fW, 720.0f * fH, 0.0f),
+		DirectX::XMFLOAT3(720.0f * fW, 720.0f * fH, 0.0f),
 		DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
 		DirectX::XMFLOAT3((1280.0f - 300.0f) * fW, WCY * fH, 0.0f)
 	};
+	pSatinCurtain->SetLayer(OBJ::LAYER::UI);
 	pSatinCurtain->SetTransform(TF);
 	pSatinCurtain->SetTransformTarget(TF);
 	m_vpSatinCurtain.push_back(pSatinCurtain);
@@ -121,7 +108,7 @@ CSceneTitle::CSceneTitle()
 	auto Logo = CObjectManager::CreateRaw<CHud>();
 	Logo->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Logo.A"));
 	Logo->SetTransform(ITFB);
-	TF = { { 624.0f * fW, 113.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { (WCX + 125.0f) * fW, (WCY + 125.0f) * fH, 0.0f } };
+	TF = { { 624.0f * fW, 113.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { (WCX + 125.0f) * fW, (WCY + 105.0f) * fH, 0.0f } };
 	Logo->SetTransformTarget(TF);
 	m_vpLogo.push_back(Logo);
 
@@ -129,7 +116,7 @@ CSceneTitle::CSceneTitle()
 	Logo = CObjectManager::CreateRaw<CHud>();
 	Logo->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Logo.B"));
 	Logo->SetTransform(ITFA);
-	TF = { { 417.0f * fW, 134.0f * fH, 0.0f }, { 0.0f, 0.0f, -0.2f, 0.0f }, { (WCX - 200.0f) * fW, (WCY - 125.0f) * fH, 0.0f } };
+	TF = { { 417.0f * fW, 134.0f * fH, 0.0f }, { 0.0f, 0.0f, -0.2f, 0.0f }, { (WCX - 125.0f) * fW, (WCY - 105.0f) * fH, 0.0f } };
 	Logo->SetTransformTarget(TF);
 	m_vpLogo.push_back(Logo);
 
@@ -137,7 +124,7 @@ CSceneTitle::CSceneTitle()
 	Logo = CObjectManager::CreateRaw<CHud>();
 	Logo->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Logo.C"));
 	Logo->SetTransform(ITFB);
-	TF = { { 529.0f * fW, 135.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { (WCX + 125.0f) * fW, (WCY + 40.0f) * fH, 0.0f } };
+	TF = { { 529.0f * fW, 135.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { (WCX + 125.0f) * fW, (WCY + 60.0f) * fH, 0.0f } };
 	Logo->SetTransformTarget(TF);
 	m_vpLogo.push_back(Logo);
 
@@ -155,8 +142,6 @@ CSceneTitle::~CSceneTitle()
 //============================================================================
 void CSceneTitle::Update()
 {
-	AAA();
-
 	// ‘JˆÚó‘Ô‚É“ü‚Á‚Ä‚¢‚½‚ç
 	if (m_bTransition)
 	{

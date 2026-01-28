@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "BirdStrike.h"
+#include "API.gltf.manager.h"
 #include <random>
 #include "API.object.manager.h"
 #include "player.h"
@@ -20,6 +21,8 @@
 #include "API.ghost.h"
 
 // エフェクト
+#include "route.h"
+#include "Shadow.h"
 #include "dust.h"
 
 //****************************************************
@@ -100,7 +103,10 @@ namespace
 CBirdStrike::CBirdStrike(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::MOVING)
 	, m_nTime(0)
-{}
+{
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Bird"));
+}
 
 //============================================================================
 // デストラクタ
@@ -140,9 +146,17 @@ void CBirdStrike::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	transform.Pos = Vec3;
 	pGs->SetWorldTransform(transform);
+	/* ！！！ 影の生成 ！！！ */
+	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+	pShadow->SetTrackTarget(shared_from_this());
+
+	/* ！！！ 警告表示の作成 ！！！ */
+	CRoute* pRoute = CObjectManager::CreateRaw<CRoute>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pRoute->SetTrackTarget(spObstacle);
+
 	// 効果音：跳ねる音
-	CSoundManger::RefInstance().Play("BirdStrike", false, -0.5f, 0.4f);
-}
+	CSoundManger::RefInstance().Play("BirdStrike", false, -0.5f, 0.4f);}
 
 //============================================================================
 // 更新処理
@@ -155,8 +169,8 @@ void CBirdStrike::Update()
 	//プレイヤーとの接触
 	ToPlayer();
 
-	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
-	CPhysicsObject::Update();
+	// 障害物の更新
+	CObstacle::Update();
 }
 
 //============================================================================
@@ -164,8 +178,8 @@ void CBirdStrike::Update()
 //============================================================================
 void CBirdStrike::Draw()
 {
-	// 物理オブジェクト用の描画：モデルの描画
-	CPhysicsObject::Draw();
+	// 障害物の描画
+	CObstacle::Draw();
 }
 
 //============================================================================

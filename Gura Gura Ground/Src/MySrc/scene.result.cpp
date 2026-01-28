@@ -833,11 +833,17 @@ void CSceneResult::Change()
     CEnemyPlayer::ClearAllCPUSurvivalTimes();
 
     CSoundManger::RefInstance().Stop("BGM_RESULT");
-
     CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
+
+    // nullptr化（またはclear）でベクタ参照を無効化
+    m_vpPlayerIcons.clear();
+    m_vpPlayerLights.clear();
+    m_vpNumbers.clear();
+    m_vvPlayerNumbers.clear();
 
     //タイトル画面に遷移
     CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
+
 }
 
 //============================================================================
@@ -946,7 +952,8 @@ void CSceneResult::ForceToFinished()
         }
     }
 
-    if (!m_WinnerModelAppeared) {
+    if (!m_WinnerModelAppeared)
+    {
         m_spTestModel = CObjectManager::CreateShare<CPhysicsModel>(
             [](CPhysicsModel* p) -> bool
             {
