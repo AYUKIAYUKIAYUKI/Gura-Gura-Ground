@@ -10,7 +10,7 @@
 //****************************************************
 // インクルードファイル
 //****************************************************
-#include "API.physics.object.h"
+#include "API.physics.model.h"
 #include <obstacle_editer.h>
 
 //****************************************************
@@ -34,15 +34,19 @@ namespace Obstacle
 //****************************************************
 // 障害物クラスの定義
 //****************************************************
-class CObstacle : public CPhysicsObject
+class CObstacle : public CPhysicsModel
 {
 public:
 
 	//****************************************************
 	// special function
 	//****************************************************
-	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObsType); // デフォルトコンストラクタ
-	~CObstacle() override;                       // デストラクタ
+
+	// デフォルトコンストラクタ
+	CObstacle(OBJ::TYPE Type, OBJ::LAYER Layer, Obstacle::OBSTACLE_TYPE ObsType);
+
+	// デストラクタ
+	~CObstacle() override;
 
 	//****************************************************
 	// function

@@ -10,6 +10,7 @@
 // インクルードファイル
 //****************************************************
 #include "pendulum.h"
+#include "API.gltf.manager.h"
 #include "API.sound.manager.h"
 
 // 物理挙動作成のため
@@ -17,7 +18,8 @@
 #include "API.collision.h"
 
 // エフェクト
-#include "dust.h"
+#include "shadow.h"
+#include "route.h"
 
 //****************************************************
 // usingディレクティブ
@@ -131,7 +133,13 @@ CPendulum::CPendulum(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::PERIMETER)
 	, m_Direction(VEC3_ZERO_INIT)
 	, m_Time(0.0f)
-{}
+{
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Pendulum"));
+
+	// ピクセルシェーダーのバインド
+	SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
+}
 
 //============================================================================
 // デストラクタ
@@ -158,6 +166,20 @@ void CPendulum::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	rb->setGravity(btVector3(0, 0, 0));
 
 	Appear();
+
+	/* ！！！ トランスフォームのサイズをコライダーのもので設定 ！！！ */
+	OBJ::Transform TF = {};
+	TF.Size = { fWidth, fHeight, fDepth };
+	SetTransform(TF);
+
+	/* ！！！ 影の生成 ！！！ */
+	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+	pShadow->SetTrackTarget(shared_from_this());
+
+	/* ！！！ 警告表示の作成 ！！！*/
+	CRoute* pRoute = CObjectManager::CreateRaw<CRoute>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pRoute->SetTrackTarget(spObstacle);
 }
 
 //============================================================================
@@ -189,8 +211,8 @@ void CPendulum::Update()
 
 	CheckHitPlayer();
 
-	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
-	CPhysicsObject::Update();
+	// 障害物クラスの更新
+	CObstacle::Update();
 }
 
 //============================================================================
@@ -198,8 +220,8 @@ void CPendulum::Update()
 //============================================================================
 void CPendulum::Draw()
 {
-	// 物理オブジェクト用の描画：モデルの描画
-	CPhysicsObject::Draw();
+	// 障害物クラスの描画
+	CObstacle::Draw();
 }
 
 //============================================================================

@@ -12,8 +12,15 @@
 #include "API.object.manager.h"
 #include "API.sound.manager.h"
 
+// 物理モデル取得のため
+#include "API.gltf.manager.h"
+
 // 物理挙動作成のため
 #include "API.rigidbody.h"
+
+// エフェクト
+#include "shadow.h"
+#include "warning.h"
 
 // 衝撃波の作成のため
 #include "shockwave.h"
@@ -25,7 +32,13 @@
 CBomb::CBomb(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::STATIONARY)
 	, m_nTimer(0)
-{}
+{
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Bomb"));
+
+	// ピクセルシェーダーのバインド
+	SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
+}
 
 //============================================================================
 // デストラクタ
@@ -62,6 +75,15 @@ void CBomb::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// 位置セット
 	pRB->SetWorldTransform(TF);
+
+	/* ！！！ 影の生成 ！！！ */
+	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+	pShadow->SetTrackTarget(shared_from_this());
+
+	/* ！！！ 警告表示の作成 ！！！ */
+	CWarning* pWarning = CObjectManager::CreateRaw<CWarning>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pWarning->SetTrackTarget(spObstacle);
 }
 
 //============================================================================
@@ -95,8 +117,8 @@ void CBomb::Update()
 	// 挙動
 	Action();
 
-	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
-	CPhysicsObject::Update();
+	// 障害物クラスの更新
+	CObstacle::Update();
 }
 
 //============================================================================
@@ -104,8 +126,8 @@ void CBomb::Update()
 //============================================================================
 void CBomb::Draw()
 {
-	// 物理オブジェクト用の描画：モデルの描画
-	CPhysicsObject::Draw();
+	// 障害物クラスの描画
+	CObstacle::Draw();
 }
 
 //============================================================================
@@ -142,8 +164,8 @@ void CBomb::Action()
 		SetDeath();
 
 		// 衝撃波の作成
-		const float       fSpan = 10.0f;
+		const float       fSpan = 3.0f;
 		DirectX::XMFLOAT3 Size  = { fSpan, fSpan, fSpan };
-		CreateShockWave(Collision::SHAPETYPE::CYLINDER, Size, 30);
+		CreateShockWave(Collision::SHAPETYPE::SPHERE, Size, 30);
 	}
 }

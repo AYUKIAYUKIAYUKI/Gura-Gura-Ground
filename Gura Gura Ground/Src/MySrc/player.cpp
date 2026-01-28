@@ -518,7 +518,7 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	// 地面と接地したら
 	if (CheckLand(rStateMachine))
 	{
-		// ダイナミック化
+		// ダイナミックに戻す
 		pRigidBody->SetDynamic();
 
 		useful::Vec3 EffectVec3 = { rStateMachine.m_rPalyer.GetTransform().Pos.x,6.25f,rStateMachine.m_rPalyer.GetTransform().Pos.z };
