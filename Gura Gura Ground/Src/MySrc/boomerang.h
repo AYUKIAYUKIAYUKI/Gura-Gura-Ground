@@ -50,6 +50,15 @@ public:
     void SetMovePattern(int pattern) { m_MovePattern = pattern; }
     int m_MovePattern = 0;
 
+    /* ！！！ 回転の半径の取得 ！！！ */
+	inline float GetRadius() const { return m_Radius; }
+
+    /* ！！！ 回転の中心点の取得 ！！！ */
+	inline const DirectX::XMFLOAT3& GetCenter() const { return m_Center; }
+
+    /* ！！！ 弧の開始角度の取得 ！！！ */
+    inline float GetStartAngle() const { return m_StartAngle; }
+
 private:
 
     //****************************************************

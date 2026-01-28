@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "Barrel.h"
+#include "API.gltf.manager.h"
 #include "API.object.manager.h"
 #include "player.h"
 #include "API.collision.h"
@@ -18,6 +19,8 @@
 #include "API.ghost.h"
 
 // エフェクト
+#include "shadow.h"
+#include "route.h"
 #include "dust.h"
 
 //オイル生成する
@@ -59,7 +62,10 @@ CBarrel::CBarrel(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::MOVING)
 	, m_nTimer(0)
 	, m_fHalfSize(0.0f)
-{}
+{
+	// モデルのセット
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Barrel"));
+}
 
 //============================================================================
 // デストラクタ
@@ -86,6 +92,15 @@ void CBarrel::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	// コライダーをリジットボディにキャスト
 	CRigidBody* const pRb = dynamic_cast<CRigidBody*>(GetCollider());
 	pRb->SetMass(1000.0f);
+
+	/* ！！！ 影の生成 ！！！ */
+	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+	pShadow->SetTrackTarget(shared_from_this());
+
+	/* ！！！ 警告表示の作成 ！！！ */
+	CRoute* pRoute = CObjectManager::CreateRaw<CRoute>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pRoute->SetTrackTarget(spObstacle);
 }
 
 //============================================================================
@@ -105,8 +120,9 @@ void CBarrel::Update()
 		// 自身の死亡フラグを立てる
 		SetDeath();
 	}
-	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
-	CPhysicsObject::Update();
+	
+	// 障害物クラスの更新
+	CObstacle::Update();
 }
 
 //============================================================================
@@ -114,8 +130,8 @@ void CBarrel::Update()
 //============================================================================
 void CBarrel::Draw()
 {
-	// 物理オブジェクト用の描画：モデルの描画
-	CPhysicsObject::Draw();
+	// 障害物クラスの描画
+	CObstacle::Draw();
 }
 
 //============================================================================

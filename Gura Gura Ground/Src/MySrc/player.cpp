@@ -17,6 +17,7 @@
 #include "API.collision.h"
 #include "field.h"
 #include "shockwave.h"
+#include "windfield.h"
 
 // 装飾用
 #include "dust.h"
@@ -235,7 +236,7 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 			// 力を加える 
 			if (pRigidBody->GetActive())
 			{
-				pRigidBody->SetForce(MoveDir * fSpeedArg);
+				pRigidBody->SetForce(MoveDir * fSpeed);
 			}
 			else
 			{
@@ -517,6 +518,9 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	// 地面と接地したら
 	if (CheckLand(rStateMachine))
 	{
+		// ダイナミックに戻す
+		pRigidBody->SetDynamic();
+
 		useful::Vec3 EffectVec3 = { rStateMachine.m_rPalyer.GetTransform().Pos.x,6.25f,rStateMachine.m_rPalyer.GetTransform().Pos.z };
 		CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
 		// 衝撃波の作成
@@ -547,6 +551,7 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 
 	// フィールドの弱参照を設定
 	m_wpField = std::dynamic_pointer_cast<CField>(rFieldList.front());
+	m_wpWindoField = std::dynamic_pointer_cast<CWindField>(rFieldList.front());
 
 	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
@@ -576,7 +581,7 @@ void CPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	pRigidBody->SetFriction(1.0f);
 
 	// 減衰力を設定
-	pRigidBody->SetDamping(0.25f, 0.0f);
+	pRigidBody->SetDamping(0.3f, 0.0f);
 
 	// Y軸以外の回転をロック
 	pRigidBody->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
@@ -732,6 +737,12 @@ void CPlayer::CheckDeath()
 	if (std::shared_ptr<CField> spField = m_wpField.lock())
 	{
 		fFieldPosY = spField->GetTransform().Pos.y;
+	}
+
+	// 風フィールドの高さを取得
+	else if (std::shared_ptr<CWindField> spField1 = m_wpWindoField.lock())
+	{
+		fFieldPosY = spField1->GetTransform().Pos.y;
 	}
 
 	// Y座標がフィールドの高さを下回ったら

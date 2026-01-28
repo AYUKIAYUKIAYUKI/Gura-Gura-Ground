@@ -52,7 +52,10 @@ public:
 	// サウンドを停止
 	inline void Stop(std::string sKey)
 	{
-		m_mupSoundInstance.find(sKey)->second->Stop();
+		if (m_mupSoundInstance.find(sKey)->second->GetState() == DirectX::SoundState::PLAYING)
+		{
+			m_mupSoundInstance.find(sKey)->second->Stop();
+		}
 	}
 
 	// 全てのサウンドを停止

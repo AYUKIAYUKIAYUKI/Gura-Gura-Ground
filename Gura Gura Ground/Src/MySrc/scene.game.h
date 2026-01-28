@@ -30,7 +30,7 @@ class CSceneGame final : public CScene
 	//****************************************************
 	// 静的定数の定義
 	//****************************************************
-	static const int MAX_COUNT = 4; // 最大カウント数 
+	static const int MAX_COUNT  = 4; // 最大カウント数 
 	static const int MAX_PLYAER = 4; // 最大プレイヤー数
 
 public:
