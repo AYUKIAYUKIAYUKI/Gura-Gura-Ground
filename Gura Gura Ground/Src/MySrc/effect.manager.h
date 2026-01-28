@@ -59,11 +59,12 @@ public:
 	void Finalize();		//終了
 
 	std::string GetFilename(EFFECT_TAG tag) { if (m_EffectName.size() > tag) return m_EffectName[tag]; }
-	void StopAll() { m_manager->StopAllEffects(); }
+	void StopAll();
 
 	inline Effekseer::ManagerRef GetManager() { return m_manager; }
 	inline EffekseerRendererDX11::RendererRef GetRenderer() { return m_renderer; };
 	CEffect* GetEffect(int handle);
+private:
 };
 
 class CEffect
@@ -86,7 +87,7 @@ public:
 
 	static CEffect* Create(const std::wstring& filename, useful::Vec3 pos,int* handle = nullptr,float sizevalue = 1.0f);		//ファイル名、座標、ハンドルのポインタ(任意)、拡大率(任意)
 	static CEffect* Create(CEffectManager::EFFECT_TAG tag, useful::Vec3 pos, int* handle = nullptr, float sizevalue = 1.0f);	//ファイル名、座標、ハンドルのポインタ(任意)、拡大率(任意)
-
+	CEffectManager::EFFECT_TAG GetTag() { return tag; }
 private:
 
 	bool m_bPlaying;		//再生されているか否か
@@ -95,6 +96,8 @@ private:
 	//エフェクシア側の変数
 	Effekseer::EffectRef m_effects;		//エフェクトのポインタ
 	Effekseer::Handle	 m_handle;		//エフェクトのハンドル
+	CEffectManager::EFFECT_TAG tag;
+
 };
 
 #endif

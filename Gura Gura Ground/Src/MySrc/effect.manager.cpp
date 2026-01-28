@@ -55,6 +55,7 @@ void CEffect::Init()
 void CEffect::Uninit()
 {
     if (m_effects != nullptr)    {
+        //if (m_effects->GetRef() == nullptr)return;
         m_effects.Reset();
 
     }
@@ -161,6 +162,7 @@ CEffect* CEffect::Create(CEffectManager::EFFECT_TAG tag, useful::Vec3 pos, int* 
     if (pEffect->m_effects == nullptr)throw std::runtime_error("Effect is nullptr!!!!!!");
 
     pEffect->m_pos = pos;
+    pEffect->tag = tag;
     pEffect->Init();
     if (handle != nullptr)*handle = pEffect->m_handle;
     return pEffect;
@@ -266,7 +268,25 @@ void CEffectManager::RegistEffect(CEffect* peff)
 {
     m_effectsList.push_back(peff);      //リストに登録
 }
-
+//==========================================================================================
+//マネージャーから削除
+//==========================================================================================
+void CEffectManager::StopAll()
+{
+    for (auto& e : m_effectsList)
+    {
+        e->SetDeath();
+        EFFECT_TAG GetTag = e->GetTag();
+        e->Uninit();
+        delete e;
+        e = nullptr;
+        //リストから除外(アクセス違反を防ぐためErase-removeイディオムを使用)
+        //m_effectsList.erase(std::remove(m_effectsList.begin(), m_effectsList.end(), e), m_effectsList.end());
+    }
+    m_effectsList.clear();
+    int i = 1;
+    Update();
+}
 //==========================================================================================
 //マネージャーから削除
 //==========================================================================================
@@ -280,7 +300,7 @@ void CEffectManager::EraseEffect()
         delete e;
         e = nullptr;
         //リストから除外(アクセス違反を防ぐためErase-removeイディオムを使用)
-        m_effectsList.erase(std::remove(m_effectsList.begin(), m_effectsList.end(),e));
+        m_effectsList.erase(std::remove(m_effectsList.begin(), m_effectsList.end(),e), m_effectsList.end());
     }
 }
 

@@ -105,12 +105,7 @@ void CTornado::Update()
 	}
 	// コライダーをゴーストにキャスト
 	const CGhost* const pGhost = dynamic_cast<CGhost*>(GetCollider());
-	if (&m_effPos != nullptr) {
-		CEffectManager::RefInstance().GetEffect(m_effPos)->SetLocation(pGhost->GetWorldTransform().Pos);
-	}
-	else {
-		CEffect::Create(CEffectManager::TAG_TORNADE, { 0.0f,0.0f,0.0f }, &m_effPos);
-	}
+	if (CEffectManager::RefInstance().GetEffect(m_effPos) != nullptr)CEffectManager::RefInstance().GetEffect(m_effPos)->SetLocation(pGhost->GetWorldTransform().Pos);
 	// 障害物クラスの更新
 	CObstacle::Update();
 }

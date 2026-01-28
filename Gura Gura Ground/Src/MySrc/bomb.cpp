@@ -123,7 +123,8 @@ void CBomb::Update()
 	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
 	useful::Vec3 pos = pRB->GetWorldTransform().Pos;
 	pos.y += 1.4;
-	CEffectManager::RefInstance().GetEffect(m_nEffHandle)->SetLocation(pos);
+	if (CEffectManager::RefInstance().GetEffect(m_nEffHandle) != nullptr)CEffectManager::RefInstance().GetEffect(m_nEffHandle)->SetLocation(pos);
+
 	// 障害物クラスの更新
 	CObstacle::Update();
 }
