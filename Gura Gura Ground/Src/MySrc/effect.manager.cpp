@@ -23,6 +23,8 @@ namespace {
         if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_LIGHTNING, {20.0f,0.0f,0.0f});
         ImGui::SameLine();
         if (ImGui::Button("Water"))CEffect::Create(L"Data\\EFFECT\\Effect\\Simple_Turbulence_Fireworks.efkefc", { -20.0f,0.0f,0.0f },nullptr,1.0f);
+        if (ImGui::Button("FireWork"))CEffect::Create(CEffectManager::TAG_FIREWORKS_SINGLE, { 0.0f,-20.0f,0.0f });
+        if (ImGui::Button("Kirakira"))CEffect::Create(CEffectManager::kirakira, { 15.0f,0.0f,0.0f }, {}, {0.5f});
 
         ImGui::Button("<");
         ImGui::SameLine();

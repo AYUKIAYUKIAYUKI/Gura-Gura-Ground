@@ -128,6 +128,9 @@ void CSceneSelect::Change()
 	// 全オブジェクトに死亡フラグを立てる
 	CObjectManager::RefInstance().SetDeathAll();
 
+	//タイトルBGMを停止する
+	CSoundManger::RefInstance().Stop("BGM_TITLE");
+
 	// ゲームシーンへ
 	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneGame>());
 }

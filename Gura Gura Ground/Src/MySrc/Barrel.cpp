@@ -79,16 +79,9 @@ CBarrel::~CBarrel()
 void CBarrel::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
 	// デフォルトのリジットボディを生成
-	if (fWidth != 1.0f && fHeight != 1.0 && fDepth != 1.0f){
-		//サイズの引数がデフォルト値がじゃ無ければコライダーの引数を変更
-		SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::CYLINDER, fWidth, fHeight, fDepth));
-		m_fHalfSize = fHeight;
-	}
-	else {	
-		SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::CYLINDER, ShpireHalf, ShpireHalf, ShpireHalf));
-		m_fHalfSize = ShpireHalf;
-	}
-	
+	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::CYLINDER, fWidth, fHeight, fDepth));
+	m_fHalfSize = fHeight;
+
 	// コライダーをリジットボディにキャスト
 	CRigidBody* const pRb = dynamic_cast<CRigidBody*>(GetCollider());
 	pRb->SetMass(1000.0f);

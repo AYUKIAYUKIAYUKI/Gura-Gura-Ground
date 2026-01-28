@@ -43,7 +43,10 @@ public:
 		TAG_LIGHTNING = 0,
 		TAG_WATER,
 		TAG_FIRE,
-		TAG_HIPDROP
+		TAG_HIPDROP,
+		TAG_FIREWORKS,
+		TAG_FIREWORKS_SINGLE,
+		kirakira
 	};
 	void Update();			//çXêV
 	void Draw();			//ï`âÊ

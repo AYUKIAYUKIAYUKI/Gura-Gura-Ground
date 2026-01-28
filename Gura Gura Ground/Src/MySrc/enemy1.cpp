@@ -20,6 +20,9 @@
 //================================================
 //必要なインクルード
 #include "API.object.manager.h" //オブジェクト情報を探すのに使用
+#include "API.sound.manager.h"
+
+std::vector<float> CEnemyPlayer::s_vSurvivalTimes = {};
 
 //================================================
 //名前空間（無名）
@@ -137,6 +140,14 @@ void CEnemyPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //======================================
 void CEnemyPlayer::Update()
 {
+	//生存時間の計測
+	if (!GetDeath()) 
+	{
+		if (m_wIdxCPU < s_vSurvivalTimes.size()) {
+			s_vSurvivalTimes[m_wIdxCPU] += 1.0f / 60.0f; // 60FPS想定
+		}
+	}
+
 	//情報があるか確認
 	CheckInfo();
 
@@ -255,6 +266,9 @@ if (SelfPos.y > targetPos.y)
 			}			++m_params.jumpcount;
 			Jump_Base();
 			ChangeState(ENEMY_STATE::STATE_IN_JUMP);
+
+			//サウンド再生
+			CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
 		}
 		else
 		{
@@ -351,6 +365,7 @@ void CEnemyPlayer::State_In_Jump()
 	//ジャンプした
 	if (!m_bJump)
 	{
+
 		//疑似的に到達点を設定
 		if (m_bGoDown)
 		{
@@ -662,18 +677,10 @@ void CEnemyPlayer::CheckInfo()
 	// フィールドの高さを取得
 	if (std::shared_ptr<CField> spField = m_wpField.lock())
 	{
-		fFieldPosY = spField->GetTransform().Pos.y;
-	}
+		//ドロップサウンド再生
+		CSoundManger::RefInstance().Play("Falling", false, 0.0f, 1.0f);
 
-	// 風フィールドの高さを取得
-	else if (std::shared_ptr<CWindField> spField1 = m_wpWindoField.lock())
-	{
-		fFieldPosY = spField1->GetTransform().Pos.y;
-	}
-
-	// Y座標がフィールドの高さを下回ったら
-	if (fSelfPosY < fFieldPosY)
-	{
+		// 自身の死亡フラグを立てる
 		SetDeath();
 	}
 }

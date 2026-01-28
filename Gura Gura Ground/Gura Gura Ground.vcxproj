@@ -130,7 +130,6 @@
     <ClInclude Include="Src\MySrc\hud.count.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
     <ClInclude Include="Src\MySrc\Oil.h" />
-    <ClInclude Include="Src\MySrc\pendulum.h" />
     <ClInclude Include="Src\MySrc\player.h" />
     <ClInclude Include="Src\MySrc\route.h" />
     <ClInclude Include="Src\MySrc\scene.game.h" />
