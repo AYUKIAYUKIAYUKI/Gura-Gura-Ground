@@ -37,7 +37,7 @@ namespace
 	const float PREDICTION_TIME_DEF = 0.15f;  //デフォルトで足し合わせる未来視の時間
 	const float PREDICTION_TIME = 0.15f;      //乱数で出す未来視の最小大数
 	const float ShockWaveSize = 6.0f;         //衝撃波（ｘ。ｚ）の大きさ
- 
+
 	//プレイヤーと同じ数値にする&&プレイヤーから直接同期->処理も変更しないと多分無理
 	const float JUMPPOWER = 13.5f;           //自身のジャンプ力
 	const float DROPPOWER = JUMPPOWER * 1.5f;  //自身のドロップ速度
@@ -57,17 +57,17 @@ using namespace useful;
 //======================================
 //コンストラクタ
 //======================================
-CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsModel(Type, Layer)  
-, m_nRecasttime(0), m_bJump(true), m_pBar(nullptr)                                           
-, m_pShockWave(nullptr), m_bGoDown(false), m_btOldVel(INIT)                    
+CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsModel(Type, Layer)
+, m_nRecasttime(0), m_bJump(true), m_pBar(nullptr)
+, m_pShockWave(nullptr), m_bGoDown(false), m_btOldVel(INIT)
 , m_nStart(0), m_bStart(false), m_pwPlayer{}, m_State(ENEMY_STATE::STATE_BASE)
 {
 	searchPlayer();  //プレイヤーを探す(初めにプレイヤーが生成されてるのが条件)
 	searchBar();     //障害物を探す(初めにプレイヤーが生成されてるのが条件)
 
 	//あらかじめパラメータを設定
-	m_params.predictionTime = PREDICTION_TIME_DEF +RandomRange(0.0f, PREDICTION_TIME); //ある程度の値の大きさを持たせる	
-	m_params.noiseangle= RandomSplit(0.15f, 0.25f);                                    //角度の調整値
+	m_params.predictionTime = PREDICTION_TIME_DEF + RandomRange(0.0f, PREDICTION_TIME); //ある程度の値の大きさを持たせる	
+	m_params.noiseangle = RandomSplit(0.15f, 0.25f);                                    //角度の調整値
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));             // モデルのバインド
 
 	// シェアポインタのオブジェクトリストの参照
@@ -83,7 +83,7 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsModel(Type
 //======================================
 CEnemyPlayer::~CEnemyPlayer()
 {
-	
+
 }
 
 //======================================
@@ -148,7 +148,7 @@ void CEnemyPlayer::Update()
 	case ENEMY_STATE::STATE_BAR:     State_Bar();     break;
 	}
 	// 衝撃波の作成と、弱参照の設定
-	
+
 
 	//基底クラスの更新
 	CPhysicsModel::Update();
@@ -198,7 +198,7 @@ void CEnemyPlayer::State_Base_Search()
 	);
 
 	//ここで予測位置を計算する 
-	float predictionTime = m_params.predictionTime; 
+	float predictionTime = m_params.predictionTime;
 	DirectX::XMFLOAT3 predictedPos =
 	{
 		min_it->pos.x + min_it->vel.getX() * predictionTime,
@@ -248,13 +248,11 @@ void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX:
 		//範囲内
 		if (CheckCollision(targetPos, SelfPos, ShockWaveSize * 0.5f))
 		{
-			if (SelfPos.y > targetPos.y)
+if (SelfPos.y > targetPos.y)
 			{
 				MoveAtPlayer(angle + 1.57f, MOVE_SPEED); //移動(目標向きを外側に明示的に修正)
 				return;                                   //ジャンプループを防ぐ
-			}
-		
-			++m_params.jumpcount;
+			}			++m_params.jumpcount;
 			Jump_Base();
 			ChangeState(ENEMY_STATE::STATE_IN_JUMP);
 		}
@@ -443,11 +441,9 @@ void CEnemyPlayer::MoveAtPlayer(const float Angle, const float speed)
 	//const float fSpeed = fSpeedArg;
 	btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
-	// ★★★ プレイヤーが保持しているフィールド参照から、現在のフィールドタイプを判定する ★★★
+// ★★★ プレイヤーが保持しているフィールド参照から、現在のフィールドタイプを判定する ★★★
 	CField* pField =GetCurrentField();
 	bool bIce = (pField && pField->GetFieldType() == FIELD_TYPE::ICE);
-
-
 	// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
 	MoveDir.setX(sinf(fDirectionValue));
 	MoveDir.setZ(cosf(fDirectionValue));
@@ -507,7 +503,7 @@ void CEnemyPlayer::MoveAtPlayer(const float Angle, const float speed)
 //======================================
 //当たり判定チェック処理
 //======================================
-bool CEnemyPlayer::CheckCollision(const XMFLOAT3& c1pos, const XMFLOAT3& c2pos,const float Radius)
+bool CEnemyPlayer::CheckCollision(const XMFLOAT3& c1pos, const XMFLOAT3& c2pos, const float Radius)
 {
 	//対角線を算出
 	float centerDistance = CheckDistance(c1pos, c2pos);
@@ -706,15 +702,13 @@ void CEnemyPlayer::Jump_Base()
 //============================================================================
 void CEnemyPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
 {
-	useful::Vec3 EffectVec3 = {GetTransform().Pos.x,6.25f,GetTransform().Pos.z };
-	CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
-
-	// 衝撃波の作成と、弱参照の設定
+useful::Vec3 EffectVec3 = { GetTransform().Pos.x,6.25f,GetTransform().Pos.z };
+	CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);	// 衝撃波の作成と、弱参照の設定
 	const std::shared_ptr<CShockWave>& spShockWave = CObjectManager::CreateShare<CShockWave>
 		(
-		  OBJ::TYPE::NONE,
-		  OBJ::LAYER::DEFAULT
-		);
+			OBJ::TYPE::NONE,
+			OBJ::LAYER::DEFAULT
+			);
 
 	// 自身のトランスフォームを出現位置に設定
 	spShockWave->SetTransform(GetTransform());

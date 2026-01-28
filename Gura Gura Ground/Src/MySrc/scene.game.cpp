@@ -25,7 +25,6 @@
 #include "player.h"
 #include "symbol.h"
 #include <enemy1.h>
-#include "field.ice.h"
 
 // イベント処理のため
 #include "cameracontroller.h"
