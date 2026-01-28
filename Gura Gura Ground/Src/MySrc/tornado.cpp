@@ -149,7 +149,7 @@ void CTornado::SetMoveDir()
 	float edgeLength = sqrt(m_MoveDir.x * m_MoveDir.x + m_MoveDir.z * m_MoveDir.z);
 
 	// フレームごとの速度
-	float speedPerFrame = 0.1f;						// 1フレームで進む距離
+	float speedPerFrame = 0.5f;						// 1フレームで進む距離
 	m_edgeProgress += speedPerFrame / edgeLength;	// 現在の進行度を設定
 
 	// 変更する位置に設定
@@ -203,9 +203,15 @@ void CTornado::PullPlayer()
 		MoveDir.setZ(cosf(Dir) * fSpeed);
 		MoveDir.setY(rCurrentVel.getY());
 
+		btVector3 Velocity = {
+			rCurrentVel.getX() + MoveDir.getX(),
+			rCurrentVel.getY(),
+			rCurrentVel.getZ() + MoveDir.getZ() 
+		};
+
 		// 線形速度を設定
 		pRB->SetActive();
-		pRB->SetLinearVelocity(rCurrentVel + MoveDir);
+		pRB->SetLinearVelocity(Velocity);
 	}
 }
 
