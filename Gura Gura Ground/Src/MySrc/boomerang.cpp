@@ -114,8 +114,8 @@ CBoomerang::CBoomerang(OBJ::TYPE Type, OBJ::LAYER Layer)
     // モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Boomerang"));
 
-    // ピクセルシェーダーのバインド
-    SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
+    /* ！！！ 回転同期の解除 ！！！ */
+    DisableSyncRotation();
 }
 
 //============================================================================
@@ -167,6 +167,12 @@ void CBoomerang::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //============================================================================
 void CBoomerang::Update()
 {
+    /* ！！！ モデルの自転処理 ！！！ */
+	DirectX::XMFLOAT3 Rotation = GetRotation();
+    Rotation.x = XM_PI * 0.5f;
+	Rotation.y += 0.2f;
+	SetRotation(Rotation);
+
     const float dt = 1.0f / 60.0f;
     m_Time += dt;
 
