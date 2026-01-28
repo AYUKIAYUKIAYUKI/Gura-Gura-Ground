@@ -17,6 +17,7 @@
 //****************************************************
 class CBeamLight;
 class CHud;
+class CPhysicsModel;
 
 //****************************************************
 // セレクトシーンクラスの定義
@@ -59,4 +60,7 @@ private:
 	std::vector<CBeamLight*>  m_vpBeamLight;   // ビームライト
 	std::vector<BeamLightQue> m_vBeamLightQue; // ビームライトのためのキュー
 	CHud*                     m_pCursor;       // カーソル
+
+	/* 3Dモデル側 */
+	CPhysicsModel* m_pModel; // 3Dモデル何らかの
 };

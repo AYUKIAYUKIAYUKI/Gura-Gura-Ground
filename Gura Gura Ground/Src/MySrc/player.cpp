@@ -1,12 +1,12 @@
 //============================================================================
 // 
-// ƒvƒŒƒCƒ„[ [player.cpp]
-// Author : •Ÿ“c•àŠó
+// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ [player.cpp]
+// Author : ç¦ç”°æ­©å¸Œ
 // 
 //============================================================================
 
 //****************************************************
-// ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹
+// ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«
 //****************************************************
 #include "player.h"
 #include "API.gltf.manager.h"
@@ -14,66 +14,66 @@
 #include "effect.manager.h"
 #include "API.sound.manager.h"
 
-// “–‚½‚è”»’è—p
+// å½“ãŸã‚Šåˆ¤å®šç”¨
 #include "API.collision.h"
 #include "field.h"
 #include "shockwave.h"
 #include "windfield.h"
 
-// ‘•ü—p
+// è£…é£¾ç”¨
 #include "dust.h"
 #include "shadow.h"
 
-// ƒJƒƒ‰ƒRƒ“ƒgƒ[ƒ‰[“o˜^‰ğœ‚Ì‚½‚ß
+// ã‚«ãƒ¡ãƒ©ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ç™»éŒ²è§£é™¤ã®ãŸã‚
 #include "cameracontroller.h"
 
-// Ã“Iƒƒ“ƒo‰Šú‰»
+// é™çš„ãƒ¡ãƒ³ãƒåˆæœŸåŒ–
 std::vector<float> CPlayer::s_vSurvivalTimes(CPlayer::MAX_PLAYER_COUNT, 0.0f);
 
 //****************************************************
-// –³–¼–¼‘O‹óŠÔ‚Ì’è‹`
+// ç„¡ååå‰ç©ºé–“ã®å®šç¾©
 //****************************************************
 namespace
 {
-	// ğŒ§Œä
+	// æ¡ä»¶åˆ¶å¾¡
 	int g_nStopCounter = 10;
 
-	// ‰^“®_Œo
+	// é‹å‹•ç¥çµŒ
 	float g_fXZAxis_Speed = 9.0f;
 	float g_fYAxis_Jump = 13.5f;
 
-	// ƒfƒoƒbƒO—p
+	// ãƒ‡ãƒãƒƒã‚°ç”¨
 	void DebugPrint(CPlayer& rPlayer)
 	{
-		// ƒvƒŒƒCƒ„[‚ÌƒCƒ“ƒfƒbƒNƒXæ“¾
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹å–å¾—
 		const unsigned char wIdxPlayer = rPlayer.GetIdxPlayer();
 
-		// ã‚Ì”’l‚ğ•¶š—ñ‚É•ÏŠ·
+		// ä¸Šã®æ•°å€¤ã‚’æ–‡å­—åˆ—ã«å¤‰æ›
 		const std::string WindowName = "Player Debug " + std::to_string(static_cast<int>(wIdxPlayer));
 
-		// Œ»İ‚Ìƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚ğæ“¾
+		// ç¾åœ¨ã®ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‚’å–å¾—
 		const OBJ::Transform& TF = rPlayer.GetTransform();
 
-		// ƒvƒŒƒCƒ„[‚ÌƒŠƒWƒbƒhƒ{ƒfƒB‚Ìæ“¾
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã®å–å¾—
 		CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(rPlayer.GetCollider());
 
-		// Œ»İ‚Ì‰Á‘¬“x‚ğæ“¾
+		// ç¾åœ¨ã®åŠ é€Ÿåº¦ã‚’å–å¾—
 		const btVector3& rCurrentVel = pRigidBody->GetLinearVelocity();
 
-		// ‘€ìŒn“
+		// æ“ä½œç³»çµ±
 		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
 		if (ImGui::TreeNodeEx(WindowName.c_str(), ImGuiTreeNodeFlags_OpenOnArrow))
 		{
 			ImGui::DragInt("Stop Counter", &g_nStopCounter, 1);
 			ImGui::Separator();
 
-			// Œ»İ‚ÌˆÊ’u‚ğ•\¦
+			// ç¾åœ¨ã®ä½ç½®ã‚’è¡¨ç¤º
 			ImGui::Text("PosX: %.2f", TF.Pos.x);
 			ImGui::Text("PosY: %.2f", TF.Pos.y);
 			ImGui::Text("PosZ: %.2f", TF.Pos.z);
 			ImGui::Separator();
 
-			// Œ»İ‚Ì‰Á‘¬“x‚ğ•\¦
+			// ç¾åœ¨ã®åŠ é€Ÿåº¦ã‚’è¡¨ç¤º
 			ImGui::Text("VelX: %.2f", rCurrentVel.getX());
 			ImGui::Text("VelY: %.2f", rCurrentVel.getY());
 			ImGui::Text("VelZ: %.2f", rCurrentVel.getZ());
@@ -87,7 +87,7 @@ namespace
 }
 
 //****************************************************
-// ƒXƒe[ƒg\‘¢‘Ì‚Ì’è‹`
+// ã‚¹ãƒ†ãƒ¼ãƒˆæ§‹é€ ä½“ã®å®šç¾©
 //****************************************************
 struct State
 {
@@ -100,41 +100,41 @@ struct State
 	// funciton
 	//****************************************************
 
-	// XVˆ—
+	// æ›´æ–°å‡¦ç†
 	virtual void Execute(CPlayer::StateMachine& rStateMachine) = 0;
 
-	// ˆÚ“®§Œä
+	// ç§»å‹•åˆ¶å¾¡
 	virtual void Move(CPlayer::StateMachine& rStateMachine, float fSpeed);
 
-	// Ú’n”»’è
+	// æ¥åœ°åˆ¤å®š
 	virtual bool CheckLand(CPlayer::StateMachine& rStateMachine);
 };
 
 //****************************************************
-// ƒXƒe[ƒgƒ}ƒVƒ“\‘¢‘Ì‚Ì’è‹`
+// ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³æ§‹é€ ä½“ã®å®šç¾©
 //****************************************************
 struct CPlayer::StateMachine
 {
 	//****************************************************
 	// special funciton
 	//****************************************************
-	StateMachine(CPlayer& rPlayer); // ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	StateMachine(CPlayer& rPlayer); // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 
 	//****************************************************
 	// funciton
 	//****************************************************
-	void ExecuteState();                                   // ó‘ÔÀs
-	void ChangeState(std::unique_ptr<State>&& upNewState); // ó‘Ô•ÏX
+	void ExecuteState();                                   // çŠ¶æ…‹å®Ÿè¡Œ
+	void ChangeState(std::unique_ptr<State>&& upNewState); // çŠ¶æ…‹å¤‰æ›´
 
 	//****************************************************
 	// data
 	//****************************************************
-	std::unique_ptr<State> m_upState; // ó‘Ô
-	CPlayer& m_rPalyer; // ƒvƒŒƒCƒ„[‚ÌQÆ
+	std::unique_ptr<State> m_upState; // çŠ¶æ…‹
+	CPlayer& m_rPalyer; // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å‚ç…§
 };
 
 //****************************************************
-// ƒfƒtƒHƒ‹ƒgƒXƒe[ƒg\‘¢‘Ì‚Ì’è‹`
+// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚¹ãƒ†ãƒ¼ãƒˆæ§‹é€ ä½“ã®å®šç¾©
 //****************************************************
 struct StateDefault : public State
 {
@@ -142,12 +142,12 @@ struct StateDefault : public State
 	// funciton
 	//****************************************************
 
-	// XVˆ—
+	// æ›´æ–°å‡¦ç†
 	void Execute(CPlayer::StateMachine& rStateMachine) override;
 };
 
 //****************************************************
-// ƒWƒƒƒ“ƒvƒXƒe[ƒg\‘¢‘Ì‚Ì’è‹`
+// ã‚¸ãƒ£ãƒ³ãƒ—ã‚¹ãƒ†ãƒ¼ãƒˆæ§‹é€ ä½“ã®å®šç¾©
 //****************************************************
 struct StateJump : public State
 {
@@ -155,18 +155,18 @@ struct StateJump : public State
 	// funciton
 	//****************************************************
 
-	// XVˆ—
+	// æ›´æ–°å‡¦ç†
 	void Execute(CPlayer::StateMachine& rStateMachine) override;
 
 	//****************************************************
 	// Data
 	//****************************************************
-	bool      m_bGoDown = false;                // ‰º~”»’è
-	btVector3 m_btOldVel = { 0.0f, 0.0f, 0.0f }; // ‰ß‹‚Ì‰Á‘¬“x
+	bool      m_bGoDown = false;                // ä¸‹é™åˆ¤å®š
+	btVector3 m_btOldVel = { 0.0f, 0.0f, 0.0f }; // éå»ã®åŠ é€Ÿåº¦
 };
 
 //****************************************************
-// ƒhƒƒbƒvƒXƒe[ƒg\‘¢‘Ì‚Ì’è‹`
+// ãƒ‰ãƒ­ãƒƒãƒ—ã‚¹ãƒ†ãƒ¼ãƒˆæ§‹é€ ä½“ã®å®šç¾©
 //****************************************************
 struct StateDrop : public State
 {
@@ -174,67 +174,73 @@ struct StateDrop : public State
 	// funciton
 	//****************************************************
 
-	// XVˆ—
+	// æ›´æ–°å‡¦ç†
 	void Execute(CPlayer::StateMachine& rStateMachine) override;
 
 	//****************************************************
 	// Data
 	//****************************************************
-	int m_nStopCounter = 0; // ’â~ŠúŠÔƒJƒEƒ“ƒ^[
+	int m_nStopCounter = 0; // åœæ­¢æœŸé–“ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼
 };
 
 //============================================================================
-// ˆÚ“®§ŒäFó‘Ô‹¤’Ê
+// ç§»å‹•åˆ¶å¾¡ï¼šçŠ¶æ…‹å…±é€š
 //============================================================================
 void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 {
-	// ƒvƒŒƒCƒ„[‚ÌƒŠƒWƒbƒhƒ{ƒfƒB‚Ìæ“¾
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã®å–å¾—
 	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
 
-	// Œ»İ‚Ì‰Á‘¬“x‚ğƒRƒs[
+	// ç¾åœ¨ã®åŠ é€Ÿåº¦ã‚’ã‚³ãƒ”ãƒ¼
 	const btVector3& rCurrentVel = pRigidBody->GetLinearVelocity();
 
-	// Š„‚è“–‚Ä‚ªŠY“–‚·‚éƒQ[ƒ€ƒpƒbƒh‚Ì•ûŒü“ü—Í‚ğæ“¾
+	// å‰²ã‚Šå½“ã¦ãŒè©²å½“ã™ã‚‹ã‚²ãƒ¼ãƒ ãƒ‘ãƒƒãƒ‰ã®æ–¹å‘å…¥åŠ›ã‚’å–å¾—
 	const std::optional<float>& opDirection = CInputManager::RefInstance().ConvertInputToMoveDirection(rStateMachine.m_rPalyer.GetIdxPlayer());
 
-	// ššš ƒvƒŒƒCƒ„[‚ª•Û‚µ‚Ä‚¢‚éƒtƒB[ƒ‹ƒhQÆ‚©‚çAŒ»İ‚ÌƒtƒB[ƒ‹ƒhƒ^ƒCƒv‚ğ”»’è‚·‚é ššš
+	// â˜…â˜…â˜… ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒä¿æŒã—ã¦ã„ã‚‹ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰å‚ç…§ã‹ã‚‰ã€ç¾åœ¨ã®ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚¿ã‚¤ãƒ—ã‚’åˆ¤å®šã™ã‚‹ â˜…â˜…â˜…
 	CField* pField = rStateMachine.m_rPalyer.GetCurrentField();
 	bool bIce = (pField && pField->GetFieldType() == FIELD_TYPE::ICE);
 
-	// •ûŒü“ü—Í‚ª‚ ‚é‚È‚ç
+	// æ–¹å‘å…¥åŠ›ãŒã‚ã‚‹ãªã‚‰
 	if (opDirection)
 	{
-		// ˆÚ“®‘¬“xƒXƒP[ƒ‹
+#if 0
+		// å›è»¢ã®è¨­å®š
+		DirectX::XMFLOAT3 Rotation = { 0.0f, 0.0f, 0.0f };
+		rStateMachine.m_rPalyer.SetRotation(Rotation);
+#endif
+
+		// ç§»å‹•é€Ÿåº¦ã‚¹ã‚±ãƒ¼ãƒ«
 		float fSpeed = fSpeedArg;
 
-		//‰½‚©‚µ‚ç‚Ìƒfƒoƒt‚ª—LŒø‚È‚çˆÚ“®‘¬“x‚É”{—¦‚ğŠ|‚¯‚é
+		//ä½•ã‹ã—ã‚‰ã®ãƒ‡ãƒãƒ•ãŒæœ‰åŠ¹ãªã‚‰ç§»å‹•é€Ÿåº¦ã«å€ç‡ã‚’æ›ã‘ã‚‹
 		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr)
 		{
 			float Decay = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetDecayValue();
 			fSpeed *= Decay;
 		}
 
-		// ššš ƒtƒB[ƒ‹ƒhƒ^ƒCƒv‚É‰‚¶‚ÄˆÚ“®ˆ—‚ğØ‚è‘Ö‚¦‚éiICE ¨ #if1ANORMAL ¨ #elsej ššš
+		// â˜…â˜…â˜… ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚¿ã‚¤ãƒ—ã«å¿œã˜ã¦ç§»å‹•å‡¦ç†ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹ï¼ˆICE â†’ #if1ã€NORMAL â†’ #elseï¼‰ â˜…â˜…â˜…
 		if (bIce)
 		{
 			//===========================
-			// ‚±‚±‚©‚ç #if 1 ‚Ì’†g
+			// ã“ã“ã‹ã‚‰ #if 1 ã®ä¸­èº«
 			//===========================
 
-			// ”’l‚ğæs‚µ‚Äæ“¾
+			// æ•°å€¤ã‚’å…ˆè¡Œã—ã¦å–å¾—
 			float fDirectionValue = opDirection.value();
 
-			// ˆÚ“®‘¬“xƒXƒP[ƒ‹‚Ìì¬
+			// ç§»å‹•é€Ÿåº¦ã‚¹ã‚±ãƒ¼ãƒ«ã®ä½œæˆ
 			//const float fSpeed = fSpeedArg;
 			btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
-			// ˆÚ“®•ûŒüFXZ²F•ûŒü‚É‰ˆ‚Á‚Ä’PˆÊƒxƒNƒgƒ‹‚É‘¬“xŒW”‚ğŠ|‚¯‚½‚à‚Ì‚ğİ’è
-			// @@@@FY² FŒ»İ‚Ìd—Í‘¬“x‚ğˆÛ
+			// ç§»å‹•æ–¹å‘ï¼šXZè»¸ï¼šæ–¹å‘ã«æ²¿ã£ã¦å˜ä½ãƒ™ã‚¯ãƒˆãƒ«ã«é€Ÿåº¦ä¿‚æ•°ã‚’æ›ã‘ãŸã‚‚ã®ã‚’è¨­å®š
+			// ã€€ã€€ã€€ã€€ï¼šYè»¸ ï¼šç¾åœ¨ã®é‡åŠ›é€Ÿåº¦ã‚’ç¶­æŒ
 			MoveDir.setX(sinf(fDirectionValue));
 			MoveDir.setY(0.0f);
 			MoveDir.setZ(cosf(fDirectionValue));
 
-			// —Í‚ğ‰Á‚¦‚é 
+			// åŠ›ã‚’åŠ ãˆã‚‹ 
 			if (pRigidBody->GetActive())
 			{
 				pRigidBody->SetForce(MoveDir * fSpeed);
@@ -246,36 +252,36 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 			}
 
 			//===========================
-			// #if 1 I‚í‚è
+			// #if 1 çµ‚ã‚ã‚Š
 			//===========================
 		}
 		else
 		{
 			//===========================
-			// ‚±‚±‚©‚ç #else ‚Ì’†g
+			// ã“ã“ã‹ã‚‰ #else ã®ä¸­èº«
 			//===========================
 
-			// ”’l‚ğæs‚µ‚Äæ“¾
+			// æ•°å€¤ã‚’å…ˆè¡Œã—ã¦å–å¾—
 			float fDirectionValue = opDirection.value();
 
-			// ˆÚ“®‘¬“xƒXƒP[ƒ‹‚Ìì¬
+			// ç§»å‹•é€Ÿåº¦ã‚¹ã‚±ãƒ¼ãƒ«ã®ä½œæˆ
 			//const float fSpeed = fSpeedArg;
 			btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
-			// ˆÚ“®•ûŒüFXZ²F•ûŒü‚É‰ˆ‚Á‚Ä’PˆÊƒxƒNƒgƒ‹‚É‘¬“xŒW”‚ğŠ|‚¯‚½‚à‚Ì‚ğİ’è
+			// ç§»å‹•æ–¹å‘ï¼šXZè»¸ï¼šæ–¹å‘ã«æ²¿ã£ã¦å˜ä½ãƒ™ã‚¯ãƒˆãƒ«ã«é€Ÿåº¦ä¿‚æ•°ã‚’æ›ã‘ãŸã‚‚ã®ã‚’è¨­å®š
 			MoveDir.setX(sinf(fDirectionValue));
 			MoveDir.setZ(cosf(fDirectionValue));
 
-			// –Ú•W‚Ì‰Á‘¬“xì¬
+			// ç›®æ¨™ã®åŠ é€Ÿåº¦ä½œæˆ
 			const btVector3& TargetVel = MoveDir * fSpeed;
 
-			/* ‚ ‚ cbtVector3‚ğXMFLOAT3‚É•ÏŠ· */
+			/* ã‚ã‚â€¦btVector3ã‚’XMFLOAT3ã«å¤‰æ› */
 			DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
 			DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
 
-			/* ‚ ‚ c—v‘f‚¸‚Âw”Œ¸Š */
+			/* ã‚ã‚â€¦è¦ç´ ãšã¤æŒ‡æ•°æ¸›è¡° */
 			float fCoef = 0.25f;
-			//‰½‚©‚µ‚ç‚Ìƒfƒoƒt‚ª—LŒø‚È‚çŠµ«‚É”{—¦‚ğŠ|‚¯‚é
+			//ä½•ã‹ã—ã‚‰ã®ãƒ‡ãƒãƒ•ãŒæœ‰åŠ¹ãªã‚‰æ…£æ€§ã«å€ç‡ã‚’æ›ã‘ã‚‹
 			if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
 				float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
 				fCoef *= Inertia;
@@ -283,10 +289,10 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 			useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
 			useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
 
-			/* ‚ ‚ cXMFLOAT3‚ÌŒ¸ŠŒ‹‰Ê‚ğbtVector3‚É•ÏŠ· */
+			/* ã‚ã‚â€¦XMFLOAT3ã®æ¸›è¡°çµæœã‚’btVector3ã«å¤‰æ› */
 			btVector3 ResultVel = { CurrentVel_XMFLOAT.x, rCurrentVel.getY(), CurrentVel_XMFLOAT.z };
 
-			/* Ú’n‚µ‚Ä‚¢‚é‚©‚Ç‚¤‚© (•Ö‹X“I‚ÉƒVƒFƒAƒ|ƒCƒ“ƒ^‚ÌƒŠƒWƒbƒhƒ{ƒfƒB‚ÉÚG‚µ‚Ä‚¢‚é‚©) ‚É‰‚¶‚Ä‘¬“x‚Ì‰Á‚¦•û‚ğ•ÏX */
+			/* æ¥åœ°ã—ã¦ã„ã‚‹ã‹ã©ã†ã‹ (ä¾¿å®œçš„ã«ã‚·ã‚§ã‚¢ãƒã‚¤ãƒ³ã‚¿ã®ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã«æ¥è§¦ã—ã¦ã„ã‚‹ã‹) ã«å¿œã˜ã¦é€Ÿåº¦ã®åŠ ãˆæ–¹ã‚’å¤‰æ›´ */
 			pRigidBody->SetActive();
 			if (Collision::CheckHitToRigidBodyShare(pRigidBody))
 			{
@@ -298,13 +304,13 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 			}
 
 			//===========================
-			// #else I‚í‚è
+			// #else çµ‚ã‚ã‚Š
 			//===========================
 		}
 	}
 	else
 	{
-		// š“ü—Í‚ª–³‚¢ê‡‚ÍAŒ»İ‚Ì‘¬“x‚ğŒ¸Š‚³‚¹‚Ä©‘RŒ¸‘¬‚³‚¹‚éˆ—
+		// â˜…å…¥åŠ›ãŒç„¡ã„å ´åˆã¯ã€ç¾åœ¨ã®é€Ÿåº¦ã‚’æ¸›è¡°ã•ã›ã¦è‡ªç„¶æ¸›é€Ÿã•ã›ã‚‹å‡¦ç†
 		btVector3 MoveDir = { 0.0f, 0.0f, 0.0f };
 
 		float fCurrentX = rCurrentVel.getX();
@@ -327,29 +333,29 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 }
 
 //============================================================================
-// ’…’n”»’èFó‘Ô‹¤’Ê
+// ç€åœ°åˆ¤å®šï¼šçŠ¶æ…‹å…±é€š
 //============================================================================
 bool State::CheckLand(CPlayer::StateMachine& rStateMachine)
 {
-	// ƒvƒŒƒCƒ„[‚ÌƒŠƒWƒbƒhƒ{ƒfƒB‚Ìæ“¾
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã®å–å¾—
 	CRigidBody* const pPlayerRigidBody = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
 
-	// ã¸’†‚Í’…’n”»’è‚ğs‚í‚È‚¢
+	// ä¸Šæ˜‡ä¸­ã¯ç€åœ°åˆ¤å®šã‚’è¡Œã‚ãªã„
 	if (pPlayerRigidBody->GetLinearVelocity().getY() > 0.0f)
 	{
 		return false;
 	}
 
-	// Õ“Ë”»’è‚ÌŒ‹‰Ê
+	// è¡çªåˆ¤å®šã®çµæœ
 	bool m_bHit = false;
 
-	// ¶ƒ|ƒCƒ“ƒ^‚ÌƒIƒuƒWƒFƒNƒg‚ÌƒŠƒWƒbƒhƒ{ƒfƒB‚ÆÕ“Ë”»’è
+	// ç”Ÿãƒã‚¤ãƒ³ã‚¿ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã¨è¡çªåˆ¤å®š
 	if (Collision::CheckHitToRigidBodyRaw(pPlayerRigidBody))
 	{
 		m_bHit = true;
 	}
 
-	// ƒVƒFƒAƒ|ƒCƒ“ƒ^‚ÌƒIƒuƒWƒFƒNƒg‚ÌƒŠƒWƒbƒhƒ{ƒfƒB‚ÆÕ“Ë”»’è
+	// ã‚·ã‚§ã‚¢ãƒã‚¤ãƒ³ã‚¿ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã¨è¡çªåˆ¤å®š
 	if (Collision::CheckHitToRigidBodyShare(pPlayerRigidBody))
 	{
 		m_bHit = true;
@@ -359,7 +365,7 @@ bool State::CheckLand(CPlayer::StateMachine& rStateMachine)
 }
 
 //============================================================================
-// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^FƒXƒe[ƒgƒ}ƒVƒ“
+// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ï¼šã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³
 //============================================================================
 CPlayer::StateMachine::StateMachine(CPlayer& rPlayer)
 	: m_upState(std::make_unique<StateDefault>())
@@ -367,7 +373,7 @@ CPlayer::StateMachine::StateMachine(CPlayer& rPlayer)
 {}
 
 //============================================================================
-// ó‘ÔÀsFƒXƒe[ƒgƒ}ƒVƒ“
+// çŠ¶æ…‹å®Ÿè¡Œï¼šã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³
 //============================================================================
 void CPlayer::StateMachine::ExecuteState()
 {
@@ -378,7 +384,7 @@ void CPlayer::StateMachine::ExecuteState()
 }
 
 //============================================================================
-// ó‘Ô•ÏXFƒXƒe[ƒgƒ}ƒVƒ“
+// çŠ¶æ…‹å¤‰æ›´ï¼šã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³
 //============================================================================
 void CPlayer::StateMachine::ChangeState(std::unique_ptr<State>&& upNewState)
 {
@@ -391,107 +397,107 @@ void CPlayer::StateMachine::ChangeState(std::unique_ptr<State>&& upNewState)
 }
 
 //============================================================================
-// ó‘ÔÀsFƒfƒtƒHƒ‹ƒgƒXƒe[ƒg
+// çŠ¶æ…‹å®Ÿè¡Œï¼šãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚¹ãƒ†ãƒ¼ãƒˆ
 //============================================================================
 void StateDefault::Execute(CPlayer::StateMachine& rStateMachine)
 {
-	// §Œä•s”\ŠúŠÔ‚ªİ’è‚³‚ê‚Ä‚¢‚éŠÔˆ—‚µ‚È‚¢
+	// åˆ¶å¾¡ä¸èƒ½æœŸé–“ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹é–“å‡¦ç†ã—ãªã„
 	if (rStateMachine.m_rPalyer.GetLostControlDuration() > 0)
 	{
 		return;
 	}
 
-	// ƒvƒŒƒCƒ„[‚ÌƒŠƒWƒbƒhƒ{ƒfƒB‚Ìæ“¾
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã®å–å¾—
 	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
 
-	// ˆÚ“®
+	// ç§»å‹•
 	Move(rStateMachine, g_fXZAxis_Speed);
 
-	// ƒWƒƒƒ“ƒv
+	// ã‚¸ãƒ£ãƒ³ãƒ—
 	if (CInputManager::RefInstance().GetTrackerGamePad(rStateMachine.m_rPalyer.GetIdxPlayer()).a == DirectX::GamePad::ButtonStateTracker::PRESSED)
 	{
-		// ƒWƒƒƒ“ƒv—Í
+		// ã‚¸ãƒ£ãƒ³ãƒ—åŠ›
 		btVector3 btJumpVec = { 0.0f, g_fYAxis_Jump, 0.0f };
 
 		CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
 
-		// ƒWƒƒƒ“ƒv—Í‚ğÕŒ‚‚Æ‚µ‚Ä‰Á‚¦‚é
+		// ã‚¸ãƒ£ãƒ³ãƒ—åŠ›ã‚’è¡æ’ƒã¨ã—ã¦åŠ ãˆã‚‹
 		pRigidBody->SetActive();
 		pRigidBody->SetImpulse(btJumpVec);
 
-		// ƒWƒƒƒ“ƒvó‘Ô‚É•ÏX
+		// ã‚¸ãƒ£ãƒ³ãƒ—çŠ¶æ…‹ã«å¤‰æ›´
 		rStateMachine.ChangeState(std::make_unique<StateJump>());
 	}
 }
 
 //============================================================================
-// ó‘ÔÀsFƒWƒƒƒ“ƒvƒXƒe[ƒg
+// çŠ¶æ…‹å®Ÿè¡Œï¼šã‚¸ãƒ£ãƒ³ãƒ—ã‚¹ãƒ†ãƒ¼ãƒˆ
 //============================================================================
 void StateJump::Execute(CPlayer::StateMachine& rStateMachine)
 {
-	// §Œä•s”\ŠúŠÔ‚ªİ’è‚³‚ê‚Ä‚¢‚éŠÔˆ—‚µ‚È‚¢
+	// åˆ¶å¾¡ä¸èƒ½æœŸé–“ãŒè¨­å®šã•ã‚Œã¦ã„ã‚‹é–“å‡¦ç†ã—ãªã„
 	if (rStateMachine.m_rPalyer.GetLostControlDuration() > 0)
 	{
 		return;
 	}
 
-	// ƒŠƒWƒbƒhƒ{ƒfƒB‚Ìæ“¾
+	// ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã®å–å¾—
 	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
 
-	// Œ»İ‚Ì‰Á‘¬“x‚ğƒRƒs[
+	// ç¾åœ¨ã®åŠ é€Ÿåº¦ã‚’ã‚³ãƒ”ãƒ¼
 	const btVector3& rCurrentVel = pRigidBody->GetLinearVelocity();
 
-	// ‰º~”»’è
+	// ä¸‹é™åˆ¤å®š
 	if (!m_bGoDown && rCurrentVel.getY() < 0.0f && m_btOldVel.getY() > 0.0f)
 	{
 		m_bGoDown = true;
 	}
 
-	// ‰º~”»’èæ‚èÁ‚µ
+	// ä¸‹é™åˆ¤å®šå–ã‚Šæ¶ˆã—
 	if (m_bGoDown && rCurrentVel.getY() < -8.0f && m_btOldVel.getY() < -8.0f)
 	{
 		m_bGoDown = false;
 	}
 
-	// ˆÚ“®
+	// ç§»å‹•
 	Move(rStateMachine, g_fXZAxis_Speed);
 
-	// ó‘Ô•ÏX
+	// çŠ¶æ…‹å¤‰æ›´
 	if (m_bGoDown && CInputManager::RefInstance().GetTrackerGamePad(rStateMachine.m_rPalyer.GetIdxPlayer()).a == DirectX::GamePad::ButtonStateTracker::PRESSED)
 	{
-		// ƒLƒlƒ}ƒeƒBƒbƒN‰»
+		// ã‚­ãƒãƒãƒ†ã‚£ãƒƒã‚¯åŒ–
 		pRigidBody->SetKinematic();
 
-		// ‰º~”»’èŒãAƒWƒƒƒ“ƒvó‘Ô’†‚É’Ç‰Á“ü—Í‚Åƒhƒƒbƒvó‘Ô‚É•ÏX
+		// ä¸‹é™åˆ¤å®šå¾Œã€ã‚¸ãƒ£ãƒ³ãƒ—çŠ¶æ…‹ä¸­ã«è¿½åŠ å…¥åŠ›ã§ãƒ‰ãƒ­ãƒƒãƒ—çŠ¶æ…‹ã«å¤‰æ›´
 		rStateMachine.ChangeState(std::make_unique<StateDrop>());
 	}
 	else if (CheckLand(rStateMachine))
 	{
-		// ’n–Ê‚É’…’n‚µ‚Ä‚¢‚½‚ç’Êíó‘Ô‚É•ÏX
+		// åœ°é¢ã«ç€åœ°ã—ã¦ã„ãŸã‚‰é€šå¸¸çŠ¶æ…‹ã«å¤‰æ›´
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
 	}
 
-	// Œ»İ‚Ì‰Á‘¬“xî•ñ‚ğŸƒtƒŒ[ƒ€‚Ö‚¿‰z‚µ
+	// ç¾åœ¨ã®åŠ é€Ÿåº¦æƒ…å ±ã‚’æ¬¡ãƒ•ãƒ¬ãƒ¼ãƒ ã¸æŒã¡è¶Šã—
 	m_btOldVel = rCurrentVel;
 }
 
 //============================================================================
-// ó‘ÔÀsFƒhƒƒbƒvƒXƒe[ƒg
+// çŠ¶æ…‹å®Ÿè¡Œï¼šãƒ‰ãƒ­ãƒƒãƒ—ã‚¹ãƒ†ãƒ¼ãƒˆ
 //============================================================================
 void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 {
-	// ’â~ŠúŠÔƒJƒEƒ“ƒ^[‚Íí“®ì
+	// åœæ­¢æœŸé–“ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼ã¯å¸¸æ™‚å‹•ä½œ
 	++m_nStopCounter;
 
-	// ƒŠƒWƒbƒhƒ{ƒfƒB‚Ìæ“¾
+	// ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã®å–å¾—
 	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(rStateMachine.m_rPalyer.GetCollider());
 
-	// Œ»İ‚Ìƒ[ƒ‹ƒhƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚ğƒRƒs[
+	// ç¾åœ¨ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‚’ã‚³ãƒ”ãƒ¼
 	OBJ::Transform TF = pRigidBody->GetWorldTransform();
 
 	if (m_nStopCounter < g_nStopCounter)
 	{
-		// ˆÊ’u‚ğ­‚µ‚¸‚ç‚·
+		// ä½ç½®ã‚’å°‘ã—ãšã‚‰ã™
 		TF.Pos =
 		{
 		   TF.Pos.x + useful::GetRandomValue<float>() * 0.0005f,
@@ -499,49 +505,49 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 		   TF.Pos.z + useful::GetRandomValue<float>() * 0.0005f
 		};
 
-		// ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚ğƒ‚[ƒVƒ‡ƒ“ƒXƒe[ƒg‚É”½‰f‚·‚é
+		// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‚’ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆã«åæ˜ ã™ã‚‹
 		pRigidBody->SetWorldTransform(TF);
 	}
 	else
 	{
-		// ƒhƒƒbƒv—Íì¬
+		// ãƒ‰ãƒ­ãƒƒãƒ—åŠ›ä½œæˆ
 		btVector3 btDropVec = { 0.0f, g_fYAxis_Jump * -2.0f, 0.0f };
 
-		// ƒ_ƒCƒiƒ~ƒbƒN‚É–ß‚·
+		// ãƒ€ã‚¤ãƒŠãƒŸãƒƒã‚¯ã«æˆ»ã™
 		pRigidBody->SetDynamic();
 
-		// ‰º•ûŒü‚ÉÕŒ‚‚ğ—^‚¦‚é
+		// ä¸‹æ–¹å‘ã«è¡æ’ƒã‚’ä¸ãˆã‚‹
 		pRigidBody->SetActive();
 		pRigidBody->SetImpulse(btDropVec);
 
-		// —‰º’†‚É¬‚³‚È‹…Œ`‚ÌÕŒ‚”g‚ğì¬
+		// è½ä¸‹ä¸­ã«å°ã•ãªçƒå½¢ã®è¡æ’ƒæ³¢ã‚’ä½œæˆ
 		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::SPHERE, { 2.0f, 2.0f, 2.0f }, 1);
 	}
 
-	// ’n–Ê‚ÆÚ’n‚µ‚½‚ç
+	// åœ°é¢ã¨æ¥åœ°ã—ãŸã‚‰
 	if (CheckLand(rStateMachine))
 	{
-		// ƒ_ƒCƒiƒ~ƒbƒN‚É–ß‚·
+		// ãƒ€ã‚¤ãƒŠãƒŸãƒƒã‚¯ã«æˆ»ã™
 		pRigidBody->SetDynamic();
 
 		useful::Vec3 EffectVec3 = { rStateMachine.m_rPalyer.GetTransform().Pos.x,6.25f,rStateMachine.m_rPalyer.GetTransform().Pos.z };
 		CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
-		// ÕŒ‚”g‚Ìì¬
+		// è¡æ’ƒæ³¢ã®ä½œæˆ
 		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 6.0f, 1.0f, 6.0f }, 10);
 
-		//ƒhƒƒbƒvƒTƒEƒ“ƒhÄ¶
+		//ãƒ‰ãƒ­ãƒƒãƒ—ã‚µã‚¦ãƒ³ãƒ‰å†ç”Ÿ
 		CSoundManger::RefInstance().Play("Drop", false, 0.0f, 1.0f);
 
-		// ’Êíó‘Ô‚É•ÏX
+		// é€šå¸¸çŠ¶æ…‹ã«å¤‰æ›´
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
 
-		// oFŠgU”­¶
+		// å¡µï¼šæ‹¡æ•£ç™ºç”Ÿ
 		CDust::GenerateSpread(rStateMachine.m_rPalyer.GetTransform().Pos, 7);
 	}
 }
 
 //============================================================================
-// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //============================================================================
 CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CPhysicsModel(Type, Layer)
@@ -552,71 +558,78 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 	, m_nStepCounter(0)
 	, m_pDebuffBehavior(nullptr)
 {
-	// ƒVƒFƒAƒ|ƒCƒ“ƒ^‚ÌƒIƒuƒWƒFƒNƒgƒŠƒXƒg‚ÌQÆ
+	// ã‚·ã‚§ã‚¢ãƒã‚¤ãƒ³ã‚¿ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒªã‚¹ãƒˆã®å‚ç…§
 	const std::list<std::shared_ptr<CObject>>& rFieldList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
 
-	// ƒtƒB[ƒ‹ƒh‚ÌãQÆ‚ğİ’è
+	// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã®å¼±å‚ç…§ã‚’è¨­å®š
 	m_wpField = std::dynamic_pointer_cast<CField>(rFieldList.front());
 	m_wpWindoField = std::dynamic_pointer_cast<CWindField>(rFieldList.front());
 
-	// ƒ‚ƒfƒ‹‚ÌƒoƒCƒ“ƒh
+	// ãƒ¢ãƒ‡ãƒ«ã®ãƒã‚¤ãƒ³ãƒ‰
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
+	SetModelOffset({ 0.0f, -0.5f, 0.0f });
+	
+	// å›è»¢åŒæœŸã®è§£é™¤
+	DisableSyncRotation();
+
+	// ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€â€•ã®ãƒã‚¤ãƒ³ãƒ‰
+	SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
 }
 
 //============================================================================
-// ƒfƒXƒgƒ‰ƒNƒ^
+// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //============================================================================
 CPlayer::~CPlayer()
 {}
 
 //============================================================================
-// ƒRƒ‰ƒCƒ_[‚Ìƒtƒ@ƒNƒgƒŠ
+// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ãƒ•ã‚¡ã‚¯ãƒˆãƒª
 //============================================================================
 void CPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
-	// ƒvƒŒƒCƒ„[—p‚ÌƒŠƒWƒbƒhƒ{ƒfƒB‚Ìì¬
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç”¨ã®ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã®ä½œæˆ
 	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
 
-	// ƒRƒ‰ƒCƒ_[‚ğƒŠƒWƒbƒhƒ{ƒfƒB‚ÉƒLƒƒƒXƒg
+	// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã«ã‚­ãƒ£ã‚¹ãƒˆ
 	const CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(GetCollider());
 
-	// d—Í‚Ìİ’è
+	// é‡åŠ›ã®è¨­å®š
 	pRigidBody->SetGravity({ 0.0f, -25.0f, 0.0f });
 
-	// –€C—Í‚ğİ’è
+	// æ‘©æ“¦åŠ›ã‚’è¨­å®š
 	pRigidBody->SetFriction(1.0f);
 
-	// Œ¸Š—Í‚ğİ’è
+	// æ¸›è¡°åŠ›ã‚’è¨­å®š
 	pRigidBody->SetDamping(0.3f, 0.0f);
 
-	// Y²ˆÈŠO‚Ì‰ñ“]‚ğƒƒbƒN
+	// Yè»¸ä»¥å¤–ã®å›è»¢ã‚’ãƒ­ãƒƒã‚¯
 	pRigidBody->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
 
-	// ‰e‚Ìì¬
+	// å½±ã®ä½œæˆ
 	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(
 		OBJ::TYPE::NONE,
 		OBJ::LAYER::DEFAULT);
 
-	// ‰e‚Ì’Ç]‘ÎÛ‚Æ‚µ‚Ä©g‚ğİ’è
+	// å½±ã®è¿½å¾“å¯¾è±¡ã¨ã—ã¦è‡ªèº«ã‚’è¨­å®š
 	pShadow->SetTrackTarget(shared_from_this());
 }
 
 //============================================================================
-// XVˆ—
+// æ›´æ–°å‡¦ç†
 //============================================================================
 void CPlayer::Update()
 {
-	// §Œä•s”\ŠúŠÔ‚Íí‚ÉƒfƒNƒŠƒƒ“ƒg
+	// åˆ¶å¾¡ä¸èƒ½æœŸé–“ã¯å¸¸ã«ãƒ‡ã‚¯ãƒªãƒ¡ãƒ³ãƒˆ
 	--m_nLostControlDuration;
 
-	//¶‘¶ŠÔŒv‘ª
+	//ç”Ÿå­˜æ™‚é–“è¨ˆæ¸¬
 	if (m_bIsDead)
 	{
 		if (m_wIdxPlayer < s_vSurvivalTimes.size())
-			s_vSurvivalTimes[m_wIdxPlayer] += 1.0f / 60.0f; // 60FPS‚ÅŠ·Z
+			s_vSurvivalTimes[m_wIdxPlayer] += 1.0f / 60.0f; // 60FPSã§æ›ç®—
 	}
 
-	// ó‘ÔÀs
+	// çŠ¶æ…‹å®Ÿè¡Œ
 	if (m_upStateMachine)
 	{
 		m_upStateMachine->ExecuteState();
@@ -629,51 +642,51 @@ void CPlayer::Update()
 			m_pDebuffBehavior = nullptr;
 		}
 	}
-	// €–S”»’è
+	// æ­»äº¡åˆ¤å®š
 	CheckDeath();
 
-	// WVPs—ñ—p’è”ƒoƒbƒtƒ@‚ÌXV
+	// WVPè¡Œåˆ—ç”¨å®šæ•°ãƒãƒƒãƒ•ã‚¡ã®æ›´æ–°
 	CPhysicsModel::Update();
 
-	/* ƒfƒoƒbƒO•\¦ */
+	/* ãƒ‡ãƒãƒƒã‚°è¡¨ç¤º */
 	DebugPrint(*this);
 }
 
 //============================================================================
-// •`‰æˆ—
+// æç”»å‡¦ç†
 //============================================================================
 void CPlayer::Draw()
 {
-	// ƒ‚ƒfƒ‹‚Ì•`‰æ
+	// ãƒ¢ãƒ‡ãƒ«ã®æç”»
 	CPhysicsModel::Draw();
 }
 
 //============================================================================
-// ÕŒ‚”g‚Ìì¬
+// è¡æ’ƒæ³¢ã®ä½œæˆ
 //============================================================================
 void CPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
 {
-	// ÕŒ‚”g‚Ìì¬‚ÆAãQÆ‚Ìİ’è
+	// è¡æ’ƒæ³¢ã®ä½œæˆã¨ã€å¼±å‚ç…§ã®è¨­å®š
 	const std::shared_ptr<CShockWave>& spShockWave = CObjectManager::CreateShare<CShockWave>(
 		OBJ::TYPE::NONE,
 		OBJ::LAYER::DEFAULT);
 
-	// ƒvƒŒƒCƒ„[‚Ìƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚ğoŒ»ˆÊ’u‚Éİ’è
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‚’å‡ºç¾ä½ç½®ã«è¨­å®š
 	spShockWave->SetTransform(GetTransform());
 
-	// ƒS[ƒXƒg‚Ìì¬
+	// ã‚´ãƒ¼ã‚¹ãƒˆã®ä½œæˆ
 	spShockWave->FactoryCollider(Type, Size.x, Size.y, Size.z);
 
-	// ©g‚ğ–³‹‘ÎÛ‚Éİ’è
+	// è‡ªèº«ã‚’ç„¡è¦–å¯¾è±¡ã«è¨­å®š
 	//spShockWave->SetIgnore(WeakThis().lock());
 	spShockWave->SetIgnore(shared_from_this());
 
-	// ŠúŠÔ‚Ìİ’è
+	// æœŸé–“ã®è¨­å®š
 	spShockWave->SetDuration(nDuration);
 }
 
 //============================================================================
-// ƒvƒŒƒCƒ„[‚ÌƒCƒ“ƒfƒbƒNƒX‚ğæ“¾
+// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’å–å¾—
 //============================================================================
 unsigned char CPlayer::GetIdxPlayer() const
 {
@@ -681,7 +694,7 @@ unsigned char CPlayer::GetIdxPlayer() const
 }
 
 //============================================================================
-// ƒvƒŒƒCƒ„[‚ÌƒCƒ“ƒfƒbƒNƒX‚ğİ’è
+// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’è¨­å®š
 //============================================================================
 void CPlayer::SetIdxPlayer(unsigned char wIdx)
 {
@@ -689,7 +702,7 @@ void CPlayer::SetIdxPlayer(unsigned char wIdx)
 }
 
 //============================================================================
-// §Œä•s”\‹@ŠÖ‚Ìİ’è
+// åˆ¶å¾¡ä¸èƒ½æ©Ÿé–¢ã®è¨­å®š
 //============================================================================
 int CPlayer::GetLostControlDuration() const
 {
@@ -697,7 +710,7 @@ int CPlayer::GetLostControlDuration() const
 }
 
 //============================================================================
-// §Œä•s”\‹@ŠÖ‚Ìİ’è
+// åˆ¶å¾¡ä¸èƒ½æ©Ÿé–¢ã®è¨­å®š
 //============================================================================
 void CPlayer::SetLostControlDuration(int nTime)
 {
@@ -705,59 +718,59 @@ void CPlayer::SetLostControlDuration(int nTime)
 }
 
 //============================================================================
-// o‚ÌisXV
+// å¡µã®é€²è¡Œæ›´æ–°
 //============================================================================
 void CPlayer::UpdateDustStep(const DirectX::XMFLOAT3& Direction)
 {
 	++m_nStepCounter;
 
-	// isƒJƒEƒ“ƒ^[‚ªŠù’è’l‚É“’B‚µ‚½‚ç
+	// é€²è¡Œã‚«ã‚¦ãƒ³ã‚¿ãƒ¼ãŒæ—¢å®šå€¤ã«åˆ°é”ã—ãŸã‚‰
 	if (m_nStepCounter > DUST_STEP_COUNT_MAX)
 	{
 		m_nStepCounter = 0;
 
-		// ƒRƒ‰ƒCƒ_[‚ğƒŠƒWƒbƒhƒ{ƒfƒB‚ÉƒLƒƒƒXƒg
+		// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã«ã‚­ãƒ£ã‚¹ãƒˆ
 		if (CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(GetCollider()))
 		{
-			// ˆÊ’u‚ğæ“¾
+			// ä½ç½®ã‚’å–å¾—
 			const DirectX::XMFLOAT3& Pos = pRigidBody->GetWorldTransform().Pos;
 
-			// oF’¼ü”­¶FˆÚ“®‚µ‚½êŠ‚Ì‹OÕ‚ğ‚È‚¼‚é‚æ‚¤‚É
+			// å¡µï¼šç›´ç·šç™ºç”Ÿï¼šç§»å‹•ã—ãŸå ´æ‰€ã®è»Œè·¡ã‚’ãªãã‚‹ã‚ˆã†ã«
 			CDust::GenerateLinear(Pos, Direction);
 		}
 	}
 }
 
 //============================================================================
-// €–Sƒ`ƒFƒbƒN
+// æ­»äº¡ãƒã‚§ãƒƒã‚¯
 //============================================================================
 void CPlayer::CheckDeath()
 {
-	// ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚©‚ç‚‚³‚ğæ“¾
+	// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‹ã‚‰é«˜ã•ã‚’å–å¾—
 	float fSelfPosY = GetTransform().Pos.y;
 
-	// ƒtƒB[ƒ‹ƒh‚Ì‚‚³‚ğ•Û—L
+	// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã®é«˜ã•ã‚’ä¿æœ‰
 	float fFieldPosY = 0.0f;
 
-	// ƒtƒB[ƒ‹ƒh‚Ì‚‚³‚ğæ“¾
+	// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã®é«˜ã•ã‚’å–å¾—
 	if (std::shared_ptr<CField> spField = m_wpField.lock())
 	{
 		fFieldPosY = spField->GetTransform().Pos.y;
 	}
 
-	// •—ƒtƒB[ƒ‹ƒh‚Ì‚‚³‚ğæ“¾
+	// é¢¨ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã®é«˜ã•ã‚’å–å¾—
 	else if (std::shared_ptr<CWindField> spField1 = m_wpWindoField.lock())
 	{
 		fFieldPosY = spField1->GetTransform().Pos.y;
 	}
 
-	// YÀ•W‚ªƒtƒB[ƒ‹ƒh‚Ì‚‚³‚ğ‰º‰ñ‚Á‚½‚ç
+	// Yåº§æ¨™ãŒãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã®é«˜ã•ã‚’ä¸‹å›ã£ãŸã‚‰
 	if (fSelfPosY < fFieldPosY)
 	{
-		//ƒhƒƒbƒvƒTƒEƒ“ƒhÄ¶
+		//ãƒ‰ãƒ­ãƒƒãƒ—ã‚µã‚¦ãƒ³ãƒ‰å†ç”Ÿ
 		CSoundManger::RefInstance().Play("Falling", false, 0.0f, 1.0f);
 
-		// ©g‚Ì€–Sƒtƒ‰ƒO‚ğ—§‚Ä‚é
+		// è‡ªèº«ã®æ­»äº¡ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
 		m_bIsDead = true;
 		SetDeath();
 	}

@@ -26,6 +26,9 @@
 #include "API.fullscreen.2D.h"
 #include "beamlight.h"
 
+#include "API.physics.model.h"
+#include "API.gltf.manager.h"
+
 /* デバッグ */
 namespace
 {
@@ -56,6 +59,7 @@ CSceneSelect::CSceneSelect()
 	, m_vpBeamLight{}
 	, m_vBeamLightQue{}
 	, m_pCursor(nullptr)
+	, m_pModel(nullptr)
 {
 	// サンシャインエフェクトの生成
 	auto pfst = CObjectManager::CreateRaw<CFullScreen2D>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
@@ -77,6 +81,19 @@ CSceneSelect::CSceneSelect()
 	auto pCursor = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
 	pCursor->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Cursor"));
 	m_pCursor = pCursor;
+
+	/* なにか */
+	m_pModel = CObjectManager::CreateRaw<CPhysicsModel>(
+		[](CPhysicsModel* p) -> bool
+		{
+			// コライダーの作成
+			p->FactoryCollider(1.0f, 1.0f, 1.0f);
+
+			// モデルの設定
+			p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("P1"));
+
+			return true;
+		});
 }
 
 //============================================================================
@@ -90,14 +107,12 @@ CSceneSelect::~CSceneSelect()
 //============================================================================
 void CSceneSelect::Update()
 {
-	/* デバッグ */
-	AAA();
-
 	// ビームライトの生成キュー
 	WhileEvent_QueInstantiateLight();
 
 	// カーソルの追従
 	WhileEvent_CursorTrack();
+
 
 	if (CInputManager::RefInstance().EnhancedEnter())
 	{
