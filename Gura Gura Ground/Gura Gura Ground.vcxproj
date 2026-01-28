@@ -58,6 +58,7 @@
     </ClCompile>
     <ClCompile Include="Src\MySrc\pendulum.cpp" />
     <ClCompile Include="Src\MySrc\player.cpp" />
+    <ClCompile Include="Src\MySrc\player.fake.cpp" />
     <ClCompile Include="Src\MySrc\route.cpp" />
     <ClCompile Include="Src\MySrc\scene.game.cpp" />
     <ClCompile Include="Src\MySrc\scene.result.cpp" />
@@ -130,6 +131,7 @@
     <ClInclude Include="Src\MySrc\hud.count.h" />
     <ClInclude Include="Src\MySrc\IronBall.h" />
     <ClInclude Include="Src\MySrc\Oil.h" />
+    <ClInclude Include="Src\MySrc\player.fake.h" />
     <ClInclude Include="Src\MySrc\player.h" />
     <ClInclude Include="Src\MySrc\route.h" />
     <ClInclude Include="Src\MySrc\scene.game.h" />
