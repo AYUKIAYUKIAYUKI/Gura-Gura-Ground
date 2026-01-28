@@ -88,11 +88,6 @@ void CBar::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	// 出現
 	Appear();
 
-	/* ！！！ トランスフォームのサイズを無理やり固定 ！！！ */
-	OBJ::Transform TF = {};
-	TF.Size = { fWidth * 0.4f, fHeight * 0.055f, fDepth * 0.4f };
-	SetTransform(TF);
-
 	/* ！！！ 警告表示の作成 ！！！ */
 	CRoute* pRoute = CObjectManager::CreateRaw<CRoute>();
 	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
