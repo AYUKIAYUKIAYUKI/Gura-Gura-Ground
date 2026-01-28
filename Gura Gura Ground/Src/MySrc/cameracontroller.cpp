@@ -369,7 +369,7 @@ bool CCameraController::InRange(DirectX::XMFLOAT3 pos)
 	CField* Field = dynamic_cast<CField*>(ListShare.front().get());
 	
 	const float fSpanField = 15.0f;					// ’n–Ê‚Ì‘å‚«‚³
-	const float Range = 0.0f;						// ”ÍˆÍ
+	const float Range = 5.0f;						// ”ÍˆÍ
 	const auto fieldPos = Field->GetTransform().Pos;// ’n–Ê‚ÌˆÊ’u
 
 	if (pos.x >= fieldPos.x + fSpanField + Range||
