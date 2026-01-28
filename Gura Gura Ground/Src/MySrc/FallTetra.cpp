@@ -9,6 +9,7 @@
 // インクルードファイル
 //****************************************************
 #include "FallTetra.h"
+#include "API.gltf.manager.h"
 #include <random>
 #include "API.object.manager.h"
 #include "player.h"
@@ -20,6 +21,8 @@
 #include "API.rigidbody.h"
 
 // エフェクト
+#include "shadow.h"
+#include "warning.h"
 #include "dust.h"
 
 //****************************************************
@@ -81,7 +84,10 @@ namespace
 //============================================================================
 CFallTetra::CFallTetra(OBJ::TYPE Type, OBJ::LAYER Layer)
     : CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::STATIONARY)
-{}
+{
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Dosun"));
+}
 
 //============================================================================
 // デストラクタ
@@ -128,6 +134,14 @@ void CFallTetra::FactoryCollider(float fWidth, float fHeight, float fDepth)
     // 状態遷移
     ChangeState(std::make_shared<TetraState_Wait>(this));
 
+    /* ！！！ 影の生成 ！！！ */
+    CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+    pShadow->SetTrackTarget(shared_from_this());
+
+    /* ！！！ 警告表示の作成 ！！！ */
+    CWarning* pWarning = CObjectManager::CreateRaw<CWarning>();
+    std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+    pWarning->SetTrackTarget(spObstacle);
 }
 
 //============================================================================
@@ -141,8 +155,8 @@ void CFallTetra::Update()
     //対プレイヤー判定
     ToSmash();
 
-    // 物理オブジェクト用の更新：WVP行列用定数バッファの更新
-    CPhysicsObject::Update();
+    // 障害物クラスの更新
+    CObstacle::Update();
 }
 
 
@@ -152,8 +166,8 @@ void CFallTetra::Update()
 //============================================================================
 void CFallTetra::Draw()
 {
-    // 物理オブジェクト用の描画：モデルの描画
-    CPhysicsObject::Draw();
+    // 障害物クラスの描画
+    CObstacle::Draw();
 }
 
 //============================================================================

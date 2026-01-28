@@ -43,12 +43,22 @@ public:
 	// 描画処理
 	void Draw() override;
 
-	// モデルのバインド
+	// モデルの操作用
 	inline void SetModel(GltfMesh* pData) { m_upModel->SetModel(pData); }
+
+	// モデルのピクセルシェーダーを設定
+	inline void SetPixelShader(const ComPtr<ID3D11PixelShader>& rcpPS) { m_upModel->SetPixelShader(rcpPS); }
 
 	// モデルオフセットの操作用
 	inline const DirectX::XMFLOAT3& GetModelOffset() const                           { return m_ModelOffset; }
 	inline       void               SetModelOffset(const DirectX::XMFLOAT3& rOffset) { m_ModelOffset = rOffset; }
+
+	/* 回転同期の解除 */
+	inline void DisableSyncRotation() { m_bSyncRotation = false; }
+
+	/* 回転の操作用 */
+	inline const DirectX::XMFLOAT3& GetRotation() const                        { return m_Rotation; }
+	inline       void               SetRotation(const DirectX::XMFLOAT3& rRot) { m_Rotation = rRot; }
 
 private:
 
@@ -57,4 +67,8 @@ private:
 	//****************************************************
 	std::unique_ptr<CGltf> m_upModel;     // glTFモデル
 	DirectX::XMFLOAT3      m_ModelOffset; // モデルオフセット
+
+	/* しぶしぶ */
+	bool                   m_bSyncRotation; // 回転同期フラグ
+	DirectX::XMFLOAT3      m_Rotation;      // 回転
 };

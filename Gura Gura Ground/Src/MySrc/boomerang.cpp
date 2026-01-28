@@ -11,12 +11,16 @@
 #include "boomerang.h"
 #include "API.sound.manager.h"
 
+// モデル取得のため
+#include "API.gltf.manager.h"
+
 // 物理挙動作成のため
 #include "API.world.h"
 #include "API.collision.h"
 
 // エフェクト
-#include "dust.h"
+#include "shadow.h"
+#include "arch.h"
 
 //****************************************************
 // usingディレクティブ
@@ -106,7 +110,13 @@ CBoomerang::CBoomerang(OBJ::TYPE Type, OBJ::LAYER Layer)
     , m_StartAngle(0.0f)
     , m_EndAngle(0.0f)
     , m_Center({ 0.0f, 0.0f, 0.0f })
-{}
+{
+    // モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Boomerang"));
+
+    // ピクセルシェーダーのバインド
+    SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
+}
 
 //============================================================================
 // デストラクタ
@@ -136,6 +146,20 @@ void CBoomerang::FactoryCollider(float fWidth, float fHeight, float fDepth)
     CSoundManger::RefInstance().Play("Boomerang", false, -0.5f, 0.2f);
 
     Appear();
+
+    /* ！！！ コライダーの大きさでトランスフォームを設定 ！！！ */
+    OBJ::Transform TF = {};
+	TF.Size = { fWidth, fHeight, fDepth };
+	SetTransform(TF);
+
+    /* ！！！ 影の生成 ！！！ */
+    CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
+    pShadow->SetTrackTarget(shared_from_this());
+
+    /* ！！！ アーチを生成 ！！！ */
+    CArch* pArch = CObjectManager::CreateRaw<CArch>();
+    std::shared_ptr<CBoomerang> spBoomerang = std::dynamic_pointer_cast<CBoomerang>(shared_from_this());
+    pArch->SetTrackTarget(spBoomerang);
 }
 
 //============================================================================
@@ -154,8 +178,8 @@ void CBoomerang::Update()
 
     CheckHitPlayer();
 
-    // 物理オブジェクト用の更新
-    CPhysicsObject::Update();
+    // 障害物クラスの更新
+    CObstacle::Update();
 }
 
 //============================================================================
@@ -163,7 +187,8 @@ void CBoomerang::Update()
 //============================================================================
 void CBoomerang::Draw()
 {
-    CPhysicsObject::Draw();
+    // 障害物クラスの描画
+    CObstacle::Draw();
 }
 
 void CBoomerang::SetBoomerangParams(
