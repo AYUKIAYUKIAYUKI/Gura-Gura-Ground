@@ -27,6 +27,8 @@
 class CPlayer;
 class CShockWave;
 class CBar;
+class CField;
+class CWindField;
 
 
 //===================================================
@@ -59,6 +61,8 @@ private: //構造体
 		float noiseangle;
 		float weightDistance = 2.0f;  //距離を最重要に
 		float weightApproach = 1.5f;  //接近度は強め
+		float minJumpDistance = 2.0f; // これ追加：これより近いとジャンプしない
+
 	};
 
 	//各状態のタイプ
@@ -248,8 +252,14 @@ private: //その他
 	void State_Base_Search(); //敵（自身）とプレイヤーのベース（当たった時など）
 	void State_Base_Bar();    //バーベース
 
+	// ★ 今乗っているフィールドを取得
+	CField* GetCurrentField() const
+	{
+		return m_wpField.lock().get();
+	}
 private:
-
+	std::weak_ptr<CField>         m_wpField;              // 地面
+	std::weak_ptr<CWindField>     m_wpWindoField;         // 風地面
 	//===================================================
 	//プレイヤー参照変数
 	CShockWave* m_pShockWave;                         // 衝撃波
@@ -263,6 +273,8 @@ private:
 	AIParams      m_params;                           //AIの基本パラメータ
 	int m_nStart;                                     //ゲーム開始の移動までのカウントを進める用
 	bool m_bStart;                                    //ゲーム開始時移動していいかどうか判断用
+	bool m_bInShockRangePrev = false;
+
 
 	//===================================================
 	//共通

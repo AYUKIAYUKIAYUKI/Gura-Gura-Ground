@@ -1,3 +1,4 @@
+
 // ※ このファイルは公開インターフェース用のヘッダーファイルです
 // 　 利用者によるファイル内の実装変更を想定していないので直接行わないでください
 
@@ -44,7 +45,7 @@ public:
 	//****************************************************
 	// function
 	//****************************************************
-
+	
 	// 更新処理
 	void Update();
 
@@ -67,12 +68,12 @@ public:
 		// 好きなコントローラーのA, B, X, Y, START, BACKのボタンどれか 
 		for (unsigned char wIdxGamePad = 0; wIdxGamePad < MAX_GAMEPAD; ++wIdxGamePad)
 		{
-			if (m_aGamePadTracker[wIdxGamePad].a == DirectX::GamePad::ButtonStateTracker::PRESSED ||
-				m_aGamePadTracker[wIdxGamePad].b == DirectX::GamePad::ButtonStateTracker::PRESSED ||
-				m_aGamePadTracker[wIdxGamePad].x == DirectX::GamePad::ButtonStateTracker::PRESSED ||
-				m_aGamePadTracker[wIdxGamePad].y == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+			if (m_aGamePadTracker[wIdxGamePad].a     == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+				m_aGamePadTracker[wIdxGamePad].b     == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+				m_aGamePadTracker[wIdxGamePad].x     == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+				m_aGamePadTracker[wIdxGamePad].y     == DirectX::GamePad::ButtonStateTracker::PRESSED ||
 				m_aGamePadTracker[wIdxGamePad].start == DirectX::GamePad::ButtonStateTracker::PRESSED ||
-				m_aGamePadTracker[wIdxGamePad].back == DirectX::GamePad::ButtonStateTracker::PRESSED)
+				m_aGamePadTracker[wIdxGamePad].back  == DirectX::GamePad::ButtonStateTracker::PRESSED)
 			{
 				return true;
 			}

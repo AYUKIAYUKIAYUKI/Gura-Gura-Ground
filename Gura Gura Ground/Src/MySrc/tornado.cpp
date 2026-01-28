@@ -9,13 +9,13 @@
 // インクルードファイル
 //****************************************************
 #include "tornado.h"
+#include "API.gltf.manager.h"
 
 // 物理挙動作成のため
 #include "API.world.h"
 #include "API.ghost.h"
 #include "API.rigidbody.h"
 
-#include "bomb.h"
 #include "player.h"
 #include "API.object.manager.h"
 #include "API.sound.manager.h"
@@ -34,7 +34,10 @@ CTornado::CTornado(OBJ::TYPE Type, OBJ::LAYER Layer)
 	, m_LapCount(1)
 	, m_NowLapCount(0)
 	, m_Life(10)
-{}
+{
+	// モデルのバインド
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Tornado"));
+}
 
 //============================================================================
 // デストラクタ
@@ -93,8 +96,8 @@ void CTornado::Update()
 		}
 	}
 
-	// 物理オブジェクト用の更新：WVP行列用定数バッファの更新
-	CPhysicsObject::Update();
+	// 障害物クラスの更新
+	CObstacle::Update();
 }
 
 //============================================================================
@@ -102,8 +105,8 @@ void CTornado::Update()
 //============================================================================
 void CTornado::Draw()
 {
-	// 物理オブジェクト用の描画：モデルの描画
-	CPhysicsObject::Draw();
+	// 障害物クラスの描画
+	CObstacle::Draw();
 }
 
 //============================================================================
