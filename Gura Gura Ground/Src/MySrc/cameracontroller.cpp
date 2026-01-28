@@ -371,7 +371,7 @@ bool CCameraController::InRange(DirectX::XMFLOAT3 pos)
 	CWindField* WindField = dynamic_cast<CWindField*>(ListShare.front().get());
 	
 	const float fSpanField = 15.0f;					// ’n–Ê‚Ì‘å‚«‚³
-	const float Range = 0.0f;						// ”ÍˆÍ
+	const float Range = 5.0f;						// ”ÍˆÍ
 
 	DirectX::XMFLOAT3 fieldPos;
 
@@ -383,6 +383,7 @@ bool CCameraController::InRange(DirectX::XMFLOAT3 pos)
 	{
 		fieldPos = WindField->GetTransform().Pos;// •—’n–Ê‚ÌˆÊ’u
 	}
+
 	if (pos.x >= fieldPos.x + fSpanField + Range||
 		pos.x <= fieldPos.x - fSpanField - Range||
 		pos.z >= fieldPos.z + fSpanField + Range||
