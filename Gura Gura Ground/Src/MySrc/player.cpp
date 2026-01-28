@@ -518,6 +518,9 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	// 地面と接地したら
 	if (CheckLand(rStateMachine))
 	{
+		// ダイナミック化
+		pRigidBody->SetDynamic();
+
 		useful::Vec3 EffectVec3 = { rStateMachine.m_rPalyer.GetTransform().Pos.x,6.25f,rStateMachine.m_rPalyer.GetTransform().Pos.z };
 		CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
 		// 衝撃波の作成

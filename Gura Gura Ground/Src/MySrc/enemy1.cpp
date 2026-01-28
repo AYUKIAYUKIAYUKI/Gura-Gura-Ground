@@ -248,13 +248,11 @@ void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX:
 		//範囲内
 		if (CheckCollision(targetPos, SelfPos, ShockWaveSize * 0.5f))
 		{
-			if (SelfPos.y > targetPos.y)
+if (SelfPos.y > targetPos.y)
 			{
 				MoveAtPlayer(angle + 1.57f, MOVE_SPEED); //移動(目標向きを外側に明示的に修正)
 				return;                                   //ジャンプループを防ぐ
-			}
-
-			++m_params.jumpcount;
+			}			++m_params.jumpcount;
 			Jump_Base();
 			ChangeState(ENEMY_STATE::STATE_IN_JUMP);
 		}
@@ -443,11 +441,9 @@ void CEnemyPlayer::MoveAtPlayer(const float Angle, const float speed)
 	//const float fSpeed = fSpeedArg;
 	btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
-	// ★★★ プレイヤーが保持しているフィールド参照から、現在のフィールドタイプを判定する ★★★
-	CField* pField = GetCurrentField();
+// ★★★ プレイヤーが保持しているフィールド参照から、現在のフィールドタイプを判定する ★★★
+	CField* pField =GetCurrentField();
 	bool bIce = (pField && pField->GetFieldType() == FIELD_TYPE::ICE);
-
-
 	// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
 	MoveDir.setX(sinf(fDirectionValue));
 	MoveDir.setZ(cosf(fDirectionValue));
@@ -706,10 +702,8 @@ void CEnemyPlayer::Jump_Base()
 //============================================================================
 void CEnemyPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
 {
-	useful::Vec3 EffectVec3 = { GetTransform().Pos.x,6.25f,GetTransform().Pos.z };
-	CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
-
-	// 衝撃波の作成と、弱参照の設定
+useful::Vec3 EffectVec3 = { GetTransform().Pos.x,6.25f,GetTransform().Pos.z };
+	CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);	// 衝撃波の作成と、弱参照の設定
 	const std::shared_ptr<CShockWave>& spShockWave = CObjectManager::CreateShare<CShockWave>
 		(
 			OBJ::TYPE::NONE,
