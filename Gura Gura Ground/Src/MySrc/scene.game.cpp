@@ -25,12 +25,14 @@
 #include "player.h"
 #include "symbol.h"
 #include <enemy1.h>
+#include "field.ice.h"
 
 // イベント処理のため
 #include "cameracontroller.h"
 
 /* 仮 */
 #include "API.texture.manager.h"
+#include <windfield.h>
 
 //****************************************************
 // プリプロセッサディレクティブ
@@ -59,7 +61,7 @@ namespace
 	std::chrono::steady_clock::time_point g_LastUpdateTime;
 	float g_GameTime = 0.0f;
 
-	static bool g_bUseCPU = false;
+	static bool g_bUseCPU = true;
 
 #if 0
 	// あああ
@@ -237,7 +239,7 @@ void CSceneGame::SpawnHUD()
 					return true;
 				},
 				OBJ::TYPE::NONE,
-				OBJ::LAYER::DEFAULT);
+					OBJ::LAYER::DEFAULT);
 		}
 	}
 
@@ -254,7 +256,7 @@ void CSceneGame::SpawnHUD()
 				return true;
 			},
 			OBJ::TYPE::NONE,
-			OBJ::LAYER::DEFAULT);
+				OBJ::LAYER::DEFAULT);
 	}
 }
 
@@ -318,7 +320,7 @@ void CSceneGame::SpawnField()
 			return true;
 		},
 		OBJ::TYPE::FIELD,
-		OBJ::LAYER::BG);
+			OBJ::LAYER::BG);
 }
 
 //============================================================================

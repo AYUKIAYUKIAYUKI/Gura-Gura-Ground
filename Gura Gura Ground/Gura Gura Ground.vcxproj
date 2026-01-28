@@ -65,6 +65,7 @@
     <ClCompile Include="Src\MySrc\scene.title.cpp" />
     <ClCompile Include="Src\MySrc\symbol.cpp" />
     <ClCompile Include="Src\MySrc\tornado.cpp" />
+    <ClCompile Include="Src\MySrc\windfield.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\External\ImGui\imconfig.h" />
@@ -138,6 +139,7 @@
     <ClInclude Include="Src\MySrc\scene.title.h" />
     <ClInclude Include="Src\MySrc\symbol.h" />
     <ClInclude Include="Src\MySrc\tornado.h" />
+    <ClInclude Include="Src\MySrc\windfield.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp" />
