@@ -66,7 +66,7 @@ void CShadow::Update()
 	
 			// 位置に応じてトランスフォームを調整
 			SetTransform({
-				{ Transform.Size.x + fAdjust * 0.75f, Transform.Size.y + fAdjust * 0.75f, 0.0f },
+				{ Transform.Size.x * 3.0f + fAdjust * 0.5f, Transform.Size.y * 3.0f + fAdjust * 0.5f, 0.0f },
 				{ DirectX::XM_PI * -0.5f, 0.0f, 0.0f, 1.0f },
 				{ Transform.Pos.x, fFieldY, Transform.Pos.z } });
 

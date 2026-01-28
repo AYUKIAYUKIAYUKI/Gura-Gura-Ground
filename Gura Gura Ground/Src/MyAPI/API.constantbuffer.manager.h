@@ -28,6 +28,7 @@ namespace ConstantBufferType
 	{
 		DirectX::XMMATRIX WVP;
 		DirectX::XMFLOAT4 Col;
+		int               HasTexture;
 	};
 
 	//****************************************************

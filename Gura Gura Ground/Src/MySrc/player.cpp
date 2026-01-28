@@ -203,6 +203,12 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 	// 方向入力があるなら
 	if (opDirection)
 	{
+#if 0
+		// 回転の設定
+		DirectX::XMFLOAT3 Rotation = { 0.0f, 0.0f, 0.0f };
+		rStateMachine.m_rPalyer.SetRotation(Rotation);
+#endif
+
 		// 移動速度スケール
 		float fSpeed = fSpeedArg;
 
@@ -554,7 +560,14 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 	m_wpWindoField = std::dynamic_pointer_cast<CWindField>(rFieldList.front());
 
 	// モデルのバインド
-	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("P1"));
+	SetModelOffset({ 0.0f, -0.5f, 0.0f });
+	
+	// 回転同期の解除
+	DisableSyncRotation();
+
+	// ピクセルシェーダ―のバインド
+	SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
 }
 
 //============================================================================
