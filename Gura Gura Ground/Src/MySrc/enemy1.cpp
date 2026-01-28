@@ -35,8 +35,8 @@ namespace
 
 	const float MOVE_SPEED = 9.0f;
 	const float PREDICTION_TIME_DEF = 0.15f;  //デフォルトで足し合わせる未来視の時間
-	const float PREDICTION_TIME = 0.15f;      //乱数で出す未来視の最小大数
-	const float ShockWaveSize = 6.0f;         //衝撃波（ｘ。ｚ）の大きさ
+	const float PREDICTION_TIME = 0.2f;      //乱数で出す未来視の最小大数
+	const float ShockWaveSize = 5.4f;         //衝撃波（ｘ。ｚ）の大きさ
 
 	//プレイヤーと同じ数値にする&&プレイヤーから直接同期->処理も変更しないと多分無理
 	const float JUMPPOWER = 13.5f;           //自身のジャンプ力
@@ -202,7 +202,7 @@ void CEnemyPlayer::State_Base_Search()
 	DirectX::XMFLOAT3 predictedPos =
 	{
 		min_it->pos.x + min_it->vel.getX() * predictionTime,
-		min_it->pos.y + min_it->vel.getY() * predictionTime,
+		min_it->pos.y + min_it->vel.getY(),
 		min_it->pos.z + min_it->vel.getZ() * predictionTime
 	};
 
@@ -248,11 +248,13 @@ void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX:
 		//範囲内
 		if (CheckCollision(targetPos, SelfPos, ShockWaveSize * 0.5f))
 		{
-if (SelfPos.y > targetPos.y)
+			if (SelfPos.y > targetPos.y)
 			{
-				MoveAtPlayer(angle + 1.57f, MOVE_SPEED); //移動(目標向きを外側に明示的に修正)
-				return;                                   //ジャンプループを防ぐ
-			}			++m_params.jumpcount;
+				float PlusAngle = RandomRange(1.57f, 3.14f);
+				MoveAtPlayer(angle + PlusAngle, MOVE_SPEED); //移動(目標向きを外側に明示的に修正)
+				return;                                      //ジャンプループを防ぐ
+			}
+			++m_params.jumpcount;
 			Jump_Base();
 			ChangeState(ENEMY_STATE::STATE_IN_JUMP);
 		}
@@ -633,7 +635,7 @@ bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
 	//多少強引に一回だけ衝撃波を呼ぶ処理を実行
 	else if (RecastTme <= 1)
 	{
-		CreateShockWave(Collision::SHAPETYPE::CYLINDER, { ShockWaveSize, 1.0f, ShockWaveSize }, 10);
+		CreateShockWave(Collision::SHAPETYPE::CYLINDER, { ShockWaveSize, 1.0f, ShockWaveSize }, 20);
 	}
 
 	return false;
