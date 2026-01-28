@@ -171,7 +171,6 @@ CEffect* CEffect::Create(CEffectManager::EFFECT_TAG tag, useful::Vec3 pos, int* 
 //ここから下は管理クラス
 CEffectManager::CEffectManager()
 {
-
 }
 
 CEffectManager::~CEffectManager()
@@ -187,11 +186,11 @@ bool CEffectManager::Initialize()
     ID3D11DeviceContext* pContext = CRenderer::RefInstance().GetContext();
     // Effekseerレンダラー作成
     m_renderer = EffekseerRendererDX11::Renderer::Create(pDevice, pContext,2000);
-    if (m_renderer == nullptr)throw std::runtime_error("Effecseer renderer Error");
+    if (m_renderer == nullptr)throw std::runtime_error("Effekseer renderer Error");
 
     // Effekseerマネージャ作成
     m_manager = Effekseer::Manager::Create(2000);
-    if(m_manager == nullptr)throw std::runtime_error("Effecseer manager Error");
+    if(m_manager == nullptr)throw std::runtime_error("Effekseer manager Error");
     // 各種レンダラーを登録
     m_manager->SetSpriteRenderer(m_renderer->CreateSpriteRenderer());
     m_manager->SetRibbonRenderer(m_renderer->CreateRibbonRenderer());

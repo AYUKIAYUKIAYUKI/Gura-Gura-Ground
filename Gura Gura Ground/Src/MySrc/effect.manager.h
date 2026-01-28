@@ -48,7 +48,8 @@ public:
 		TAG_TORNADE,
 		TAG_BOMB,
 		TAG_FLASH,
-		TAG_SMOKE
+		TAG_SMOKE,
+		TAG_SPARKLE
 	};
 	void Update();			//更新
 	void Draw();			//描画
@@ -83,7 +84,7 @@ public:
 	void SetLocation(useful::Vec3 pos) { m_pos = pos; }
 	void SetRotation(useful::Vec3 axis,float angle);
 
-	static CEffect* Create(const std::wstring& filename, useful::Vec3 pos,int* handle = nullptr,float sizevalue = 1.0f);	//ファイル名、座標、ハンドルのポインタ(任意)、拡大率(任意)
+	static CEffect* Create(const std::wstring& filename, useful::Vec3 pos,int* handle = nullptr,float sizevalue = 1.0f);		//ファイル名、座標、ハンドルのポインタ(任意)、拡大率(任意)
 	static CEffect* Create(CEffectManager::EFFECT_TAG tag, useful::Vec3 pos, int* handle = nullptr, float sizevalue = 1.0f);	//ファイル名、座標、ハンドルのポインタ(任意)、拡大率(任意)
 
 private:
