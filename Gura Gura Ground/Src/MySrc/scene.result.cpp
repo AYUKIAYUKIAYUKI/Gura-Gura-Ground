@@ -175,7 +175,7 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
             modelName = "Player_" + std::to_string(winnerIndex + 1);
         }
         else {
-            modelName = "Player_CPU";
+            modelName = "Test";
         }
 
         int dispIdx = isHumanWinner ? (winnerIndex + 1) : (winnerIndex + 1 - m_nHumanPlayerNum);
@@ -472,7 +472,7 @@ void CSceneResult::Update()
 
     bool drawBeam = true;
 
-    if (m_animPhase != ANIM_PHASE::FINISHED)
+    if (m_animPhase >= ANIM_PHASE::TITLE_WAIT && m_animPhase != ANIM_PHASE::FINISHED)
     {
         if (CInputManager::RefInstance().EnhancedEnter())
         {
@@ -618,10 +618,10 @@ void CSceneResult::Update()
                 std::string modelName;
 
                 if (isHumanWinner) {
-                    modelName = "Player_" + std::to_string(winnerIndex + 1);
+                    modelName = "P" + std::to_string(winnerIndex + 1);
                 }
                 else {
-                    modelName = "Player_CPU";
+                    modelName = "Test";
                 }
 
                 // 横並び配置用にX座標をずらす
@@ -760,7 +760,7 @@ void CSceneResult::Update()
         CHud* pButtonA = (i < m_vpSkipButtonA.size()) ? m_vpSkipButtonA[i] : nullptr;
         if (!pSkip || !pButtonA) continue;
 
-        if (m_animPhase != ANIM_PHASE::FINISHED)
+        if (m_animPhase >= ANIM_PHASE::TITLE_WAIT && m_animPhase != ANIM_PHASE::FINISHED)
         {
             // 同じフェードイン値で管理しましょうか
             float fadeRate = 10.0f;
@@ -999,10 +999,10 @@ void CSceneResult::ForceToFinished()
             std::string modelName;
 
             if (isHumanWinner) {
-                modelName = "Player_" + std::to_string(winnerIndex + 1);
+                modelName = "P" + std::to_string(winnerIndex + 1);
             }
             else {
-                modelName = "Player_CPU";
+                modelName = "Test";
             }
 
             // 横並び配置用にX座標をずらす

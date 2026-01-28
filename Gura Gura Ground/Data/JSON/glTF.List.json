@@ -49,19 +49,19 @@
       "Data\\MODEL\\GLB\\Gimmick\\Tornado.glb"
     ],
     [
-      "Player_1",
+      "P1",
       "Data\\MODEL\\GLB\\Player\\Player_Red.glb"
     ],
     [
-      "Player_2",
+      "P2",
       "Data\\MODEL\\GLB\\Player\\Player_Blue.glb"
     ],
     [
-      "Player_3",
+      "P3",
       "Data\\MODEL\\GLB\\Player\\Player_Yellow.glb"
     ],
     [
-      "Player_4",
+      "P4",
       "Data\\MODEL\\GLB\\Player\\Player_Green.glb"
     ]
   ]
