@@ -12,6 +12,7 @@
 #include "API.gltf.manager.h"
 #include "API.input.manager.h"
 #include "effect.manager.h"
+#include "API.sound.manager.h"
 
 // 当たり判定用
 #include "API.collision.h"
@@ -411,6 +412,8 @@ void StateDefault::Execute(CPlayer::StateMachine& rStateMachine)
 		// ジャンプ力
 		btVector3 btJumpVec = { 0.0f, g_fYAxis_Jump, 0.0f };
 
+		CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
+
 		// ジャンプ力を衝撃として加える
 		pRigidBody->SetActive();
 		pRigidBody->SetImpulse(btJumpVec);
@@ -521,6 +524,9 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 		CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
 		// 衝撃波の作成
 		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 6.0f, 1.0f, 6.0f }, 10);
+
+		//ドロップサウンド再生
+		CSoundManger::RefInstance().Play("Drop", false, 0.0f, 1.0f);
 
 		// 通常状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
@@ -737,6 +743,9 @@ void CPlayer::CheckDeath()
 	// Y座標がフィールドの高さを下回ったら
 	if (fSelfPosY < fFieldPosY)
 	{
+		//ドロップサウンド再生
+		CSoundManger::RefInstance().Play("Falling", false, 0.0f, 1.0f);
+
 		// 自身の死亡フラグを立てる
 		m_bIsDead = true;
 		SetDeath();

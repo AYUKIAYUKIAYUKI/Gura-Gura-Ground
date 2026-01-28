@@ -56,6 +56,7 @@ private:
 	int m_nResultValue;
 	float m_fGameTime;
 	int m_resultTitleIdx = -1;
+	bool m_StartBuzzer = false;;
 	bool m_beamLightAppeared = false;
 	bool m_WinnerModelAppeared = false;
 	bool m_kirakiraEffectCreated = false;

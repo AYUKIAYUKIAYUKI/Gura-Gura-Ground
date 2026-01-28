@@ -140,6 +140,8 @@ CSceneTitle::CSceneTitle()
 	TF = { { 529.0f * fW, 135.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { (WCX + 125.0f) * fW, (WCY + 40.0f) * fH, 0.0f } };
 	Logo->SetTransformTarget(TF);
 	m_vpLogo.push_back(Logo);
+
+	CSoundManger::RefInstance().Play("BGM_TITLE", false, 0.0f, 1.5f);
 }
 
 //============================================================================
@@ -218,7 +220,7 @@ void CSceneTitle::Change()
 	//CSoundManger::RefInstance().Play("Buzzer", false, -0.5f, 1.5f);
 
 	// å¯â âπÅFÉWÉÉÉìÉv
-	//CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
+	CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
 }
 
 //============================================================================

@@ -20,6 +20,7 @@
 //================================================
 //必要なインクルード
 #include "API.object.manager.h" //オブジェクト情報を探すのに使用
+#include "API.sound.manager.h"
 
 std::vector<float> CEnemyPlayer::s_vSurvivalTimes = {};
 
@@ -246,6 +247,9 @@ void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX:
 			++m_params.jumpcount;
 			Jump_Base();
 			ChangeState(ENEMY_STATE::STATE_IN_JUMP);
+
+			//サウンド再生
+			CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
 		}
 		else
 		{
@@ -342,6 +346,7 @@ void CEnemyPlayer::State_In_Jump()
 	//ジャンプした
 	if (!m_bJump)
 	{
+
 		//疑似的に到達点を設定
 		if (m_bGoDown)
 		{
@@ -602,6 +607,9 @@ void CEnemyPlayer::CheckInfo()
 
 	if (Pos.y < 3.0f)
 	{
+		//ドロップサウンド再生
+		CSoundManger::RefInstance().Play("Falling", false, 0.0f, 1.0f);
+
 		// 自身の死亡フラグを立てる
 		SetDeath();
 	}

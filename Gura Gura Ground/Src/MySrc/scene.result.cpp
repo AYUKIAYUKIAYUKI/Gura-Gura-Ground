@@ -35,6 +35,9 @@ extern size_t gConnectedHumanPlayerNum = {};
 CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU)
     : m_playerSurvivalTimes(times), m_nHumanPlayerNum(nHuman), m_nCPUNum(nCPU)
 {
+    //ˆê’UŠù‘¶‚Ì‰¹º‚ð‘S‚ÄŽ~‚ß‚é
+    CSoundManger::RefInstance().StopAll();
+
     const int SCREEN_W = 1920;
     const int SCREEN_H = 1080;
     const float CENTER_X = SCREEN_W / 2.0f;
@@ -528,12 +531,21 @@ void CSceneResult::Update()
     switch (m_animPhase)
     {
     case ANIM_PHASE::TITLE_MOVE:
-        if (m_resultTitleIdx >= 0 && m_resultTitleIdx < (int)m_vpNumbers.size()) {
+        if (m_resultTitleIdx >= 0 && m_resultTitleIdx < (int)m_vpNumbers.size())
+        {
+            if (!m_StartBuzzer)
+            {
+                CSoundManger::RefInstance().Play("Buzzer", false, -0.5f, 1.0f);
+
+                m_StartBuzzer = true;
+            }
+
             auto pHud = m_vpNumbers[m_resultTitleIdx];
             OBJ::Transform tr = pHud->GetTransform();
             float speed = 5.0f;
             float nextY = tr.Pos.y + speed;
-            if (nextY >= m_resultTitleTargetPos.y) {
+            if (nextY >= m_resultTitleTargetPos.y) 
+            {
                 nextY = m_resultTitleTargetPos.y;
                 m_animPhase = ANIM_PHASE::TITLE_WAIT;
             }
@@ -545,6 +557,7 @@ void CSceneResult::Update()
     case ANIM_PHASE::TITLE_WAIT:
         m_animTimer += deltaT;
         if (m_animTimer > 1.5f) {
+            CSoundManger::RefInstance().Stop("Buzzer");
             m_animPhase = ANIM_PHASE::WIN_TEXT_FADEIN;
             m_animTimer = 0.0f;
         }
@@ -566,13 +579,15 @@ void CSceneResult::Update()
 
         if (m_winTextAlpha >= 255.0f) {
             m_animTimer = 0.0f;
+            CSoundManger::RefInstance().Play("Drumroll", false, 0.0f, 1.0f);
             m_animPhase = ANIM_PHASE::WIN_WAIT;
         }
     }
     break;
     case ANIM_PHASE::WIN_WAIT:
         m_animTimer += deltaT;
-        if (m_animTimer > 3.0f) {
+        if (m_animTimer > 3.0f)
+        {
             m_animTimer = 0.0f;
             m_animPhase = ANIM_PHASE::PLAYER_TEXT_SCALEUP;
         }
@@ -622,6 +637,9 @@ void CSceneResult::Update()
                 pBeam->SetTime(time);
                 pBeam->SetEnableTime(true);
                 m_vpBeamLight.push_back(pBeam);
+                CSoundManger::RefInstance().Stop("Drumroll");
+                CSoundManger::RefInstance().Play("Drumroll_Finish", false, 0.0f, 1.0f);
+
             }
         }
         if (m_playerTextScale >= 1.0f && m_cameraHeight >= 0.0f)
@@ -648,6 +666,8 @@ void CSceneResult::Update()
                 CEffect::Create(CEffectManager::kirakira, { 12.6f, 3.4f, 0.0f }, {}, { 0.5f });
                 CEffect::Create(CEffectManager::kirakira, { 10.5f, -0.8f, 0.0f }, {}, { 0.5f });
             }
+
+            CSoundManger::RefInstance().Play("BGM_RESULT", false, 0.0f, 1.0f);
             m_kirakiraEffectCreated = true;
         }
 
@@ -812,6 +832,10 @@ void CSceneResult::Change()
     CPlayer::ClearAllSurvivalTimes();
     CEnemyPlayer::ClearAllCPUSurvivalTimes();
 
+    CSoundManger::RefInstance().Stop("BGM_RESULT");
+
+    CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
+
     //ƒ^ƒCƒgƒ‹‰æ–Ê‚É‘JˆÚ
     CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneTitle>());
 }
@@ -821,6 +845,11 @@ void CSceneResult::Change()
 //============================================================================
 void CSceneResult::ForceToFinished()
 {
+    //ˆê’UŠù‘¶‚Ì‰¹º‚ð‘S‚ÄŽ~‚ß‚é
+    CSoundManger::RefInstance().StopAll();
+
+    CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
+
     // pResultTitle‚ðƒS[ƒ‹ˆÊ’u‚ÉˆÚ“®
     if (m_resultTitleIdx >= 0 && m_resultTitleIdx < (int)m_vpNumbers.size()) {
         auto pHud = m_vpNumbers[m_resultTitleIdx];
@@ -895,11 +924,15 @@ void CSceneResult::ForceToFinished()
             CEffect::Create(CEffectManager::kirakira, { 12.6f, 3.4f, 0.0f }, {}, { 0.5f });
             CEffect::Create(CEffectManager::kirakira, { 10.5f, -0.8f, 0.0f }, {}, { 0.5f });
         }
+
+        CSoundManger::RefInstance().Play("BGM_RESULT", false, 0.0f, 1.0f);
         m_kirakiraEffectCreated = true;
     }
 
     // ƒr[ƒ€ƒ‰ƒCƒg¶¬
     if (!m_beamLightAppeared && m_animPhase < ANIM_PHASE::PLAYER_TEXT_SCALEUP) {
+        CSoundManger::RefInstance().Play("Drumroll_Finish", false, 0.0f, 1.0f);
+        
         m_beamLightAppeared = true;
         m_vpBeamLight.clear();
         for (int i = 0; i < 3; ++i) {

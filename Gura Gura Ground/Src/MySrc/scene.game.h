@@ -74,7 +74,10 @@ private:
 	CHud*                             m_pHudFinish;  // HUD：フィニッシュ
 	bool                              m_bStart;      // 開始状態
 	int                               m_nStartCount; // 開始カウント
+	int								  m_prevPlayCount = -1; //開始カウント(サウンド用)
 	bool                              m_bFinish;     // 終了状態
+
+	bool                              m_bBGMStart;      // 開始状態
 
 	// プレイヤーの弱参照配列
 	std::array<std::weak_ptr<CPlayer>, MAX_PLYAER> m_apwPlayers; // プレイヤー用

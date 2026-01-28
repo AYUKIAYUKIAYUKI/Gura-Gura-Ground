@@ -25,6 +25,14 @@
       "Data\\Audio\\BGM\\Result.wav"
     ],
     [
+      "Drumroll",
+      "Data\\Audio\\SE\\drumroll.wav"
+    ],
+    [
+      "Drumroll_Finish",
+      "Data\\Audio\\SE\\drumroll_finish.wav"
+    ],
+    [
       "Buzzer",
       "Data\\Audio\\SE\\buzzer.wav"
     ],
@@ -67,6 +75,18 @@
     [
       "Boomerang",
       "Data\\Audio\\SE\\boomerang.wav"
+    ],
+    [
+      "CntDown",
+      "Data\\Audio\\SE\\CntDown.wav"
+    ],
+    [
+      "CntStart",
+      "Data\\Audio\\SE\\CntStart.wav"
+    ],
+    [
+      "Falling",
+      "Data\\Audio\\SE\\fall.wav"
     ],
     [
       "BirdStrike",

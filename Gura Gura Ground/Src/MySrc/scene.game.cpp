@@ -28,6 +28,7 @@
 
 // イベント処理のため
 #include "cameracontroller.h"
+#include "API.sound.manager.h"
 
 /* 仮 */
 #include "API.texture.manager.h"
@@ -159,6 +160,13 @@ void CSceneGame::Update()
 
 	if (m_bStart)
 	{
+		if (!m_bBGMStart)
+		{
+			CSoundManger::RefInstance().Play("BGM_STAGE_NORMAL", false, 0.0f, 1.5f);
+
+			m_bBGMStart = true;
+		}
+
 		//プレイモード中の自動スポーン処理
 		m_ObstacleEditer.PlayModeSpawn(deltaTime);
 	}
@@ -187,10 +195,12 @@ void CSceneGame::Update()
 		}
 	}
 
+#ifndef NDEBUG
 	if (CInputManager::RefInstance().GetTrackerKeyboard().pressed.R)
 	{
 		Change();
 	}
+#endif
 }
 
 //============================================================================
@@ -211,6 +221,9 @@ void CSceneGame::Change()
 	// 全オブジェクトに死亡フラグを立てる
 	CObjectManager::RefInstance().SetDeathAll();
 
+	//ステージBGMを止める
+	CSoundManger::RefInstance().Stop("BGM_STAGE_NORMAL");
+
 	// エフェクトを全て停止
 	CEffectManager::RefInstance().StopAll();
 
@@ -218,6 +231,8 @@ void CSceneGame::Change()
 	for (int i = 0; i < CSceneGame::s_nHumanPlayerNum; ++i) times.push_back(CPlayer::s_vSurvivalTimes[i]);
 	for (int i = 0; i < CSceneGame::s_nCPUNum; ++i) times.push_back(CEnemyPlayer::s_vSurvivalTimes[i]);
 	auto resultScene = std::make_unique<CSceneResult>(times, CSceneGame::s_nHumanPlayerNum, CSceneGame::s_nCPUNum);
+
+	//生存時間を渡しつつ、画面遷移
 	CSceneManager::RefInstance().ChangeScene(std::move(resultScene));
 #endif
 }
@@ -229,7 +244,6 @@ void CSceneGame::SetStartGame()
 {
 	// プレイヤースポーン
 	SpawnPlayer();
-
 
 	// カメラコントローラーの初期化
 	CCameraController::RefInstance().Initialize();
@@ -296,10 +310,26 @@ void CSceneGame::SetHudCount()
 	m_nStartCount = static_cast<int>(g_GameTime);
 #endif
 
+	// カウントが進んだ時だけ判定
+	if (m_prevPlayCount != m_nStartCount) 
+	{
+		if (m_nStartCount <= 2 && m_nStartCount > -1) 
+		{
+			CSoundManger::RefInstance().Play("CntDown", false, 0.0f, 1.0f);
+		}
+		else if (m_nStartCount == 3) 
+		{
+			CSoundManger::RefInstance().Play("CntStart", false, 0.0f, 1.0f);
+		}
+		m_prevPlayCount = m_nStartCount;
+	}
+
+
 	// 現在のカウント数と設定済みのインデックスで自動表示
 	for (const auto& rIt : m_apHudCount)
 	{
 		rIt->SetNowCount(static_cast<unsigned char>(m_nStartCount));
+
 	}
 
 	// カウントの最大値を超えたら開始フラグを立てる
