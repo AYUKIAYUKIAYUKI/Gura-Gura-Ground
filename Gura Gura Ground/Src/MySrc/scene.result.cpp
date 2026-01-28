@@ -167,6 +167,17 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
     {
         int winnerIndex = m_winners[0];
         bool isHumanWinner = (winnerIndex < m_nHumanPlayerNum);
+
+        std::string modelName;
+
+        if (isHumanWinner) {
+            
+            modelName = "Player_" + std::to_string(winnerIndex + 1);
+        }
+        else {
+            modelName = "Player_CPU";
+        }
+
         int dispIdx = isHumanWinner ? (winnerIndex + 1) : (winnerIndex + 1 - m_nHumanPlayerNum);
         std::string textPlayerTex = isHumanWinner
             ? "TextPlayer00" + std::to_string(dispIdx)
@@ -596,19 +607,42 @@ void CSceneResult::Update()
     {
         if (!m_WinnerModelAppeared)
         {
-            m_spTestModel = CObjectManager::CreateShare<CPhysicsModel>(
-                [](CPhysicsModel* p) -> bool
-                {
-                    p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
-                    OBJ::Transform tf;
-                    tf.Pos = { -12.0f, 0.0f, 0.0f };
-                    tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+            const float baseX = -12.0f;
+            const float spacing = 6.0f; // ŸŽÒ“¯Žm‚ÌŠÔŠu
+            size_t winCount = m_winners.size();
 
-                    p->SetTransform(tf);
-                    p->FactoryCollider(1.0f, 1.0f, 1.0f);
-                    return true;
-                },
-                OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
+            for (size_t k = 0; k < winCount; ++k)
+            {
+                int winnerIndex = m_winners[k];
+                bool isHumanWinner = (winnerIndex < m_nHumanPlayerNum);
+                std::string modelName;
+
+                if (isHumanWinner) {
+                    modelName = "Player_" + std::to_string(winnerIndex + 1);
+                }
+                else {
+                    modelName = "Player_CPU";
+                }
+
+                // ‰¡•À‚Ñ”z’u—p‚ÉXÀ•W‚ð‚¸‚ç‚·
+                float offsetX = baseX + spacing * ((int)k - (int)(winCount - 1) / 2.0f);
+
+                auto model = CObjectManager::CreateShare<CPhysicsModel>(
+                    [modelName, offsetX](CPhysicsModel* p) -> bool
+                    {
+                        p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey(modelName));
+                        OBJ::Transform tf;
+                        tf.Pos = { offsetX, 0.0f, 0.0f };
+                        tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+                        p->SetTransform(tf);
+                        p->FactoryCollider(1.0f, 1.0f, 1.0f);
+                        return true;
+                    },
+                    OBJ::TYPE::NONE, OBJ::LAYER::FRONT
+                        );
+               
+                if (k == 0) m_spTestModel = model;
+            }
 
             m_WinnerModelAppeared = true;
         }
@@ -954,19 +988,42 @@ void CSceneResult::ForceToFinished()
 
     if (!m_WinnerModelAppeared)
     {
-        m_spTestModel = CObjectManager::CreateShare<CPhysicsModel>(
-            [](CPhysicsModel* p) -> bool
-            {
-                p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
-                OBJ::Transform tf;
-                tf.Pos = { -12.0f, 0.0f, 0.0f };
-                tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+        const float baseX = -12.0f;
+        const float spacing = 6.0f; // ŸŽÒ“¯Žm‚ÌŠÔŠu
+        size_t winCount = m_winners.size();
 
-                p->SetTransform(tf);
-                p->FactoryCollider(1.0f, 1.0f, 1.0f);
-                return true;
-            },
-            OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
+        for (size_t k = 0; k < winCount; ++k)
+        {
+            int winnerIndex = m_winners[k];
+            bool isHumanWinner = (winnerIndex < m_nHumanPlayerNum);
+            std::string modelName;
+
+            if (isHumanWinner) {
+                modelName = "Player_" + std::to_string(winnerIndex + 1);
+            }
+            else {
+                modelName = "Player_CPU";
+            }
+
+            // ‰¡•À‚Ñ”z’u—p‚ÉXÀ•W‚ð‚¸‚ç‚·
+            float offsetX = baseX + spacing * ((int)k - (int)(winCount - 1) / 2.0f);
+
+            auto model = CObjectManager::CreateShare<CPhysicsModel>(
+                [modelName, offsetX](CPhysicsModel* p) -> bool
+                {
+                    p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey(modelName));
+                    OBJ::Transform tf;
+                    tf.Pos = { offsetX, 0.0f, 0.0f };
+                    tf.Rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+                    p->SetTransform(tf);
+                    p->FactoryCollider(1.0f, 1.0f, 1.0f);
+                    return true;
+                },
+                OBJ::TYPE::NONE, OBJ::LAYER::FRONT
+                    );
+
+            if (k == 0) m_spTestModel = model;
+        }
 
         m_WinnerModelAppeared = true;
     }
