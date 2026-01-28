@@ -36,6 +36,9 @@ CBomb::CBomb(OBJ::TYPE Type, OBJ::LAYER Layer)
 {
 	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Bomb"));
+
+	// ピクセルシェーダーのバインド
+	SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
 }
 
 //============================================================================
@@ -162,7 +165,8 @@ void CBomb::Action()
 
 	if (m_nTimer <= 0)
 	{
-		CSoundManger::RefInstance().Play("Bomb", false, -0.5f, 1.0f);
+		// 効果音：爆弾
+		CSoundManger::RefInstance().Play("Bomb", false, -0.5f, 0.2f);
 
 		SetDeath();
 

@@ -21,6 +21,10 @@
       "Data\\MODEL\\GLB\\Gimmick\\stick.glb"
     ],
     [
+      "Barrel",
+      "Data\\MODEL\\GLB\\Gimmick\\OilBarrel.glb"
+    ],
+    [
       "Bird",
       "Data\\MODEL\\GLB\\Gimmick\\ForBird.glb"
     ],

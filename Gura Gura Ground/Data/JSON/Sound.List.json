@@ -43,6 +43,10 @@
     [
       "Boomerang",
       "Data\\Audio\\boomerang.wav"
+    ],
+    [
+      "BirdStrike",
+      "Data\\Audio\\flapping.wav"
     ]
   ]
 }

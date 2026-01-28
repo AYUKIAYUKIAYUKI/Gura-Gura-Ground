@@ -30,11 +30,15 @@ namespace
 	btVector3 INIT = { 0.0f, 0.0f, 0.0f };   //btVector3用初期化マクロ
 
 	const int MAX_RECASTTIME = 60;           //プレイヤーのリキャストタイムの最大値
-	const int MAX_RECASTTIME_MOVE = 180;     //ゲーム開始時の移動までの時間
+	const int MAX_RECASTTIME_MOVE = 240;     //ゲーム開始時の移動までの時間
 	const int MAX_RECASTTIME_IN_BAR = 60;    //バーのリキャストタイムの最大値
 
+	const float MOVE_SPEED = 9.0f;
+	const float PREDICTION_TIME_DEF = 0.15f;  //デフォルトで足し合わせる未来視の時間
+	const float PREDICTION_TIME = 0.15f;      //乱数で出す未来視の最小大数
+	const float ShockWaveSize = 6.0f;         //衝撃波（ｘ。ｚ）の大きさ
+ 
 	//プレイヤーと同じ数値にする&&プレイヤーから直接同期->処理も変更しないと多分無理
-	const float MOVE = 6.5f;                 //自身の移動値 (今はdebugで似てる速度を目視で設定中)
 	const float JUMPPOWER = 13.5f;           //自身のジャンプ力
 	const float DROPPOWER = JUMPPOWER * 1.5f;  //自身のドロップ速度
 }
@@ -45,12 +49,15 @@ using namespace DirectX;
 using namespace useful;
 
 #include "API.gltf.manager.h"
+#include <shadow.h>
+#include <field.h>
+#include <windfield.h>
+#include <effect.manager.h>
 
 //======================================
 //コンストラクタ
 //======================================
-CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :
-	CPhysicsModel(Type, Layer)  
+CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :CPhysicsModel(Type, Layer)  
 , m_nRecasttime(0), m_bJump(true), m_pBar(nullptr)                                           
 , m_pShockWave(nullptr), m_bGoDown(false), m_btOldVel(INIT)                    
 , m_nStart(0), m_bStart(false), m_pwPlayer{}, m_State(ENEMY_STATE::STATE_BASE)
@@ -59,20 +66,24 @@ CEnemyPlayer::CEnemyPlayer(OBJ::TYPE Type, OBJ::LAYER Layer) :
 	searchBar();     //障害物を探す(初めにプレイヤーが生成されてるのが条件)
 
 	//あらかじめパラメータを設定
-	m_params.predictionTime = 0.295f +RandomRange(-0.05f, 0.05f); //ある程度の値の大きさを持たせる	// モデルのバインド
-	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));
+	m_params.predictionTime = PREDICTION_TIME_DEF +RandomRange(0.0f, PREDICTION_TIME); //ある程度の値の大きさを持たせる	
+	m_params.noiseangle= RandomSplit(0.15f, 0.25f);                                    //角度の調整値
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Test"));             // モデルのバインド
 
-	m_State = ENEMY_STATE::STATE_BASE;}
+	// シェアポインタのオブジェクトリストの参照
+	const std::list<std::shared_ptr<CObject>>& rFieldList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
+
+	// フィールドの弱参照を設定
+	m_wpField = std::dynamic_pointer_cast<CField>(rFieldList.front());
+	m_wpWindoField = std::dynamic_pointer_cast<CWindField>(rFieldList.front());
+}
 
 //======================================
 //デストラクタ
 //======================================
 CEnemyPlayer::~CEnemyPlayer()
 {
-	//ポインターの情報を消す
-	std::vector<std::weak_ptr<CPlayer>>().swap(m_pwPlayer);
-	std::vector<std::weak_ptr<CEnemyPlayer>>().swap(m_pwSelf);
-	m_pBar = nullptr;
+	
 }
 
 //======================================
@@ -93,20 +104,31 @@ void CEnemyPlayer::searchEnemy(std::shared_ptr<CEnemyPlayer>pSelf)
 //============================================================================
 void CEnemyPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
-	// 自身の用のリジッドボディの生成
+	// 自身のリジッドボディの作成
 	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
 
 	// コライダーをリジッドボディにキャスト
-	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
+	const CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(GetCollider());
 
 	// 重力の設定
-	pRB->SetGravity({ 0.0f, -20.0f, 0.0f }); //プレイヤーより軽く設定(debug)
+	pRigidBody->SetGravity({ 0.0f, -25.0f, 0.0f });
 
 	// 摩擦力を設定
-	pRB->SetFriction(1.0f);
+	pRigidBody->SetFriction(1.0f);
+
+	// 減衰力を設定
+	pRigidBody->SetDamping(0.25f, 0.0f);
 
 	// Y軸以外の回転をロック
-	pRB->SetAngularFactor(INIT);
+	pRigidBody->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
+
+	// 影の作成
+	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(
+		OBJ::TYPE::NONE,
+		OBJ::LAYER::DEFAULT);
+
+	// 影の追従対象として自身を設定
+	pShadow->SetTrackTarget(shared_from_this());
 }
 
 
@@ -125,6 +147,8 @@ void CEnemyPlayer::Update()
 	case ENEMY_STATE::STATE_IN_JUMP: State_In_Jump(); break;
 	case ENEMY_STATE::STATE_BAR:     State_Bar();     break;
 	}
+	// 衝撃波の作成と、弱参照の設定
+	
 
 	//基底クラスの更新
 	CPhysicsModel::Update();
@@ -151,7 +175,7 @@ void CEnemyPlayer::State_Base_Search()
 {
 	std::vector<TargetInfo> targets;   //まとめて比較する用変数(構造体により、型が違くても比較可能)
 
-	auto SelfPos = GetTransform().Pos; //自身の位置
+	const auto SelfPos = GetTransform().Pos; //自身の位置
 
 	//targetsに各情報を入れる
 	CollectTargetInfo(m_pwPlayer, targets, SelfPos); //プレイヤーの情報
@@ -189,42 +213,54 @@ void CEnemyPlayer::State_Base_Search()
 		predictedPos.z - SelfPos.z
 	);
 
+	float TragetAngle = predictedAngle + m_params.noiseangle;
+
 	//Comparison に渡す angle を差し替える
-	Comparison(predictedPos, SelfPos, predictedAngle);
+	Comparison(predictedPos, SelfPos, TragetAngle);
 }
 
 //======================================
 //比較処理(当たった時の判定や初動動かない処理)
 //======================================
-void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3 targetPos, const DirectX::XMFLOAT3 SelfPos, float angle)
+void CEnemyPlayer::Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX::XMFLOAT3& SelfPos, float angle)
 {
-	const float RADIUS = 3.0f;         //当たり半径
-
-	//当たっているかどうか判定
-	if (CheckCollision(targetPos, SelfPos, RADIUS))
+	// 初動がまだ終わっていない
+	if (!m_bStart)
 	{
-		if (m_bJump)
-		{
-			Jump_Base();                             //飛ぶ前の準備段階               
-			ChangeState(ENEMY_STATE::STATE_IN_JUMP); //状態をジャンプ中に変更
-		}
+		if (++m_nStart >= MAX_RECASTTIME_MOVE)
+			m_bStart = true;
+
+		return; // 初動中はここで終了
 	}
-	else
-	{
-		//初動が完了
-		if (m_bJump && m_bStart)
-		{
-			MoveAtPlayer(angle, MOVE); //移動
-		}
-		else if (!m_bStart)
-		{
-			++m_nStart;
 
-			//初動どれだけ動かないか
-			if (m_nStart >= MAX_RECASTTIME_MOVE)
+	//飛べる
+	if (m_bJump)
+	{
+		//定期的に未来視をリセットするこ事で単調さを消す
+		if (m_params.jumpcount > 2)
+		{
+			// 未来視リセット
+			m_params.predictionTime = PREDICTION_TIME_DEF + RandomRange(0.0f, PREDICTION_TIME);
+			m_params.jumpcount = 0;
+		}
+
+
+		//範囲内
+		if (CheckCollision(targetPos, SelfPos, ShockWaveSize * 0.5f))
+		{
+			if (SelfPos.y > targetPos.y)
 			{
-				m_bStart = true;
+				MoveAtPlayer(angle + 1.57f, MOVE_SPEED); //移動(目標向きを外側に明示的に修正)
+				return;                                   //ジャンプループを防ぐ
 			}
+		
+			++m_params.jumpcount;
+			Jump_Base();
+			ChangeState(ENEMY_STATE::STATE_IN_JUMP);
+		}
+		else
+		{
+			MoveAtPlayer(angle, MOVE_SPEED); //移動
 		}
 	}
 }
@@ -292,13 +328,13 @@ void CEnemyPlayer::State_Base_Bar()
 		const float size = 1.0f; //当たり判定の大きさ
 
 		//自身のトランスフォーム情報
-		auto SelfTransform = GetTransform();
+		const auto SelfTransform = GetTransform();
 		XMFLOAT3 SelfSize = { size, size, size };                                                  //「ファクトリーコライダーの値」を参照      
 		GameObject self_GO = SetObbInfo(self_GO, SelfTransform.Pos, SelfSize, SelfTransform.Rot);
 
 		//バーのトランスフォーム情報
 		CRigidBody* pRB_Bar = DownCast<CRigidBody>(m_pBar->GetCollider());
-		auto BarTransform = pRB_Bar->GetWorldTransform();
+		const auto BarTransform = pRB_Bar->GetWorldTransform();
 		XMFLOAT3 BarSize = { size, 15.0f, size };                                                  //「ファクトリーコライダーの値」を参照
 		GameObject bar_GO = SetObbInfo(bar_GO, BarTransform.Pos, BarSize, BarTransform.Rot);
 
@@ -377,10 +413,10 @@ void CEnemyPlayer::State_Bar()
 void CEnemyPlayer::searchPlayer()
 {
 	//オブジェクトマネージャーのシェアポインターからプレイヤータイプを見つける
-	auto  playerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::PLAYER);
+	const auto  playerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 
 	//範囲baseでプレイヤー情報の基盤を取得
-	for (auto Obj : playerlist)
+	for (const auto Obj : playerlist)
 	{
 		//キャストしてプレイヤーの情報を入れる
 		auto pPlayer = std::dynamic_pointer_cast<CPlayer>(Obj);
@@ -390,36 +426,88 @@ void CEnemyPlayer::searchPlayer()
 }
 
 //======================================
-//プレイヤーの方へ移動する処理
+//プレイヤーの方へ移動する処理(角度、移動速度)
 //======================================
-void CEnemyPlayer::MoveAtPlayer(float Angle, float speed)
+void CEnemyPlayer::MoveAtPlayer(const float Angle, const float speed)
 {
-	//リジットボディを取得
-	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
+	// プレイヤーのリジッドボディの取得
+	CRigidBody* const pRigidBody = dynamic_cast<CRigidBody*>(GetCollider());
 
-	//現在の加速度を参照
-	const btVector3& rCurrentVel = pRB->GetLinearVelocity();
+	// 現在の加速度をコピー
+	const btVector3& rCurrentVel = pRigidBody->GetLinearVelocity();
 
-	//アクティブ化
-	pRB->SetActive();
+	// 数値を先行して取得
+	float fDirectionValue = Angle;
 
-	//位置情報設定用
-	btVector3   MoveDir = { INIT };
+	// 移動速度スケールの作成
+	//const float fSpeed = fSpeedArg;
+	btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
-	//各位置の設定
-	MoveDir.setX(sinf(Angle) * speed);
-	MoveDir.setZ(cosf(Angle) * speed);
+	// ★★★ プレイヤーが保持しているフィールド参照から、現在のフィールドタイプを判定する ★★★
+	CField* pField =GetCurrentField();
+	bool bIce = (pField && pField->GetFieldType() == FIELD_TYPE::ICE);
 
-	// 移動方向：Y軸：現在の重力速度を維持
-	MoveDir.setY(rCurrentVel.getY());
 
-	pRB->SetLinearVelocity(MoveDir); //加速度の設定
+	// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
+	MoveDir.setX(sinf(fDirectionValue));
+	MoveDir.setZ(cosf(fDirectionValue));
+
+	// ★★★ フィールドタイプに応じて移動処理を切り替える（ICE → #if1、NORMAL → #else） ★★★
+	if (bIce)
+	{
+		// 力を加える 
+		if (pRigidBody->GetActive())
+		{
+			pRigidBody->SetForce(MoveDir * speed);
+		}
+		else
+		{
+			pRigidBody->SetActive();
+			pRigidBody->SetLinearVelocity(MoveDir);
+		}
+	}
+	else
+	{
+		MoveDir.setY(rCurrentVel.getY());
+
+		// 目標の加速度作成
+		const btVector3& TargetVel = MoveDir * speed;
+
+		/* ああ…btVector3をXMFLOAT3に変換 */
+		DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
+		DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
+
+		/* ああ…要素ずつ指数減衰 */
+		float fCoef = 0.25f;
+
+		////何かしらのデバフが有効なら慣性に倍率を掛ける
+		//if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
+		//	float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
+		//	fCoef *= Inertia;
+		//}
+		useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
+		useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
+
+		/* ああ…XMFLOAT3の減衰結果をbtVector3に変換 */
+		btVector3 ResultVel = { CurrentVel_XMFLOAT.x, rCurrentVel.getY(), CurrentVel_XMFLOAT.z };
+
+		/* 接地しているかどうか (便宜的にシェアポインタのリジッドボディに接触しているか) に応じて速度の加え方を変更 */
+		pRigidBody->SetActive();
+		if (Collision::CheckHitToRigidBodyShare(pRigidBody))
+		{
+			pRigidBody->SetLinearVelocity(ResultVel);
+		}
+		else
+		{
+			pRigidBody->SetForce((ResultVel - rCurrentVel) * 10.0f);
+		}
+	}
 }
 
 //======================================
 //当たり判定チェック処理
 //======================================
-bool CEnemyPlayer::CheckCollision(const XMFLOAT3& c1pos, const XMFLOAT3& c2pos, float Radius)
+bool CEnemyPlayer::CheckCollision(const XMFLOAT3& c1pos, const XMFLOAT3& c2pos,const float Radius)
 {
 	//対角線を算出
 	float centerDistance = CheckDistance(c1pos, c2pos);
@@ -458,10 +546,10 @@ float CEnemyPlayer::CheckDistance(const XMFLOAT3& c1, const XMFLOAT3& c2)
 void CEnemyPlayer::searchBar()
 {
 	//オブジェクトマネージャーのシェアポインターからオブジェクトタイプを取得
-	auto Obstaclelist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::OBSTACLE);
+	const auto Obstaclelist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::OBSTACLE);
 
 	//範囲baseで探す
-	for (auto& Obj : Obstaclelist)
+	for (const auto& Obj : Obstaclelist)
 	{
 		//Objの中身がcBarかどうかを判定(同じオブジェクトタイプでの判定)
 		if (auto bar = std::dynamic_pointer_cast<CBar>(Obj))
@@ -549,7 +637,7 @@ bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
 	//多少強引に一回だけ衝撃波を呼ぶ処理を実行
 	else if (RecastTme <= 1)
 	{
-		CreateShockWave(Collision::SHAPETYPE::BOX, { 7.0f, 1.0f, 7.0f }, 10);
+		CreateShockWave(Collision::SHAPETYPE::CYLINDER, { ShockWaveSize, 1.0f, ShockWaveSize }, 10);
 	}
 
 	return false;
@@ -569,15 +657,27 @@ void CEnemyPlayer::CheckInfo()
 	//======================================
 	//自身の削除処理（プレイヤーと同じ条件）
 
-	// コライダーをリジッドボディにキャスト
-	CRigidBody* pRB = DownCast<CRigidBody>(GetCollider());
+	// トランスフォームから高さを取得
+	float fSelfPosY = GetTransform().Pos.y;
 
-	// ワールドトランスフォームから位置を取得
-	const DirectX::XMFLOAT3& Pos = pRB->GetWorldTransform().Pos;
+	// フィールドの高さを保有
+	float fFieldPosY = 0.0f;
 
-	if (Pos.y < 3.0f)
+	// フィールドの高さを取得
+	if (std::shared_ptr<CField> spField = m_wpField.lock())
 	{
-		// 自身の死亡フラグを立てる
+		fFieldPosY = spField->GetTransform().Pos.y;
+	}
+
+	// 風フィールドの高さを取得
+	else if (std::shared_ptr<CWindField> spField1 = m_wpWindoField.lock())
+	{
+		fFieldPosY = spField1->GetTransform().Pos.y;
+	}
+
+	// Y座標がフィールドの高さを下回ったら
+	if (fSelfPosY < fFieldPosY)
+	{
 		SetDeath();
 	}
 }
@@ -606,6 +706,9 @@ void CEnemyPlayer::Jump_Base()
 //============================================================================
 void CEnemyPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMFLOAT3A& Size, int nDuration)
 {
+	useful::Vec3 EffectVec3 = {GetTransform().Pos.x,6.25f,GetTransform().Pos.z };
+	CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
+
 	// 衝撃波の作成と、弱参照の設定
 	const std::shared_ptr<CShockWave>& spShockWave = CObjectManager::CreateShare<CShockWave>
 		(
@@ -626,6 +729,36 @@ void CEnemyPlayer::CreateShockWave(Collision::SHAPETYPE Type, const DirectX::XMF
 	spShockWave->SetDuration(nDuration);
 }
 
+//============================================================================
+//乱数
+//============================================================================
+float CEnemyPlayer::RandomRange(float min, float max)
+{
+	static std::mt19937 mt{ std::random_device{}() };
+	std::uniform_real_distribution<float> dist(min, max);
+	return dist(mt);
+}
+
+//============================================================================
+//min～maxの間の数値を乱数で渡し１/２で+-が変わる
+//============================================================================
+float CEnemyPlayer::RandomSplit(float min, float max)
+{
+	static std::mt19937 mt(std::random_device{}());
+
+	std::uniform_real_distribution<float> dist(min, max);
+
+	// coinに代入した数値分　trueが出やすくなる（max 1.0）例coin(0.7)-> true:false=0.7:0.3の確率
+	std::bernoulli_distribution coin(1.0);
+
+	float v = dist(mt);
+	v = coin(mt) ? v : -v;
+
+	// 小数第2位に丸める
+	v = std::round(v * 100.0f) / 100.0f;
+
+	return v;
+}
 
 //======================================
 //描画処理

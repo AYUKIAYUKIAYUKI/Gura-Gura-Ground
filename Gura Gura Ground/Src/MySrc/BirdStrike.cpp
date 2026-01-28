@@ -14,12 +14,14 @@
 #include "API.object.manager.h"
 #include "player.h"
 #include "API.collision.h"
+#include "API.sound.manager.h"
 
 // 物理挙動作成のため
 #include "API.world.h"
 #include "API.ghost.h"
 
 // エフェクト
+#include "route.h"
 #include "Shadow.h"
 #include "dust.h"
 
@@ -139,7 +141,14 @@ void CBirdStrike::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	/* ！！！ 影の生成 ！！！ */
 	CShadow* pShadow = CObjectManager::CreateRaw<CShadow>(OBJ::TYPE::NONE, OBJ::LAYER::DEFAULT);
 	pShadow->SetTrackTarget(shared_from_this());
-}
+
+	/* ！！！ 警告表示の作成 ！！！ */
+	CRoute* pRoute = CObjectManager::CreateRaw<CRoute>();
+	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
+	pRoute->SetTrackTarget(spObstacle);
+
+	// 効果音：跳ねる音
+	CSoundManger::RefInstance().Play("BirdStrike", false, -0.5f, 0.4f);}
 
 //============================================================================
 // 更新処理

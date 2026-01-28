@@ -87,6 +87,12 @@ public:
 	//生存時間削除
 	static void ClearAllSurvivalTimes() { std::fill(s_vSurvivalTimes.begin(), s_vSurvivalTimes.end(), 0.0f); }
 
+	// ★ 今乗っているフィールドを取得
+	CField* GetCurrentField() const
+	{
+		return m_wpField.lock().get();
+	}
+
 private:
 
 	//****************************************************

@@ -123,7 +123,7 @@ public:
 
 	// ゲームパッドの接続数の判別を行い、その数をそんまま返す
 	inline unsigned char GetConnectedGamePadNum() const
-	{ 
+	{
 		for (unsigned char wIdxPad = 0; wIdxPad < MAX_GAMEPAD; ++wIdxPad)
 		{
 			// ゲームパッドのステートの取得

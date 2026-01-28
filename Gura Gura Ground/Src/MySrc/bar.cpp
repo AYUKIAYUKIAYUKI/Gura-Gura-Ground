@@ -61,6 +61,7 @@ CBar::CBar(OBJ::TYPE Type, OBJ::LAYER Layer)
 	: CObstacle(Type, Layer, Obstacle::OBSTACLE_TYPE::MOVING)
 	, m_Direction(VEC3_ZERO_INIT)
 {
+	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Bar"));
 }
 
@@ -106,9 +107,6 @@ void CBar::Update()
 	// 挙動
 	Action();
 
-
-
-
 	// ワールドトランスフォームから位置を取得
 	CRigidBody* const pRB = useful::DownCast<CRigidBody>(GetCollider());
 	const DirectX::XMFLOAT3& Pos = pRB->GetWorldTransform().Pos;
@@ -130,7 +128,6 @@ void CBar::Draw()
 	// 障害物クラスの描画
 	CObstacle::Draw();
 }
-
 
 //============================================================================
 // インスペクターの表示

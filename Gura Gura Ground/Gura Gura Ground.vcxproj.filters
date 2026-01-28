@@ -171,7 +171,11 @@
     <ClCompile Include="Src\MySrc\Oil.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
-  </ItemGroup>
+ <ClCompile Include="Src\MySrc\field.ice.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile><ClCompile Include="Src\MySrc\windfield.cpp">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+    </ClCompile>  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\MySrc\main.h">
       <Filter>ヘッダー ファイル</Filter>
@@ -347,9 +351,6 @@
     <ClInclude Include="Src\MySrc\tornado.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
-    <ClInclude Include="Src\MySrc\obstacle_editer.h">
-      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
-    </ClInclude>
     <ClInclude Include="Src\MySrc\pendulum.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
@@ -377,7 +378,16 @@
     <ClInclude Include="Src\MySrc\Oil.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
-  </ItemGroup>
+    <ClInclude Include="Src\MySrc\windfield.h">
+      <Filter>%28分類済み%29\【エンティティ系統】</Filter>
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\pendulum.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\field.ice.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>  </ItemGroup>
   <ItemGroup>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp">
       <Filter>%28公開API%29\【マネージャー系統】</Filter>

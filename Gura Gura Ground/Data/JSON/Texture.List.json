@@ -69,6 +69,14 @@
       "Data\\TEXTURE\\frame.png"
     ],
     [
+      "Right",
+      "Data\\TEXTURE\\right.png"
+    ],
+    [
+      "Left",
+      "Data\\TEXTURE\\left.png"
+    ],
+    [
       "ResultTitle_Text",
       "Data\\TEXTURE\\Result\\ResultTitle_Text.png"
     ],

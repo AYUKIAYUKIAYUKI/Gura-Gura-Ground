@@ -195,6 +195,10 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 	// 割り当てが該当するゲームパッドの方向入力を取得
 	const std::optional<float>& opDirection = CInputManager::RefInstance().ConvertInputToMoveDirection(rStateMachine.m_rPalyer.GetIdxPlayer());
 
+	// ★★★ プレイヤーが保持しているフィールド参照から、現在のフィールドタイプを判定する ★★★
+	CField* pField = rStateMachine.m_rPalyer.GetCurrentField();
+	bool bIce = (pField && pField->GetFieldType() == FIELD_TYPE::ICE);
+
 	// 方向入力があるなら
 	if (opDirection)
 	{
@@ -208,82 +212,110 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 			fSpeed *= Decay;
 		}
 
-#if 0
-		// 数値を先行して取得
-		float fDirectionValue = opDirection.value();
-
-		// 移動速度スケールの作成
-		//const float fSpeed = fSpeedArg;
-		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
-
-		// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
-		// 　　　　：Y軸 ：現在の重力速度を維持
-		MoveDir.setX(sinf(fDirectionValue));
-		MoveDir.setY(0.0f);
-		MoveDir.setZ(cosf(fDirectionValue));
-
-		// 力を加える
-		pRigidBody->SetActive();
-		pRigidBody->SetForce(MoveDir * fSpeedArg);
-#else
-		// 数値を先行して取得
-		float fDirectionValue = opDirection.value();
-
-		// 移動速度スケールの作成
-		//const float fSpeed = fSpeedArg;
-		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
-
-		// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
-		MoveDir.setX(sinf(fDirectionValue));
-		MoveDir.setZ(cosf(fDirectionValue));
-
-		// 目標の加速度作成
-		const btVector3& TargetVel = MoveDir * fSpeed;
-
-		/* ああ…btVector3をXMFLOAT3に変換 */
-		DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
-		DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
-
-		/* ああ…要素ずつ指数減衰 */
-		float fCoef = 0.25f;
-		useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
-		useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
-
-		/* ああ…XMFLOAT3の減衰結果をbtVector3に変換 */
-		btVector3 ResultVel = { CurrentVel_XMFLOAT.x, rCurrentVel.getY(), CurrentVel_XMFLOAT.z };
-
-		/* 接地しているかどうか (便宜的にシェアポインタのリジッドボディに接触しているか) に応じて速度の加え方を変更 */
-		pRigidBody->SetActive();
-		if (Collision::CheckHitToRigidBodyShare(pRigidBody))
+		// ★★★ フィールドタイプに応じて移動処理を切り替える（ICE → #if1、NORMAL → #else） ★★★
+		if (bIce)
 		{
-			pRigidBody->SetLinearVelocity(ResultVel);
+			//===========================
+			// ここから #if 1 の中身
+			//===========================
+
+			// 数値を先行して取得
+			float fDirectionValue = opDirection.value();
+
+			// 移動速度スケールの作成
+			//const float fSpeed = fSpeedArg;
+			btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
+
+			// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
+			// 　　　　：Y軸 ：現在の重力速度を維持
+			MoveDir.setX(sinf(fDirectionValue));
+			MoveDir.setY(0.0f);
+			MoveDir.setZ(cosf(fDirectionValue));
+
+			// 力を加える 
+			if (pRigidBody->GetActive())
+			{
+				pRigidBody->SetForce(MoveDir * fSpeed);
+			}
+			else
+			{
+				pRigidBody->SetActive();
+				pRigidBody->SetLinearVelocity(MoveDir);
+			}
+
+			//===========================
+			// #if 1 終わり
+			//===========================
 		}
 		else
 		{
-			pRigidBody->SetForce((ResultVel - rCurrentVel) * 10.0f);
+			//===========================
+			// ここから #else の中身
+			//===========================
+
+			// 数値を先行して取得
+			float fDirectionValue = opDirection.value();
+
+			// 移動速度スケールの作成
+			//const float fSpeed = fSpeedArg;
+			btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
+
+			// 移動方向：XZ軸：方向に沿って単位ベクトルに速度係数を掛けたものを設定
+			MoveDir.setX(sinf(fDirectionValue));
+			MoveDir.setZ(cosf(fDirectionValue));
+
+			// 目標の加速度作成
+			const btVector3& TargetVel = MoveDir * fSpeed;
+
+			/* ああ…btVector3をXMFLOAT3に変換 */
+			DirectX::XMFLOAT3 CurrentVel_XMFLOAT = { rCurrentVel.getX(), 0.0f, rCurrentVel.getZ() };
+			DirectX::XMFLOAT3 TargeVel_XMFLOAT = { TargetVel.getX(),   0.0f, TargetVel.getZ() };
+
+			/* ああ…要素ずつ指数減衰 */
+			float fCoef = 0.25f;
+			//何かしらのデバフが有効なら慣性に倍率を掛ける
+			if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
+				float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
+				fCoef *= Inertia;
+			}
+			useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
+			useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
+
+			/* ああ…XMFLOAT3の減衰結果をbtVector3に変換 */
+			btVector3 ResultVel = { CurrentVel_XMFLOAT.x, rCurrentVel.getY(), CurrentVel_XMFLOAT.z };
+
+			/* 接地しているかどうか (便宜的にシェアポインタのリジッドボディに接触しているか) に応じて速度の加え方を変更 */
+			pRigidBody->SetActive();
+			if (Collision::CheckHitToRigidBodyShare(pRigidBody))
+			{
+				pRigidBody->SetLinearVelocity(ResultVel);
+			}
+			else
+			{
+				pRigidBody->SetForce((ResultVel - rCurrentVel) * 10.0f);
+			}
+
+			//===========================
+			// #else 終わり
+			//===========================
 		}
-#endif
 	}
 	else
 	{
+		// ★入力が無い場合は、現在の速度を減衰させて自然減速させる処理
 		btVector3 MoveDir = { 0.0f, 0.0f, 0.0f };
 
-		// 加速度：XZ軸：値を抽出
 		float fCurrentX = rCurrentVel.getX();
 		float fCurrentZ = rCurrentVel.getZ();
 
-		// 加速度：XZ軸：減衰をかける
 		float fCoef = 0.05f;
 		useful::ExponentialDecay(fCurrentX, 0.0f, fCoef);
 		useful::ExponentialDecay(fCurrentZ, 0.0f, fCoef);
 		
-		// 移動方向：XZ軸：減衰を反映
-		// 　　　　：Y軸 ：現在の重力速度を維持
 		MoveDir.setX(fCurrentX);
 		MoveDir.setY(rCurrentVel.getY());
 		MoveDir.setZ(fCurrentZ);
 
-		// 新しい加速度として線形速度を設定
 		pRigidBody->SetLinearVelocity(MoveDir);
 	}
 }
@@ -481,6 +513,9 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 	// 地面と接地したら
 	if (CheckLand(rStateMachine))
 	{
+		// ダイナミックに戻す
+		pRigidBody->SetDynamic();
+
 		useful::Vec3 EffectVec3 = { rStateMachine.m_rPalyer.GetTransform().Pos.x,6.25f,rStateMachine.m_rPalyer.GetTransform().Pos.z };
 		CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
 		// 衝撃波の作成
@@ -539,6 +574,9 @@ void CPlayer::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// 摩擦力を設定
 	pRigidBody->SetFriction(1.0f);
+
+	// 減衰力を設定
+	pRigidBody->SetDamping(0.3f, 0.0f);
 
 	// Y軸以外の回転をロック
 	pRigidBody->SetAngularFactor({ 0.0f, 0.0f, 0.0f });
