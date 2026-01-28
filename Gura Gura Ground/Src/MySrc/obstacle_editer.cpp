@@ -468,38 +468,46 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 						CObjectManager::CreateShare<CBall>([sub, subIdx, paramSetIdx](CBall* p) -> bool
 							{
 								p->SetParamSetIndex(paramSetIdx);
-								p->SetSubParamIndex(static_cast<int>(subIdx));
-								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+								p->SetSubParamIndex((int)subIdx);
+								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
 								const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
 								OBJ::Transform TF = {};
+								TF.Size = { sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2 };
 								TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+								p->SetTransform(TF);
 								p->SetDirection({ sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
 								pRigidBody->SetWorldTransform(TF);
 								return true;
-							}, OBJ::TYPE::OBSTACLE);
+							},
+							OBJ::TYPE::OBSTACLE);
 						break;
 					case OBS_TYPE::BAR:
 						CObjectManager::CreateShare<CBar>([sub, subIdx, paramSetIdx](CBar* p) -> bool
 							{
 								p->SetParamSetIndex(paramSetIdx);
-								p->SetSubParamIndex(static_cast<int>(subIdx));
+								p->SetSubParamIndex((int)subIdx);
 								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
 								const CRigidBody* const pRigidBody = useful::DownCast<CRigidBody>(p->GetCollider());
+								const float fScaleBase = 1.0f * (sub.ColliderHeight / 2);
 								OBJ::Transform TF = {};
+								TF.Size = { (sub.ColliderWidth / 2) * fScaleBase, sub.ColliderHeight / 2, (sub.ColliderDepth / 2) * fScaleBase };
 								TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
+								p->SetTransform(TF);
 								CBar::SetRotate(TF, { sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
 								pRigidBody->SetWorldTransform(TF);
 								p->SetDirection({ sub.ObstacleSpeedX, sub.ObstacleSpeedY, sub.ObstacleSpeedZ });
 								return true;
-							}, OBJ::TYPE::OBSTACLE);
+							},
+							OBJ::TYPE::OBSTACLE);
 						break;
 					case OBS_TYPE::BOMB:
 						CObjectManager::CreateShare<CBomb>([sub, subIdx, paramSetIdx](CBomb* p) -> bool
 							{
 								p->SetParamSetIndex(paramSetIdx);
 								p->SetSubParamIndex(static_cast<int>(subIdx));
-								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
 								OBJ::Transform TF = {};
+								TF.Size = { sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2 };
 								TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
 								p->SetTransform(TF);
 								p->SetTimer(sub.BombTimer); // タイマー値セット
@@ -515,6 +523,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 								float Size = 3.0f;
 								float Pos = fSpanField + 5.0f;         // 地面サイズ+オフセットで基準位置
 								OBJ::Transform TF = p->GetTransform();
+								TF.Size = { 7.5f, 7.5f, 7.5f };
 								TF.Pos = { -Pos, 0.0f, Pos };
 								p->SetTransform(TF);
 								p->SetStartPos(TF.Pos);
@@ -529,9 +538,9 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 							{
 								p->SetParamSetIndex(paramSetIdx);
 								p->SetSubParamIndex(static_cast<int>(subIdx));
-								// 幅・高さ・奥行きをセット
 								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
 								OBJ::Transform TF = {};
+								TF.Size = { sub.ColliderWidth, sub.ColliderHeight, sub.ColliderDepth };
 								TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
 								p->SetTransform(TF);
 								return true;
@@ -542,33 +551,37 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 							{
 								p->SetParamSetIndex(paramSetIdx);
 								p->SetSubParamIndex(static_cast<int>(subIdx));
-								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
 								OBJ::Transform TF = {};
+								TF.Size = { sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2 };
 								TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
 								p->SetTransform(TF);
 								return true;
 							}, OBJ::TYPE::OBSTACLE);
 						break;
 					case OBS_TYPE::BOOMERANG:
-						CObjectManager::CreateShare<CBoomerang>([sub, subIdx, paramSetIdx](CBoomerang* p) -> bool {
-							p->SetParamSetIndex(paramSetIdx);
-							p->SetSubParamIndex(static_cast<int>(subIdx));
-							p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
-							p->SetMovePattern(sub.BoomerangMovePattern);
-							OBJ::Transform TF = {};
-							TF.Pos = { sub.ObstacleSpawnX, 9.0f, sub.ObstacleSpawnZ };
-							p->SetTransform(TF);
+						CObjectManager::CreateShare<CBoomerang>([sub, subIdx, paramSetIdx](CBoomerang* p) -> bool
+							{
+								p->SetParamSetIndex(paramSetIdx);
+								p->SetSubParamIndex(static_cast<int>(subIdx));
+								p->SetMovePattern(sub.BoomerangMovePattern);
+								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
 
-							// パラメータセット
-							p->SetBoomerangParams(
-								sub.BoomerangOmega,
-								sub.BoomerangRadius,
-								sub.BoomerangBasePower,
-								sub.BoomerangAddBySpeed,
-								sub.BoomerangMaxFinalPower,
-								sub.BoomerangHitCooldown
-							);
-							return true;
+								OBJ::Transform TF = {};
+								TF.Size = { sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2 };
+								TF.Pos = { sub.ObstacleSpawnX, 9.0f, sub.ObstacleSpawnZ };
+								p->SetTransform(TF);
+
+								// パラメータセット
+								p->SetBoomerangParams(
+									sub.BoomerangOmega,
+									sub.BoomerangRadius,
+									sub.BoomerangBasePower,
+									sub.BoomerangAddBySpeed,
+									sub.BoomerangMaxFinalPower,
+									sub.BoomerangHitCooldown
+								);
+								return true;
 							}, OBJ::TYPE::OBSTACLE);
 						break;
 					case OBS_TYPE::BIRDSTRIKE:
@@ -576,9 +589,10 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 							{
 								p->SetParamSetIndex(paramSetIdx);
 								p->SetSubParamIndex(static_cast<int>(subIdx));
-								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight /2, sub.ColliderDepth / 2);
+								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
 								OBJ::Transform TF = {};
-								TF.Pos = { 0.0f, 0.0f, 0.0f };
+								TF.Size = { sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2 };
+								TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
 								p->SetTransform(TF);
 								return true;
 							}, OBJ::TYPE::OBSTACLE);
@@ -592,6 +606,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 								p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
 
 								OBJ::Transform TF = {};
+								TF.Size = { sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2 };
 								TF.Pos = { sub.ObstacleSpawnX, sub.ObstacleSpawnY, sub.ObstacleSpawnZ };
 
 								// 必要であれば角度設定。速度ベースにしたい場合はここを工夫
