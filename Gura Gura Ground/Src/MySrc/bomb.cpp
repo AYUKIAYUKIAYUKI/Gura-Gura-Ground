@@ -45,7 +45,11 @@ CBomb::CBomb(OBJ::TYPE Type, OBJ::LAYER Layer)
 // デストラクタ
 //============================================================================
 CBomb::~CBomb()
-{}
+{
+	if (CEffectManager::RefInstance().GetEffect(m_nEffHandle) != nullptr) {
+		CEffectManager::RefInstance().GetEffect(m_nEffHandle)->SetDeath();
+	}
+}
 
 //============================================================================
 // コライダーのファクトリ
@@ -86,7 +90,7 @@ void CBomb::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
 	pWarning->SetTrackTarget(spObstacle);
 
-	CEffect::Create(CEffectManager::TAG_SMOKE, TF.Pos, &m_nEffHandle, 0.1f);
+	CEffect::Create(CEffectManager::TAG_SMOKE, TF.Pos, &m_nEffHandle, 0.1f* fDepth);
 }
 
 //============================================================================
@@ -169,18 +173,17 @@ void CBomb::Action()
 		// 効果音：爆弾
 		CSoundManger::RefInstance().Play("Bomb", false, -0.5f, 0.2f);
 
+		// コライダーをリジッドボディにキャスト
+		const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
+		useful::Vec3 pos = pRB->GetWorldTransform().Pos;
+		int eadf{};
+		CEffect::Create(CEffectManager::TAG_BOMB, pos, &eadf, 2.0f);
+
 		SetDeath();
 
 		// 衝撃波の作成
 		const float       fSpan = 3.0f;
 		DirectX::XMFLOAT3 Size  = { fSpan, fSpan, fSpan };
 		CreateShockWave(Collision::SHAPETYPE::SPHERE, Size, 30);
-
-		CEffectManager::RefInstance().GetEffect(m_nEffHandle)->SetDeath();
-		// コライダーをリジッドボディにキャスト
-		const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
-		useful::Vec3 pos = pRB->GetWorldTransform().Pos;
-		CEffect::Create(CEffectManager::TAG_BOMB, pos, &m_nEffHandle, 2.0f);
-
 	}
 }

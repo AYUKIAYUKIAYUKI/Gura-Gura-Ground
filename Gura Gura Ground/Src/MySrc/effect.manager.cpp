@@ -15,20 +15,22 @@ namespace {
     void EditUI()
     {
 #ifdef _DEBUG
-        ImGui::SetNextWindowPos(ImVec2(1000, 0));
-        ImGui::SetNextWindowSize(ImVec2(300, 400));
-        ImGui::Begin("Effect Edit");
+    ImGui::SetNextWindowPos(ImVec2(1000, 0));
+    ImGui::SetNextWindowSize(ImVec2(300, 400));
+    ImGui::Begin("Effect Edit");
 
-        if(ImGui::Button("Instance"))CEffectManager::RefInstance();
-        if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_LIGHTNING, {20.0f,0.0f,0.0f});
-        ImGui::SameLine();
-        if (ImGui::Button("Water"))CEffect::Create(L"Data\\EFFECT\\Effect\\kirakira.efkefc", { 0.0f,10.0f,0.0f },nullptr,1.0f);
+    if (ImGui::Button("Instance"))CEffectManager::RefInstance();
+    if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_LIGHTNING, { 20.0f,0.0f,0.0f });
+    ImGui::SameLine();
+    if (ImGui::Button("Water"))CEffect::Create(L"Data\EFFECT\Effect\Simple_Turbulence_Fireworks.efkefc", { -20.0f,0.0f,0.0f }, nullptr, 1.0f);
+    if (ImGui::Button("FireWork"))CEffect::Create(CEffectManager::TAG_FIREWORKS_SINGLE, { 0.0f,-20.0f,0.0f });
+    if (ImGui::Button("Kirakira"))CEffect::Create(CEffectManager::TAG_SPARKLE, { 15.0f,0.0f,0.0f }, {}, { 0.5f });
 
-        ImGui::Button("<");
-        ImGui::SameLine();
-        ImGui::Button(">");
+    ImGui::Button("<");
+    ImGui::SameLine();
+    ImGui::Button(">");
 
-        ImGui::End();
+    ImGui::End();
 #endif // _DEBUG
     }
 }
@@ -187,11 +189,11 @@ bool CEffectManager::Initialize()
     ID3D11Device* pDevice = CRenderer::RefInstance().GetDevice();
     ID3D11DeviceContext* pContext = CRenderer::RefInstance().GetContext();
     // Effekseerレンダラー作成
-    m_renderer = EffekseerRendererDX11::Renderer::Create(pDevice, pContext,2000);
+    m_renderer = EffekseerRendererDX11::Renderer::Create(pDevice, pContext,20000);
     if (m_renderer == nullptr)throw std::runtime_error("Effekseer renderer Error");
 
     // Effekseerマネージャ作成
-    m_manager = Effekseer::Manager::Create(2000);
+    m_manager = Effekseer::Manager::Create(20000);
     if(m_manager == nullptr)throw std::runtime_error("Effekseer manager Error");
     // 各種レンダラーを登録
     m_manager->SetSpriteRenderer(m_renderer->CreateSpriteRenderer());
@@ -238,11 +240,12 @@ void CEffectManager::Finalize()
 //==========================================================================================
 void CEffectManager::Update()
 {
-    m_EffectName;
     EditUI();
     m_manager->Update();    //エフェクシアのマネージャーを更新.
     //一括で更新
-    for (auto& i : m_effectsList) {
+    for (const auto& i : m_effectsList) {
+        if (i == nullptr)continue;
+
         i->Update();
     }
     EraseEffect();
@@ -254,7 +257,6 @@ void CEffectManager::Update()
 void CEffectManager::Draw()
 {
     SetCameraMtx();
-
     //エフェクシアのレンダリング
     m_renderer->BeginRendering();
     m_manager->Draw();
@@ -266,6 +268,7 @@ void CEffectManager::Draw()
 //==========================================================================================
 void CEffectManager::RegistEffect(CEffect* peff)
 {
+    if (peff == nullptr)return;
     m_effectsList.push_back(peff);      //リストに登録
 }
 //==========================================================================================
@@ -276,15 +279,7 @@ void CEffectManager::StopAll()
     for (auto& e : m_effectsList)
     {
         e->SetDeath();
-        EFFECT_TAG GetTag = e->GetTag();
-        e->Uninit();
-        delete e;
-        e = nullptr;
-        //リストから除外(アクセス違反を防ぐためErase-removeイディオムを使用)
-        //m_effectsList.erase(std::remove(m_effectsList.begin(), m_effectsList.end(), e), m_effectsList.end());
     }
-    m_effectsList.clear();
-    int i = 1;
     Update();
 }
 //==========================================================================================
@@ -292,16 +287,21 @@ void CEffectManager::StopAll()
 //==========================================================================================
 void CEffectManager::EraseEffect()
 {
-    for (auto& e : m_effectsList)
-    {
+    auto it = m_effectsList.begin();
+    while (it != m_effectsList.end()){
         //実行済みかどうか確認
-        if (e->GetPlaying())continue;
-        e->Uninit();
-        delete e;
-        e = nullptr;
-        //リストから除外(アクセス違反を防ぐためErase-removeイディオムを使用)
-        m_effectsList.erase(std::remove(m_effectsList.begin(), m_effectsList.end(),e), m_effectsList.end());
+        if (!(*it)->GetPlaying()) {
+            
+            (*it)->Uninit();
+            delete (*it);
+            //リストから除外
+            it = m_effectsList.erase(it);
+        }
+        else {
+            ++it;
+        }
     }
+
 }
 
 //==========================================================================================

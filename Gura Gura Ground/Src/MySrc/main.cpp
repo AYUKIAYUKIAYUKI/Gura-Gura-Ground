@@ -75,6 +75,9 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hInstancePre
 		// 物理ワールドの生成
 		CWorld::RefInstance();
 
+		// エフェクトマネージャーの生成
+		CEffectManager::RefInstance();
+
 		/* サウンドの再生 */
 		//CSoundManger::RefInstance().Play("BGM", true, 0.0f, 1.0f);
 		//CSoundManger::RefInstance().Play("Noise", true, 0.0f, 0.5f);
