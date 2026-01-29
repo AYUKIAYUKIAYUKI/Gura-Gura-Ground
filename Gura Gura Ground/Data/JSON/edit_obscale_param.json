@@ -1,0 +1,12 @@
+{
+    "collider_depth": 3.0,
+    "collider_height": 3.0,
+    "collider_width": 3.0,
+    "manual_type": 0,
+    "spawnX": 0.0,
+    "spawnY": 10.0,
+    "spawnZ": 10.0,
+    "speedX": 0.0,
+    "speedY": 0.0,
+    "speedZ": -5.0
+}

@@ -1,11 +1,11 @@
 {
     "debuff_bird": {
-        "decay": 0.6000000238418579,
+        "decay": 0.5,
         "inertia": 1.2000000476837158
     },
     "debuff_oil": {
-        "decay": 0.8999999761581421,
-        "inertia": 1.0
+        "decay": 0.800000011920929,
+        "inertia": 8.5
     },
     "debuff_stamp": {
         "decay": 0.30000001192092896,
@@ -15,17 +15,11 @@
         {
             "sub_params": [
                 {
-                    "boomerang_add_by_speed": 0.0,
-                    "boomerang_base_power": 17.0,
-                    "boomerang_hit_cooldown": 10,
-                    "boomerang_max_final_power": 350.0,
-                    "boomerang_move_pattern": 0,
-                    "boomerang_omega": 2.25,
-                    "boomerang_radius": 10.0,
-                    "collider_depth": 3.0,
-                    "collider_height": 3.0,
-                    "collider_width": 3.0,
-                    "manual_type": 7,
+                    "bomb_timer": 300,
+                    "collider_depth": 1.0,
+                    "collider_height": 1.0,
+                    "collider_width": 1.0,
+                    "manual_type": 3,
                     "spawnX": 0.0,
                     "spawnY": 8.0,
                     "spawnZ": 15.0,
@@ -372,6 +366,22 @@
                     "spawnX": -8.0,
                     "spawnY": 125.0,
                     "spawnZ": 9.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                }
+            ]
+        },
+        {
+            "sub_params": [
+                {
+                    "collider_depth": 3.0,
+                    "collider_height": 3.0,
+                    "collider_width": 3.0,
+                    "manual_type": 4,
+                    "spawnX": 0.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 10.0,
                     "speedX": 0.0,
                     "speedY": 0.0,
                     "speedZ": -5.0

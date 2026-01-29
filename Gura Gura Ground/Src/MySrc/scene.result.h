@@ -19,11 +19,12 @@ class CHud;
 class CSceneResult final : public CScene
 {
 public:
-	CSceneResult(const std::vector<float>& playerSurvivalTimes);
+	CSceneResult(const std::vector<float>& times, int nHuman, int nCPU);
 	~CSceneResult() override;
 
 	void Update() override;
 	void Change() override;
+	void ForceToFinished();	// 演出スキップ
 
 private:
 	enum class ANIM_PHASE {
@@ -50,20 +51,36 @@ private:
 	std::vector<int> m_otherHudIdxs;
 
 	CHud* m_pBackground;
-	CPhysicsModel* m_pTestModel = nullptr;
+	std::shared_ptr<CPhysicsModel> m_spTestModel; //テスト用
 	std::vector<CHud*> m_vpNumbers;
 	int m_nResultValue;
 	float m_fGameTime;
 	int m_resultTitleIdx = -1;
+	bool m_StartBuzzer = false;;
 	bool m_beamLightAppeared = false;
+	bool m_WinnerModelAppeared = false;
+	bool m_kirakiraEffectCreated = false;
 	float m_bgDarkRatio = 0.0f;
-	DirectX::XMFLOAT3 m_resultTitleTargetPos;
-	std::vector<float> m_playerSurvivalTimes;
-	std::vector<std::vector<CHud*>> m_vvPlayerNumbers;
-	std::vector<CHud*> m_vpPlayerLights;
-	std::vector<CHud*> m_vpPlayerBattleTexts;
-	std::vector<CHud*> m_vpPlayerIcons;
-	std::vector<CHud*> m_vpPlayerRankImgs;
-	std::vector<CHud*> m_vpPlayerTextImgs;
-	std::vector<CBeamLight*> m_vpBeamLight;
+	DirectX::XMFLOAT3 m_resultTitleTargetPos;		   // 結果発表テクスチャ移動先
+	std::vector<int> m_winners;				           // 勝者数
+	std::vector<float> m_playerSurvivalTimes;		   // プレイヤー生存時間
+	std::vector<std::vector<CHud*>> m_vvPlayerNumbers; // プレイヤー数
+	std::vector<CHud*> m_vpPlayerLights;			   // プレイヤーライト背景テクスチャ
+	std::vector<CHud*> m_vpPlayerBattleTexts;		   // 生存時間テキストテクスチャ
+	std::vector<CHud*> m_vpPlayerIcons;			       // プレイヤーアイコンテクスチャ
+	std::vector<CHud*> m_vpPlayerRankImgs;			   // 順位テクスチャ
+	std::vector<CHud*> m_vpPlayerTextImgs;			   // 勝者プレイヤーテクスチャ
+	std::vector<CBeamLight*> m_vpBeamLight;			   // ビームライト
+	std::vector<CHud*> m_vpSkipTexts;			       // スキップテクスチャ
+	std::vector<float> m_vSkipTextAlpha;			   // スキップテクスチャフェード管理
+	std::vector<CHud*> m_vpTitleTexts;				   // タイトルへテクスチャ
+	std::vector<float> m_vTitleTextAlpha;			   // タイトルへテクスチャフェード管理
+	std::vector<CHud*> m_vpSkipButtonA;			       // スキップ用Aボタン
+	std::vector<float> m_vSkipButtonAAlpha;			   // スキップ用Aボタンフェード管理
+	std::vector<CHud*> m_vpTitleButtonA;			   // タイトル用Aボタン
+	std::vector<float> m_vTitleButtonAAlpha;		   // タイトル用Aボタンフェード管理
+	float m_cameraHeight = -15.0f;					   // カメラ高さ
+
+	int m_nHumanPlayerNum = 0;
+	int m_nCPUNum = 0;
 };
