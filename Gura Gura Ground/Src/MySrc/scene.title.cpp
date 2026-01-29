@@ -269,6 +269,7 @@ void CSceneTitle::TriggerEvent_DisappearLogo()
 		rIt->SetTransformTarget(NewTF);
 	}
 
+	// プレススタートも消す
 	if (m_pPressStart)
 	{
 		const OBJ::Transform& rTF = m_pPressStart->GetTransformTarget();

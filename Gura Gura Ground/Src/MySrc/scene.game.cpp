@@ -164,7 +164,7 @@ void CSceneGame::Update()
 	{
 		if (!m_bBGMStart)
 		{
-			CSoundManger::RefInstance().Play("BGM_STAGE_NORMAL", false, 0.0f, 1.5f);
+			CSoundManger::RefInstance().Play("BGM_STAGE_NORMAL", false, 0.0f, 1.0f);
 
 			m_bBGMStart = true;
 		}

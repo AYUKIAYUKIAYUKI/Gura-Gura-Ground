@@ -965,9 +965,14 @@ void CSceneResult::ForceToFinished()
             CEffect::Create(CEffectManager::kirakira, { 10.5f, -0.8f, 0.0f }, {}, { 0.5f });
         }
 
-        CSoundManger::RefInstance().Play("BGM_RESULT", false, 0.0f, 1.0f);
         m_kirakiraEffectCreated = true;
     }
+
+    if (m_animPhase < ANIM_PHASE::SHOW_OTHERS)
+    {
+        CSoundManger::RefInstance().Play("BGM_RESULT", false, 0.0f, 1.0f);
+    }
+
 
     // ビームライト生成
     if (!m_beamLightAppeared && m_animPhase < ANIM_PHASE::PLAYER_TEXT_SCALEUP) {

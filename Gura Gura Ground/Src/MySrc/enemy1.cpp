@@ -692,6 +692,9 @@ void CEnemyPlayer::CheckInfo()
 	// Y座標がフィールドの高さを下回ったら
 	if (fSelfPosY < fFieldPosY)
 	{
+		//ドロップサウンド再生
+		CSoundManger::RefInstance().Play("Falling", false, 0.0f, 1.2f);
+
 		SetDeath();
 	}
 }
