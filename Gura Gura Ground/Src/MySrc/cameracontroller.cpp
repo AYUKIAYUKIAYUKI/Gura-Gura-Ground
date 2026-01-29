@@ -96,7 +96,13 @@ bool CCameraController::Initialize()
 // 終了処理
 //============================================================================
 void CCameraController::Finalize()
-{}
+{
+	// 距離設定
+	m_Camera->SetDistanceTarget(m_MaxCameraDistance);
+
+	// カメラの変更位置を設定
+	m_Camera->SetPosTarget(m_FirstCameraPos);
+}
 
 //============================================================================
 // 更新処理

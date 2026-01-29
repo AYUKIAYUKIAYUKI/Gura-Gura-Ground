@@ -227,6 +227,9 @@ void CSceneGame::Change()
 	// エフェクトを全て停止
 	CEffectManager::RefInstance().StopAll();
 
+	// カメラ制御の終了処理
+	CCameraController::RefInstance().Finalize();
+
 	std::vector<float> times;
 	for (int i = 0; i < CSceneGame::s_nHumanPlayerNum; ++i) times.push_back(CPlayer::s_vSurvivalTimes[i]);
 	for (int i = 0; i < CSceneGame::s_nCPUNum; ++i) times.push_back(CEnemyPlayer::s_vSurvivalTimes[i]);
