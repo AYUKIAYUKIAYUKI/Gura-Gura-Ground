@@ -1,24 +1,24 @@
 //============================================================================
 // 
-// ƒZƒŒƒNƒgƒV[ƒ“ [scene.select.cpp]
-// Author : •Ÿ“c•àŠó
+// ã‚»ãƒ¬ã‚¯ãƒˆã‚·ãƒ¼ãƒ³ [scene.select.cpp]
+// Author : ç¦ç”°æ­©å¸Œ
 // 
 //============================================================================
 
 //****************************************************
-// ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹
+// ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«
 //****************************************************
 #include "scene.select.h"
 #include "API.sound.manager.h"
 
-// ‘JˆÚæ‚ÌƒV[ƒ“
+// é·ç§»å…ˆã®ã‚·ãƒ¼ãƒ³
 #include "API.scene.manager.h"
 #include "scene.game.h"
 
-// ƒCƒ“ƒvƒbƒgæ“¾‚Ì‚½‚ß
+// ã‚¤ãƒ³ãƒ—ãƒƒãƒˆå–å¾—ã®ãŸã‚
 #include "API.input.manager.h"
 
-// ƒIƒuƒWƒFƒNƒg¶¬E”jŠü‚Ì‚½‚ß
+// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”Ÿæˆãƒ»ç ´æ£„ã®ãŸã‚
 #include "API.renderer.h"
 #include "API.object.manager.h"
 #include "API.texture.manager.h"
@@ -31,7 +31,7 @@
 #include "API.rigidbody.h"
 #include "player.fake.h"
 
-/* ƒfƒoƒbƒO */
+/* ãƒ‡ãƒãƒƒã‚° */
 namespace
 {
 	static float fA = 7.0f;
@@ -54,7 +54,7 @@ namespace
 }
 
 //============================================================================
-// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //============================================================================
 CSceneSelect::CSceneSelect()
 	: m_nCommonCnt(0)
@@ -63,7 +63,7 @@ CSceneSelect::CSceneSelect()
 	, m_bDeathPenaly(false)
 	, m_bSelectStart(false)
 {
-	// ƒTƒ“ƒVƒƒƒCƒ“ƒGƒtƒFƒNƒg‚Ì¶¬
+	// ã‚µãƒ³ã‚·ãƒ£ã‚¤ãƒ³ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
 	auto pfst = CObjectManager::CreateRaw<CFullScreen2D>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
 	auto rcpVS = CVertexShaderManager::RefInstance().RefRegistry().BindAtKey("FullScreen.2D");
 	pfst->SetVertexShader(rcpVS);
@@ -72,14 +72,14 @@ CSceneSelect::CSceneSelect()
 	auto rcpCB = CConstantBufferManager::RefInstance().RefConstantBuffer(static_cast<unsigned char>(CConstantBufferManager::BufferType::UTIL));
 	pfst->SetConstantBuffer(rcpCB);
 
-	/* ƒ‰ƒCƒg3‚Â•ª‚ÌƒLƒ…[ */
+	/* ãƒ©ã‚¤ãƒˆ3ã¤åˆ†ã®ã‚­ãƒ¥ãƒ¼ */
 	const float fOffsetX_Light = 0.3f;
 	const float fOffsetY_Light = 0.75f;
 	m_vBeamLightQue.push_back({ fA, {  fOffsetX_Light, fOffsetY_Light } });
 	m_vBeamLightQue.push_back({ fB, { -fOffsetX_Light, fOffsetY_Light } });
 	m_vBeamLightQue.push_back({ fC, {  0.0f,           fOffsetY_Light } });
 
-	// ƒJƒƒ‰‚Ì‰Šúİ’è
+	// ã‚«ãƒ¡ãƒ©ã®åˆæœŸè¨­å®š
 	CCamera* pCamera = CRenderer::RefInstance().GetCamera();
 	pCamera->SetPosTarget({ 0.0f, 2.5f, 0.0f });
 	pCamera->SetRotTarget({ 0.0f, 0.0f, 0.0f });
@@ -87,44 +87,44 @@ CSceneSelect::CSceneSelect()
 }
 
 //============================================================================
-// ƒfƒXƒgƒ‰ƒNƒ^
+// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //============================================================================
 CSceneSelect::~CSceneSelect()
 {}
 
 //============================================================================
-// XVˆ—
+// æ›´æ–°å‡¦ç†
 //============================================================================
 void CSceneSelect::Update()
 {
 	if (!m_bDeathPenaly)
 	{
-		// ƒr[ƒ€ƒ‰ƒCƒg‚Ì¶¬ƒLƒ…[
+		// ãƒ“ãƒ¼ãƒ ãƒ©ã‚¤ãƒˆã®ç”Ÿæˆã‚­ãƒ¥ãƒ¼
 		WhileEvent_QueInstantiateLight();
 
-		// Ú‘±ƒ`ƒFƒbƒN
+		// æ¥ç¶šãƒã‚§ãƒƒã‚¯
 		WhileEvent_CennectCheck();
 
-		// €ŒY·s
+		// æ­»åˆ‘åŸ·è¡Œ
 		if (CInputManager::RefInstance().EnhancedEnter())
 		{
 			m_bDeathPenaly = true;
 
-			// ƒwƒbƒh‚ğ“]‚ª‚·
+			// ãƒ˜ãƒƒãƒ‰ã‚’è»¢ãŒã™
 			for (const auto& rIt : m_vpPM)
 			{
 				CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider());
 
-				// ƒ_ƒCƒiƒ~ƒbƒN‰»
+				// ãƒ€ã‚¤ãƒŠãƒŸãƒƒã‚¯åŒ–
 				pRigidBody->SetDynamic();
 			}
 
-			// ƒ{ƒfƒB‚ğ“]‚ª‚·
+			// ãƒœãƒ‡ã‚£ã‚’è»¢ãŒã™
 			for (const auto& rIt : m_vpBody)
 			{
 				CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider());
 
-				// ƒ_ƒCƒiƒ~ƒbƒN‰»
+				// ãƒ€ã‚¤ãƒŠãƒŸãƒƒã‚¯åŒ–
 				pRigidBody->SetDynamic();
 			}
 		}
@@ -132,18 +132,18 @@ void CSceneSelect::Update()
 	else if (m_bSelectStart)
 	{
 #if 0
-		// ®—ñ
+		// æ•´åˆ—
 		Alignment();
 
 		if (CInputManager::RefInstance().EnhancedEnter())
 		{
-			// ‘SƒIƒuƒWƒFƒNƒg‚É€–Sƒtƒ‰ƒO‚ğ—§‚Ä‚é
+			// å…¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«æ­»äº¡ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
 			CObjectManager::RefInstance().SetDeathAll();
 
-			//ƒ^ƒCƒgƒ‹BGM‚ğ’â~‚·‚é
+			//ã‚¿ã‚¤ãƒˆãƒ«BGMã‚’åœæ­¢ã™ã‚‹
 			CSoundManger::RefInstance().Stop("BGM_TITLE");
 
-			// ƒQ[ƒ€ƒV[ƒ“‚Ö
+			// ã‚²ãƒ¼ãƒ ã‚·ãƒ¼ãƒ³ã¸
 			CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneSelect>());
 		}
 #else
@@ -152,28 +152,28 @@ void CSceneSelect::Update()
 	}
 	else
 	{
-		// añ
+		// æ–¬é¦–
 		DownCutter();
 	}
 }
 
 //============================================================================
-// ƒV[ƒ“•ÏX
+// ã‚·ãƒ¼ãƒ³å¤‰æ›´
 //============================================================================
 void CSceneSelect::Change()
 {
-	// ‘SƒIƒuƒWƒFƒNƒg‚É€–Sƒtƒ‰ƒO‚ğ—§‚Ä‚é
+	// å…¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«æ­»äº¡ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
 	CObjectManager::RefInstance().SetDeathAll();
 
-	//ƒ^ƒCƒgƒ‹BGM‚ğ’â~‚·‚é
+	//ã‚¿ã‚¤ãƒˆãƒ«BGMã‚’åœæ­¢ã™ã‚‹
 	CSoundManger::RefInstance().Stop("BGM_TITLE");
 
-	// ƒQ[ƒ€ƒV[ƒ“‚Ö
+	// ã‚²ãƒ¼ãƒ ã‚·ãƒ¼ãƒ³ã¸
 	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneGame>());
 }
 
 //============================================================================
-// ƒr[ƒ€ƒ‰ƒCƒg‚Ì¶¬ƒLƒ…[
+// ãƒ“ãƒ¼ãƒ ãƒ©ã‚¤ãƒˆã®ç”Ÿæˆã‚­ãƒ¥ãƒ¼
 //============================================================================
 void CSceneSelect::WhileEvent_QueInstantiateLight()
 {
@@ -181,25 +181,25 @@ void CSceneSelect::WhileEvent_QueInstantiateLight()
 	const int nMax  = 3;
 	const int nSpan = 15;
 
-	/*	ƒfƒoƒbƒO */
+	/*	ãƒ‡ãƒãƒƒã‚° */
 	if (Size == nMax)
 	{
-		// ƒŠƒ[ƒh
+		// ãƒªãƒ­ãƒ¼ãƒ‰
 		if (CInputManager::RefInstance().GetStateKeyboard().A)
 		{
-			// ŠÔ‚ğİ’è
+			// æ™‚é–“ã‚’è¨­å®š
 			m_vpBeamLight[0]->SetTime(fA);
 			m_vpBeamLight[1]->SetTime(fB);
 			m_vpBeamLight[2]->SetTime(fC);
 		}
 
-		// ˆêÄ“®ì
+		// ä¸€æ–‰å‹•ä½œ
 		if (CInputManager::RefInstance().GetTrackerKeyboard().pressed.Space)
 		{
 			for (const auto& rIt : m_vpBeamLight) rIt->SetEnableTime();
 		}
 
-		/* ‚Ü‚Ü‚Ü‚Ü‚Ü */
+		/* ã¾ã¾ã¾ã¾ã¾ */
 		++m_nCommonCnt;
 		if (m_nCommonCnt > nSpan)
 		{
@@ -208,7 +208,7 @@ void CSceneSelect::WhileEvent_QueInstantiateLight()
 		}
 	}
 
-	// Šù’è—Ê‚Ì¶¬‚ªÏ‚ñ‚Å‚¢‚½‚çˆ—‚µ‚È‚¢
+	// æ—¢å®šé‡ã®ç”ŸæˆãŒæ¸ˆã‚“ã§ã„ãŸã‚‰å‡¦ç†ã—ãªã„
 	if (Size >= nMax)
 	{
 		return;
@@ -216,35 +216,35 @@ void CSceneSelect::WhileEvent_QueInstantiateLight()
 
 	++m_nCommonCnt;
 
-	// ˆê’è‚ÌƒXƒpƒ“‚Å
+	// ä¸€å®šã®ã‚¹ãƒ‘ãƒ³ã§
 	if (m_nCommonCnt > nSpan)
 	{
 		m_nCommonCnt = 0;
 
-		// ƒr[ƒ€ƒ‰ƒCƒg‚ğ¶¬
+		// ãƒ“ãƒ¼ãƒ ãƒ©ã‚¤ãƒˆã‚’ç”Ÿæˆ
 		auto pfsbl = CObjectManager::CreateRaw<CBeamLight>(OBJ::TYPE::NONE, OBJ::LAYER::FRONT);
 
-		// ˆÊ’uİ’è
+		// ä½ç½®è¨­å®š
 		const DirectX::XMFLOAT2& Pos = m_vBeamLightQue[Size].second;
 		pfsbl->SetPos(Pos);
 
-		// ŠÔ‚ğİ’è
+		// æ™‚é–“ã‚’è¨­å®š
 		pfsbl->SetTime(m_vBeamLightQue[Size].first);
 
-		// ˆê‰•Û—L
+		// ä¸€å¿œä¿æœ‰
 		m_vpBeamLight.push_back(pfsbl);
 
-		// Œø‰Ê‰¹FƒAƒCƒAƒ“
+		// åŠ¹æœéŸ³ï¼šã‚¢ã‚¤ã‚¢ãƒ³
 		CSoundManger::RefInstance().Play("Light", false, -0.5f, 2.0f);
 	}
 }
 
 //============================================================================
-// Ú‘±ƒ`ƒFƒbƒN
+// æ¥ç¶šãƒã‚§ãƒƒã‚¯
 //============================================================================
 void CSceneSelect::WhileEvent_CennectCheck()
 {
-	// Œ»İ‚Ìƒpƒbƒh‚ÌÚ‘±”‚Æ
+	// ç¾åœ¨ã®ãƒ‘ãƒƒãƒ‰ã®æ¥ç¶šæ•°ã¨
 	unsigned char wNumPad = CInputManager::RefInstance().GetConnectedGamePadNum() + 3;
 	unsigned char wSize   = static_cast<unsigned char>(m_vpPM.size());
 
@@ -254,7 +254,7 @@ void CSceneSelect::WhileEvent_CennectCheck()
 	}
 	else if (wNumPad > wSize)
 	{
-		// Ú‘±”•ª‚Ì¶¬‚ğ‚İ‚é
+		// æ¥ç¶šæ•°åˆ†ã®ç”Ÿæˆã‚’è©¦ã¿ã‚‹
 		for (unsigned char wIdx = 0; wIdx < wNumPad; ++wIdx)
 		{
 			SpawnFromIdx(wIdx);
@@ -268,15 +268,15 @@ void CSceneSelect::WhileEvent_CennectCheck()
 }
 
 //============================================================================
-// ƒCƒ“ƒfƒbƒNƒX‚©‚ç‚Ì¶¬
+// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‹ã‚‰ã®ç”Ÿæˆ
 //============================================================================
 void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 {
-	// glTFƒ‚ƒfƒ‹‚Ìƒ|ƒCƒ“ƒ^
+	// glTFãƒ¢ãƒ‡ãƒ«ã®ãƒã‚¤ãƒ³ã‚¿
 	GltfMesh* pHead = nullptr;
 	GltfMesh* pBody = nullptr;
 
-	// glTFƒ}ƒl[ƒWƒƒ[‚©‚çƒ‚ƒfƒ‹‚ğæ“¾‚·‚éƒL[
+	// glTFãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼ã‹ã‚‰ãƒ¢ãƒ‡ãƒ«ã‚’å–å¾—ã™ã‚‹ã‚­ãƒ¼
 	std::string HeadKey = {};
 	std::string BodyKey = {};
 
@@ -306,18 +306,18 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 		break;
 	}
 
-	// glTFƒ‚ƒfƒ‹‚Ìæ“¾
+	// glTFãƒ¢ãƒ‡ãƒ«ã®å–å¾—
 	pHead = CGltfManager::RefInstance().RefRegistry().BindAtKey(HeadKey);
 	pBody = CGltfManager::RefInstance().RefRegistry().BindAtKey(BodyKey);
 
 	/*--------------------------------------------------------------------------------*/
 
-	// ƒvƒŒƒCƒ„[—p‚Ì‰ŠúˆÊ’u
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç”¨ã®åˆæœŸä½ç½®
 	DirectX::XMFLOAT3 InitPos = { useful::VEC3_ZERO_INIT };
 	const float f = -3.75f + (wIdx * 2.5f);
 	InitPos = { f, 1.25f, 0.0f };
 
-	// ƒvƒŒƒCƒ„[‚Ì‰Šúƒgƒ‰ƒ“ƒXƒtƒH[ƒ€
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åˆæœŸãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ 
 	OBJ::Transform PlayersInitTransform =
 	{
 		{ 0.5f, 0.5f, 0.5f },
@@ -325,31 +325,31 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 		InitPos
 	};
 
-	// ƒRƒ‰ƒCƒ_[‚ÌƒXƒpƒ“
+	// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ã‚¹ãƒ‘ãƒ³
 	const float fColliderSpan = 0.5f;
 
-	// ƒEƒ\‚ÌƒvƒŒƒCƒ„[¶¬
+	// ã‚¦ã‚½ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç”Ÿæˆ
 	m_vpPM.push_back(CObjectManager::CreateRaw<CPhysicsModel>(
 		[wIdx, &pHead, &PlayersInitTransform, fColliderSpan](CPhysicsModel* p) -> bool
 		{
-			// ƒ‚ƒfƒ‹‚ÌƒoƒCƒ“ƒh
+			// ãƒ¢ãƒ‡ãƒ«ã®ãƒã‚¤ãƒ³ãƒ‰
 			p->SetModel(pHead);
 			p->SetModelOffset({ 0.0f, 0.0f, 0.0f });
 
-			// ƒsƒNƒZƒ‹ƒVƒF[ƒ_\‚ÌƒoƒCƒ“ƒh
+			// ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€â€•ã®ãƒã‚¤ãƒ³ãƒ‰
 			p->SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
 
-			// ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚Ìİ’è
+			// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã®è¨­å®š
 			p->SetTransform(PlayersInitTransform);
 
-			// ƒRƒ‰ƒCƒ_[‚Ì¶¬
+			// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ç”Ÿæˆ
 			p->FactoryCollider(fColliderSpan, fColliderSpan, fColliderSpan, Collision::SHAPETYPE::CONE);
 
-			// ƒLƒlƒ}ƒeƒBƒbƒN‚É‚·‚é
+			// ã‚­ãƒãƒãƒ†ã‚£ãƒƒã‚¯ã«ã™ã‚‹
 			CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(p->GetCollider());
 			pRigidBody->SetKinematic();
 
-			// ƒ[ƒ‹ƒhƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚ğİ’è
+			// ãƒ¯ãƒ¼ãƒ«ãƒ‰ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‚’è¨­å®š
 			pRigidBody->SetWorldTransform(PlayersInitTransform);
 
 			return true;
@@ -357,7 +357,7 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 
 	/*--------------------------------------------------------------------------------*/
 
-	// ƒ{ƒfƒB‚Ì‰Šúƒgƒ‰ƒ“ƒXƒtƒH[ƒ€
+	// ãƒœãƒ‡ã‚£ã®åˆæœŸãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ 
 	OBJ::Transform BodyInitTransform =
 	{
 		{ 0.5f, 0.5f, 0.5f },
@@ -365,28 +365,28 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 		{ f, 1.25f, 0.75f }
 	};
 
-	// ƒ{ƒfƒB‚Ì¶¬
+	// ãƒœãƒ‡ã‚£ã®ç”Ÿæˆ
 	m_vpBody.push_back(CObjectManager::CreateRaw<CPhysicsModel>(
 		[wIdx, &pBody, &BodyInitTransform, fColliderSpan](CPhysicsModel* p) -> bool
 		{
-			// ƒ‚ƒfƒ‹‚ÌƒoƒCƒ“ƒh
+			// ãƒ¢ãƒ‡ãƒ«ã®ãƒã‚¤ãƒ³ãƒ‰
 			p->SetModel(pBody);
 			p->SetModelOffset({ 0.0f, 0.0f, 0.0f });
 
-			// ƒsƒNƒZƒ‹ƒVƒF[ƒ_\‚ÌƒoƒCƒ“ƒh
+			// ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€â€•ã®ãƒã‚¤ãƒ³ãƒ‰
 			p->SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
 
-			// ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚Ìİ’è
+			// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã®è¨­å®š
 			p->SetTransform(BodyInitTransform);
 
-			// ƒRƒ‰ƒCƒ_[‚Ì¶¬
+			// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ç”Ÿæˆ
 			p->FactoryCollider(fColliderSpan, fColliderSpan, fColliderSpan);
 
-			// ƒLƒlƒ}ƒeƒBƒbƒN‚É‚·‚é
+			// ã‚­ãƒãƒãƒ†ã‚£ãƒƒã‚¯ã«ã™ã‚‹
 			CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(p->GetCollider());
 			pRigidBody->SetKinematic();
 
-			// ƒ[ƒ‹ƒhƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚ğİ’è
+			// ãƒ¯ãƒ¼ãƒ«ãƒ‰ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‚’è¨­å®š
 			pRigidBody->SetWorldTransform(BodyInitTransform);
 
 			return true;
@@ -394,7 +394,7 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 
 	/*--------------------------------------------------------------------------------*/
 
-	// ƒJƒbƒ^[—p‚Ì‰ŠúˆÊ’u
+	// ã‚«ãƒƒã‚¿ãƒ¼ç”¨ã®åˆæœŸä½ç½®
 	DirectX::XMFLOAT3 CutterInitPos = { InitPos };
 	if (wIdx > 1)
 	{
@@ -403,7 +403,7 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 	CutterInitPos.y += 3.75f;
 	CutterInitPos.z += 0.5f;
 
-	// ƒJƒbƒ^[‚Ì‰Šúƒgƒ‰ƒ“ƒXƒtƒH[ƒ€
+	// ã‚«ãƒƒã‚¿ãƒ¼ã®åˆæœŸãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ 
 	OBJ::Transform CutterInitTransform =
 	{
 		{ 1.5f, 1.5f, 1.5f },
@@ -411,21 +411,21 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 		CutterInitPos
 	};
 
-	// ƒJƒbƒ^[‚Ì¶¬
+	// ã‚«ãƒƒã‚¿ãƒ¼ã®ç”Ÿæˆ
 	m_vpCutter.push_back(CObjectManager::CreateRaw<CPhysicsModel>(
 		[&InitPos, &CutterInitTransform](CPhysicsModel* p) -> bool
 		{
-			// ƒ‚ƒfƒ‹‚ÌƒoƒCƒ“ƒh
+			// ãƒ¢ãƒ‡ãƒ«ã®ãƒã‚¤ãƒ³ãƒ‰
 			p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Guillo_Blade"));
 			p->SetModelOffset({ 0.0f, 0.0f, 0.0f });
 
-			// ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚Ìİ’è
+			// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã®è¨­å®š
 			p->SetTransform(CutterInitTransform);
 
-			// ƒRƒ‰ƒCƒ_[‚Ì¶¬
+			// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ç”Ÿæˆ
 			p->FactoryCollider(0.5f, 0.5f, 0.5f, Collision::SHAPETYPE::SPHERE);
 
-			// ƒLƒlƒ}ƒeƒBƒbƒN‚É‚·‚é
+			// ã‚­ãƒãƒãƒ†ã‚£ãƒƒã‚¯ã«ã™ã‚‹
 			CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(p->GetCollider());
 			pRigidBody->SetKinematic();
 
@@ -434,7 +434,7 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 
 	/*--------------------------------------------------------------------------------*/
 
-	// ƒMƒƒ`ƒ“‚Ì‰Šúƒgƒ‰ƒ“ƒXƒtƒH[ƒ€
+	// ã‚®ãƒ­ãƒãƒ³ã®åˆæœŸãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ 
 	OBJ::Transform GuilloInitTransform =
 	{
 		{ 1.25f, 1.25f, 1.25f },
@@ -442,21 +442,21 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 		{ InitPos.x, 0.0f, 0.5f }
 	};
 
-	// ƒMƒƒ`ƒ“‚Ì¶¬
+	// ã‚®ãƒ­ãƒãƒ³ã®ç”Ÿæˆ
 	m_vpGuillotion.push_back(CObjectManager::CreateRaw<CPhysicsModel>(
 		[&InitPos, &GuilloInitTransform, fColliderSpan](CPhysicsModel* p) -> bool
 		{
-			// ƒ‚ƒfƒ‹‚ÌƒoƒCƒ“ƒh
+			// ãƒ¢ãƒ‡ãƒ«ã®ãƒã‚¤ãƒ³ãƒ‰
 			p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Guillo_Base"));
 			p->SetModelOffset({ 0.0f, 0.0f, 0.0f });
 
-			// ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚Ìİ’è
+			// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã®è¨­å®š
 			p->SetTransform(GuilloInitTransform);
 
-			// ƒRƒ‰ƒCƒ_[‚Ì¶¬
+			// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ç”Ÿæˆ
 			p->FactoryCollider(fColliderSpan, fColliderSpan, fColliderSpan);
 
-			// ¿—Ê‚ğ0‚É‚·‚é
+			// è³ªé‡ã‚’0ã«ã™ã‚‹
 			CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(p->GetCollider());
 			pRigidBody->SetMass(0.0f);
 
@@ -466,16 +466,16 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 
 
 //============================================================================
-// añ
+// æ–¬é¦–
 //============================================================================
 void CSceneSelect::DownCutter()
 {
-	// ‘S‚Ä‚ÌƒJƒbƒ^[‚ğ—‚Æ‚·
+	// å…¨ã¦ã®ã‚«ãƒƒã‚¿ãƒ¼ã‚’è½ã¨ã™
 	for (const auto& rIt : m_vpCutter)
 	{
 		CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider());
 
-		// “Á’è‚Ì‚‚³‚Ü‚Å‰º‚°‚é
+		// ç‰¹å®šã®é«˜ã•ã¾ã§ä¸‹ã’ã‚‹
 		OBJ::Transform CutterTransform = pRigidBody->GetWorldTransform();
 		useful::ExponentialDecay(CutterTransform.Pos.y, 1.675f, 0.2f);
 		pRigidBody->SetWorldTransform(CutterTransform);
@@ -487,7 +487,7 @@ void CSceneSelect::DownCutter()
 #endif // _DEBUG
 	}
 
-	// ‘S‚Ä‚Ìƒwƒbƒh‚ª’â~‚µ‚½‚ç
+	// å…¨ã¦ã®ãƒ˜ãƒƒãƒ‰ãŒåœæ­¢ã—ãŸã‚‰
 	for (const auto& rIt : m_vpPM)
 	{
 		CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider());
@@ -502,23 +502,23 @@ void CSceneSelect::DownCutter()
 }
 
 //============================================================================
-// ®—ñ
+// æ•´åˆ—
 //============================================================================
 void CSceneSelect::Alignment()
 {
 	unsigned char wNumHead = static_cast<unsigned char>(m_vpPM.size());
 
-	// ‘S‚Ä‚Ìƒwƒbƒh‚ª’â~‚µ‚½‚ç
+	// å…¨ã¦ã®ãƒ˜ãƒƒãƒ‰ãŒåœæ­¢ã—ãŸã‚‰
 	for (unsigned char wIdx = 0; wIdx < wNumHead; ++wIdx)
 	{
 		CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(m_vpPM[wIdx]->GetCollider());
 
-		// ƒvƒŒƒCƒ„[—p‚Ì®—ñˆÊ’u
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç”¨ã®æ•´åˆ—ä½ç½®
 		DirectX::XMFLOAT3 InitPos = { useful::VEC3_ZERO_INIT };
 		const float f = -3.75f + (wIdx * 2.5f);
 		InitPos = { f, 0.0f, -5.0f };
 
-		// ƒvƒŒƒCƒ„[‚Ì®—ñƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚ğİ’è
+		// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æ•´åˆ—ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‚’è¨­å®š
 		OBJ::Transform PlayersInitTransform =
 		{
 			{ 0.5f, 0.5f, 0.5f },
@@ -530,7 +530,7 @@ void CSceneSelect::Alignment()
 		pRigidBody->SetWorldTransform(PlayersInitTransform);
 	}
 
-	// ƒJƒƒ‰‚Ì‰Šúİ’è
+	// ã‚«ãƒ¡ãƒ©ã®åˆæœŸè¨­å®š
 	CCamera* pCamera = CRenderer::RefInstance().GetCamera();
 	pCamera->SetPosTarget({ 0.0f, 0.0f, -5.0f });
 }

@@ -19,10 +19,10 @@ CFieldIce::CFieldIce(OBJ::TYPE Type, OBJ::LAYER Layer)
     m_FieldType = FIELD_TYPE::ICE;
 
     // 氷ステージ用モデル
-    SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Field"));
+    SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("IceField"));
 
     // モデルオフセット
-    SetModelOffset({ 1.15f, 0.8f, -0.3f });
+    SetModelOffset({ 1.15f, -5.5f, 0.0f });
 }
 
 //============================================================================

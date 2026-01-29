@@ -175,7 +175,7 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
             modelName = "Player_" + std::to_string(winnerIndex + 1);
         }
         else {
-            modelName = "Player_CPU";
+            modelName = "Test";
         }
 
         int dispIdx = isHumanWinner ? (winnerIndex + 1) : (winnerIndex + 1 - m_nHumanPlayerNum);
@@ -621,7 +621,7 @@ void CSceneResult::Update()
                     modelName = "Player_" + std::to_string(winnerIndex + 1);
                 }
                 else {
-                    modelName = "Player_CPU";
+                    modelName = "Test";
                 }
 
                 // 横並び配置用にX座標をずらす
@@ -1002,7 +1002,7 @@ void CSceneResult::ForceToFinished()
                 modelName = "Player_" + std::to_string(winnerIndex + 1);
             }
             else {
-                modelName = "Player_CPU";
+                modelName = "Test";
             }
 
             // 横並び配置用にX座標をずらす
