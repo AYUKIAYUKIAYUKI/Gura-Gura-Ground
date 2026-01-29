@@ -128,6 +128,14 @@ CSceneTitle::CSceneTitle()
 	Logo->SetTransformTarget(TF);
 	m_vpLogo.push_back(Logo);
 
+	// Press_startを生成
+	m_pPressStart = CObjectManager::CreateRaw<CHud>();
+	m_pPressStart->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Press_start"));
+	m_pPressStart->SetLayer(OBJ::LAYER::UI);
+	const OBJ::Transform TF_PressStart = { { 400.0f * fW, 60.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { WCX * fW, (WCY + 250.0f) * fH, 0.0f } };
+	m_pPressStart->SetTransform({ {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, TF_PressStart.Pos }); // サイズ0で非表示スタート
+	m_pPressStart->SetTransformTarget(TF_PressStart);
+
 	CSoundManger::RefInstance().Play("BGM_TITLE", false, 0.0f, 1.5f);
 }
 
@@ -260,6 +268,13 @@ void CSceneTitle::TriggerEvent_DisappearLogo()
 		const OBJ::Transform  NewTF = { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -15.0f, 0.0f }, rTF.Pos };
 		rIt->SetTransformTarget(NewTF);
 	}
+
+	if (m_pPressStart)
+	{
+		const OBJ::Transform& rTF = m_pPressStart->GetTransformTarget();
+		OBJ::Transform NewTF = { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -15.0f, 0.0f }, rTF.Pos };
+		m_pPressStart->SetTransformTarget(NewTF);
+	}
 }
 
 //============================================================================
@@ -281,5 +296,6 @@ void CSceneTitle::WhileEvent_AnimationLogo()
 			const OBJ::Transform  NewTF = { { rTF.Size.x + -10.0f, rTF.Size.y + 10.0f, 0.0f }, rTF.Rot, rTF.Pos };
 			rIt->SetTransform(NewTF);
 		}
+
 	}
 }

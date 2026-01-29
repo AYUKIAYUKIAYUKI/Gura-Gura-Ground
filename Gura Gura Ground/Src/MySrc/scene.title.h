@@ -59,6 +59,7 @@ private:
 	/* 仮 */
 	int                m_nCommonCnt;          // 汎用カウンター
 	CHud*              m_pBackCurtain;        // 奥の幕
+	CHud*			   m_pPressStart;		  // プレススタート
 	std::vector<CHud*> m_vpSatinCurtain;      // 緞帳
 	std::vector<CHud*> m_vpLogo;              // ロゴ
 	bool               m_bAnimationStateLogo; // ロゴのアニメーション状態

@@ -649,6 +649,9 @@ bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
 	else if (RecastTme <= 1)
 	{
 		CreateShockWave(Collision::SHAPETYPE::CYLINDER, { ShockWaveSize, 1.0f, ShockWaveSize }, 10);
+
+		//ドロップサウンド再生
+		CSoundManger::RefInstance().Play("Drop", false, 0.0f, 1.0f);
 	}
 
 	return false;
