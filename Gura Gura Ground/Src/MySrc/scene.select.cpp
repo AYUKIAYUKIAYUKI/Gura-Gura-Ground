@@ -79,6 +79,11 @@ CSceneSelect::CSceneSelect()
 	, m_apStageHud{}
 	, m_nStageIdx{}
 	, m_nStageDecide{}
+	, m_bStageDecideAll(false)
+	, m_nCntChangeStage(0)
+	, m_nRandomIdx(0)
+	, m_bStageDecided(false)
+	, m_bChangeScene(false)
 {
 	// サンシャインエフェクトの生成
 	auto pfst = CObjectManager::CreateRaw<CFullScreen2D>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
@@ -177,7 +182,7 @@ void CSceneSelect::Update()
 		++m_nStopCnt;
 
 		// 整列 ～ ステージ選択
-		if (m_nStopCnt > 180)
+		if (m_nStopCnt > 180 && !m_bStageDecideAll)
 		{
 			Alignment();
 			SpawnSymbol();
@@ -185,15 +190,42 @@ void CSceneSelect::Update()
 			SpawnStageHud();
 			SetStageHud();
 			SelectStage();
-			SelectStage();
+		}
+
+		// ステージ決定
+		if (m_bStageDecideAll && !m_bStageDecided)
+		{
+			/* ああ… */
+			Alignment();
+			SetSymbol();
+
+			DecideStage();
+		}
+
+		// ステージ確定
+		if (m_bStageDecided)
+		{
+			/* ああ… */
+			Alignment();
+			SetSymbol();
+
+			DecideAppeal();
 		}
 	}
 
+	// ステージの抽選が完了したらシーン遷移
+	if (m_bChangeScene)
+	{
+		Change();
+	}
+
 	// 強制遷移
+#ifdef _DEBUG
 	if (CInputManager::RefInstance().GetTrackerKeyboard().pressed.Enter)
 	{
 		Change();
 	}
+#endif // _DEBUG
 }
 
 //============================================================================
@@ -711,6 +743,9 @@ void CSceneSelect::SelectStage()
 	// ヘッドの生成数を取得
 	unsigned char wNumHead = static_cast<unsigned char>(m_vpPM.size());
 
+	// 誰かが選択していなければ立てるフラグ
+	bool bAnyoneHasNot = false;
+
 	// 人数分のコントローラーをチェック
 	for (unsigned char wIdx = 0; wIdx < wNumHead; ++wIdx)
 	{
@@ -744,6 +779,122 @@ void CSceneSelect::SelectStage()
 			ImGui::Text("aaaaa : %d", m_nStageIdx[wIdx]);
 			ImGui::Separator();
 			ImGui::End();
+
+			bAnyoneHasNot = true;
 		}
+	}
+
+	// 全員が決定したら通知のフラグを立てる
+	if (!bAnyoneHasNot)
+	{
+		m_bStageDecideAll = true;
+
+		// ストップカウンターをリセット
+		// これはステージ抽選処理に使う
+		m_nStopCnt = 0;
+	}
+}
+
+//============================================================================
+// ステージ決定
+//============================================================================
+void CSceneSelect::DecideStage()
+{
+	// ストップカウンターが一定値に達したら確定
+	if (m_nStopCnt > 180 + rand() % 60)
+	{
+		m_bStageDecided = true;
+	}
+
+	++m_nCntChangeStage;
+	
+	// ステージ変更カウントが溜まっていなければ処理しない
+	if (m_nCntChangeStage < 5)
+	{
+		return;
+	}
+
+	// 決定しているステージHUDの数を数える
+	int nStageHudCount = 0;
+	for (unsigned char wIdx = 0; wIdx < MAX_PLAYER; ++wIdx)
+	{
+		if (!m_apStageHud[wIdx])
+		{
+			continue;
+		}
+
+		++nStageHudCount;
+	}
+
+	// 毎フレーム抽選対象のインデックスを進める
+	m_nRandomIdx < nStageHudCount - 1 ? ++m_nRandomIdx : m_nRandomIdx = 0;
+
+	// 抽選対象のHUDに色を付ける
+	for (unsigned char wIdx = 0; wIdx < MAX_PLAYER; ++wIdx)
+	{
+		if (!m_apStageHud[wIdx])
+		{
+			continue;
+		}
+
+		if (wIdx == m_nRandomIdx)
+		{
+			m_apStageHud[wIdx]->SetCol({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
+		else
+		{
+			m_apStageHud[wIdx]->SetCol({ 1.0f, 1.0f, 1.0f, 0.5f });
+		}
+	}
+
+	// ステージ変更カウントをリセット
+	m_nCntChangeStage = 0;
+
+	// 効果音
+	CSoundManger::RefInstance().Play("CntDown", false, -0.5f, 1.0f);
+}
+
+//============================================================================
+// ステージ確定アピール
+//============================================================================
+void CSceneSelect::DecideAppeal()
+{
+	for (unsigned char wIdx = 0; wIdx < MAX_PLAYER; ++wIdx)
+	{
+		if (!m_apStageHud[wIdx])
+		{
+			continue;
+		}
+
+		// トランスフォームを取得
+		OBJ::Transform HudTransform = m_apStageHud[wIdx]->GetTransform();
+
+		if (wIdx == m_nRandomIdx)
+		{
+			// カメラの位置を取得
+			CCamera* pCamera = CRenderer::RefInstance().GetCamera();
+			const DirectX::XMFLOAT3 CameraPos = pCamera->GetPos();
+
+			// カメラの位置に合わせて補間
+			useful::ExponentialDecay(HudTransform.Size.x, 12.5f, 0.025f);
+			useful::ExponentialDecay(HudTransform.Size.y, 12.5f, 0.025f);
+			useful::ExponentialDecay(HudTransform.Pos.x, CameraPos.x, 0.1f);
+			useful::ExponentialDecay(HudTransform.Pos.y, CameraPos.y, 0.1f);
+			useful::ExponentialDecay(HudTransform.Pos.z, CameraPos.z, 0.1f);
+
+			if (HudTransform.Size.x > 11.0f)
+			{
+				m_bChangeScene = true;
+			}
+		}
+		else
+		{
+			// 消滅
+			useful::ExponentialDecay(HudTransform.Size.x, 0.0f, 0.2f);
+			useful::ExponentialDecay(HudTransform.Size.y, 0.0f, 0.2f);
+		}
+
+		// トランスフォームを設定
+		m_apStageHud[wIdx]->SetTransform(HudTransform);
 	}
 }

@@ -66,6 +66,8 @@ private:
 	void SpawnStageHud(); // ステージHUDの生成
 	void SetStageHud();   // ステージHUDの設定
 	void SelectStage();   // ステージ選択
+	void DecideStage();   // ステージ決定
+	void DecideAppeal();  // ステージ確定アピール
 
 	//****************************************************
 	// data
@@ -90,4 +92,9 @@ private:
 	std::array<int, MAX_PLAYER>      m_nStageIdx;
 	std::array<bool, MAX_PLAYER>     m_nStageDecide;
 	std::array<CRect3D*, MAX_PLAYER> m_apStageHud;
+	bool                             m_bStageDecideAll;
+	int                              m_nCntChangeStage;
+	int                              m_nRandomIdx;
+	bool                             m_bStageDecided;
+	bool                             m_bChangeScene;
 };
