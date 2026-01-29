@@ -1,316 +1,385 @@
-//============================================================================
+ï»¿//============================================================================
 // 
-// •—ƒXƒe[ƒW‚Ìˆ— [windfield.cpp]
-// Author : ç—t
+// é¢¨ã‚¹ãƒ†ãƒ¼ã‚¸ã®å‡¦ç† [windfield.cpp]
+// Author : åƒè‘‰
 // 
 //============================================================================
 
 //****************************************************
-// ©g‚ÌƒCƒ“ƒNƒ‹[ƒh
+// è‡ªèº«ã®ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰
 //****************************************************
 #include "windfield.h"
 
 //****************************************************
-// ©‘O•ûéŒ¾‚ÌƒCƒ“ƒNƒ‹[ƒh
+// è‡ªå‰æ–¹å®£è¨€ã®ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰
 //****************************************************
 #include "player.h"
 #include "enemy1.h"
 
 //****************************************************
-// •K—v‚ÈƒCƒ“ƒNƒ‹[ƒh
+// å¿…è¦ãªã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰
 //****************************************************
 #include "API.gltf.manager.h"
 
-// ƒRƒ‰ƒCƒ_[‚Ìì¬—p
+// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ä½œæˆç”¨
 #include "API.rigidbody.h"
 #include <numbers> 
 #include "API.input.manager.h"
 
+#include "API.texture.manager.h"
+#include "API.window.h"
+#include "API.singleton.h"
+
 //================================================
-//–¼‘O‹óŠÔi–³–¼j
+//åå‰ç©ºé–“ï¼ˆç„¡åï¼‰
 namespace
 {
-	//===================================================
-	//ƒ}ƒNƒ’è‹`
-	btVector3 INIT = { 0.0f, 0.0f, 0.0f };                    //btVector3—p‰Šú‰»ƒ}ƒNƒ
-	btVector3 INIT_PLYER_VELOCITY = { 0.0f, 1.144f, 0.0f };   //ƒQ[ƒ€ŠJn‚ÌƒvƒŒƒCƒ„[‚Ì‰Šú‰Á‘¬’l‚ğ‹^—“I‚Éİ’è
-	const float ANGLE = (float)std::numbers::pi*0.5f;         //‰E‚©‚çn‚Ü‚é‚æ
-	const float AIR_SPEED = 0.55f;                            //‹ó’†‚Ì•—‚Ì‹­‚³’²®’l(‚ ‚é’ö“x‚Ì‘¬“x‚ğc‚µ‚Â‚Â‘¦€‚ğ–h‚®)
+    btVector3 INIT = { 0.0f, 0.0f, 0.0f };
+    btVector3 INIT_PLYER_VELOCITY = { 0.0f, 1.144f, 0.0f };
+    const float ANGLE = (float)std::numbers::pi * 0.5f;
+    const float AIR_SPEED = 0.55f;
 
-	int PLAYER_SIZE; //ƒvƒŒƒCƒ„[‚Ìl”
-	int CPU_SIZE;    //CPU‚Ìl”
+    int PLAYER_SIZE;
+    int CPU_SIZE;
 }
 
 //================================================
-//g—p–¼‘O‹óŠÔ
 using namespace useful;
 
 
 //============================================================================
-// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //============================================================================
 CWindField::CWindField(OBJ::TYPE Type, OBJ::LAYER Layer)
-	: CPhysicsModel(Type, Layer)
-	, m_WindowRotationAngle(ANGLE), m_SaverCurrentVel(INIT_PLYER_VELOCITY)
+    : CPhysicsModel(Type, Layer)
+    , m_WindowRotationAngle(ANGLE)
+    , m_SaverCurrentVel(INIT_PLYER_VELOCITY)
 {
-	// ƒ‚ƒfƒ‹‚ÌƒoƒCƒ“ƒh	
-	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Field"));
+    SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Field"));
+    SetModelOffset({ 1.15f, 0.8f, -0.3f });
 
-	// ƒ‚ƒfƒ‹ƒIƒtƒZƒbƒg‚Ìİ’è
-	SetModelOffset({ 1.15f, 0.8f, -0.3f });
+    auto pArrow = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+
+    // æœ€åˆã¯å³å‘ãçŸ¢å°ã‚’ã‚»ãƒƒãƒˆ
+    pArrow->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("WindArrow_Right"));
+
+    OBJ::Transform arrowTF =
+    {
+        { 1100.0f, 150.0f, 0.0f },
+        { 0.0f,   0.0f,   0.0f, 0.0f },
+        { 100.0f, 100.0f, 0.0f }
+    };
+
+    pArrow->SetTransform(arrowTF);
+    pArrow->SetTransformTarget(arrowTF);
+
+    DirectX::XMFLOAT4 col = pArrow->GetCol();
+    col.w = 0.0f;
+    pArrow->SetCol(col);
+    pArrow->SetColTarget(col);
+
+    m_pWindArrow = pArrow;
 }
 
 //============================================================================
-// ƒfƒXƒgƒ‰ƒNƒ^
+// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //============================================================================
 CWindField::~CWindField()
 {}
 
 //============================================================================
-// ƒRƒ‰ƒCƒ_[‚Ìƒtƒ@ƒNƒgƒŠ
+// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ãƒ•ã‚¡ã‚¯ãƒˆãƒª
 //============================================================================
 void CWindField::FactoryCollider(float fWidth, float fHeight, float fDepth)
 {
-	// ƒtƒB[ƒ‹ƒh—p‚ÌƒŠƒWƒbƒhƒ{ƒfƒB‚Ì¶¬
-	SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
+    SetCollider(CRigidBody::CreateRigidBody(GetTransform(), Collision::SHAPETYPE::BOX, fWidth, fHeight, fDepth));
 
-	// ƒRƒ‰ƒCƒ_[‚ğƒŠƒWƒbƒhƒ{ƒfƒB‚ÉƒLƒƒƒXƒg
-	CRigidBody* pRB = useful::DownCast<CRigidBody>(GetCollider());
-
-	// ƒXƒ^ƒeƒBƒbƒN‚É•ÏX
-	pRB->SetMass(0.0f);
-
-	// ’n–Ê‚Ì”½”­ŒW”‚ğİ’è
-	pRB->SetRestitution(1.0f);
+    CRigidBody* pRB = useful::DownCast<CRigidBody>(GetCollider());
+    pRB->SetMass(0.0f);
+    pRB->SetRestitution(1.0f);
 }
 
 //============================================================================
-// XVˆ—
+// æ›´æ–°å‡¦ç†
 //============================================================================
 void CWindField::Update()
 {
-	UpdatePlayersSystem();
+    UpdatePlayersSystem();
 
-	// •¨—ƒ‚ƒfƒ‹—p‚ÌXV
-	CPhysicsModel::Update();
+    // ç‰©ç†ãƒ¢ãƒ‡ãƒ«ç”¨ã®æ›´æ–°
+    CPhysicsModel::Update();
+
+    // â˜… çŸ¢å° HUD ã®æ›´æ–°
+    if (m_pWindArrow)
+        m_pWindArrow->Update();
 }
 
-
 //============================================================================
-// ‘S‚Ä‚ÌƒvƒŒƒCƒ„[ƒVƒXƒeƒ€‚ÌXVˆ—
+// å…¨ã¦ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚·ã‚¹ãƒ†ãƒ ã®æ›´æ–°å‡¦ç†
 //============================================================================
 void CWindField::UpdatePlayersSystem()
 {
-	//î•ñ‚ª‚È‚¢‚È‚ç’T‚·A‚ ‚é‚È‚çˆ—
-	if (m_pwPlayer.empty())
-	{
-		SearchPYInfo(); //ƒvƒŒƒCƒ„[‚ÆCPU‚Ìî•ñ‚ğ’T‚·
-		PLAYER_SIZE = (int)m_pwPlayer.size();
-	}
-	else if (m_pwEnemyPlayer.empty())
-	{
-		SearchCPUInfo(); //ƒvƒŒƒCƒ„[‚ÆCPU‚Ìî•ñ‚ğ’T‚·
-		CPU_SIZE = (int)m_pwEnemyPlayer.size();
-	}
-	
-	//ã‹L‚ª‘µ‚Á‚Ä‚©‚ç‹N“®‚Ş‚ç‚ğ–³‚­‚¹‚é‚µAˆÀ‘S
-	else
-	{
-		Window();
-	}
+    if (m_pwPlayer.empty())
+    {
+        SearchPYInfo();
+        PLAYER_SIZE = (int)m_pwPlayer.size();
+    }
+    else if (m_pwEnemyPlayer.empty())
+    {
+        SearchCPUInfo();
+        CPU_SIZE = (int)m_pwEnemyPlayer.size();
+    }
+    else
+    {
+        Window();
+    }
 }
 
 //============================================================================
-// Šeî•ñ‚ğ’T‚·ˆ—
+// å„æƒ…å ±ã‚’æ¢ã™å‡¦ç†
 //============================================================================
 void CWindField::SearchPYInfo()
 {
-	//ƒIƒuƒWƒFƒNƒgƒ}ƒl[ƒWƒƒ[‚ÌƒVƒFƒAƒ|ƒCƒ“ƒ^[‚©‚çƒvƒŒƒCƒ„[ƒ^ƒCƒv‚ğŒ©‚Â‚¯‚é
-	const auto  playerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::PLAYER);
+    const auto playerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 
-	//”ÍˆÍbase‚ÅƒvƒŒƒCƒ„[î•ñ‚ÌŠî”Õ‚ğæ“¾
-	for (auto Obj : playerlist)
-	{
-		//ƒLƒƒƒXƒg‚µ‚ÄƒvƒŒƒCƒ„[‚Ìî•ñ‚ğ“ü‚ê‚é
-		auto pPlayer = std::dynamic_pointer_cast<CPlayer>(Obj);
-		m_pwPlayer.push_back(pPlayer);
-	}
+    for (auto Obj : playerlist)
+    {
+        auto pPlayer = std::dynamic_pointer_cast<CPlayer>(Obj);
+        m_pwPlayer.push_back(pPlayer);
+    }
 }
 
 //============================================================================
-// Šeî•ñ‚ğ’T‚·ˆ—
+// å„æƒ…å ±ã‚’æ¢ã™å‡¦ç†
 //============================================================================
 void CWindField::SearchCPUInfo()
 {
-	//ƒIƒuƒWƒFƒNƒgƒ}ƒl[ƒWƒƒ[‚ÌƒVƒFƒAƒ|ƒCƒ“ƒ^[‚©‚çƒvƒŒƒCƒ„[ƒ^ƒCƒv‚ğŒ©‚Â‚¯‚é
-	const auto  enemyplayerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::CPU);
+    const auto enemyplayerlist = CObjectManager::RefInstance().RefInstance().RefListShare(OBJ::TYPE::CPU);
 
-	//”ÍˆÍbase‚Å“GƒvƒŒƒCƒ„[î•ñ‚ÌŠî”Õ‚ğæ“¾
-	for (auto Obj1 : enemyplayerlist)
-	{
-		//ƒLƒƒƒXƒg‚µ‚ÄCPU‚Ìî•ñ‚ğ“ü‚ê‚é
-		auto pEnemyPlayer = std::dynamic_pointer_cast<CEnemyPlayer>(Obj1);
-		m_pwEnemyPlayer.push_back(pEnemyPlayer);
-	}
+    for (auto Obj1 : enemyplayerlist)
+    {
+        auto pEnemyPlayer = std::dynamic_pointer_cast<CEnemyPlayer>(Obj1);
+        m_pwEnemyPlayer.push_back(pEnemyPlayer);
+    }
 }
 
 //============================================================================
-// ˆÚ“®‚³‚¹‚éˆ— (Œü‚«A‘¬“xAƒvƒŒƒCƒ„[l”,CPUl”)
+// ç§»å‹•ã•ã›ã‚‹å‡¦ç†
 //============================================================================
 void CWindField::MovePlayer(float Angle, float speed, int PlayerSize, int CPUSize)
 {
-	// ƒvƒŒƒCƒ„[
-	for (int nPlayerCount = 0; nPlayerCount < PlayerSize; ++nPlayerCount)
-	{
-		auto sp = m_pwPlayer[nPlayerCount].lock();
+    for (int nPlayerCount = 0; nPlayerCount < PlayerSize; ++nPlayerCount)
+    {
+        auto sp = m_pwPlayer[nPlayerCount].lock();
+        if (!sp) continue;
 
-		//íœ‚³‚ê‚Ä‚¢‚½‚çƒXƒLƒbƒv
-		if (!sp) continue;
+        CRigidBody* pRB = DownCast<CRigidBody>(sp->GetCollider());
+        if (!pRB) continue;
 
-		CRigidBody* pRB = DownCast<CRigidBody>(sp->GetCollider());
-		if (!pRB) continue; //”O‚Ì‚½‚ß
+        ApplyWindToBody_PY(pRB, Angle, speed, m_pwPlayer[nPlayerCount]);
+    }
 
-		ApplyWindToBody_PY(pRB, Angle, speed, m_pwPlayer[nPlayerCount]);
-	}
+    for (int CPUCount = 0; CPUCount < CPUSize; ++CPUCount)
+    {
+        auto CUP = m_pwEnemyPlayer[CPUCount].lock();
+        if (!CUP) continue;
 
-	// CPU
-	for (int CPUCount = 0; CPUCount < CPUSize; ++CPUCount)
-	{
-		auto CUP = m_pwEnemyPlayer[CPUCount].lock();
+        CRigidBody* pRB = DownCast<CRigidBody>(CUP->GetCollider());
+        if (!pRB) continue;
 
-		//íœ‚³‚ê‚Ä‚¢‚½‚çƒXƒLƒbƒv
-		if (!CUP) continue;
-
-		CRigidBody* pRB = DownCast<CRigidBody>(CUP->GetCollider());
-		if (!pRB) continue;
-
-		ApplyWindToBody_CPU(pRB, Angle, speed, m_pwEnemyPlayer[CPUCount]); // CPU‚Í•â³‚È‚µ
-	}
+        ApplyWindToBody_CPU(pRB, Angle, speed, m_pwEnemyPlayer[CPUCount]);
+    }
 }
 
 //============================================================================
-// ˆÚ“®‚³‚¹‚é‚Ì•K—vˆ—(‚Ü‚Æ‚ß‚é—p)ƒvƒŒƒCƒ„[—p
+// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç”¨
 //============================================================================
-void CWindField::ApplyWindToBody_PY(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CPlayer > pwPlayer)
+void CWindField::ApplyWindToBody_PY(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CPlayer> pwPlayer)
 {
-	const auto& opDirection =
-		CInputManager::RefInstance().ConvertInputToMoveDirection(pwPlayer.lock()->GetIdxPlayer());
+    const auto& opDirection =
+        CInputManager::RefInstance().ConvertInputToMoveDirection(pwPlayer.lock()->GetIdxPlayer());
 
-	//‹ó’†‚É‚¢‚é
-	if (!CheckLand(pwPlayer))
-	{
-		speed = speed * AIR_SPEED;
-	}
+    if (!CheckLand(pwPlayer))
+    {
+        speed = speed * AIR_SPEED;
+    }
 
-	//“ü—ÍA‹­‚ß‚é
-	if (opDirection)
-	{
-		speed = speed * 1.15f;
-	}
+    if (opDirection)
+    {
+        speed = speed * 1.15f;
+    }
 
-	ApplyWindCommon(pRB, Angle, speed);
+    ApplyWindCommon(pRB, Angle, speed);
 }
 
-
 //============================================================================
-// ˆÚ“®‚³‚¹‚é‚Ì•K—vˆ—(‚Ü‚Æ‚ß‚é—p)CPU—p
+// CPUç”¨
 //============================================================================
 void CWindField::ApplyWindToBody_CPU(CRigidBody* pRB, float Angle, float speed, std::weak_ptr<CEnemyPlayer> pwCPU)
 {
-	//‹ó’†‚É‚¢‚é
-	if (!CheckLand(pwCPU))
-	{
-		speed = speed * AIR_SPEED;
-	}
+    if (!CheckLand(pwCPU))
+    {
+        speed = speed * AIR_SPEED;
+    }
 
-	ApplyWindCommon(pRB, Angle, speed);
+    ApplyWindCommon(pRB, Angle, speed);
 }
 
 //============================================================================
-//•—‚Ì‰e‹¿‚ğ“K—p‚·‚é
+//é¢¨ã®å½±éŸ¿ã‚’é©ç”¨ã™ã‚‹
 //============================================================================
 void CWindField::ApplyWindCommon(CRigidBody* pRB, float Angle, float speed)
 {
-	btVector3 rCurrentVel = pRB->GetLinearVelocity();
+    btVector3 rCurrentVel = pRB->GetLinearVelocity();
 
-	//‰Á‘¬’l‚ª‚È‚¢iˆÚ“®‚µ‚Ä‚È‚¢j
-	if (rCurrentVel == INIT)
-	{
-		rCurrentVel = m_SaverCurrentVel;
-	}
+    if (rCurrentVel == INIT)
+    {
+        rCurrentVel = m_SaverCurrentVel;
+    }
 
-	pRB->SetActive();
+    pRB->SetActive();
 
-	btVector3 newVel = rCurrentVel;
+    btVector3 newVel = rCurrentVel;
 
-	// •—•ûŒü
-	btVector3 windDir(sinf(Angle), 0.0f, cosf(Angle));
+    btVector3 windDir(sinf(Angle), 0.0f, cosf(Angle));
 
-	// •—‚ğ‰ÁZ
-	newVel += (windDir * speed);
+    newVel += (windDir * speed);
 
-	// ‹t•ûŒü‚È‚ç’ïR
-	float dot = rCurrentVel.dot(windDir);
-	if (dot < 0.0f) {
-		float resistance = 0.5f;
-		newVel = newVel.lerp(windDir * speed, resistance);
-	}
+    float dot = rCurrentVel.dot(windDir);
+    if (dot < 0.0f) {
+        float resistance = 0.5f;
+        newVel = newVel.lerp(windDir * speed, resistance);
+    }
 
-	// Y²‚Íd—Í‘¬“x‚ğˆÛ
-	newVel.setY(rCurrentVel.getY());
+    newVel.setY(rCurrentVel.getY());
 
-	// ÅI‘¬“x‚ğİ’è
-	pRB->SetLinearVelocity(newVel);
+    pRB->SetLinearVelocity(newVel);
 }
 
 //============================================================================
-//•—‚ÌƒMƒ~ƒbƒN‚Ìˆ—
+//é¢¨ã®ã‚®ãƒŸãƒƒã‚¯ã®å‡¦ç†
 //============================================================================
 void CWindField::Window()
 {
-	++m_Parameter.m_Timer;
+    ++m_Parameter.m_Timer;
 
-	if (m_Parameter.m_IsBlowing)
-	{
-		if (m_Parameter.m_Timer >= m_Parameter.m_BlowTime)
-		{
-			m_Parameter.m_Timer = 0.0f;
-			m_Parameter.m_IsBlowing = false; // •—‚ğ~‚ß‚é
-		}
-		else
-		{
-			// ƒvƒŒƒCƒ„[‚ÆCPU‚ğ•—‚Å“®‚©‚·
-			MovePlayer(m_Parameter.m_WindAngle, m_Parameter.m_WindSpeed, PLAYER_SIZE, CPU_SIZE);
-		}
-	}
-	else
-	{
-		// •—‚ª~‚ñ‚Å‚¢‚éó‘Ô
-		if (m_Parameter.m_Timer >= m_Parameter.m_StopTime)
-		{
-			m_Parameter.m_Timer = 0.0f;     //ƒ^ƒCƒ}[ƒŠƒZƒbƒg
-			m_Parameter.m_IsBlowing = true; //•—‚ğ‚©‚¹‚é
+    if (!m_pWindArrow)
+        return;
 
-			//m_Parameter.m_WindAngle = RandomRange(-(float)std::numbers::pi, (float)std::numbers::pi); //•—‚ÌŒü‚«
-			m_Parameter.m_WindAngle = m_WindowRotationAngle; //•—‚ÌŒü‚«
-			m_Parameter.m_WindSpeed = 0.9f;                  //•—‚Ì‹­‚³
+    const float arrowW = 400.0f;
+    const float arrowH = 400.0f;
 
-			//”O‚Ì‚½‚ßˆêü‚µ‚½‚ç‰Šú‰»(‰E‰ñ‚è‚Ìif•ª)
-			if (m_WindowRotationAngle >= ANGLE * 4.0f)
-			{
-				m_WindowRotationAngle = 0.0f;
-			}
-			m_WindowRotationAngle += ANGLE; //Œü‚«‚ğ‰ÁZ
-		}
-	}
+    auto getDirIndex = [](float angle)
+    {
+        int dir = (int)roundf(angle / ANGLE) % 4;
+        if (dir < 0) dir += 4;
+        return dir;
+    };
+
+    auto setArrowPos = [&](int dir)
+    {
+        OBJ::Transform tf = m_pWindArrow->GetTransform();
+        tf.Size = { arrowW, arrowH, 0.0f };
+
+        switch (dir)
+        {
+        case 0: tf.Pos = { 950.0f, 1000.0f, 0.0f }; break; // Up    â†’ ä¸‹è¾ºä¸­å¤®
+        case 1: tf.Pos = { 200.0f, 500.0f, 0.0f }; break;  // Right â†’ å·¦è¾ºä¸­å¤®
+        case 2: tf.Pos = { 950.0f, 50.0f,  0.0f }; break;  // Down  â†’ ä¸Šè¾ºä¸­å¤®
+        case 3: tf.Pos = { 1700.0f, 500.0f, 0.0f }; break; // Left  â†’ å³è¾ºä¸­å¤®
+        }
+
+        m_pWindArrow->SetTransform(tf);
+        m_pWindArrow->SetTransformTarget(tf);
+    };
+
+    auto setArrowTexture = [&](int dir)
+    {
+        static const char* keys[4] =
+        {
+            "WindArrow_Up",
+            "WindArrow_Right",
+            "WindArrow_Down",
+            "WindArrow_Left"
+        };
+
+        m_pWindArrow->SetTexture(
+            CTextureManager::RefInstance().RefRegistry().BindAtKey(keys[dir])
+        );
+    };
+
+    auto setArrowAlpha = [&](float alpha)
+    {
+        DirectX::XMFLOAT4 col = m_pWindArrow->GetCol();
+        col.w = alpha;
+        m_pWindArrow->SetCol(col);
+        m_pWindArrow->SetColTarget(col);
+    };
+
+    // ------------------------------
+    // é¢¨ãŒå¹ã„ã¦ã„ãªã„ãƒ•ã‚§ãƒ¼ã‚ºï¼ˆäºˆå‘Šï¼‰
+    // ------------------------------
+    if (!m_Parameter.m_IsBlowing)
+    {
+        if (m_Parameter.m_Timer >= (m_Parameter.m_StopTime - 120))
+        {
+            int dir = getDirIndex(m_WindowRotationAngle);
+
+            setArrowTexture(dir);
+            setArrowPos(dir);
+
+            // ç‚¹æ»…
+            int t = (int)m_Parameter.m_Timer;
+            float alpha = ((t / 10) % 2 == 0) ? 1.0f : 0.0f;
+            setArrowAlpha(alpha);
+        }
+
+        if (m_Parameter.m_Timer >= m_Parameter.m_StopTime)
+        {
+            m_Parameter.m_Timer = 0.0f;
+            m_Parameter.m_IsBlowing = true;
+
+            m_Parameter.m_WindAngle = m_WindowRotationAngle;
+            m_Parameter.m_WindSpeed = 0.9f;
+
+            m_WindowRotationAngle += ANGLE;
+            if (m_WindowRotationAngle >= ANGLE * 4.0f)
+                m_WindowRotationAngle = 0.0f;
+        }
+
+        return;
+    }
+
+    // ------------------------------
+    // é¢¨ãŒå¹ã„ã¦ã„ã‚‹ãƒ•ã‚§ãƒ¼ã‚º
+    // ------------------------------
+    MovePlayer(m_Parameter.m_WindAngle, m_Parameter.m_WindSpeed, PLAYER_SIZE, CPU_SIZE);
+
+    {
+        int dir = getDirIndex(m_Parameter.m_WindAngle);
+
+        setArrowTexture(dir);
+        setArrowPos(dir);
+        setArrowAlpha(1.0f);
+    }
+
+    if (m_Parameter.m_Timer >= m_Parameter.m_BlowTime)
+    {
+        m_Parameter.m_Timer = 0.0f;
+        m_Parameter.m_IsBlowing = false;
+
+        setArrowAlpha(0.0f);
+    }
 }
 
-
 //============================================================================
-// •`‰æˆ—
+// æç”»å‡¦ç†
 //============================================================================
 void CWindField::Draw()
 {
-	// •¨—ƒ‚ƒfƒ‹—p‚ÌXV
-	CPhysicsModel::Draw();
+    CPhysicsModel::Draw();
+
+    // â˜… çŸ¢å° HUD ã®æç”»
+    if (m_pWindArrow)
+        m_pWindArrow->Draw();
 }

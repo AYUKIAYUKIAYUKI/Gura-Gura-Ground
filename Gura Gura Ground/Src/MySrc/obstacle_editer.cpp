@@ -32,6 +32,7 @@ std::vector<std::pair<int, int>> ObstacleEditer::s_AssignedSpawnParamIndices = {
 std::vector<ObstacleEditer::ObstacleParam> ObstacleEditer::m_ParamSets(ObstacleEditer::PARAM_SET_MAX);
 std::vector<int> ObstacleEditer::s_SpawnPlayerThresholds(ObstacleEditer::SPAWN_PRESET_MAX, 4);
 std::vector<int> ObstacleEditer::s_ForcedParamSetIndices(ObstacleEditer::SPAWN_PRESET_MAX, 0);
+int ObstacleEditer::s_ParamSetCount = 5;
 
 float ObstacleEditer::s_DecayValue = 0.3f;
 
@@ -282,17 +283,30 @@ void ObstacleEditer::EditerMenu()
 		SaveParams("Data\\JSON\\obscale_table.json");
 	}
 
-	const char* paramSetLabels[PARAM_SET_MAX] = { "Preset 1", "Preset 2", "Preset 3", "Preset 4", "Preset 5", "Preset 6 [EX]" };
-	ImGui::Combo(reinterpret_cast<const char*>(u8"編集するプリセット"), &m_CurrentParamIndex, paramSetLabels, PARAM_SET_MAX);
+	std::vector<std::string> paramSetLabels(s_ParamSetCount);
+	for (int i = 0; i < s_ParamSetCount; ++i)
+		paramSetLabels[i] = "Preset " + std::to_string(i + 1);
+	std::vector<const char*> comboItems;
+	for (auto& s : paramSetLabels) comboItems.push_back(s.c_str());
+	ImGui::Combo(reinterpret_cast<const char*>(u8"プリセット選択"), &m_CurrentParamIndex,
+		comboItems.data(), static_cast<int>(comboItems.size()));
 
-	if (m_CurrentParamIndex == 5)
+	ImGui::Text(reinterpret_cast<const char*>(u8"プリセット数"));
+	if (ImGui::Button("-##ParamSetCount"))
 	{
-		ImGui::TextColored(ImVec4(1, 0, 0, 1), reinterpret_cast <const char*>(u8"このプリセットは固有ギミック専用として想定されています\nそのため、ランダム抽選から除外されています。\n出現させたい場合は、このプリセットを出現タイミングに設定してください"));
+		ChangeParamSetCount(-1);
+	}
+	ImGui::SameLine();
+	ImGui::Text("%d", s_ParamSetCount);
+	ImGui::SameLine();
+	if (ImGui::Button("+##ParamSetCount"))
+	{
+		ChangeParamSetCount(1);
 	}
 
 	//範囲ガードする
 	if (m_CurrentParamIndex < 0) m_CurrentParamIndex = 0;
-	if (m_CurrentParamIndex >= PARAM_SET_MAX) m_CurrentParamIndex = PARAM_SET_MAX - 1;
+	if (m_CurrentParamIndex >= s_ParamSetCount) m_CurrentParamIndex = s_ParamSetCount - 1;
 	if ((size_t)m_CurrentParamIndex >= m_ParamSets.size()) m_CurrentParamIndex = static_cast<int>(m_ParamSets.size()) - 1;
 	if (m_CurrentParamIndex < 0) m_CurrentParamIndex = 0;
 
@@ -386,7 +400,7 @@ void ObstacleEditer::SpawnTimePresetEditor()
 			ImGui::Text("%d", s_ForcedParamSetIndices[i]);
 			ImGui::SameLine();
 			if (ImGui::Button(plusBtn)) {
-				if (s_ForcedParamSetIndices[i] < PARAM_SET_MAX)
+				if (s_ForcedParamSetIndices[i] < s_ParamSetCount)
 					s_ForcedParamSetIndices[i]++;
 			}
 			ImGui::SameLine();
@@ -452,6 +466,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 		float maxSpawnTime = 0.0f;
 		for (int i = 0; i < s_SpawnTimePresetCount; ++i)
 		{
+
 			if (i < (int)s_AssignedSpawnTimes.size()) {
 				if (s_AssignedSpawnTimes[i] > maxSpawnTime) {
 					maxSpawnTime = s_AssignedSpawnTimes[i];
@@ -487,6 +502,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 			float assignedSpawnTime = s_AssignedSpawnTimes[i];
 
 			int playerTh = 4;
+
 			if (i < s_SpawnPlayerThresholds.size())
 			{
 				playerTh = s_SpawnPlayerThresholds[i];
@@ -864,6 +880,25 @@ void ObstacleEditer::TryManualSpawn()
 	}
 }
 
+void ObstacleEditer::ChangeParamSetCount(int delta)
+{
+	int newCount = s_ParamSetCount + delta;
+	if (newCount < 1) newCount = 1;
+	if (newCount > 50) newCount = 50;
+	if (newCount == s_ParamSetCount) return;
+	size_t oldSize = m_ParamSets.size();
+	s_ParamSetCount = newCount;
+	m_ParamSets.resize(s_ParamSetCount);
+	for (size_t i = oldSize; i < m_ParamSets.size(); ++i) {
+		// 追加分は必ず1つsubParamを作る
+		if (m_ParamSets[i].subParams.empty()) {
+			m_ParamSets[i].subParams.emplace_back();
+		}
+	}
+	if (m_CurrentParamIndex >= s_ParamSetCount)
+		m_CurrentParamIndex = s_ParamSetCount - 1;
+}
+
 //============================================================================
 // 障害物パラメーター保存処理
 //============================================================================
@@ -948,104 +983,84 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
 //============================================================================
 void ObstacleEditer::LoadParams(const std::string& fileName)
 {
-	//各種変数の初期化
 	m_CurrentParamIndex = 0;
 	m_PlayModeElapsedTime = 0.0f;
-
 #ifndef NDEBUG
 	m_PlayMode = false;
 #endif
-
 #ifdef NDEBUG
 	m_PlayMode = true;
 #endif
-
-	m_ParamSets.clear();
-	m_ParamSets.resize(PARAM_SET_MAX);
 
 	std::ifstream ifs(fileName);
 	if (!ifs) return;
 	nlohmann::json jsRoot;
 	ifs >> jsRoot;
 
-	// param_setsを読みこむ
-	if (jsRoot.contains("param_sets") && jsRoot["param_sets"].is_array())
-	{
-		for (size_t i = 0; i < m_ParamSets.size(); ++i)
-		{
-			m_ParamSets[i].subParams.clear();
-			if (i < jsRoot["param_sets"].size())
-			{
-				const auto& jParamSet = jsRoot["param_sets"][i];
-				if (jParamSet.contains("sub_params") && jParamSet["sub_params"].is_array())
-				{
-					for (const auto& jSub : jParamSet["sub_params"])
-					{
-						SubObstacleParam sub;
-						sub.ObstacleSpawnX = jSub.value("spawnX", 0.0f);
-						sub.ObstacleSpawnY = jSub.value("spawnY", 10.0f);
-						sub.ObstacleSpawnZ = jSub.value("spawnZ", 0.0f);
-						sub.ObstacleSpeedX = jSub.value("speedX", 0.0f);
-						sub.ObstacleSpeedY = jSub.value("speedY", 0.0f);
-						sub.ObstacleSpeedZ = jSub.value("speedZ", -5.0f);
-						sub.ColliderWidth = jSub.value("collider_width", 3.0f);
-						sub.ColliderHeight = jSub.value("collider_height", 3.0f);
-						sub.ColliderDepth = jSub.value("collider_depth", 3.0f);
-						int manualTypeValue = jSub.value("manual_type", static_cast<int>(OBS_TYPE::NONE)); //OBS_TYPEに変換する
-						sub.ManualObstacleType = static_cast<OBS_TYPE>(manualTypeValue);
-						sub.BoomerangMovePattern = jSub.value("boomerang_move_pattern", 0);
-						sub.BombTimer = jSub.value("bomb_timer", 300);
-						sub.BoomerangOmega = jSub.value("boomerang_omega", 1.0f);
-						sub.BoomerangRadius = jSub.value("boomerang_radius", 12.0f);
-						sub.BoomerangBasePower = jSub.value("boomerang_base_power", 20.0f);
-						sub.BoomerangAddBySpeed = jSub.value("boomerang_add_by_speed", 80.0f);
-						sub.BoomerangMaxFinalPower = jSub.value("boomerang_max_final_power", 350.0f);
-						sub.BoomerangHitCooldown = jSub.value("boomerang_hit_cooldown", 10);
-						m_ParamSets[i].subParams.push_back(sub);
-					}
+	// プリセット数とファイル記載数とUI側最大値の大きいほうに合わせましょう
+	size_t fileParamCount = 0;
+	if (jsRoot.contains("param_sets") && jsRoot["param_sets"].is_array()) {
+		fileParamCount = jsRoot["param_sets"].size();
+	}
+	size_t uiParamCount = (size_t)s_ParamSetCount; // UI等で設定された値
+	size_t loadParamCount = (fileParamCount > uiParamCount) ? fileParamCount : uiParamCount;
+
+	m_ParamSets.clear();
+	m_ParamSets.resize(loadParamCount);
+
+	// パラメータ実体埋め
+	for (size_t i = 0; i < loadParamCount; ++i) {
+		m_ParamSets[i].subParams.clear();
+
+		if (jsRoot.contains("param_sets") && jsRoot["param_sets"].is_array() && i < fileParamCount) {
+			const auto& jParamSet = jsRoot["param_sets"][i];
+			if (jParamSet.contains("sub_params") && jParamSet["sub_params"].is_array()) {
+				for (const auto& jSub : jParamSet["sub_params"]) {
+					SubObstacleParam sub;
+					sub.ObstacleSpawnX = jSub.value("spawnX", 0.0f);
+					sub.ObstacleSpawnY = jSub.value("spawnY", 10.0f);
+					sub.ObstacleSpawnZ = jSub.value("spawnZ", 0.0f);
+					sub.ObstacleSpeedX = jSub.value("speedX", 0.0f);
+					sub.ObstacleSpeedY = jSub.value("speedY", 0.0f);
+					sub.ObstacleSpeedZ = jSub.value("speedZ", -5.0f);
+					sub.ColliderWidth = jSub.value("collider_width", 3.0f);
+					sub.ColliderHeight = jSub.value("collider_height", 3.0f);
+					sub.ColliderDepth = jSub.value("collider_depth", 3.0f);
+					int manualTypeValue = jSub.value("manual_type", static_cast<int>(OBS_TYPE::NONE));
+					sub.ManualObstacleType = static_cast<OBS_TYPE>(manualTypeValue);
+					sub.BoomerangMovePattern = jSub.value("boomerang_move_pattern", 0);
+					sub.BombTimer = jSub.value("bomb_timer", 300);
+					sub.BoomerangOmega = jSub.value("boomerang_omega", 1.0f);
+					sub.BoomerangRadius = jSub.value("boomerang_radius", 12.0f);
+					sub.BoomerangBasePower = jSub.value("boomerang_base_power", 20.0f);
+					sub.BoomerangAddBySpeed = jSub.value("boomerang_add_by_speed", 80.0f);
+					sub.BoomerangMaxFinalPower = jSub.value("boomerang_max_final_power", 350.0f);
+					sub.BoomerangHitCooldown = jSub.value("boomerang_hit_cooldown", 10);
+					m_ParamSets[i].subParams.push_back(sub);
 				}
 			}
 		}
-	}
-
-	if (jsRoot.contains("spawn_player_thresholds") && jsRoot["spawn_player_thresholds"].is_array())
-	{
-		int arrSize = jsRoot["spawn_player_thresholds"].size();
-		for (int i = 0; i < arrSize && i < SPAWN_PRESET_MAX; ++i)
-		{
-			s_SpawnPlayerThresholds[i] = jsRoot["spawn_player_thresholds"][i].get<int>();
+		// どちらにも該当するsub_paramが一つも無い）場合は仮要素を必ず1つ作る
+		if (m_ParamSets[i].subParams.empty()) {
+			m_ParamSets[i].subParams.emplace_back();
 		}
 	}
-	else
-	{
-		s_SpawnPlayerThresholds.assign(SPAWN_PRESET_MAX, 4);
-	}
+	// UI側プリセット数も合わせる
+	s_ParamSetCount = int(loadParamCount);
+	if (m_CurrentParamIndex >= s_ParamSetCount)
+		m_CurrentParamIndex = s_ParamSetCount - 1;
+	if (m_CurrentParamIndex < 0)
+		m_CurrentParamIndex = 0;
 
-	//デバフ状態時の値
-	if (jsRoot.contains("debuff_stamp")) {
-		s_StampConfig.DecayValue = jsRoot["debuff_stamp"].value("decay", 0.3f);
-		s_StampConfig.InertiaValue = jsRoot["debuff_stamp"].value("inertia", 1.0f);
-	}
-	if (jsRoot.contains("debuff_bird")) {
-		s_BirdConfig.DecayValue = jsRoot["debuff_bird"].value("decay", 0.5f);
-		s_BirdConfig.InertiaValue = jsRoot["debuff_bird"].value("inertia", 1.2f);
-	}
-	if (jsRoot.contains("debuff_oil")) {
-		s_OilConfig.DecayValue = jsRoot["debuff_oil"].value("decay", 0.8f);
-		s_OilConfig.InertiaValue = jsRoot["debuff_oil"].value("inertia", 8.5f);
-	}
 
-	// プリセット数/生成時間
 	s_SpawnTimePresetCount = jsRoot.value("preset_count", s_SpawnTimePresetCount);
-
-	if (jsRoot.contains("spawn_time_presets") && jsRoot["spawn_time_presets"].is_array())
-	{
+	if (jsRoot.contains("spawn_time_presets") && jsRoot["spawn_time_presets"].is_array()) {
 		int arrSize = jsRoot["spawn_time_presets"].size();
 		for (int i = 0; i < arrSize && i < SPAWN_PRESET_MAX; ++i)
-		{
 			s_SpawnTimePresets[i] = jsRoot["spawn_time_presets"][i].get<float>();
-		}
 	}
+
+	//ランダム抽選
 	AssignRandomSpawnTimes();
 }
 
@@ -1054,76 +1069,98 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
 //============================================================================
 void ObstacleEditer::AssignRandomSpawnTimes()
 {
-	int totalCount = s_SpawnTimePresetCount;  // プリセット合計
-	int assignCount = s_SpawnTimePresetCount; // 出現時間プリセット枠数
+	// 各割当配列をプリセット数でリサイズする
+	if ((int)s_SpawnedFlags.size() != s_SpawnTimePresetCount)
+	{
+		s_SpawnedFlags.resize(s_SpawnTimePresetCount);
+	}
 
-	// 各割当配列をtotalCountでリサイズする
-	s_SpawnedFlags.resize(totalCount, false);
-	s_AssignedSpawnTimes.resize(totalCount, 5.0f);
-	s_AssignedSpawnParamIndices.resize(totalCount, std::make_pair(-1, -1));
-	s_ForcedParamSetIndices.resize(totalCount, 0);
+	if ((int)s_AssignedSpawnTimes.size() != s_SpawnTimePresetCount)
+	{
+		s_AssignedSpawnTimes.resize(s_SpawnTimePresetCount);
+	}
 
-	// 障害物プリセット抽選ペアは1～5のみ
+	if ((int)s_AssignedSpawnParamIndices.size() != s_SpawnTimePresetCount)
+	{
+		s_AssignedSpawnParamIndices.resize(s_SpawnTimePresetCount);
+	}
+
+	if ((int)s_ForcedParamSetIndices.size() != s_SpawnTimePresetCount)
+	{
+		s_ForcedParamSetIndices.resize(s_SpawnTimePresetCount, 0);
+	}
+
+	// すべてのParamSetIdx, subParamIdxペアをリスト化する
 	std::vector<std::pair<int, int>> allPairs;
-	int validPresetSetCount = 5; // 1～5
-	for (int paramSetIdx = 0; paramSetIdx < validPresetSetCount; ++paramSetIdx) {
+	for (int paramSetIdx = 0; paramSetIdx < (int)m_ParamSets.size(); ++paramSetIdx)
+	{
 		const auto& paramSet = m_ParamSets[paramSetIdx];
-		for (int subParamIdx = 0; subParamIdx < (int)paramSet.subParams.size(); ++subParamIdx) {
+		for (int subParamIdx = 0; subParamIdx < (int)paramSet.subParams.size(); ++subParamIdx)
+		{
 			allPairs.emplace_back(paramSetIdx, subParamIdx);
 		}
 	}
+
 	// 出現候補が無い場合は何もしない
-	if (allPairs.empty())
-	{
+	if (allPairs.empty()) {
+		for (int presetIndex = 0; presetIndex < s_SpawnTimePresetCount; ++presetIndex) {
+			s_AssignedSpawnParamIndices[presetIndex] = { -1, -1 };
+		}
 		return;
 	}
 
 	// 乱数生成の準備
 	std::random_device randomdevice;
 	std::mt19937 randomnengine(randomdevice());
+
 	// 選択履歴
 	std::pair<int, int> lastPair = { -1, -1 };
 	int lastParamSetIdx = -1;
 
-	for (int presetIndex = 0; presetIndex < assignCount; ++presetIndex)
+	for (int presetIndex = 0; presetIndex < s_SpawnTimePresetCount; ++presetIndex)
 	{
-		std::pair<int, int> selectedPair = { -1, -1 };
-		int paramSetForce = s_ForcedParamSetIndices[presetIndex];
+		std::pair<int, int> selectedPair;
+		int paramSetForce = s_ForcedParamSetIndices[presetIndex]; // 0はランダム抽選, 1～5:指定のparam set
 
-		if (paramSetForce >= 1 && paramSetForce <= PARAM_SET_MAX)
+		if (paramSetForce >= 1 && paramSetForce <= s_ParamSetCount)
 		{
 			// Param Setが指定されている場合
 			int pIdx = paramSetForce - 1;
-			if (pIdx < (int)m_ParamSets.size() && !m_ParamSets[pIdx].subParams.empty()) {
+			if (pIdx < (int)m_ParamSets.size() && !m_ParamSets[pIdx].subParams.empty())
+			{
 				// subParamをランダムで選ぶ
 				std::uniform_int_distribution<int> dist(0, (int)m_ParamSets[pIdx].subParams.size() - 1);
 				int subIdx = dist(randomnengine);
 				selectedPair = { pIdx, subIdx };
 			}
+			else
+			{
+				// パラメータセットが無効な場合
+				selectedPair = { -1, -1 };
+			}
 		}
-		else {
-			// 出現障害物プリセット抽選（指定しない限り1～5のみから選ばれる）
+		else
+		{
+			// ランダム抽選
 			bool isValidSelection = false;
-			int tryCount = 0;
-			do
+			while (!isValidSelection)
 			{
 				std::uniform_int_distribution<int> dist(0, (int)allPairs.size() - 1);
 				selectedPair = allPairs[dist(randomnengine)];
-				// 連続と重複の排除
 				isValidSelection = (selectedPair != lastPair) && (selectedPair.first != lastParamSetIdx);
-				tryCount++;
-			} while (!isValidSelection && tryCount < SPAWN_PRESET_MAX);
+			}
 		}
-
 		// 選択されたペアを保存
 		s_AssignedSpawnParamIndices[presetIndex] = selectedPair;
 
 		// 該当するプリセット時間を適用
-		s_AssignedSpawnTimes[presetIndex] = s_SpawnTimePresets[presetIndex];
+		int presetTimeIndex = presetIndex % s_SpawnTimePresets.size();
+		s_AssignedSpawnTimes[presetIndex] = s_SpawnTimePresets[presetTimeIndex];
 
 		// スポーンフラグを初期化させる
 		s_SpawnedFlags[presetIndex] = false;
 
+		// 現在のペアとセットインデックスを次回のために記憶する
 		lastPair = selectedPair;
 		lastParamSetIdx = selectedPair.first;
 	}
