@@ -72,7 +72,6 @@ void ObstacleEditer::EditCommonParams()
 		}
 	}
 
-
 	if (selectedSubParamIndex >= 0 && selectedSubParamIndex < (int)paramSet.subParams.size())
 	{
 		// コピー
@@ -291,6 +290,12 @@ void ObstacleEditer::EditerMenu()
 		ImGui::TextColored(ImVec4(1, 0, 0, 1), reinterpret_cast <const char*>(u8"このプリセットは固有ギミック専用として想定されています\nそのため、ランダム抽選から除外されています。\n出現させたい場合は、このプリセットを出現タイミングに設定してください"));
 	}
 
+	//範囲ガードする
+	if (m_CurrentParamIndex < 0) m_CurrentParamIndex = 0;
+	if (m_CurrentParamIndex >= PARAM_SET_MAX) m_CurrentParamIndex = PARAM_SET_MAX - 1;
+	if ((size_t)m_CurrentParamIndex >= m_ParamSets.size()) m_CurrentParamIndex = static_cast<int>(m_ParamSets.size()) - 1;
+	if (m_CurrentParamIndex < 0) m_CurrentParamIndex = 0;
+
 	// 選択中パラメータセットのパラメータを表示・編集
 	EditCommonParams();
 
@@ -308,6 +313,7 @@ void ObstacleEditer::SpawnTimePresetEditor()
 	if (ImGui::Begin(reinterpret_cast<const char*>(u8"障害物出現タイミング編集")))
 	{
 		ImGui::Text(reinterpret_cast<const char*>(u8"ゲームタイム %.2f 秒"), m_PlayModeElapsedTime);
+		ImGui::Text(reinterpret_cast<const char*>(u8"ギミックスポーンタイム %.2f 秒"), m_ObstacleTimerElapsedTime);
 
 		// 残りプレイヤー数を取得して表示
 		const auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
@@ -438,9 +444,42 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 	if (m_PlayMode)
 	{
 		m_PlayModeElapsedTime += deltaTime;
+		m_ObstacleTimerElapsedTime += deltaTime;
 
 		const auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 		int remainingPlayers = static_cast<int>(playerList.size());
+
+		float maxSpawnTime = 0.0f;
+		for (int i = 0; i < s_SpawnTimePresetCount; ++i)
+		{
+			if (i < (int)s_AssignedSpawnTimes.size()) {
+				if (s_AssignedSpawnTimes[i] > maxSpawnTime) {
+					maxSpawnTime = s_AssignedSpawnTimes[i];
+				}
+			}
+		}
+
+		if (!m_CustomTimerNeedReset && m_ObstacleTimerElapsedTime > maxSpawnTime)
+		{
+			m_CustomTimerNeedReset = true;
+			m_CustomTimerResetCountdown = 5.0f;
+		}
+		if (m_CustomTimerNeedReset)
+		{
+			m_CustomTimerResetCountdown -= deltaTime;
+			if (m_CustomTimerResetCountdown <= 0.0f)
+			{
+				// タイマーリセット処理
+				m_ObstacleTimerElapsedTime = 0.0f;
+				m_CustomTimerNeedReset = false;
+
+				for (int presetIndex = 0; presetIndex < s_SpawnTimePresetCount; ++presetIndex)
+				{
+					s_SpawnedFlags[presetIndex] = false;
+				}
+			}
+		}
+
 
 		for (int i = 0; i < s_SpawnTimePresetCount; ++i)
 		{
@@ -448,13 +487,13 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 			float assignedSpawnTime = s_AssignedSpawnTimes[i];
 
 			int playerTh = 4;
-			if (i < s_SpawnPlayerThresholds.size()) 
+			if (i < s_SpawnPlayerThresholds.size())
 			{
 				playerTh = s_SpawnPlayerThresholds[i];
 			}
 			if (!(remainingPlayers <= playerTh)) continue;
 
-			if (!s_SpawnedFlags[i] && m_PlayModeElapsedTime >= assignedSpawnTime)
+			if (!s_SpawnedFlags[i] && m_ObstacleTimerElapsedTime >= assignedSpawnTime)
 			{
 				auto& paramSet = m_ParamSets[paramSetIdx];
 				for (size_t subIdx = 0; subIdx < paramSet.subParams.size(); ++subIdx)

@@ -63,6 +63,7 @@ private:
 
 	// ～ ゲーム中 ～
 	void SetSymbol();    // シンボルセット
+	void UpdateHowToPlay(float deltaTime); //HowToPlayアニメーション
 	bool CheckGameSet(); // ゲームセットチェック
 
 	//****************************************************
@@ -77,6 +78,10 @@ private:
 	int								  m_prevPlayCount = -1; //開始カウント(サウンド用)
 	bool                              m_bFinish;     // 終了状態
 
+	//HowToplay
+	bool m_bANIMStart;
+
+	// BGM
 	bool                              m_bBGMStart;      // 開始状態
 
 	// プレイヤーの弱参照配列
@@ -89,6 +94,15 @@ private:
 
 	static int s_nHumanPlayerNum;  // 人間プレイヤー数
 	static int s_nCPUNum;          // CPUプレイヤー数
+
+	// Howtoplayテクスチャ表示用
+	CHud* m_pHowToPlayHud = nullptr;
+	float m_fHowToPlayAlpha = 0.0f;
+	bool m_bShowHowToPlay = false;
+	bool m_bHowToPlayFinished = false;
+	float m_HowToPlayTimer = 0.0f;
+	enum class HOWTOPLAY_PHASE { NONE, FADEIN, WAIT, FADEOUT, END };
+	HOWTOPLAY_PHASE m_howToPlayPhase = HOWTOPLAY_PHASE::NONE;
 
 	// 障害物エディター
 	ObstacleEditer m_ObstacleEditer;

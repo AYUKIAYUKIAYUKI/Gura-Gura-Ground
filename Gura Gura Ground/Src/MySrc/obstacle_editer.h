@@ -87,6 +87,10 @@ public:
     static ObstacleParam& RefParam() { return m_ParamSets[m_CurrentParamIndex]; }
     static float s_DecayValue; //ã•”—‰ºáŠQ•¨‚ÉÚG‚µ‚½‚ÌŒ¸‘¬’l
 private:
+    float m_ObstacleTimerElapsedTime = 0.0f;
+    bool m_CustomTimerNeedReset = false;
+    float m_CustomTimerResetCountdown = 0.0f;
+
     static int m_selectedSubParamIndex;
     static int s_SpawnTimePresetCount;
     static float s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ; // oŒ»ˆÊ’u

@@ -618,7 +618,7 @@ void CSceneResult::Update()
                 std::string modelName;
 
                 if (isHumanWinner) {
-                    modelName = "P" + std::to_string(winnerIndex + 1);
+                    modelName = "Player_" + std::to_string(winnerIndex + 1);
                 }
                 else {
                     modelName = "Test";
@@ -999,7 +999,7 @@ void CSceneResult::ForceToFinished()
             std::string modelName;
 
             if (isHumanWinner) {
-                modelName = "P" + std::to_string(winnerIndex + 1);
+                modelName = "Player_" + std::to_string(winnerIndex + 1);
             }
             else {
                 modelName = "Test";

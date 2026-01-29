@@ -566,7 +566,7 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 	m_wpWindoField = std::dynamic_pointer_cast<CWindField>(rFieldList.front());
 
 	// モデルのバインド
-	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("P1"));
+	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
 	SetModelOffset({ 0.0f, -0.5f, 0.0f });
 	
 	// 回転同期の解除
