@@ -567,7 +567,6 @@ CPlayer::CPlayer(OBJ::TYPE Type, OBJ::LAYER Layer)
 
 	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
-	SetModelOffset({ 0.0f, -0.5f, 0.0f });
 	
 	// 回転同期の解除
 	DisableSyncRotation();

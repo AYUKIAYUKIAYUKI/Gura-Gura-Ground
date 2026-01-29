@@ -129,31 +129,27 @@ void CSceneSelect::Update()
 			}
 		}
 	}
-	else if (m_bSelectStart)
-	{
-#if 0
-		// 整列
-		Alignment();
-
-		if (CInputManager::RefInstance().EnhancedEnter())
-		{
-			// 全オブジェクトに死亡フラグを立てる
-			CObjectManager::RefInstance().SetDeathAll();
-
-			//タイトルBGMを停止する
-			CSoundManger::RefInstance().Stop("BGM_TITLE");
-
-			// ゲームシーンへ
-			CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneSelect>());
-		}
-#else
-		Change();
-#endif
-	}
 	else
 	{
 		// 斬首
 		DownCutter();
+	}
+
+	/* 仮 */
+	if (m_bDeathPenaly && m_bSelectStart)
+	{
+		if (m_vpPM[0])
+		{
+			CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(m_vpPM[0]->GetCollider());
+
+			if (pRigidBody)
+			{
+				if (!pRigidBody->GetActive())
+				{
+					Change();
+				}
+			}
+		}
 	}
 }
 
@@ -487,18 +483,7 @@ void CSceneSelect::DownCutter()
 #endif // _DEBUG
 	}
 
-	// 全てのヘッドが停止したら
-	for (const auto& rIt : m_vpPM)
-	{
-		CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider());
-
-		if (pRigidBody->GetActive())
-		{
-			break;
-		}
-
-		m_bSelectStart = true;
-	}
+	m_bSelectStart = true;
 }
 
 //============================================================================

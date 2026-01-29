@@ -111,6 +111,14 @@ CSceneGame::CSceneGame()
 	, m_bFinish(false)
 	, m_ObstacleEditer{}
 {
+	// カメラの初期設定
+	CCamera* pCamera = CRenderer::RefInstance().GetCamera();
+	pCamera->SetPos({ 0.0f, 2.0f, 0.0f });
+	pCamera->SetPosTarget({ 0.0f, 2.0f, 0.0f });
+	pCamera->SetRot({ -0.75f, 0.0f, 0.0f });
+	pCamera->SetRotTarget({ -0.75f, 0.0f, 0.0f });
+	pCamera->SetDistanceTarget(35.0f);
+
 	// HUDスポーン
 	SpawnHUD();
 
