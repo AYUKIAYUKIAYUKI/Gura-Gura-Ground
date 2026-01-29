@@ -191,7 +191,7 @@ void CTornado::PullPlayer()
 		const btVector3& rCurrentVel = pRB->GetLinearVelocity();
 
 		// 移動速度スケール
-		const float fSpeed = 1.25f;
+		const float fSpeed = 1.2f;
 		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
 		DirectX::XMFLOAT3 TornadoPos = GetTransform().Pos;			// 竜巻の位置
@@ -208,6 +208,7 @@ void CTornado::PullPlayer()
 			rCurrentVel.getY(),
 			rCurrentVel.getZ() + MoveDir.getZ() 
 		};
+
 
 		// 線形速度を設定
 		pRB->SetActive();
