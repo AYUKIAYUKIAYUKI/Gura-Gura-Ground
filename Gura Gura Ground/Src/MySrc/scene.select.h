@@ -17,6 +17,7 @@
 //****************************************************
 class CBeamLight;
 class CHud;
+
 class CPhysicsModel;
 
 //****************************************************
@@ -28,6 +29,11 @@ class CSceneSelect final : public CScene
 	// エイリアスを定義
 	//****************************************************
 	using BeamLightQue = std::pair<float, DirectX::XMFLOAT2>;
+
+	//****************************************************
+	// 静的定数を定義
+	//****************************************************
+	static constexpr unsigned char MAX_PLAYER = 4;
 
 public:
 
@@ -49,7 +55,10 @@ private:
 	// function
 	//****************************************************
 	void WhileEvent_QueInstantiateLight(); // ビームライトの生成キュー
-	void WhileEvent_CursorTrack();         // カーソルの追従
+	void WhileEvent_CennectCheck();        // 接続チェック
+	void SpawnFromIdx(unsigned char wIdx); // インデックスからの生成
+	void DownCutter();                     // 斬首
+	void Alignment();                      // 整列
 
 	//****************************************************
 	// data
@@ -59,8 +68,13 @@ private:
 	int                       m_nCommonCnt;    // 汎用カウンター
 	std::vector<CBeamLight*>  m_vpBeamLight;   // ビームライト
 	std::vector<BeamLightQue> m_vBeamLightQue; // ビームライトのためのキュー
-	CHud*                     m_pCursor;       // カーソル
 
-	/* 3Dモデル側 */
-	CPhysicsModel* m_pModel; // 3Dモデル何らかの
+	/* さらに */
+	std::vector<CHud*>          m_vpSymbol;     // シンボル
+	std::vector<CPhysicsModel*> m_vpPM;         // モデル
+	std::vector<CPhysicsModel*> m_vpBody;       // ボディ
+	std::vector<CPhysicsModel*> m_vpCutter;     // カッター
+	std::vector<CPhysicsModel*> m_vpGuillotion; // ギロチン台
+	bool                        m_bDeathPenaly; // 死刑フラグ
+	bool                        m_bSelectStart; // 選択開始
 };

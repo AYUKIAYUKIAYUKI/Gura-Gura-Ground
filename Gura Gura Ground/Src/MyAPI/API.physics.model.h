@@ -36,6 +36,7 @@ public:
 
 	// コライダーの生成
 	virtual void FactoryCollider(float fWidth, float fHeight, float fDepth);
+	virtual void FactoryCollider(float fWidth, float fHeight, float fDepth, Collision::SHAPETYPE Type);
 
 	// 更新処理
 	void Update() override;
