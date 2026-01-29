@@ -2,7 +2,7 @@
   "Element": [
     [
       "Test",
-      "Data\\MODEL\\GLB\\Test\\Test.glb"
+      "Data\\MODEL\\GLB\\Test\\moai.glb"
     ],
     [
       "Field",
@@ -47,6 +47,22 @@
     [
       "Tornado",
       "Data\\MODEL\\GLB\\Gimmick\\Tornado.glb"
+    ],
+    [
+      "Player_1",
+      "Data\\MODEL\\GLB\\Player\\Player_Red.glb"
+    ],
+    [
+      "Player_2",
+      "Data\\MODEL\\GLB\\Player\\Player_Blue.glb"
+    ],
+    [
+      "Player_3",
+      "Data\\MODEL\\GLB\\Player\\Player_Yellow.glb"
+    ],
+    [
+      "Player_4",
+      "Data\\MODEL\\GLB\\Player\\Player_Green.glb"
     ]
   ]
 }

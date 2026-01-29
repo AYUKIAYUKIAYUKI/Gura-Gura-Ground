@@ -108,7 +108,7 @@ CSceneTitle::CSceneTitle()
 	auto Logo = CObjectManager::CreateRaw<CHud>();
 	Logo->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Logo.A"));
 	Logo->SetTransform(ITFB);
-	TF = { { 624.0f * fW, 113.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { (WCX + 125.0f) * fW, (WCY + 105.0f) * fH, 0.0f } };
+	TF = { { 624.0f * fW, 113.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { (WCX + 125.0f) * fW, (WCY + 165.0f) * fH, 0.0f } };
 	Logo->SetTransformTarget(TF);
 	m_vpLogo.push_back(Logo);
 
@@ -127,6 +127,8 @@ CSceneTitle::CSceneTitle()
 	TF = { { 529.0f * fW, 135.0f * fH, 0.0f }, { 0.0f, 0.0f, 0.1f, 0.0f }, { (WCX + 125.0f) * fW, (WCY + 60.0f) * fH, 0.0f } };
 	Logo->SetTransformTarget(TF);
 	m_vpLogo.push_back(Logo);
+
+	CSoundManger::RefInstance().Play("BGM_TITLE", false, 0.0f, 1.5f);
 }
 
 //============================================================================
@@ -203,7 +205,7 @@ void CSceneTitle::Change()
 	//CSoundManger::RefInstance().Play("Buzzer", false, -0.5f, 1.5f);
 
 	// 効果音：ジャンプ
-	//CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
+	CSoundManger::RefInstance().Play("Jump", false, 0.0f, 1.0f);
 }
 
 //============================================================================
@@ -221,7 +223,7 @@ void CSceneTitle::TriggerEvent_MoveSatinCurtain()
 
 	// 緞帳(右)の目標位置を変更
 	const OBJ::Transform& rTF_Right   = m_vpSatinCurtain[1]->GetTransformTarget();
-	const OBJ::Transform  NewTF_Right = { rTF_Right.Size, rTF_Right.Rot, { (1280.0f + -fPosTarget_X) * fW, rTF_Right.Pos.y, 0.0f } };
+	const OBJ::Transform  NewTF_Right = { rTF_Right.Size, rTF_Right.Rot, { (1280.0f * fW) - fPosTarget_X, rTF_Right.Pos.y, 0.0f } };
 	m_vpSatinCurtain[1]->SetTransformTarget(NewTF_Right);
 }
 
