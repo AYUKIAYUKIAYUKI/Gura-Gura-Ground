@@ -333,7 +333,7 @@ void CSceneSelect::WhileEvent_CennectCheck()
 	}
 	else if (wNumPad < wSize)
 	{
-		m_vpPM[wSize]->SetDeath();
+		m_vpPM[wSize - 1]->SetDeath();
 		m_vpPM.pop_back();
 	}
 }
