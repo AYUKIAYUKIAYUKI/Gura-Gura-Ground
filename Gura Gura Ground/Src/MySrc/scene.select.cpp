@@ -22,14 +22,14 @@
 #include "API.renderer.h"
 #include "API.object.manager.h"
 #include "API.texture.manager.h"
-#include "API.hud.h"
 #include "API.fullscreen.2D.h"
 #include "beamlight.h"
 
-#include "API.gltf.manager.h"
-#include "API.physics.model.h"
+#include "API.world.h"
 #include "API.rigidbody.h"
-#include "player.fake.h"
+#include "API.physics.model.h"
+#include "API.gltf.manager.h"
+#include "symbol.h"
 
 /* デバッグ */
 namespace
@@ -51,6 +51,14 @@ namespace
 		ImGui::Separator();
 		ImGui::End();
 	}
+
+	void PrintDebug(int nCnt)
+	{
+		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
+		ImGui::Text("StopCnt : %d", nCnt);
+		ImGui::Separator();
+		ImGui::End();
+	}
 }
 
 //============================================================================
@@ -60,12 +68,17 @@ CSceneSelect::CSceneSelect()
 	: m_nCommonCnt(0)
 	, m_vpBeamLight{}
 	, m_vBeamLightQue{}
+	, m_apSymbol{}
 	, m_vpPM{}
 	, m_vpBody{}
 	, m_vpCutter{}
 	, m_vpGuillotion{}
 	, m_bDeathPenaly(false)
+	, m_nStopCnt(0)
 	, m_bSelectStart(false)
+	, m_apStageHud{}
+	, m_nStageIdx{}
+	, m_nStageDecide{}
 {
 	// サンシャインエフェクトの生成
 	auto pfst = CObjectManager::CreateRaw<CFullScreen2D>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
@@ -101,18 +114,22 @@ CSceneSelect::~CSceneSelect()
 //============================================================================
 void CSceneSelect::Update()
 {
+	// ビームライトの生成キュー
+	WhileEvent_QueInstantiateLight();
+
 	if (!m_bDeathPenaly)
 	{
-		// ビームライトの生成キュー
-		WhileEvent_QueInstantiateLight();
-
 		// 接続チェック
 		WhileEvent_CennectCheck();
 
 		// 死刑執行
 		CInputManager& rInput = CInputManager::RefInstance();
-		if (rInput.GetTrackerGamePad(0).start == DirectX::GamePad::ButtonStateTracker::PRESSED)
+		if (rInput.GetTrackerGamePad(0).start == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+			rInput.GetTrackerGamePad(1).start == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+			rInput.GetTrackerGamePad(2).start == DirectX::GamePad::ButtonStateTracker::PRESSED ||
+			rInput.GetTrackerGamePad(3).start == DirectX::GamePad::ButtonStateTracker::PRESSED)
 		{
+			// 死刑執行フラグを立てる
 			m_bDeathPenaly = true;
 
 			// ヘッドを転がす
@@ -122,6 +139,12 @@ void CSceneSelect::Update()
 				{
 					// ダイナミック化
 					pRigidBody->SetDynamic();
+
+					/* 応急処置 */
+					if (btRigidBody* rb = pRigidBody->GetRigidBody())
+					{
+						rb->setActivationState(DISABLE_DEACTIVATION);
+					}
 				}
 			}
 
@@ -130,17 +153,40 @@ void CSceneSelect::Update()
 			{
 				if (CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider()))
 				{
-
 					// ダイナミック化
 					pRigidBody->SetDynamic();
+
+					/* 応急処置 */
+					if (btRigidBody* rb = pRigidBody->GetRigidBody())
+					{
+						rb->setActivationState(DISABLE_DEACTIVATION);
+					}
 				}
 			}
+
+			// 効果音：アイアン
+			CSoundManger::RefInstance().Play("Light", false, -0.5f, 3.0f);
 		}
 	}
 	else
 	{
 		// 斬首
 		DownCutter();
+
+		// ストップカウンターを進める
+		++m_nStopCnt;
+
+		// 整列 ～ ステージ選択
+		if (m_nStopCnt > 180)
+		{
+			Alignment();
+			SpawnSymbol();
+			SetSymbol();
+			SpawnStageHud();
+			SetStageHud();
+			SelectStage();
+			SelectStage();
+		}
 	}
 
 	// 強制遷移
@@ -389,10 +435,7 @@ void CSceneSelect::SpawnFromIdx(unsigned char wIdx)
 
 	// カッター用の初期位置
 	DirectX::XMFLOAT3 CutterInitPos = { InitPos };
-	if (wIdx > 1)
-	{
-		CutterInitPos.x += -0.025f * wIdx;
-	}
+	CutterInitPos.x += -0.025f * wIdx;
 	CutterInitPos.y += 3.75f;
 	CutterInitPos.z += 0.5f;
 
@@ -488,12 +531,12 @@ void CSceneSelect::Alignment()
 	{
 		CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(m_vpPM[wIdx]->GetCollider());
 
-		// プレイヤー用の整列位置
+		// ① プレイヤー用の整列位置
 		DirectX::XMFLOAT3 InitPos = { useful::VEC3_ZERO_INIT };
 		const float f = -3.75f + (wIdx * 2.5f);
-		InitPos = { f, 0.0f, -5.0f };
+		InitPos = { f, 5.75f, 0.5f };
 
-		// プレイヤーの整列トランスフォームを設定
+		// ② プレイヤーの整列トランスフォームを設定
 		OBJ::Transform PlayersInitTransform =
 		{
 			{ 0.5f, 0.5f, 0.5f },
@@ -501,11 +544,206 @@ void CSceneSelect::Alignment()
 			InitPos
 		};
 
+		// ③ 現在のワールドトランスフォームを取得
+		OBJ::Transform CurrentTransform = pRigidBody->GetWorldTransform();
+
+		// ④ 位置を補間
+		useful::ExponentialDecay(CurrentTransform.Pos.x, PlayersInitTransform.Pos.x, 0.05f);
+		useful::ExponentialDecay(CurrentTransform.Pos.y, PlayersInitTransform.Pos.y, 0.05f);
+		useful::ExponentialDecay(CurrentTransform.Pos.z, PlayersInitTransform.Pos.z, 0.05f);
+
+		// ⑤ 向きを補間
+		useful::ExponentialDecay(CurrentTransform.Rot.x, PlayersInitTransform.Rot.x, 0.05f);
+		useful::ExponentialDecay(CurrentTransform.Rot.y, PlayersInitTransform.Rot.y, 0.05f);
+		useful::ExponentialDecay(CurrentTransform.Rot.z, PlayersInitTransform.Rot.z, 0.05f);
+
+		// ⑥ ワールドトランスフォームを設定
 		pRigidBody->SetActive();
-		pRigidBody->SetWorldTransform(PlayersInitTransform);
+		pRigidBody->SetWorldTransform(CurrentTransform);
 	}
 
 	// カメラの初期設定
 	CCamera* pCamera = CRenderer::RefInstance().GetCamera();
-	pCamera->SetPosTarget({ 0.0f, 0.0f, -5.0f });
+	pCamera->SetPosTarget({ 0.0f, 7.0f, 0.5f });
+}
+
+//============================================================================
+// シンボルの生成
+//============================================================================
+void CSceneSelect::SpawnSymbol()
+{
+	// ヘッドの数を取得
+	unsigned char wNumHead = static_cast<unsigned char>(m_vpPM.size());
+
+	// 全てのヘッドにシンボルを生成
+	for (unsigned char wIdx = 0; wIdx < wNumHead; ++wIdx)
+	{
+		if (m_apSymbol[wIdx])
+		{
+			continue;
+		}
+
+		// シンボルの生成
+		CSymbol* pSymbol = CObjectManager::CreateRaw<CSymbol>();
+
+	   	// テクスチャの設定
+		pSymbol->SetSymbolIdx(wIdx);
+
+		// 保有
+		m_apSymbol[wIdx] = pSymbol;
+	}
+}
+
+//============================================================================
+// シンボルセット
+//============================================================================
+void CSceneSelect::SetSymbol()
+{
+	for (unsigned char wIdx = 0; wIdx < MAX_PLAYER; ++wIdx)
+	{
+		if (!m_apSymbol[wIdx])
+		{
+			continue;
+		}
+
+		// シンボルのトランスフォームの取得
+		OBJ::Transform SymbolTransform = m_apSymbol[wIdx]->GetTransform();
+
+		// シンボルの位置をヘッドの位置に合わせる
+		SymbolTransform.Size   = { 1.0f, 1.0f, 1.0f };
+		SymbolTransform.Pos    = m_vpPM[wIdx]->GetTransform().Pos;
+		SymbolTransform.Pos.y += 1.25f;
+
+		// シンボルのトランスフォームを設定
+		m_apSymbol[wIdx]->SetTransform(SymbolTransform);
+	}
+}
+
+//============================================================================
+// ステージ選択HUDの生成
+//============================================================================
+void CSceneSelect::SpawnStageHud()
+{
+	// ヘッドの数を取得
+	unsigned char wNumHead = static_cast<unsigned char>(m_vpPM.size());
+
+	for (unsigned char wIdx = 0; wIdx < wNumHead; ++wIdx)
+	{
+		if (m_apStageHud[wIdx])
+		{
+			continue;
+		}
+
+		// ステージHUDの生成
+		CRect3D* pStageHud = CObjectManager::CreateRaw<CRect3D>();
+
+		// テクスチャの設定
+		pStageHud->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
+
+		// 保有
+		m_apStageHud[wIdx] = pStageHud;
+	}
+}
+
+//============================================================================
+// ステージ選択HUDのセット
+//============================================================================
+void CSceneSelect::SetStageHud()
+{
+	for (unsigned char wIdx = 0; wIdx < MAX_PLAYER; ++wIdx)
+	{
+		if (!m_apStageHud[wIdx])
+		{
+			continue;
+		}
+
+		// ステージHUDのトランスフォームの取得
+		OBJ::Transform HudTransform = m_apStageHud[wIdx]->GetTransform();
+
+		// ステージHUDの位置をヘッドの位置に合わせる
+		HudTransform.Size = { 2.0f, 2.0f, 2.0f };
+		HudTransform.Rot = { DirectX::XM_PI, 0.0f, 0.0f, 1.0f };
+		HudTransform.Pos = m_vpPM[wIdx]->GetTransform().Pos;
+		HudTransform.Pos.y += 3.0f;
+
+		// ステージインデックスに応じたテクスチャを設定
+		switch (m_nStageIdx[wIdx])
+		{
+		case 0:
+			m_apStageHud[wIdx]->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
+			break;
+
+		case 1:
+			m_apStageHud[wIdx]->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Sky"));
+			break;
+
+		case 2:
+			m_apStageHud[wIdx]->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Test"));
+			break;
+
+		default:
+			break;
+		}
+
+		// もう決定されていたらカラーを薄くする
+		if (m_nStageDecide[wIdx])
+		{
+			m_apStageHud[wIdx]->SetCol({ 1.0f, 1.0f, 1.0f, 0.5f });
+		}
+		else
+		{
+			m_apStageHud[wIdx]->SetCol({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
+
+		// ステージHUDのトランスフォームを設定
+		m_apStageHud[wIdx]->SetTransform(HudTransform);
+	}
+}
+
+//============================================================================
+// ステージ選択
+//============================================================================
+void CSceneSelect::SelectStage()
+{
+	// インプットマネージャーの参照
+	CInputManager& CInputManager = CInputManager::RefInstance();
+
+	// ヘッドの生成数を取得
+	unsigned char wNumHead = static_cast<unsigned char>(m_vpPM.size());
+
+	// 人数分のコントローラーをチェック
+	for (unsigned char wIdx = 0; wIdx < wNumHead; ++wIdx)
+	{
+		// まだステージ決定していなかったら
+		if (!m_nStageDecide[wIdx])
+		{
+			if (CInputManager.GetTrackerGamePad(wIdx).a == DirectX::GamePad::ButtonStateTracker::PRESSED)
+			{
+				// ステージ決定フラグを立てる
+				m_nStageDecide[wIdx] = true;
+
+				// 効果音：スタート
+				CSoundManger::RefInstance().Play("CntDown", false, -0.5f, 2.0f);
+			}
+		   	else if (CInputManager.GetTrackerGamePad(wIdx).leftStickLeft == DirectX::GamePad::ButtonStateTracker::PRESSED)
+			{
+				m_nStageIdx[wIdx] > 0 ? --m_nStageIdx[wIdx] : m_nStageIdx[wIdx] = 2;
+
+				// 効果音：ジャンプ
+				CSoundManger::RefInstance().Play("Jump", false, -0.5f, 1.0f);
+			}
+			else if (CInputManager.GetTrackerGamePad(wIdx).leftStickRight == DirectX::GamePad::ButtonStateTracker::PRESSED)
+			{
+				m_nStageIdx[wIdx] < 2 ? ++m_nStageIdx[wIdx] : m_nStageIdx[wIdx] = 0;
+			
+				// 効果音：ジャンプ
+				CSoundManger::RefInstance().Play("Jump", false, -0.5f, 1.0f);
+			}
+
+			useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
+			ImGui::Text("aaaaa : %d", m_nStageIdx[wIdx]);
+			ImGui::Separator();
+			ImGui::End();
+		}
+	}
 }
