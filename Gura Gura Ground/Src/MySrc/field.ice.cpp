@@ -22,7 +22,7 @@ CFieldIce::CFieldIce(OBJ::TYPE Type, OBJ::LAYER Layer)
     SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Field"));
 
     // モデルオフセット
-    SetModelOffset({ 1.15f, 0.8f, -0.3f });
+    SetModelOffset({ -0.7f, -5.5f, -0.3f });
 }
 
 //============================================================================

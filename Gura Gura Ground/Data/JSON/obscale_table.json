@@ -135,13 +135,61 @@
         {
             "sub_params": [
                 {
-                    "collider_depth": 5.0,
-                    "collider_height": 5.0,
-                    "collider_width": 5.0,
-                    "manual_type": 8,
+                    "collider_depth": 2.0,
+                    "collider_height": 2.0,
+                    "collider_width": 2.0,
+                    "manual_type": 5,
+                    "spawnX": 10.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 10.0,
+                    "speedX": 5.0,
+                    "speedY": 0.0,
+                    "speedZ": 0.0
+                },
+                {
+                    "collider_depth": 2.0,
+                    "collider_height": 2.0,
+                    "collider_width": 2.0,
+                    "manual_type": 5,
                     "spawnX": -10.0,
                     "spawnY": 10.0,
                     "spawnZ": 10.0,
+                    "speedX": 5.0,
+                    "speedY": 0.0,
+                    "speedZ": 0.0
+                },
+                {
+                    "collider_depth": 2.0,
+                    "collider_height": 2.0,
+                    "collider_width": 2.0,
+                    "manual_type": 5,
+                    "spawnX": 0.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 0.0,
+                    "speedX": 5.0,
+                    "speedY": 0.0,
+                    "speedZ": 0.0
+                },
+                {
+                    "collider_depth": 2.0,
+                    "collider_height": 2.0,
+                    "collider_width": 2.0,
+                    "manual_type": 5,
+                    "spawnX": 10.0,
+                    "spawnY": 10.0,
+                    "spawnZ": -10.0,
+                    "speedX": 5.0,
+                    "speedY": 0.0,
+                    "speedZ": 0.0
+                },
+                {
+                    "collider_depth": 2.0,
+                    "collider_height": 2.0,
+                    "collider_width": 2.0,
+                    "manual_type": 5,
+                    "spawnX": -10.0,
+                    "spawnY": 10.0,
+                    "spawnZ": -10.0,
                     "speedX": 5.0,
                     "speedY": 0.0,
                     "speedZ": 0.0
