@@ -74,4 +74,6 @@ private:
 	float m_edgeProgress;			// Œ»İ‚Ì•Ó‚Ìis“x
 	float m_Width;					// ‰¡•
 	float m_Depth;					// c•
+
+
 };
