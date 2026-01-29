@@ -1,4 +1,4 @@
-//============================================================================
+﻿//============================================================================
 // 
 // セレクトシーン [scene.select.cpp]
 // Author : 福田歩希
@@ -60,6 +60,10 @@ CSceneSelect::CSceneSelect()
 	: m_nCommonCnt(0)
 	, m_vpBeamLight{}
 	, m_vBeamLightQue{}
+	, m_vpPM{}
+	, m_vpBody{}
+	, m_vpCutter{}
+	, m_vpGuillotion{}
 	, m_bDeathPenaly(false)
 	, m_bSelectStart(false)
 {
@@ -106,26 +110,30 @@ void CSceneSelect::Update()
 		WhileEvent_CennectCheck();
 
 		// 死刑執行
-		if (CInputManager::RefInstance().EnhancedEnter())
+		CInputManager& rInput = CInputManager::RefInstance();
+		if (rInput.GetTrackerGamePad(0).start == DirectX::GamePad::ButtonStateTracker::PRESSED)
 		{
 			m_bDeathPenaly = true;
 
 			// ヘッドを転がす
 			for (const auto& rIt : m_vpPM)
 			{
-				CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider());
-
-				// ダイナミック化
-				pRigidBody->SetDynamic();
+				if (CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider()))
+				{
+					// ダイナミック化
+					pRigidBody->SetDynamic();
+				}
 			}
 
 			// ボディを転がす
 			for (const auto& rIt : m_vpBody)
 			{
-				CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider());
+				if (CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider()))
+				{
 
-				// ダイナミック化
-				pRigidBody->SetDynamic();
+					// ダイナミック化
+					pRigidBody->SetDynamic();
+				}
 			}
 		}
 	}
@@ -135,21 +143,10 @@ void CSceneSelect::Update()
 		DownCutter();
 	}
 
-	/* 仮 */
-	if (m_bDeathPenaly && m_bSelectStart)
+	// 強制遷移
+	if (CInputManager::RefInstance().GetTrackerKeyboard().pressed.Enter)
 	{
-		if (m_vpPM[0])
-		{
-			CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(m_vpPM[0]->GetCollider());
-
-			if (pRigidBody)
-			{
-				if (!pRigidBody->GetActive())
-				{
-					Change();
-				}
-			}
-		}
+		Change();
 	}
 }
 
@@ -241,7 +238,7 @@ void CSceneSelect::WhileEvent_QueInstantiateLight()
 void CSceneSelect::WhileEvent_CennectCheck()
 {
 	// 現在のパッドの接続数と
-	unsigned char wNumPad = CInputManager::RefInstance().GetConnectedGamePadNum() + 3;
+	unsigned char wNumPad = CInputManager::RefInstance().GetConnectedGamePadNum();
 	unsigned char wSize   = static_cast<unsigned char>(m_vpPM.size());
 
 	if (wNumPad == 0)
@@ -469,21 +466,14 @@ void CSceneSelect::DownCutter()
 	// 全てのカッターを落とす
 	for (const auto& rIt : m_vpCutter)
 	{
-		CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider());
-
-		// 特定の高さまで下げる
-		OBJ::Transform CutterTransform = pRigidBody->GetWorldTransform();
-		useful::ExponentialDecay(CutterTransform.Pos.y, 1.675f, 0.2f);
-		pRigidBody->SetWorldTransform(CutterTransform);
-
-#ifdef _DEBUG
-		useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
-		ImGui::Text("Cutter Y : %.2f", CutterTransform.Pos.y);
-		ImGui::End();
-#endif // _DEBUG
+		if (CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(rIt->GetCollider()))
+		{
+			// 特定の高さまで下げる
+			OBJ::Transform CutterTransform = pRigidBody->GetWorldTransform();
+			useful::ExponentialDecay(CutterTransform.Pos.y, 1.675f, 0.2f);
+			pRigidBody->SetWorldTransform(CutterTransform);
+		}
 	}
-
-	m_bSelectStart = true;
 }
 
 //============================================================================
