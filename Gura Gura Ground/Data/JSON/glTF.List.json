@@ -9,6 +9,10 @@
       "Data\\MODEL\\GLB\\Wind\\aa.gltf"
     ],
     [
+      "IceField",
+      "Data\\MODEL\\GLB\\Ice\\icestage.glb"
+    ],
+    [
       "Dust",
       "Data\\MODEL\\GLB\\Wind\\jari.gltf"
     ],
@@ -63,6 +67,30 @@
     [
       "Player_4",
       "Data\\MODEL\\GLB\\Player\\Player_Green.glb"
+    ],
+    [
+      "Guillo_1",
+      "Data\\MODEL\\GLB\\Player\\Guillotine_Player_Red.glb"
+    ],
+    [
+      "Guillo_2",
+      "Data\\MODEL\\GLB\\Player\\Guillotine_Player_Blue.glb"
+    ],
+    [
+      "Guillo_3",
+      "Data\\MODEL\\GLB\\Player\\Guillotine_Player_Yellow.glb"
+    ],
+    [
+      "Guillo_4",
+      "Data\\MODEL\\GLB\\Player\\Guillotine_Player_Green.glb"
+    ],
+    [
+      "Guillo_Base",
+      "Data\\MODEL\\GLB\\Player\\Guillotine_base.glb"
+    ],
+    [
+      "Guillo_Blade",
+      "Data\\MODEL\\GLB\\Player\\Guillotine_blade.glb"
     ]
   ]
 }
