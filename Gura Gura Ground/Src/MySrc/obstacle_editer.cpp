@@ -692,6 +692,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 void ObstacleEditer::ResetPlayMode()
 {
 	m_PlayModeElapsedTime = 0.0f;
+	m_ObstacleTimerElapsedTime = 0.0f;
 
 	// スポーンフラグを初期化させる
 	for (int presetIndex = 0; presetIndex < s_SpawnTimePresetCount; ++presetIndex)
@@ -954,10 +955,17 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
 	{
 		jsRoot["spawn_time_presets"].push_back(s_SpawnTimePresets[i]);
 	}
+
 	jsRoot["spawn_player_thresholds"] = nlohmann::json::array();
 	for (int i = 0; i < s_SpawnTimePresetCount && i < (int)s_SpawnPlayerThresholds.size(); ++i)
 	{
 		jsRoot["spawn_player_thresholds"].push_back(s_SpawnPlayerThresholds[i]);
+	}
+
+	jsRoot["forced_param_set_indices"] = nlohmann::json::array();
+	for (int i = 0; i < s_SpawnTimePresetCount && i < (int)s_ForcedParamSetIndices.size(); ++i)
+	{
+		jsRoot["forced_param_set_indices"].push_back(s_ForcedParamSetIndices[i]);
 	}
 
 	jsRoot["spawn_enable_time"] = 3.0f;
@@ -1058,6 +1066,13 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
         for (int i = 0; i < arrSize && i < SPAWN_PRESET_MAX; ++i)
             s_SpawnTimePresets[i] = jsRoot["spawn_time_presets"][i].get<float>();
     }
+
+	if (jsRoot.contains("forced_param_set_indices") && jsRoot["forced_param_set_indices"].is_array()) {
+		int arrSize = jsRoot["forced_param_set_indices"].size();
+		for (int i = 0; i < arrSize && i < SPAWN_PRESET_MAX; ++i) {
+			s_ForcedParamSetIndices[i] = jsRoot["forced_param_set_indices"][i].get<int>();
+		}
+	}
 
 	//ランダム抽選
     AssignRandomSpawnTimes();

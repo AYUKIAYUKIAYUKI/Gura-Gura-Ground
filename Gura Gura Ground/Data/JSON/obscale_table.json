@@ -11,15 +11,34 @@
         "decay": 0.30000001192092896,
         "inertia": 1.0
     },
+    "forced_param_set_indices": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        5,
+        7,
+        8,
+        3,
+        9,
+        10
+    ],
     "param_sets": [
         {
             "sub_params": [
                 {
-                    "bomb_timer": 300,
-                    "collider_depth": 1.0,
-                    "collider_height": 1.0,
-                    "collider_width": 1.0,
-                    "manual_type": 3,
+                    "boomerang_add_by_speed": 0.0,
+                    "boomerang_base_power": 17.0,
+                    "boomerang_hit_cooldown": 10,
+                    "boomerang_max_final_power": 350.0,
+                    "boomerang_move_pattern": 0,
+                    "boomerang_omega": 2.25,
+                    "boomerang_radius": 10.0,
+                    "collider_depth": 3.0,
+                    "collider_height": 3.0,
+                    "collider_width": 3.0,
+                    "manual_type": 7,
                     "spawnX": 0.0,
                     "spawnY": 8.0,
                     "spawnZ": 15.0,
@@ -327,6 +346,144 @@
         {
             "sub_params": [
                 {
+                    "collider_depth": 1.0,
+                    "collider_height": 9.0,
+                    "collider_width": 1.0,
+                    "manual_type": 2,
+                    "spawnX": 1.0,
+                    "spawnY": 15.0,
+                    "spawnZ": -18.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": 3.75
+                },
+                {
+                    "collider_depth": 3.0,
+                    "collider_height": 12.0,
+                    "collider_width": 3.0,
+                    "manual_type": 2,
+                    "spawnX": -10.0,
+                    "spawnY": 15.0,
+                    "spawnZ": -18.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": 3.75
+                },
+                {
+                    "collider_depth": 3.0,
+                    "collider_height": 12.0,
+                    "collider_width": 3.0,
+                    "manual_type": 2,
+                    "spawnX": 10.0,
+                    "spawnY": 15.0,
+                    "spawnZ": -18.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": 3.75
+                }
+            ]
+        },
+        {
+            "sub_params": [
+                {
+                    "collider_depth": 1.0,
+                    "collider_height": 9.0,
+                    "collider_width": 1.0,
+                    "manual_type": 2,
+                    "spawnX": 1.0,
+                    "spawnY": 15.0,
+                    "spawnZ": -18.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": 3.75
+                },
+                {
+                    "bomb_timer": 450,
+                    "collider_depth": 4.0,
+                    "collider_height": 4.0,
+                    "collider_width": 4.0,
+                    "manual_type": 3,
+                    "spawnX": -9.0,
+                    "spawnY": 45.0,
+                    "spawnZ": -9.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                },
+                {
+                    "bomb_timer": 300,
+                    "collider_depth": 4.0,
+                    "collider_height": 4.0,
+                    "collider_width": 4.0,
+                    "manual_type": 3,
+                    "spawnX": 9.0,
+                    "spawnY": 57.0,
+                    "spawnZ": 9.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                }
+            ]
+        },
+        {
+            "sub_params": [
+                {
+                    "collider_depth": 1.5,
+                    "collider_height": 1.5,
+                    "collider_width": 1.5,
+                    "manual_type": 5,
+                    "spawnX": 0.0,
+                    "spawnY": 10.0,
+                    "spawnZ": -10.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                }
+            ]
+        },
+        {
+            "sub_params": [
+                {
+                    "collider_depth": 2.0,
+                    "collider_height": 2.0,
+                    "collider_width": 2.0,
+                    "manual_type": 5,
+                    "spawnX": -7.0,
+                    "spawnY": 10.0,
+                    "spawnZ": -10.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                },
+                {
+                    "collider_depth": 2.0,
+                    "collider_height": 2.0,
+                    "collider_width": 2.0,
+                    "manual_type": 5,
+                    "spawnX": 8.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 10.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                },
+                {
+                    "collider_depth": 3.0,
+                    "collider_height": 3.0,
+                    "collider_width": 3.0,
+                    "manual_type": 6,
+                    "spawnX": 0.0,
+                    "spawnY": 10.0,
+                    "spawnZ": 0.0,
+                    "speedX": 0.0,
+                    "speedY": 0.0,
+                    "speedZ": -5.0
+                }
+            ]
+        },
+        {
+            "sub_params": [
+                {
                     "collider_depth": 3.0,
                     "collider_height": 3.0,
                     "collider_width": 3.0,
@@ -341,20 +498,32 @@
             ]
         }
     ],
-    "preset_count": 5,
+    "preset_count": 11,
     "spawn_enable_time": 3.0,
     "spawn_player_thresholds": [
         4,
         4,
         4,
         4,
-        4
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        3
     ],
     "spawn_time_presets": [
-        2.0,
-        4.0,
-        6.0,
-        8.0,
-        10.0
+        10.0,
+        23.0,
+        37.0,
+        53.0,
+        69.0,
+        84.0,
+        96.0,
+        98.0,
+        37.0,
+        42.0,
+        55.0
     ]
 }

@@ -104,6 +104,12 @@ private:
 	enum class HOWTOPLAY_PHASE { NONE, FADEIN, WAIT, FADEOUT, END };
 	HOWTOPLAY_PHASE m_howToPlayPhase = HOWTOPLAY_PHASE::NONE;
 
+	// Finishテクスチャ表示用
+	bool m_bFinishSequence = false;
+	float m_fHudFinishTimer = 0.0f;
+	bool m_bFinishAnimStarted = false;
+	float m_fFinishWaitTimer = 0.0f;
+
 	// 障害物エディター
 	ObstacleEditer m_ObstacleEditer;
 };

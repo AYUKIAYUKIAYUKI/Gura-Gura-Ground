@@ -215,10 +215,71 @@ void CSceneGame::Update()
 
 		// ゲームセットしたらシーン遷移
 		/* ゲームセットチェック */
-		if (CheckGameSet())
+		if (!m_bFinish && CheckGameSet()) 
 		{
-			/* 即シーン変更 */
-			Change();
+			// ゲームセット
+			m_bFinish = true;
+			m_bFinishSequence = true;
+			m_fHudFinishTimer = 0.0f;
+			if (m_pHudFinish) 
+			{
+				// 中心に大きく表示
+				OBJ::Transform tf;
+				tf.Size = { 0.0f, 0.0f, 0.0f };
+				tf.Pos = { 960.0f, 480.0f, 0.0f };
+				m_pHudFinish->SetTransform(tf);
+				m_pHudFinish->SetTransformTarget(tf);
+				DirectX::XMFLOAT4 col = { 1, 1, 1, 1 };
+				m_pHudFinish->SetCol(col);
+				m_pHudFinish->SetColTarget({ 1, 1, 1, 1 });
+			}
+		}
+
+		// フィニッシュ演出本体
+		if (m_bFinishSequence && m_pHudFinish)
+		{
+			float delta = deltaTime;
+
+			if (!m_bFinishAnimStarted)
+			{
+				// 1.5秒待つ
+				m_fFinishWaitTimer += delta;
+				if (m_fFinishWaitTimer >= 1.5f)
+				{
+					// アニメーション開始
+					CSoundManger::RefInstance().Stop("BGM_STAGE_NORMAL");
+					CSoundManger::RefInstance().Play("Finish", false, 0.0f, 1.0f);
+					m_bFinishAnimStarted = true;
+					m_fHudFinishTimer = 0.0f;
+				}
+			}
+			else 
+			{
+				// ここからアニメーション
+				m_fHudFinishTimer += delta;
+
+				// 揺らしますよ
+				OBJ::Transform tf = m_pHudFinish->GetTransform();
+				tf.Pos.x += useful::GetRandomValue<float>() * 0.01f;
+				tf.Pos.y += useful::GetRandomValue<float>() * 0.01f;
+				m_pHudFinish->SetTransform(tf);
+
+				// 最終的なサイズ
+				OBJ::Transform tgt = tf;
+				tgt.Size.x = 1800.0f;
+				tgt.Size.y = 400.0f;
+				m_pHudFinish->SetTransformTarget(tgt);
+
+				// アニメーション表示後にChange
+				if (m_fHudFinishTimer > 2.5f) 
+				{
+					m_bFinishSequence = false;
+					m_pHudFinish->SetDeath();
+					m_pHudFinish = nullptr;
+					Change();
+					return;
+				}
+			}
 		}
 	}
 
@@ -319,7 +380,7 @@ void CSceneGame::SpawnHUD()
 				return true;
 			},
 			OBJ::TYPE::NONE,
-				OBJ::LAYER::DEFAULT);
+				OBJ::LAYER::UI);
 	}
 
 	//HowToplayテクスチャを生成する
