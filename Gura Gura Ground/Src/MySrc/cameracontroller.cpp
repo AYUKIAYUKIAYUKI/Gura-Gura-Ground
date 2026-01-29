@@ -18,6 +18,7 @@
 
 /* 追加 */
 #include "enemy1.h"
+#include "windfield.h"
 
 //============================================================================
 // デフォルトコンストラクタ
@@ -367,10 +368,21 @@ bool CCameraController::InRange(DirectX::XMFLOAT3 pos)
 	auto ListShare = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::FIELD);
 
 	CField* Field = dynamic_cast<CField*>(ListShare.front().get());
+	CWindField* WindField = dynamic_cast<CWindField*>(ListShare.front().get());
 	
 	const float fSpanField = 15.0f;					// 地面の大きさ
 	const float Range = 0.0f;						// 範囲
-	const auto fieldPos = Field->GetTransform().Pos;// 地面の位置
+
+	DirectX::XMFLOAT3 fieldPos;
+
+	if (Field)
+	{
+		fieldPos = Field->GetTransform().Pos;// 地面の位置
+	}
+	else if (WindField)
+	{
+		fieldPos = WindField->GetTransform().Pos;// 風地面の位置
+	}
 
 	if (pos.x >= fieldPos.x + fSpanField + Range||
 		pos.x <= fieldPos.x - fSpanField - Range||

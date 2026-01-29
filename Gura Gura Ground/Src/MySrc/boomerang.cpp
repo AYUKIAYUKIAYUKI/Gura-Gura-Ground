@@ -114,8 +114,8 @@ CBoomerang::CBoomerang(OBJ::TYPE Type, OBJ::LAYER Layer)
     // モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Boomerang"));
 
-    // ピクセルシェーダーのバインド
-    SetPixelShader(CPixelShaderManager::RefInstance().RefRegistry().BindAtKey("Ray.Marching"));
+    /* ！！！ 回転同期の解除 ！！！ */
+    DisableSyncRotation();
 }
 
 //============================================================================
@@ -167,6 +167,12 @@ void CBoomerang::FactoryCollider(float fWidth, float fHeight, float fDepth)
 //============================================================================
 void CBoomerang::Update()
 {
+    /* ！！！ モデルの自転処理 ！！！ */
+	DirectX::XMFLOAT3 Rotation = GetRotation();
+    Rotation.x = XM_PI * 0.5f;
+	Rotation.y += 0.2f;
+	SetRotation(Rotation);
+
     const float dt = 1.0f / 60.0f;
     m_Time += dt;
 
@@ -301,8 +307,8 @@ void CBoomerang::Loop()
 {
     if (!m_pRB) return;
 
-    // 1回の弧で必要な時間 = ArcAngle / Omega
-    const float fullTime = BoomerangParams::ArcAngle / BoomerangParams::Omega;
+    // 1回の弧で必要な時間 = ArcAngle / m_Omega
+    const float fullTime = BoomerangParams::ArcAngle / m_Omega;
 
     OBJ::Transform TF{};
     m_pRB->GetWorldTransform(TF);
@@ -310,13 +316,9 @@ void CBoomerang::Loop()
     if (m_Time >= fullTime)
     {
         m_Time = 0.0f;
-
-        // 効果音：ブーメラン
-        //CSoundManger::RefInstance().Stop("Boomerang");
-
         SetDeath();
-
-        //CDust::GenerateSpread(TF.Pos, 10);
+        // 効果音：ブーメラン
+        CSoundManger::RefInstance().Stop("Boomerang");
     }
 
     Print_Pos(TF);

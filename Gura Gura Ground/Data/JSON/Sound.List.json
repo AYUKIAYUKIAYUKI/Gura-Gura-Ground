@@ -2,51 +2,95 @@
   "Element": [
     [
       "BGM",
-      "Data\\Audio\\catswing.wav"
+      "Data\\Audio\\BGM\\catswing.wav"
+    ],
+    [
+      "BGM_TITLE",
+      "Data\\Audio\\BGM\\Title.wav"
+    ],
+    [
+      "BGM_STAGE_NORMAL",
+      "Data\\Audio\\BGM\\Stage_Normal.wav"
+    ],
+    [
+      "BGM_STAGE_ICE",
+      "Data\\Audio\\BGM\\Stage_Ice.wav"
+    ],
+    [
+      "BGM_STAGE_WIND",
+      "Data\\Audio\\BGM\\Stage_Wind.wav"
+    ],
+    [
+      "BGM_RESULT",
+      "Data\\Audio\\BGM\\Result.wav"
+    ],
+    [
+      "Drumroll",
+      "Data\\Audio\\SE\\drumroll.wav"
+    ],
+    [
+      "Drumroll_Finish",
+      "Data\\Audio\\SE\\drumroll_finish.wav"
     ],
     [
       "Buzzer",
-      "Data\\Audio\\buzzer.wav"
+      "Data\\Audio\\SE\\buzzer.wav"
     ],
     [
       "Jump",
-      "Data\\Audio\\jump.wav"
+      "Data\\Audio\\SE\\jump.wav"
+    ],
+    [
+      "Drop",
+      "Data\\Audio\\SE\\drop.wav"
     ],
     [
       "Light",
-      "Data\\Audio\\light.wav"
+      "Data\\Audio\\SE\\light.wav"
     ],
     [
       "Noise",
-      "Data\\Audio\\noise.wav"
+      "Data\\Audio\\SE\\noise.wav"
     ],
     [
       "Ball",
-      "Data\\Audio\\bouncingball.wav"
+      "Data\\Audio\\SE\\bouncingball.wav"
     ],
     [
       "FallTetra",
-      "Data\\Audio\\falling.wav"
+      "Data\\Audio\\SE\\falling.wav"
     ],
     [
       "Tornado",
-      "Data\\Audio\\wind.wav"
+      "Data\\Audio\\SE\\wind.wav"
     ],
     [
       "Pendulum",
-      "Data\\Audio\\swing.wav"
+      "Data\\Audio\\SE\\swing.wav"
     ],
     [
       "Bomb",
-      "Data\\Audio\\bomb.wav"
+      "Data\\Audio\\SE\\bomb.wav"
     ],
     [
       "Boomerang",
-      "Data\\Audio\\boomerang.wav"
+      "Data\\Audio\\SE\\boomerang.wav"
+    ],
+    [
+      "CntDown",
+      "Data\\Audio\\SE\\CntDown.wav"
+    ],
+    [
+      "CntStart",
+      "Data\\Audio\\SE\\CntStart.wav"
+    ],
+    [
+      "Falling",
+      "Data\\Audio\\SE\\fall.wav"
     ],
     [
       "BirdStrike",
-      "Data\\Audio\\flapping.wav"
+      "Data\\Audio\\SE\\flapping.wav"
     ]
   ]
 }

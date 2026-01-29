@@ -17,6 +17,7 @@
 // 前方宣言
 //****************************************************
 class CField;
+class CWindField;
 class Debuff_Behavior;
 
 
@@ -105,6 +106,7 @@ private:
 	//****************************************************
 	std::unique_ptr<StateMachine> m_upStateMachine;       // 状態管理
 	std::weak_ptr<CField>         m_wpField;              // 地面
+	std::weak_ptr<CWindField>     m_wpWindoField;         // 風地面
 	unsigned char                 m_wIdxPlayer;           // プレイヤーのインデックス
 	int                           m_nLostControlDuration; // 操作不能期間
 	int                           m_nStepCounter;         // 進行カウンター

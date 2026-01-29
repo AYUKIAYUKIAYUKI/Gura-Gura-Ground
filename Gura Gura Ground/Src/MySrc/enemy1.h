@@ -49,8 +49,8 @@ private: //構造体
 	{
 		float             distance;   //距離
 		float             angle;      //向き
-	    useful::Vec3      pos;        //位置
-	    btVector3         vel;        //加速
+		useful::Vec3      pos;        //位置
+		btVector3         vel;        //加速
 	};
 
 	//AIの応用パラメータ
@@ -103,6 +103,12 @@ public: //自身に関する関数群
 	 * @param [in] 自身のポインター
 	 */
 	void searchEnemy(std::shared_ptr<CEnemyPlayer> pSelf);
+	//生存時間削除
+	static void ClearAllCPUSurvivalTimes() { std::fill(s_vSurvivalTimes.begin(), s_vSurvivalTimes.end(), 0.0f); }
+
+	static std::vector<float> s_vSurvivalTimes;
+	void   SetIdxCPU(unsigned char idx) { m_wIdxCPU = idx; }
+	unsigned char GetIdxCPU() const { return m_wIdxCPU; }
 
 private: //プレイヤーに関する関数群
 	/**
@@ -129,6 +135,8 @@ private: //プレイヤーに関する関数群
 	float CheckDistance(const DirectX::XMFLOAT3& c1, const DirectX::XMFLOAT3& c2);
 
 private: //バーに関する関数群
+
+	unsigned char m_wIdxCPU = 0;
 
 	/**
 	 * @brief バーの探す処理
@@ -171,7 +179,7 @@ private: //共通する関数群
 	 * @brief 比較処理(当たった時の判定や初動動かない処理)
 	 * @param [in] 対象の位置,自身の位置,角度
 	 */
-	void Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX::XMFLOAT3& SelfPos,float angle);
+	void Comparison(const DirectX::XMFLOAT3& targetPos, const DirectX::XMFLOAT3& SelfPos, float angle);
 
 private: //その他
 
@@ -232,7 +240,7 @@ private: //その他
 					atan2f(pos.x - selfPos.x, pos.z - selfPos.z),
 					pos,
 					vel
-				});
+					});
 			}
 		}
 	}
@@ -266,10 +274,10 @@ private:
 	bool m_bGoDown;                                   //下降判定
 	btVector3 m_btOldVel;                             //過去の加速値
 
-    std::vector<std::weak_ptr<CPlayer>>m_pwPlayer;    //プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
-    std::vector<std::weak_ptr<CEnemyPlayer>>m_pwSelf; //敵プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
+	std::vector<std::weak_ptr<CPlayer>>m_pwPlayer;    //プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
+	std::vector<std::weak_ptr<CEnemyPlayer>>m_pwSelf; //敵プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
 	CBar* m_pBar;                                     //バーの情報を取得する用
-									                
+
 	AIParams      m_params;                           //AIの基本パラメータ
 	int m_nStart;                                     //ゲーム開始の移動までのカウントを進める用
 	bool m_bStart;                                    //ゲーム開始時移動していいかどうか判断用

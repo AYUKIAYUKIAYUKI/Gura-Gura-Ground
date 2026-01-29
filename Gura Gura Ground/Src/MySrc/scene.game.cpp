@@ -25,20 +25,25 @@
 #include "player.h"
 #include "symbol.h"
 #include <enemy1.h>
-#include "field.ice.h"
 
 // イベント処理のため
 #include "cameracontroller.h"
+#include "API.sound.manager.h"
 
 /* 仮 */
 #include "API.texture.manager.h"
 #include <windfield.h>
 #include "effect.manager.h"
 
+std::vector<float> times;
+
+int CSceneGame::s_nHumanPlayerNum = {};
+int CSceneGame::s_nCPUNum = {};
+
 //****************************************************
 // プリプロセッサディレクティブ
 //****************************************************
-#define ENDLESS_BATTLE 1
+#define ENDLESS_BATTLE 0
 
 //****************************************************
 // 仮：最終的に必要と判断した変数はメンバに付属してください
@@ -117,6 +122,15 @@ CSceneGame::CSceneGame()
 	m_ObstacleEditer.LoadParams("Data\\JSON\\obscale_table.json"); //障害物パラメーターを読み込む
 	g_LastUpdateTime = std::chrono::steady_clock::now(); //現在の時間に合わせる
 	g_GameTime = 0.0f;
+
+	s_nHumanPlayerNum = CInputManager::RefInstance().GetConnectedGamePadNum();
+	s_nCPUNum = MAX_PLYAER - s_nHumanPlayerNum;
+
+	CPlayer::s_vSurvivalTimes.resize(s_nHumanPlayerNum);
+	std::fill(CPlayer::s_vSurvivalTimes.begin(), CPlayer::s_vSurvivalTimes.end(), 0.0f);
+
+	CEnemyPlayer::s_vSurvivalTimes.resize(s_nCPUNum);
+	std::fill(CEnemyPlayer::s_vSurvivalTimes.begin(), CEnemyPlayer::s_vSurvivalTimes.end(), 0.0f);
 }
 
 //============================================================================
@@ -142,10 +156,18 @@ void CSceneGame::Update()
 
 	// スポーン時間プリセットメニュー表示
 	m_ObstacleEditer.SpawnTimePresetEditor();
+
 #endif
 
 	if (m_bStart)
 	{
+		if (!m_bBGMStart)
+		{
+			CSoundManger::RefInstance().Play("BGM_STAGE_NORMAL", false, 0.0f, 1.5f);
+
+			m_bBGMStart = true;
+		}
+
 		//プレイモード中の自動スポーン処理
 		m_ObstacleEditer.PlayModeSpawn(deltaTime);
 	}
@@ -173,6 +195,13 @@ void CSceneGame::Update()
 			Change();
 		}
 	}
+
+#ifndef NDEBUG
+	if (CInputManager::RefInstance().GetTrackerKeyboard().pressed.R)
+	{
+		Change();
+	}
+#endif
 }
 
 //============================================================================
@@ -193,14 +222,18 @@ void CSceneGame::Change()
 	// 全オブジェクトに死亡フラグを立てる
 	CObjectManager::RefInstance().SetDeathAll();
 
+	//ステージBGMを止める
+	CSoundManger::RefInstance().Stop("BGM_STAGE_NORMAL");
+
 	// エフェクトを全て停止
 	CEffectManager::RefInstance().StopAll();
 
-	//生存時間
-	std::vector<float> times = CPlayer::s_vSurvivalTimes;
-	auto resultScene = std::make_unique<CSceneResult>(times);
+	std::vector<float> times;
+	for (int i = 0; i < CSceneGame::s_nHumanPlayerNum; ++i) times.push_back(CPlayer::s_vSurvivalTimes[i]);
+	for (int i = 0; i < CSceneGame::s_nCPUNum; ++i) times.push_back(CEnemyPlayer::s_vSurvivalTimes[i]);
+	auto resultScene = std::make_unique<CSceneResult>(times, CSceneGame::s_nHumanPlayerNum, CSceneGame::s_nCPUNum);
 
-	//遷移時に生存時間も渡す
+	//生存時間を渡しつつ、画面遷移
 	CSceneManager::RefInstance().ChangeScene(std::move(resultScene));
 #endif
 }
@@ -278,10 +311,26 @@ void CSceneGame::SetHudCount()
 	m_nStartCount = static_cast<int>(g_GameTime);
 #endif
 
+	// カウントが進んだ時だけ判定
+	if (m_prevPlayCount != m_nStartCount) 
+	{
+		if (m_nStartCount <= 2 && m_nStartCount > -1) 
+		{
+			CSoundManger::RefInstance().Play("CntDown", false, 0.0f, 1.0f);
+		}
+		else if (m_nStartCount == 3) 
+		{
+			CSoundManger::RefInstance().Play("CntStart", false, 0.0f, 1.0f);
+		}
+		m_prevPlayCount = m_nStartCount;
+	}
+
+
 	// 現在のカウント数と設定済みのインデックスで自動表示
 	for (const auto& rIt : m_apHudCount)
 	{
 		rIt->SetNowCount(static_cast<unsigned char>(m_nStartCount));
+
 	}
 
 	// カウントの最大値を超えたら開始フラグを立てる
@@ -342,6 +391,8 @@ void CSceneGame::SpawnPlayer()
 	// コントローラーの接続数を取得
 	unsigned char wConnectedPadNum = CInputManager::RefInstance().GetConnectedGamePadNum();
 
+	int cpuIdx = 0;
+
 #if ENDLESS_BATTLE
 	unsigned char wTotalPlayerNum = MAX_PLYAER;
 	if (!g_bUseCPU)
@@ -381,32 +432,26 @@ void CSceneGame::SpawnPlayer()
 		}
 		else
 		{
-			// CPUスポーン
+			// キャプチャリストでcpuIdxをキャプチャ（値/参照どちらでもOK。ここではコピー）
 			std::shared_ptr<CEnemyPlayer> spCPU = CObjectManager::CreateShare<CEnemyPlayer>(
-				[&PlayersInitTransform, fColliderSpan](CEnemyPlayer* p) -> bool
+				[cpuIdx, &PlayersInitTransform, fColliderSpan](CEnemyPlayer* p) -> bool
 				{
-					// トランスフォームの設定
+					p->SetIdxCPU(cpuIdx);
 					p->SetTransform(PlayersInitTransform);
-
-					// コライダーの生成
 					p->FactoryCollider(fColliderSpan, fColliderSpan, fColliderSpan);
-
 					return true;
 				},
 				OBJ::TYPE::CPU);
 
-			// ゲームシーン用のCPUの弱参照を保有
 			m_vpwCPUs.push_back(spCPU);
 
-			// CPU用のシンボルはインデックス不要のためここで作成
 			m_vpSymbol.push_back(CObjectManager::CreateRaw<CSymbol>(
 				[](CSymbol* pSymbol) -> bool
 				{
-					// シンボルのインデックス設定
 					pSymbol->SetSymbolIdx(MAX_PLYAER);
-
 					return true;
 				}));
+			cpuIdx++;
 		}
 	}
 
@@ -457,7 +502,8 @@ void CSceneGame::SpawnSymbol()
 void CSceneGame::SetSymbol()
 {
 	// プレイヤーの弱参照配列を走査
-	for (unsigned char wIdx = 0; wIdx < MAX_PLYAER; ++wIdx)
+	unsigned char validPlayers = (unsigned char)s_nHumanPlayerNum; //もしくはm_apSymbol.size()でも
+	for (unsigned char wIdx = 0; wIdx < validPlayers; ++wIdx)
 	{
 		// プレイヤーが存在していたら
 		if (std::shared_ptr<CPlayer> spPlayer = m_apwPlayers[wIdx].lock())
