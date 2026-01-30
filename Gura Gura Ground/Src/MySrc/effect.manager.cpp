@@ -241,7 +241,6 @@ void CEffectManager::Finalize()
 //==========================================================================================
 void CEffectManager::Update()
 {
-    EditUI();
     m_manager->Update();    //エフェクシアのマネージャーを更新.
     //一括で更新
     for (const auto& i : m_effectsList) {
