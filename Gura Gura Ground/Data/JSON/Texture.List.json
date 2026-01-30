@@ -295,6 +295,14 @@
     [
       "Arch",
       "Data\\TEXTURE\\arch.png"
+    ],
+    [
+      "CA",
+      "Data\\TEXTURE\\CA.png"
+    ],
+    [
+      "CB",
+      "Data\\TEXTURE\\CB.png"
     ]
   ]
 }

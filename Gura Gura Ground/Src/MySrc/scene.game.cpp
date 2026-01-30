@@ -33,6 +33,8 @@
 /* 仮 */
 #include "API.texture.manager.h"
 #include <windfield.h>
+#include "field.ice.h"
+
 
 std::vector<float> times;
 
@@ -104,12 +106,13 @@ namespace
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
-CSceneGame::CSceneGame()
+CSceneGame::CSceneGame(int nRS)
 	: m_pHudFinish(nullptr)
 	, m_bStart(false)
 	, m_nStartCount(0)
 	, m_bFinish(false)
 	, m_ObstacleEditer{}
+	, m_nRS(nRS)
 {
 	// カメラの初期設定
 	CCamera* pCamera = CRenderer::RefInstance().GetCamera();
@@ -516,29 +519,59 @@ void CSceneGame::UpdateHowToPlay(float deltaTime)
 //============================================================================
 void CSceneGame::SpawnField()
 {
-	// フィールドの水平方向の大きさ
-	const float fSpanField = 15.0f;
-	const float fSpanAdjust = 0.95f;
+	if (m_nRS == 0)
+	{
+		// フィールドの水平方向の大きさ
+		const float fSpanField = 15.0f;
+		const float fSpanAdjust = 0.95f;
 
-	// 地面を生成
-	CObjectManager::CreateShare<CField>(
-		[&fSpanField, &fSpanAdjust](CField* p) -> bool
-		{
-			// トランスフォームの設定
-			p->SetTransform(
-				{
-					{ fSpanField * fSpanAdjust, fSpanField, fSpanField * fSpanAdjust },
-					{ 0.0f, 0.0f, 0.0f, 1.0f },
-					{ 0.0f, 5.0f, 0.0f }
-				});
+		// 地面を生成
+		CObjectManager::CreateShare<CField>(
+			[&fSpanField, &fSpanAdjust](CField* p) -> bool
+			{
+				// トランスフォームの設定
+				p->SetTransform(
+					{
+						{ fSpanField * fSpanAdjust, fSpanField, fSpanField * fSpanAdjust },
+						{ 0.0f, 0.0f, 0.0f, 1.0f },
+						{ 0.0f, 5.0f, 0.0f }
+					});
 
-			// コライダーの生成
-			p->FactoryCollider(fSpanField, 1.0f, fSpanField);
+				// コライダーの生成
+				p->FactoryCollider(fSpanField, 1.0f, fSpanField);
 
-			return true;
-		},
-		OBJ::TYPE::FIELD,
+				return true;
+			},
+			OBJ::TYPE::FIELD,
 			OBJ::LAYER::BG);
+
+	}
+	else if (m_nRS == 1)
+	{
+		// フィールドの水平方向の大きさ
+		const float fSpanField = 15.0f;
+		const float fSpanAdjust = 0.95f;
+
+		// 地面を生成
+		CObjectManager::CreateShare<CFieldIce>(
+			[&fSpanField, &fSpanAdjust](CFieldIce* p) -> bool
+			{
+				// トランスフォームの設定
+				p->SetTransform(
+					{
+						{ fSpanField * fSpanAdjust, fSpanField, fSpanField * fSpanAdjust },
+						{ 0.0f, 0.0f, 0.0f, 1.0f },
+						{ 0.0f, 5.0f, 0.0f }
+					});
+
+				// コライダーの生成
+				p->FactoryCollider(fSpanField, 1.0f, fSpanField);
+
+				return true;
+			},
+			OBJ::TYPE::FIELD,
+			OBJ::LAYER::BG);
+	}
 }
 
 //============================================================================
