@@ -66,7 +66,7 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	pGhost->SetWorldTransform(TF);
 
 	// Œø‰Ê‰¹F•—‚Ì‰¹
-	CSoundManger::RefInstance().Play("Tornado", false, -0.5f, 0.2f);
+	CSoundManger::RefInstance().Play("Tornado", false, -0.5f, 0.4f);
 }
 
 //============================================================================

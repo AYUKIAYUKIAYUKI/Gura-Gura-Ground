@@ -85,6 +85,10 @@
       "Data\\Audio\\SE\\CntStart.wav"
     ],
     [
+      "Finish",
+      "Data\\Audio\\SE\\finish.wav"
+    ],
+    [
       "Falling",
       "Data\\Audio\\SE\\fall.wav"
     ],

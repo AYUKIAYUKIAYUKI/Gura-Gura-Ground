@@ -96,9 +96,6 @@
     <ClCompile Include="Src\MySrc\scene.game.cpp">
       <Filter>%28分類済み%29\【シーン系統】</Filter>
     </ClCompile>
-    <ClCompile Include="Src\MySrc\scene.select.cpp">
-      <Filter>%28分類済み%29\【シーン系統】</Filter>
-    </ClCompile>
     <ClCompile Include="Src\MySrc\player.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
@@ -171,11 +168,28 @@
     <ClCompile Include="Src\MySrc\Oil.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClCompile>
- <ClCompile Include="Src\MySrc\field.ice.cpp">
+    <ClCompile Include="Src\MySrc\field.ice.cpp">
       <Filter>ソース ファイル</Filter>
-    </ClCompile><ClCompile Include="Src\MySrc\windfield.cpp">
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\windfield.cpp">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
-    </ClCompile>  </ItemGroup>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\arch.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\player.fake.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\route.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\warning.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MySrc\scene.select.cpp">
+      <Filter>%28分類済み%29\【シーン系統】</Filter>
+    </ClCompile>
+  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\MySrc\main.h">
       <Filter>ヘッダー ファイル</Filter>
@@ -369,9 +383,6 @@
     <ClInclude Include="Src\MySrc\BirdStrike.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
-    <ClInclude Include="Src\MySrc\scene.result.h">
-      <Filter>%28分類済み%29\【シーン系統】</Filter>
-    </ClInclude>
     <ClInclude Include="Src\MySrc\Barrel.h">
       <Filter>%28分類済み%29\【エンティティ系統】</Filter>
     </ClInclude>
@@ -387,7 +398,29 @@
     </ClInclude>
     <ClInclude Include="Src\MySrc\field.ice.h">
       <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>  </ItemGroup>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\arch.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\debuff_behavior.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\obstacle_editer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\player.fake.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\route.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\warning.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\MySrc\scene.result.h">
+      <Filter>%28分類済み%29\【シーン系統】</Filter>
+    </ClInclude>
+  </ItemGroup>
   <ItemGroup>
     <None Include="Src\MyAPI\API.constantbuffer.manager.tpp">
       <Filter>%28公開API%29\【マネージャー系統】</Filter>

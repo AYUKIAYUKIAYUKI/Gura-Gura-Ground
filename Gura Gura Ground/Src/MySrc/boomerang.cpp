@@ -143,7 +143,7 @@ void CBoomerang::FactoryCollider(float fWidth, float fHeight, float fDepth)
     rb->setGravity(btVector3(0, 0, 0));
 
     // 効果音：ブーメラン
-    CSoundManger::RefInstance().Play("Boomerang", false, -0.5f, 0.2f);
+    CSoundManger::RefInstance().Play("Boomerang", false, -0.5f, 0.3f);
 
     Appear();
 

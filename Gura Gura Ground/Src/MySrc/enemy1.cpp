@@ -649,6 +649,9 @@ bool CEnemyPlayer::DownHit(bool& bJump, int& RecastTme, const int MaxRecast)
 	else if (RecastTme <= 1)
 	{
 		CreateShockWave(Collision::SHAPETYPE::CYLINDER, { ShockWaveSize, 1.0f, ShockWaveSize }, 10);
+
+		//ドロップサウンド再生
+		CSoundManger::RefInstance().Play("Drop", false, 0.0f, 1.0f);
 	}
 
 	return false;
@@ -677,10 +680,21 @@ void CEnemyPlayer::CheckInfo()
 	// フィールドの高さを取得
 	if (std::shared_ptr<CField> spField = m_wpField.lock())
 	{
-		//ドロップサウンド再生
-		CSoundManger::RefInstance().Play("Falling", false, 0.0f, 1.0f);
+		fFieldPosY = spField->GetTransform().Pos.y;
+	}
 
-		// 自身の死亡フラグを立てる
+	// 風フィールドの高さを取得
+	else if (std::shared_ptr<CWindField> spField1 = m_wpWindoField.lock())
+	{
+		fFieldPosY = spField1->GetTransform().Pos.y;
+	}
+
+	// Y座標がフィールドの高さを下回ったら
+	if (fSelfPosY < fFieldPosY)
+	{
+		//ドロップサウンド再生
+		CSoundManger::RefInstance().Play("Falling", false, 0.0f, 1.2f);
+
 		SetDeath();
 	}
 }

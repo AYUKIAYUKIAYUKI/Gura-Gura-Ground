@@ -497,8 +497,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 
 
 		for (int i = 0; i < s_SpawnTimePresetCount; ++i)
-		{
-			int paramSetIdx = s_AssignedSpawnParamIndices[i].first;
+		{			int paramSetIdx = s_AssignedSpawnParamIndices[i].first;
 			float assignedSpawnTime = s_AssignedSpawnTimes[i];
 
 			int playerTh = 4;

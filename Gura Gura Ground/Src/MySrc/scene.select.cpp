@@ -108,7 +108,7 @@ CSceneSelect::CSceneSelect()
 	CCamera* pCamera = CRenderer::RefInstance().GetCamera();
 	pCamera->SetPosTarget({ 0.0f, 2.5f, 0.0f });
 	pCamera->SetRotTarget({ 0.0f, 0.0f, 0.0f });
-	pCamera->SetDistanceTarget(7.5f);
+
 
 	// HUDの生成 - CA
 	m_pHud_CA = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);

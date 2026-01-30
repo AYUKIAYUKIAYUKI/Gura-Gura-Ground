@@ -159,7 +159,7 @@ void CBomb::Action()
 	if (m_nTimer <= 0)
 	{
 		// Œø‰Ê‰¹F”š’e
-		CSoundManger::RefInstance().Play("Bomb", false, -0.5f, 0.2f);
+		CSoundManger::RefInstance().Play("Bomb", false, -0.5f, 0.6f);
 
 		SetDeath();
 

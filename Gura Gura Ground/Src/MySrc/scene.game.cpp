@@ -141,6 +141,8 @@ CSceneGame::CSceneGame(int nRS)
 
 	CEnemyPlayer::s_vSurvivalTimes.resize(s_nCPUNum);
 	std::fill(CEnemyPlayer::s_vSurvivalTimes.begin(), CEnemyPlayer::s_vSurvivalTimes.end(), 0.0f);
+
+	m_bANIMStart = false;
 }
 
 //============================================================================
@@ -169,7 +171,7 @@ void CSceneGame::Update()
 	{
 		if (!m_bBGMStart)
 		{
-			CSoundManger::RefInstance().Play("BGM_STAGE_NORMAL", false, 0.0f, 1.5f);
+			CSoundManger::RefInstance().Play("BGM_STAGE_NORMAL", false, 0.0f, 1.0f);
 
 			m_bBGMStart = true;
 		}
@@ -185,6 +187,23 @@ void CSceneGame::Update()
 	// HUD：カウントセット
 	SetHudCount();
 
+	//HowToPlayテクスチャ関係
+	if (m_bStart && !m_bANIMStart)
+	{
+		m_howToPlayPhase = HOWTOPLAY_PHASE::FADEIN;
+		m_fHowToPlayAlpha = 0.0f;
+		m_HowToPlayTimer = 0.0f;
+		m_bShowHowToPlay = true;
+		m_bHowToPlayFinished = false;
+		m_bANIMStart = true;
+	}
+	if (!m_bStart)
+	{
+		m_bANIMStart = false;
+	}
+
+	UpdateHowToPlay(deltaTime);
+
 	if (m_bStart)
 	{
 		// カメラコントローラーの更新
@@ -195,10 +214,71 @@ void CSceneGame::Update()
 
 		// ゲームセットしたらシーン遷移
 		/* ゲームセットチェック */
-		if (CheckGameSet())
+		if (!m_bFinish && CheckGameSet()) 
 		{
-			/* 即シーン変更 */
-			Change();
+			// ゲームセット
+			m_bFinish = true;
+			m_bFinishSequence = true;
+			m_fHudFinishTimer = 0.0f;
+			if (m_pHudFinish) 
+			{
+				// 中心に大きく表示
+				OBJ::Transform tf;
+				tf.Size = { 0.0f, 0.0f, 0.0f };
+				tf.Pos = { 960.0f, 480.0f, 0.0f };
+				m_pHudFinish->SetTransform(tf);
+				m_pHudFinish->SetTransformTarget(tf);
+				DirectX::XMFLOAT4 col = { 1, 1, 1, 1 };
+				m_pHudFinish->SetCol(col);
+				m_pHudFinish->SetColTarget({ 1, 1, 1, 1 });
+			}
+		}
+
+		// フィニッシュ演出本体
+		if (m_bFinishSequence && m_pHudFinish)
+		{
+			float delta = deltaTime;
+
+			if (!m_bFinishAnimStarted)
+			{
+				// 1.5秒待つ
+				m_fFinishWaitTimer += delta;
+				if (m_fFinishWaitTimer >= 1.5f)
+				{
+					// アニメーション開始
+					CSoundManger::RefInstance().Stop("BGM_STAGE_NORMAL");
+					CSoundManger::RefInstance().Play("Finish", false, 0.0f, 1.0f);
+					m_bFinishAnimStarted = true;
+					m_fHudFinishTimer = 0.0f;
+				}
+			}
+			else 
+			{
+				// ここからアニメーション
+				m_fHudFinishTimer += delta;
+
+				// 揺らしますよ
+				OBJ::Transform tf = m_pHudFinish->GetTransform();
+				tf.Pos.x += useful::GetRandomValue<float>() * 0.01f;
+				tf.Pos.y += useful::GetRandomValue<float>() * 0.01f;
+				m_pHudFinish->SetTransform(tf);
+
+				// 最終的なサイズ
+				OBJ::Transform tgt = tf;
+				tgt.Size.x = 1800.0f;
+				tgt.Size.y = 400.0f;
+				m_pHudFinish->SetTransformTarget(tgt);
+
+				// アニメーション表示後にChange
+				if (m_fHudFinishTimer > 2.5f) 
+				{
+					m_bFinishSequence = false;
+					m_pHudFinish->SetDeath();
+					m_pHudFinish = nullptr;
+					Change();
+					return;
+				}
+			}
 		}
 	}
 
@@ -234,9 +314,10 @@ void CSceneGame::Change()
 	// エフェクトを全て停止
 	CEffectManager::RefInstance().StopAll();
 
+	m_pHowToPlayHud = nullptr;
+
 	// カメラ制御の終了処理
 	CCameraController::RefInstance().Finalize();
-
 	std::vector<float> times;
 	for (int i = 0; i < CSceneGame::s_nHumanPlayerNum; ++i) times.push_back(CPlayer::s_vSurvivalTimes[i]);
 	for (int i = 0; i < CSceneGame::s_nCPUNum; ++i) times.push_back(CEnemyPlayer::s_vSurvivalTimes[i]);
@@ -298,7 +379,27 @@ void CSceneGame::SpawnHUD()
 				return true;
 			},
 			OBJ::TYPE::NONE,
-				OBJ::LAYER::DEFAULT);
+				OBJ::LAYER::UI);
+	}
+
+	//HowToplayテクスチャを生成する
+	if (!m_pHowToPlayHud) 
+	{
+		m_pHowToPlayHud = CObjectManager::CreateRaw<CHud>(
+			[](CHud* p) -> bool {
+				p->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Howtoplay"));
+				OBJ::Transform tf;
+				tf.Size = { 1000.0f, 300.0f, 0.0f };
+				tf.Pos = { 960.0f, 900.0f, 0.0f };
+				p->SetTransform(tf);
+				p->SetTransformTarget(tf);
+				//アルファ値を0にする
+				DirectX::XMFLOAT4 col = { 1, 1, 1, 0 };
+				p->SetCol(col);
+				p->SetColTarget(col);
+				return true;
+			},
+			OBJ::TYPE::NONE, OBJ::LAYER::UI);
 	}
 }
 
@@ -349,6 +450,64 @@ void CSceneGame::SetHudCount()
 
 		SetStartGame();
 	}
+}
+
+//============================================================================
+// HUD：Howtoplayアニメーション更新
+//============================================================================
+void CSceneGame::UpdateHowToPlay(float deltaTime)
+{
+	if (!m_bShowHowToPlay || !m_pHowToPlayHud)
+		return;
+
+	constexpr float FADE_DURATION = 0.5f;
+	constexpr float SHOW_DURATION = 5.0f;
+
+	switch (m_howToPlayPhase) 
+	{
+	case HOWTOPLAY_PHASE::FADEIN:
+		m_fHowToPlayAlpha += deltaTime / FADE_DURATION;
+		if (m_fHowToPlayAlpha >= 1.0f) {
+			m_fHowToPlayAlpha = 1.0f;
+			m_howToPlayPhase = HOWTOPLAY_PHASE::WAIT;
+			m_HowToPlayTimer = 0.0f;
+		}
+		break;
+	case HOWTOPLAY_PHASE::WAIT:
+		m_HowToPlayTimer += deltaTime;
+		if (m_HowToPlayTimer >= SHOW_DURATION) 
+		{
+			m_howToPlayPhase = HOWTOPLAY_PHASE::FADEOUT;
+		}
+		break;
+	case HOWTOPLAY_PHASE::FADEOUT:
+		m_fHowToPlayAlpha -= deltaTime / FADE_DURATION;
+		if (m_fHowToPlayAlpha <= 0.0f) {
+			m_fHowToPlayAlpha = 0.0f;
+			m_howToPlayPhase = HOWTOPLAY_PHASE::END;
+			m_bShowHowToPlay = false;
+			m_bHowToPlayFinished = true;
+			if (m_pHowToPlayHud) {
+				m_pHowToPlayHud->SetDeath();
+				m_pHowToPlayHud = nullptr;
+			}
+
+			return;
+		}
+		break;
+	default:
+		break;
+	}
+
+	// null化されている場合
+	if (!m_pHowToPlayHud)
+	{
+		return;
+	}
+	auto col = m_pHowToPlayHud->GetColTarget();
+	col.w = m_fHowToPlayAlpha;
+	m_pHowToPlayHud->SetColTarget(col);
+	m_pHowToPlayHud->SetCol(col);
 }
 
 //============================================================================
