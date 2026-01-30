@@ -14,6 +14,7 @@
 // インクルードファイル
 //****************************************************
 #include "API.physics.model.h"
+#include "API.hud.h"
 #include <API.collision.h>      //btVector3の使用
 
 #include <random>
@@ -162,4 +163,7 @@ private:
 
 	std::vector<std::weak_ptr<CPlayer>>m_pwPlayer;           //プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
 	std::vector<std::weak_ptr<CEnemyPlayer>>m_pwEnemyPlayer; //敵プレイヤーの閲覧用ポインター（複数人必要な為、vectorで管理）
+
+	CHud* m_pWindArrow = nullptr;
+	bool m_ShowArrow = false;   // ← 自前の表示フラグ
 };

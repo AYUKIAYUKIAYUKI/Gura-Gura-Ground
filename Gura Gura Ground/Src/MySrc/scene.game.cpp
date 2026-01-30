@@ -163,11 +163,7 @@ void CSceneGame::Update()
 	g_GameTime += deltaTime;
 
 #ifndef NDEBUG
-	// 障害物スポーンメニュー表示
-	m_ObstacleEditer.EditerMenu();
 
-	// スポーン時間プリセットメニュー表示
-	m_ObstacleEditer.SpawnTimePresetEditor();
 
 #endif
 

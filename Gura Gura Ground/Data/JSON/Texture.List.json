@@ -22,7 +22,7 @@
     ],
     [
       "Sky",
-      "Data\\TEXTURE\\sky.png"
+      "Data\\TEXTURE\\ice_stage_text.png"
     ],
     [
       "Shadow",
@@ -34,7 +34,7 @@
     ],
     [
       "Human.D",
-      "Data\\TEXTURE\\china.png"
+      "Data\\TEXTURE\\plane_stage_text.png"
     ],
     [
       "Logo.A",
@@ -295,6 +295,22 @@
     [
       "Arch",
       "Data\\TEXTURE\\arch.png"
+    ],
+    [
+      "WindArrow_Up",
+      "Data\\TEXTURE\\WindArrow_Up.png"
+    ],
+    [
+      "WindArrow_Right",
+      "Data\\TEXTURE\\WindArrow_Right.png"
+    ],
+    [
+      "WindArrow_Down",
+      "Data\\TEXTURE\\WindArrow_Down.png"
+    ],
+    [
+      "WindArrow_Left",
+      "Data\\TEXTURE\\WindArrow_Left.png"
     ],
     [
       "CA",
