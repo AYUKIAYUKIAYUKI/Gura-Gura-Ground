@@ -20,6 +20,7 @@
 
 // オブジェクト生成・破棄のため
 #include "API.renderer.h"
+#include "API.HUD.h"
 #include "API.object.manager.h"
 #include "API.texture.manager.h"
 #include "API.fullscreen.2D.h"
@@ -84,6 +85,8 @@ CSceneSelect::CSceneSelect()
 	, m_nRandomIdx(0)
 	, m_bStageDecided(false)
 	, m_bChangeScene(false)
+	, m_pHud_CA(nullptr)
+	, m_pHud_CB(nullptr)
 {
 	// サンシャインエフェクトの生成
 	auto pfst = CObjectManager::CreateRaw<CFullScreen2D>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
@@ -106,6 +109,26 @@ CSceneSelect::CSceneSelect()
 	pCamera->SetPosTarget({ 0.0f, 2.5f, 0.0f });
 	pCamera->SetRotTarget({ 0.0f, 0.0f, 0.0f });
 	pCamera->SetDistanceTarget(7.5f);
+
+	// HUDの生成 - CA
+	m_pHud_CA = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+	m_pHud_CA->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("CA"));
+
+	const float fAA = 2.0f;
+
+	m_pHud_CA->SetTransform(
+		{
+			{ 586.0f * fAA, 112.0f * fAA, .0f },
+			{ 0.0f, 0.0f, 0.0f, 1.0f },
+			{ 1980.0f * 0.5f, 900.0f, 0.0f }
+		});
+
+	m_pHud_CA->SetTransformTarget(
+		{
+			{ 586.0f * fAA, 112.0f * fAA, .0f },
+			{ 0.0f, 0.0f, 0.0f, 1.0f },
+			{ 1980.0f * 0.5f, 900.0f, 0.0f }
+		});
 }
 
 //============================================================================
@@ -134,6 +157,11 @@ void CSceneSelect::Update()
 			rInput.GetTrackerGamePad(2).start == DirectX::GamePad::ButtonStateTracker::PRESSED ||
 			rInput.GetTrackerGamePad(3).start == DirectX::GamePad::ButtonStateTracker::PRESSED)
 		{
+			if (m_pHud_CA)
+			{
+				m_pHud_CA->SetDeath();
+			}
+
 			// 死刑執行フラグを立てる
 			m_bDeathPenaly = true;
 
@@ -184,6 +212,29 @@ void CSceneSelect::Update()
 		// 整列 ～ ステージ選択
 		if (m_nStopCnt > 180 && !m_bStageDecideAll)
 		{
+			if (!m_pHud_CB)
+			{
+				// HUDの生成 - CB
+				m_pHud_CB = CObjectManager::CreateRaw<CHud>(OBJ::TYPE::NONE, OBJ::LAYER::UI);
+				m_pHud_CB->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("CB"));
+
+				const float fBB = 2.25f;
+
+				m_pHud_CB->SetTransform(
+					{
+						{ 505.0f * fBB, 72.0f * fBB, .0f },
+						{ 0.0f, 0.0f, 0.0f, 1.0f },
+						{ 1980.0f * 0.5f, 900.0f, 0.0f }
+					});
+
+				m_pHud_CB->SetTransformTarget(
+					{
+						{ 505.0f * fBB, 72.0f * fBB, .0f },
+						{ 0.0f, 0.0f, 0.0f, 1.0f },
+						{ 1980.0f * 0.5f, 900.0f, 0.0f }
+					});
+			}
+
 			Alignment();
 			SpawnSymbol();
 			SetSymbol();
@@ -799,6 +850,11 @@ void CSceneSelect::DecideStage()
 	if (m_nStopCnt > 180 + rand() % 60)
 	{
 		m_bStageDecided = true;
+
+		if (m_pHud_CB)
+		{
+			m_pHud_CB->SetDeath();
+		}
 	}
 
 	++m_nCntChangeStage;
