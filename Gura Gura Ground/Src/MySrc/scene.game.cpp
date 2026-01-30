@@ -266,7 +266,7 @@ void CSceneGame::Update()
 				// 最終的なサイズ
 				OBJ::Transform tgt = tf;
 				tgt.Size.x = 1800.0f;
-				tgt.Size.y = 400.0f;
+				tgt.Size.y = 700.0f;
 				m_pHudFinish->SetTransformTarget(tgt);
 
 				// アニメーション表示後にChange
@@ -379,7 +379,7 @@ void CSceneGame::SpawnHUD()
 				return true;
 			},
 			OBJ::TYPE::NONE,
-				OBJ::LAYER::UI);
+			OBJ::LAYER::UI);
 	}
 
 	//HowToplayテクスチャを生成する
@@ -551,6 +551,32 @@ void CSceneGame::SpawnField()
 		// 地面を生成
 		CObjectManager::CreateShare<CFieldIce>(
 			[&fSpanField, &fSpanAdjust](CFieldIce* p) -> bool
+			{
+				// トランスフォームの設定
+				p->SetTransform(
+					{
+						{ fSpanField * fSpanAdjust, fSpanField, fSpanField * fSpanAdjust },
+						{ 0.0f, 0.0f, 0.0f, 1.0f },
+						{ 0.0f, 5.0f, 0.0f }
+					});
+
+				// コライダーの生成
+				p->FactoryCollider(fSpanField, 1.0f, fSpanField);
+
+				return true;
+			},
+			OBJ::TYPE::FIELD,
+			OBJ::LAYER::BG);
+	}
+	else if (m_nRS == 2)
+	{
+		// フィールドの水平方向の大きさ
+		const float fSpanField  = 15.0f;
+		const float fSpanAdjust = 0.95f;
+
+		// 地面を生成
+		auto pWind = CObjectManager::CreateShare<CWindField>(
+			[&fSpanField, &fSpanAdjust](CWindField* p) -> bool
 			{
 				// トランスフォームの設定
 				p->SetTransform(

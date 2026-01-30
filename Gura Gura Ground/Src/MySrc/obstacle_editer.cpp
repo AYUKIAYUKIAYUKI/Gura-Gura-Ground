@@ -477,7 +477,7 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 		if (!m_CustomTimerNeedReset && m_ObstacleTimerElapsedTime > maxSpawnTime)
 		{
 			m_CustomTimerNeedReset = true;
-			m_CustomTimerResetCountdown = 5.0f;
+			m_CustomTimerResetCountdown = 3.0f;
 		}
 		if (m_CustomTimerNeedReset)
 		{

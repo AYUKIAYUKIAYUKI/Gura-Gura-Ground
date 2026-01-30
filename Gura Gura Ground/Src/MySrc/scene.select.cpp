@@ -108,6 +108,7 @@ CSceneSelect::CSceneSelect()
 	CCamera* pCamera = CRenderer::RefInstance().GetCamera();
 	pCamera->SetPosTarget({ 0.0f, 2.5f, 0.0f });
 	pCamera->SetRotTarget({ 0.0f, 0.0f, 0.0f });
+	pCamera->SetDistanceTarget(7.5f);
 
 
 	// HUDの生成 - CA
@@ -757,7 +758,7 @@ void CSceneSelect::SetStageHud()
 		OBJ::Transform HudTransform = m_apStageHud[wIdx]->GetTransform();
 
 		// ステージHUDの位置をヘッドの位置に合わせる
-		HudTransform.Size = { 2.0f, 2.0f, 2.0f };
+		HudTransform.Size = { 2.0f, 0.75f, 2.0f };
 		HudTransform.Rot = { DirectX::XM_PI, 0.0f, 0.0f, 1.0f };
 		HudTransform.Pos = m_vpPM[wIdx]->GetTransform().Pos;
 		HudTransform.Pos.y += 3.0f;
@@ -774,7 +775,7 @@ void CSceneSelect::SetStageHud()
 			break;
 
 		case 2:
-			m_apStageHud[wIdx]->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Test"));
+			m_apStageHud[wIdx]->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Wind"));
 			break;
 
 		default:
@@ -826,14 +827,14 @@ void CSceneSelect::SelectStage()
 			}
 		   	else if (CInputManager.GetTrackerGamePad(wIdx).leftStickLeft == DirectX::GamePad::ButtonStateTracker::PRESSED)
 			{
-				m_nStageIdx[wIdx] > 0 ? --m_nStageIdx[wIdx] : m_nStageIdx[wIdx] = 1;
+				m_nStageIdx[wIdx] > 0 ? --m_nStageIdx[wIdx] : m_nStageIdx[wIdx] = 2;
 
 				// 効果音：ジャンプ
 				CSoundManger::RefInstance().Play("Jump", false, -0.5f, 1.0f);
 			}
 			else if (CInputManager.GetTrackerGamePad(wIdx).leftStickRight == DirectX::GamePad::ButtonStateTracker::PRESSED)
 			{
-				m_nStageIdx[wIdx] < 1 ? ++m_nStageIdx[wIdx] : m_nStageIdx[wIdx] = 0;
+				m_nStageIdx[wIdx] < 2 ? ++m_nStageIdx[wIdx] : m_nStageIdx[wIdx] = 0;
 			
 				// 効果音：ジャンプ
 				CSoundManger::RefInstance().Play("Jump", false, -0.5f, 1.0f);
