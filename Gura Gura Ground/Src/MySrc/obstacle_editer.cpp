@@ -994,8 +994,8 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
 	m_CurrentParamIndex = 0;
 	m_PlayModeElapsedTime = 0.0f;
 
-	m_PlayMode = true;
 
+	m_PlayMode = true;
 
 	std::ifstream ifs(fileName);
 	if (!ifs) return;

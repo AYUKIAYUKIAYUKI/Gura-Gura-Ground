@@ -289,6 +289,22 @@
       "Data\\TEXTURE\\arch.png"
     ],
     [
+      "WindArrow_Up",
+      "Data\\TEXTURE\\WindArrow_Up.png"
+    ],
+    [
+      "WindArrow_Right",
+      "Data\\TEXTURE\\WindArrow_Right.png"
+    ],
+    [
+      "WindArrow_Down",
+      "Data\\TEXTURE\\WindArrow_Down.png"
+    ],
+    [
+      "WindArrow_Left",
+      "Data\\TEXTURE\\WindArrow_Left.png"
+    ],
+    [
       "CA",
       "Data\\TEXTURE\\CA.png"
     ],
