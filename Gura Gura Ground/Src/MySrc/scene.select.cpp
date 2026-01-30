@@ -284,6 +284,7 @@ void CSceneSelect::Update()
 //============================================================================
 void CSceneSelect::Change()
 {
+#if 0
 	// 全オブジェクトに死亡フラグを立てる
 	CObjectManager::RefInstance().SetDeathAll();
 
@@ -292,6 +293,18 @@ void CSceneSelect::Change()
 
 	// ゲームシーンへ
 	CSceneManager::RefInstance().ChangeScene(std::make_unique<CSceneGame>());
+#else
+	// 全オブジェクトに死亡フラグを立てる
+	CObjectManager::RefInstance().SetDeathAll();
+
+	//タイトルBGMを停止する
+	CSoundManger::RefInstance().Stop("BGM_TITLE");
+
+	auto aa = std::make_unique<CSceneGame>(m_nStageIdx[m_nRandomIdx]);
+
+	//生存時間を渡しつつ、画面遷移
+	CSceneManager::RefInstance().ChangeScene(std::move(aa));
+#endif
 }
 
 //============================================================================
@@ -813,14 +826,14 @@ void CSceneSelect::SelectStage()
 			}
 		   	else if (CInputManager.GetTrackerGamePad(wIdx).leftStickLeft == DirectX::GamePad::ButtonStateTracker::PRESSED)
 			{
-				m_nStageIdx[wIdx] > 0 ? --m_nStageIdx[wIdx] : m_nStageIdx[wIdx] = 2;
+				m_nStageIdx[wIdx] > 0 ? --m_nStageIdx[wIdx] : m_nStageIdx[wIdx] = 1;
 
 				// 効果音：ジャンプ
 				CSoundManger::RefInstance().Play("Jump", false, -0.5f, 1.0f);
 			}
 			else if (CInputManager.GetTrackerGamePad(wIdx).leftStickRight == DirectX::GamePad::ButtonStateTracker::PRESSED)
 			{
-				m_nStageIdx[wIdx] < 2 ? ++m_nStageIdx[wIdx] : m_nStageIdx[wIdx] = 0;
+				m_nStageIdx[wIdx] < 1 ? ++m_nStageIdx[wIdx] : m_nStageIdx[wIdx] = 0;
 			
 				// 効果音：ジャンプ
 				CSoundManger::RefInstance().Play("Jump", false, -0.5f, 1.0f);
