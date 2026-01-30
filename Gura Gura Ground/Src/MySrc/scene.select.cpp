@@ -775,11 +775,6 @@ void CSceneSelect::SelectStage()
 				CSoundManger::RefInstance().Play("Jump", false, -0.5f, 1.0f);
 			}
 
-			useful::MIS::MyImGuiShortcut_BeginWindow("Any Debug");
-			ImGui::Text("aaaaa : %d", m_nStageIdx[wIdx]);
-			ImGui::Separator();
-			ImGui::End();
-
 			bAnyoneHasNot = true;
 		}
 	}
