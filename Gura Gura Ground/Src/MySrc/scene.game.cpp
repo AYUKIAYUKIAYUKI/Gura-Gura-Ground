@@ -762,14 +762,21 @@ void CSceneGame::SetSymbol()
 //============================================================================
 bool CSceneGame::CheckGameSet()
 {
-	for (const auto& wpPlayer : m_apwPlayers)
-	{
-		/* プレイヤーが1人でも生きていたらゲーム継続 */
-		if (!wpPlayer.expired())
+	int nCntPlayer = 0;
+
+	// プレイヤーが残り1人になったら
+	for (unsigned char wIdx = 0; wIdx < MAX_PLYAER; ++wIdx)
+	{	
+		if (m_apwPlayers[wIdx].lock())
 		{
-			return false;
+			++nCntPlayer;
 		}
 	}
 
-	return true;
+	if (nCntPlayer == 1)
+	{
+		return true;
+	}
+
+	return false;
 }
