@@ -177,7 +177,7 @@ void CBomb::Action()
 		const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
 		useful::Vec3 pos = pRB->GetWorldTransform().Pos;
 		int eadf{};
-		CEffect::Create(CEffectManager::TAG_BOMB, pos, &eadf, 2.0f);
+		CEffect::Create(CEffectManager::TAG_BOMB, pos, &eadf, 1.4f);
 
 		SetDeath();
 

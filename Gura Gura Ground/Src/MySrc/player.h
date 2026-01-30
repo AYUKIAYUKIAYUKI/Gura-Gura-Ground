@@ -77,7 +77,7 @@ public:
 	static std::vector<float> s_vSurvivalTimes; //生存時間 
 
 	//ぺちゃんこ状態の管理
-	std::shared_ptr<Debuff_Behavior> GetFallTetraBehavior() { return m_pDebuffBehavior; }
+	std::shared_ptr<Debuff_Behavior> GetDebuffBehavior() { return m_pDebuffBehavior; }
 	//外部からデバフ有効化するための関数
 	void EnableStamp();		//潰され状態
 	void EnableBird();		//鳥纏い状態

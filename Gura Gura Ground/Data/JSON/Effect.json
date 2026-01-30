@@ -6,10 +6,10 @@
     "HipDrop": "Data\\EFFECT\\Effect\\HipDrop_Impact.efkefc",
     "FireWorks_single": "Data\\EFFECT\\Effect\\Fireworks_Single.efkefc",
     "Tornade": "Data\\EFFECT\\Effect\\Tornade.efkefc",
-    "Bomb": "Data\\EFFECT\\Effect\\Bomb.efkefc",
+    "Bomb": "Data\\EFFECT\\Effect\\bounce.efkefc",
     "Flash": "Data\\EFFECT\\Effect\\Flash.efkefc",
     "Smoke": "Data\\EFFECT\\Effect\\smoke.efkefc",
-    "Sparkling": "Data\\EFFECT\\Effect\\kirakira.efkefc"
+    "Sparkling": "Data\\EFFECT\\Effect\\kirakira2.efkefc"
 
   }
 }

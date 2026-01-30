@@ -175,7 +175,7 @@ CSceneResult::CSceneResult(const std::vector<float>& times, int nHuman, int nCPU
             modelName = "Player_" + std::to_string(winnerIndex + 1);
         }
         else {
-            modelName = "Player_CPU";
+            modelName = "Test";
         }
 
         int dispIdx = isHumanWinner ? (winnerIndex + 1) : (winnerIndex + 1 - m_nHumanPlayerNum);
@@ -621,7 +621,7 @@ void CSceneResult::Update()
                     modelName = "Player_" + std::to_string(winnerIndex + 1);
                 }
                 else {
-                    modelName = "Player_CPU";
+                    modelName = "Test";
                 }
 
                 // 横並び配置用にX座標をずらす
@@ -689,16 +689,16 @@ void CSceneResult::Update()
         {
             if (m_winners.size() == 1)
             {
-                CEffect::Create(CEffectManager::kirakira, { 21.0f, 1.0f, 0.0f }, {}, { 0.5f });
-                CEffect::Create(CEffectManager::kirakira, { 12.6f, 2.8f, 0.0f }, {}, { 0.5f });
-                CEffect::Create(CEffectManager::kirakira, { 6.5f, -0.8f, 0.0f }, {}, { 0.5f });
+                CEffect::Create(CEffectManager::TAG_SPARKLE, { 21.0f, 1.0f, 0.0f }, {}, { 0.5f });
+                CEffect::Create(CEffectManager::TAG_SPARKLE, { 12.6f, 2.8f, 0.0f }, {}, { 0.5f });
+                CEffect::Create(CEffectManager::TAG_SPARKLE, { 6.5f, -0.8f, 0.0f }, {}, { 0.5f });
             }
 
             else if (m_winners.size() > 1)
             {
-                CEffect::Create(CEffectManager::kirakira, { 17.8f, 1.0f, 0.0f }, {}, { 0.5f });
-                CEffect::Create(CEffectManager::kirakira, { 12.6f, 3.4f, 0.0f }, {}, { 0.5f });
-                CEffect::Create(CEffectManager::kirakira, { 10.5f, -0.8f, 0.0f }, {}, { 0.5f });
+                CEffect::Create(CEffectManager::TAG_SPARKLE, { 17.8f, 1.0f, 0.0f }, {}, { 0.5f });
+                CEffect::Create(CEffectManager::TAG_SPARKLE, { 12.6f, 3.4f, 0.0f }, {}, { 0.5f });
+                CEffect::Create(CEffectManager::TAG_SPARKLE, { 10.5f, -0.8f, 0.0f }, {}, { 0.5f });
             }
 
             CSoundManger::RefInstance().Play("BGM_RESULT", false, 0.0f, 1.0f);
@@ -953,16 +953,16 @@ void CSceneResult::ForceToFinished()
     {
         if (m_winners.size() == 1)
         {
-            CEffect::Create(CEffectManager::kirakira, { 21.0f, 1.0f, 0.0f }, {}, { 0.5f });
-            CEffect::Create(CEffectManager::kirakira, { 12.6f, 2.8f, 0.0f }, {}, { 0.5f });
-            CEffect::Create(CEffectManager::kirakira, { 6.5f, -0.8f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::TAG_SPARKLE, { 21.0f, 1.0f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::TAG_SPARKLE, { 12.6f, 2.8f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::TAG_SPARKLE, { 6.5f, -0.8f, 0.0f }, {}, { 0.5f });
         }
 
         else if (m_winners.size() > 1)
         {
-            CEffect::Create(CEffectManager::kirakira, { 17.8f, 1.0f, 0.0f }, {}, { 0.5f });
-            CEffect::Create(CEffectManager::kirakira, { 12.6f, 3.4f, 0.0f }, {}, { 0.5f });
-            CEffect::Create(CEffectManager::kirakira, { 10.5f, -0.8f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::TAG_SPARKLE, { 17.8f, 1.0f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::TAG_SPARKLE, { 12.6f, 3.4f, 0.0f }, {}, { 0.5f });
+            CEffect::Create(CEffectManager::TAG_SPARKLE, { 10.5f, -0.8f, 0.0f }, {}, { 0.5f });
         }
 
         CSoundManger::RefInstance().Play("BGM_RESULT", false, 0.0f, 1.0f);
@@ -1002,7 +1002,7 @@ void CSceneResult::ForceToFinished()
                 modelName = "Player_" + std::to_string(winnerIndex + 1);
             }
             else {
-                modelName = "Player_CPU";
+                modelName = "Test";
             }
 
             // 横並び配置用にX座標をずらす

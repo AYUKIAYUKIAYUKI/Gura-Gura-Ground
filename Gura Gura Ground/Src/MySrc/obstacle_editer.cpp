@@ -65,7 +65,7 @@ void ObstacleEditer::EditCommonParams()
 	{
 		auto player = std::dynamic_pointer_cast<CPlayer>(playerObj);
 		if (!player) continue;
-		auto fallTetra = player->GetFallTetraBehavior();
+		auto fallTetra = player->GetDebuffBehavior();
 		if (fallTetra) {
 			// FallTetra_Behavior‚Ìm_DecayValue‚Ö’l‚ğ“n‚·setterŠÖ”
 

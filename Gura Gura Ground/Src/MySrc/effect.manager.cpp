@@ -189,11 +189,12 @@ bool CEffectManager::Initialize()
     ID3D11Device* pDevice = CRenderer::RefInstance().GetDevice();
     ID3D11DeviceContext* pContext = CRenderer::RefInstance().GetContext();
     // Effekseerレンダラー作成
-    m_renderer = EffekseerRendererDX11::Renderer::Create(pDevice, pContext,20000);
+    m_renderer = EffekseerRendererDX11::Renderer::Create(pDevice, pContext,40000);
     if (m_renderer == nullptr)throw std::runtime_error("Effekseer renderer Error");
+    assert(m_renderer != nullptr);
 
     // Effekseerマネージャ作成
-    m_manager = Effekseer::Manager::Create(20000);
+    m_manager = Effekseer::Manager::Create(40000);
     if(m_manager == nullptr)throw std::runtime_error("Effekseer manager Error");
     // 各種レンダラーを登録
     m_manager->SetSpriteRenderer(m_renderer->CreateSpriteRenderer());
@@ -248,7 +249,6 @@ void CEffectManager::Update()
 
         i->Update();
     }
-    EraseEffect();
 }
 
 //==========================================================================================
@@ -259,8 +259,16 @@ void CEffectManager::Draw()
     SetCameraMtx();
     //エフェクシアのレンダリング
     m_renderer->BeginRendering();
-    m_manager->Draw();
+    for (const auto& e : m_effectsList) {
+        if (e == nullptr)continue;
+        Effekseer::Handle handle = e->GetHandle();
+        m_manager->DrawHandle(e->GetHandle());
+        if (e == nullptr)return;
+    }
+
     m_renderer->EndRendering();
+
+    EraseEffect();
 }
 
 //==========================================================================================
@@ -291,7 +299,7 @@ void CEffectManager::EraseEffect()
     while (it != m_effectsList.end()){
         //実行済みかどうか確認
         if (!(*it)->GetPlaying()) {
-            
+            m_manager->StopEffect((*it)->GetHandle());
             (*it)->Uninit();
             delete (*it);
             //リストから除外
@@ -301,7 +309,8 @@ void CEffectManager::EraseEffect()
             ++it;
         }
     }
-
+    m_effectsList;
+    int i = 11;
 }
 
 //==========================================================================================

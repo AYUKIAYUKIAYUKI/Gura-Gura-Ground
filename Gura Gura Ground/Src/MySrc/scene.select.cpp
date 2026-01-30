@@ -90,7 +90,7 @@ CSceneSelect::CSceneSelect()
 			p->FactoryCollider(1.0f, 1.0f, 1.0f);
 
 			// ƒ‚ƒfƒ‹‚ÌÝ’è
-			p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("P1"));
+			p->SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
 
 			return true;
 		});
