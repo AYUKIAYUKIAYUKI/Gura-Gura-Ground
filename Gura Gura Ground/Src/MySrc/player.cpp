@@ -541,8 +541,8 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 		// 通常状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
 
-		// 塵：拡散発生
-		CDust::GenerateSpread(rStateMachine.m_rPalyer.GetTransform().Pos, 7);
+		//// 塵：拡散発生
+		//CDust::GenerateSpread(rStateMachine.m_rPalyer.GetTransform().Pos, 7);
 	}
 }
 

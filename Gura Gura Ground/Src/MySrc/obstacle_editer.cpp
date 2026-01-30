@@ -952,13 +952,8 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
 	m_CurrentParamIndex = 0;
 	m_PlayModeElapsedTime = 0.0f;
 
-#ifndef NDEBUG
-	m_PlayMode = false;
-#endif
 
-#ifdef NDEBUG
 	m_PlayMode = true;
-#endif
 
 	m_ParamSets.clear();
 	m_ParamSets.resize(PARAM_SET_MAX);
