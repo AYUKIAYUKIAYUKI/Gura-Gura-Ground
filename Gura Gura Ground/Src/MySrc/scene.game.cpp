@@ -374,7 +374,7 @@ void CSceneGame::SpawnHUD()
 			[](CHud* p)  -> bool
 			{
 				/* テクスチャの設定 */
-				p->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Human.D"));
+				p->SetTexture(CTextureManager::RefInstance().RefRegistry().BindAtKey("Finish"));
 
 				return true;
 			},
