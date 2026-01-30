@@ -291,12 +291,29 @@ void TetraState_Fall::Action([[maybe_unused]] CFallTetra* p)
     // 現在のワールドトランスフォームを取得
     OBJ::Transform TF{};
     pRB->GetWorldTransform(TF);
-    if (velY < 0.01f && velY > -0.01f)
-    {//Y方向の移動量が一定値以下なら
-        // 塵：拡散発生
-        //CDust::GenerateSpread(TF.Pos, 10);
-        p->SetDeath();
-        // 効果音：落下音
-        CSoundManger::RefInstance().Play("FallTetra", false, -0.5f, 1.5f);
+
+    // オブジェクトのリストを取得
+    const auto& rPlayerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
+
+    for (const auto& e : rPlayerList)
+    {
+        std::shared_ptr<CPlayer> pPlayerObj = std::dynamic_pointer_cast<CPlayer>(e);
+
+        // プレイヤー型にキャスト可能なら
+        if (pPlayerObj)
+        {
+            CRigidBody* pRigidBody = dynamic_cast<CRigidBody*>(pPlayerObj->GetCollider());
+            // 衝突判定
+            Collision::MyContactCallbackRigidBodyAndRigidBody CallBack(pRB, pRigidBody);
+            CWorld::RefInstance().RefDynamicsWorldConst()->contactPairTest(pRB->GetRigidBody(), pRigidBody->GetRigidBody(), CallBack);
+
+            // 衝突が確認出来たら
+            if (CallBack.m_bHit || velY < 0.01f && velY > -0.01f)
+            {
+                p->SetDeath();
+                // 効果音：落下音
+                CSoundManger::RefInstance().Play("FallTetra", false, -0.5f, 1.5f);
+            }
+        }
     }
 }

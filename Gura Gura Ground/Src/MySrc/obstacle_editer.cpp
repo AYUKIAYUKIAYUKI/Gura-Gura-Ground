@@ -37,9 +37,9 @@ float ObstacleEditer::s_DecayValue = 0.3f;
 
 std::vector<bool> ObstacleEditer::s_SpawnedFlags = {};
 
-ObstacleEditer::DebuffConfig ObstacleEditer::s_StampConfig{0.3f, 1.0f};
-ObstacleEditer::DebuffConfig ObstacleEditer::s_BirdConfig{0.5f, 1.2f};
-ObstacleEditer::DebuffConfig ObstacleEditer::s_OilConfig{0.8f, 8.5f};
+ObstacleEditer::DebuffConfig ObstacleEditer::s_StampConfig{ 0.3f, 1.0f };
+ObstacleEditer::DebuffConfig ObstacleEditer::s_BirdConfig{ 0.5f, 1.2f };
+ObstacleEditer::DebuffConfig ObstacleEditer::s_OilConfig{ 0.8f, 8.5f };
 
 //============================================================================
 // 障害物パラメーター編集処理
@@ -49,7 +49,7 @@ void ObstacleEditer::EditCommonParams()
 
 	auto& paramSet = RefParam();
 
-	static int selectedSubParamIndex = 0; 
+	static int selectedSubParamIndex = 0;
 
 	static SubObstacleParam s_CopiedSubParam;
 	static bool s_ParamCopied = false;
@@ -61,7 +61,7 @@ void ObstacleEditer::EditCommonParams()
 	}
 
 	auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
-	for (auto& playerObj : playerList) 
+	for (auto& playerObj : playerList)
 	{
 		auto player = std::dynamic_pointer_cast<CPlayer>(playerObj);
 		if (!player) continue;
@@ -71,7 +71,6 @@ void ObstacleEditer::EditCommonParams()
 
 		}
 	}
-
 
 	if (selectedSubParamIndex >= 0 && selectedSubParamIndex < (int)paramSet.subParams.size())
 	{
@@ -143,7 +142,7 @@ void ObstacleEditer::EditCommonParams()
 
 		// 障害物タイプ
 		int currentType = static_cast<int>(obs.ManualObstacleType);
-		const char* typeNames[] = 
+		const char* typeNames[] =
 		{
 			reinterpret_cast<const char*>(u8"None"),
 			reinterpret_cast<const char*>(u8"ボール"),
@@ -205,7 +204,7 @@ void ObstacleEditer::EditCommonParams()
 			ImGui::Separator();
 			ImGui::Text(reinterpret_cast<const char*>(u8"ブーメラン詳細パラメータ"));
 
-			const char* movePatternNames[4] = { reinterpret_cast < const char*>(u8"奥から手前"), reinterpret_cast <const char*>(u8"手前から奥"), reinterpret_cast <const char*>(u8"右から左"), reinterpret_cast <const char*>(u8"左から右") };
+			const char* movePatternNames[4] = { reinterpret_cast <const char*>(u8"奥から手前"), reinterpret_cast <const char*>(u8"手前から奥"), reinterpret_cast <const char*>(u8"右から左"), reinterpret_cast <const char*>(u8"左から右") };
 			ImGui::Combo(reinterpret_cast<const char*>(u8"ブーメランの移動"), &obs.BoomerangMovePattern, movePatternNames, 4);
 
 			ImGui::DragFloat(reinterpret_cast<const char*>(u8"移動速度"), &obs.BoomerangOmega, 0.01f, 0.1f, 5.0f);
@@ -291,6 +290,12 @@ void ObstacleEditer::EditerMenu()
 		ImGui::TextColored(ImVec4(1, 0, 0, 1), reinterpret_cast <const char*>(u8"このプリセットは固有ギミック専用として想定されています\nそのため、ランダム抽選から除外されています。\n出現させたい場合は、このプリセットを出現タイミングに設定してください"));
 	}
 
+	//範囲ガードする
+	if (m_CurrentParamIndex < 0) m_CurrentParamIndex = 0;
+	if (m_CurrentParamIndex >= PARAM_SET_MAX) m_CurrentParamIndex = PARAM_SET_MAX - 1;
+	if ((size_t)m_CurrentParamIndex >= m_ParamSets.size()) m_CurrentParamIndex = static_cast<int>(m_ParamSets.size()) - 1;
+	if (m_CurrentParamIndex < 0) m_CurrentParamIndex = 0;
+
 	// 選択中パラメータセットのパラメータを表示・編集
 	EditCommonParams();
 
@@ -308,6 +313,7 @@ void ObstacleEditer::SpawnTimePresetEditor()
 	if (ImGui::Begin(reinterpret_cast<const char*>(u8"障害物出現タイミング編集")))
 	{
 		ImGui::Text(reinterpret_cast<const char*>(u8"ゲームタイム %.2f 秒"), m_PlayModeElapsedTime);
+		ImGui::Text(reinterpret_cast<const char*>(u8"ギミックスポーンタイム %.2f 秒"), m_ObstacleTimerElapsedTime);
 
 		// 残りプレイヤー数を取得して表示
 		const auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
@@ -438,9 +444,42 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 	if (m_PlayMode)
 	{
 		m_PlayModeElapsedTime += deltaTime;
+		m_ObstacleTimerElapsedTime += deltaTime;
 
 		const auto& playerList = CObjectManager::RefInstance().RefListShare(OBJ::TYPE::PLAYER);
 		int remainingPlayers = static_cast<int>(playerList.size());
+
+		float maxSpawnTime = 0.0f;
+		for (int i = 0; i < s_SpawnTimePresetCount; ++i)
+		{
+			if (i < (int)s_AssignedSpawnTimes.size()) {
+				if (s_AssignedSpawnTimes[i] > maxSpawnTime) {
+					maxSpawnTime = s_AssignedSpawnTimes[i];
+				}
+			}
+		}
+
+		if (!m_CustomTimerNeedReset && m_ObstacleTimerElapsedTime > maxSpawnTime)
+		{
+			m_CustomTimerNeedReset = true;
+			m_CustomTimerResetCountdown = 5.0f;
+		}
+		if (m_CustomTimerNeedReset)
+		{
+			m_CustomTimerResetCountdown -= deltaTime;
+			if (m_CustomTimerResetCountdown <= 0.0f)
+			{
+				// タイマーリセット処理
+				m_ObstacleTimerElapsedTime = 0.0f;
+				m_CustomTimerNeedReset = false;
+				// フラグや必要なリセット処理もここで
+				for (int presetIndex = 0; presetIndex < s_SpawnTimePresetCount; ++presetIndex)
+				{
+					s_SpawnedFlags[presetIndex] = false;
+				}
+			}
+		}
+
 
 		for (int i = 0; i < s_SpawnTimePresetCount; ++i)
 		{
@@ -448,13 +487,13 @@ void ObstacleEditer::PlayModeSpawn(float deltaTime)
 			float assignedSpawnTime = s_AssignedSpawnTimes[i];
 
 			int playerTh = 4;
-			if (i < s_SpawnPlayerThresholds.size()) 
+			if (i < s_SpawnPlayerThresholds.size())
 			{
 				playerTh = s_SpawnPlayerThresholds[i];
 			}
 			if (!(remainingPlayers <= playerTh)) continue;
 
-			if (!s_SpawnedFlags[i] && m_PlayModeElapsedTime >= assignedSpawnTime)
+			if (!s_SpawnedFlags[i] && m_ObstacleTimerElapsedTime >= assignedSpawnTime)
 			{
 				auto& paramSet = m_ParamSets[paramSetIdx];
 				for (size_t subIdx = 0; subIdx < paramSet.subParams.size(); ++subIdx)
@@ -759,26 +798,26 @@ void ObstacleEditer::TryManualSpawn()
 		case OBS_TYPE::BOOMERANG:
 			CObjectManager::CreateShare<CBoomerang>([sub, subIdx, thisSetIdx](CBoomerang* p) -> bool
 				{
-				p->SetParamSetIndex(thisSetIdx);
-				p->SetSubParamIndex(static_cast<int>(subIdx));
-				p->SetMovePattern(sub.BoomerangMovePattern);
-				p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
+					p->SetParamSetIndex(thisSetIdx);
+					p->SetSubParamIndex(static_cast<int>(subIdx));
+					p->SetMovePattern(sub.BoomerangMovePattern);
+					p->FactoryCollider(sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2);
 
-				OBJ::Transform TF = {};
-				TF.Size = { sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2 };
-				TF.Pos = { sub.ObstacleSpawnX, 9.0f, sub.ObstacleSpawnZ };
-				p->SetTransform(TF);
+					OBJ::Transform TF = {};
+					TF.Size = { sub.ColliderWidth / 2, sub.ColliderHeight / 2, sub.ColliderDepth / 2 };
+					TF.Pos = { sub.ObstacleSpawnX, 9.0f, sub.ObstacleSpawnZ };
+					p->SetTransform(TF);
 
-				// パラメータセット
-				p->SetBoomerangParams(
-					sub.BoomerangOmega,
-					sub.BoomerangRadius,
-					sub.BoomerangBasePower,
-					sub.BoomerangAddBySpeed,
-					sub.BoomerangMaxFinalPower,
-					sub.BoomerangHitCooldown
-				);
-				return true;
+					// パラメータセット
+					p->SetBoomerangParams(
+						sub.BoomerangOmega,
+						sub.BoomerangRadius,
+						sub.BoomerangBasePower,
+						sub.BoomerangAddBySpeed,
+						sub.BoomerangMaxFinalPower,
+						sub.BoomerangHitCooldown
+					);
+					return true;
 				}, OBJ::TYPE::OBSTACLE);
 			break;
 		case OBS_TYPE::BIRDSTRIKE:
@@ -859,7 +898,7 @@ void ObstacleEditer::SaveParams(const std::string& fileName)
 			}
 
 			// manual_typeが7（BOOMERANG）のときのみブーメラン関連パラメータを書き込む
-			if (sub.ManualObstacleType == ObstacleEditer::OBS_TYPE::BOOMERANG) 
+			if (sub.ManualObstacleType == ObstacleEditer::OBS_TYPE::BOOMERANG)
 			{
 				jSub["boomerang_move_pattern"] = sub.BoomerangMovePattern;
 				jSub["boomerang_omega"] = sub.BoomerangOmega;

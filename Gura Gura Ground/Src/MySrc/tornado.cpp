@@ -159,7 +159,7 @@ void CTornado::SetMoveDir()
 	float edgeLength = sqrt(m_MoveDir.x * m_MoveDir.x + m_MoveDir.z * m_MoveDir.z);
 
 	// フレームごとの速度
-	float speedPerFrame = 0.1f;						// 1フレームで進む距離
+	float speedPerFrame = 0.5f;						// 1フレームで進む距離
 	m_edgeProgress += speedPerFrame / edgeLength;	// 現在の進行度を設定
 
 	// 変更する位置に設定
@@ -201,7 +201,7 @@ void CTornado::PullPlayer()
 		const btVector3& rCurrentVel = pRB->GetLinearVelocity();
 
 		// 移動速度スケール
-		const float fSpeed = 2.0f;
+		const float fSpeed = 1.2f;
 		btVector3   MoveDir = { 0.0f, 0.0f, 0.0f };
 
 		DirectX::XMFLOAT3 TornadoPos = GetTransform().Pos;			// 竜巻の位置
@@ -213,9 +213,16 @@ void CTornado::PullPlayer()
 		MoveDir.setZ(cosf(Dir) * fSpeed);
 		MoveDir.setY(rCurrentVel.getY());
 
-		// 線形速度を上書き
+		btVector3 Velocity = {
+			rCurrentVel.getX() + MoveDir.getX(),
+			rCurrentVel.getY(),
+			rCurrentVel.getZ() + MoveDir.getZ() 
+		};
+
+
+		// 線形速度を設定
 		pRB->SetActive();
-		pRB->SetLinearVelocity(MoveDir);
+		pRB->SetLinearVelocity(Velocity);
 	}
 }
 

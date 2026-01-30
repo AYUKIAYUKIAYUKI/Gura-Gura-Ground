@@ -96,7 +96,13 @@ bool CCameraController::Initialize()
 // 終了処理
 //============================================================================
 void CCameraController::Finalize()
-{}
+{
+	// 距離設定
+	m_Camera->SetDistanceTarget(m_MaxCameraDistance);
+
+	// カメラの変更位置を設定
+	m_Camera->SetPosTarget(m_FirstCameraPos);
+}
 
 //============================================================================
 // 更新処理
@@ -371,7 +377,7 @@ bool CCameraController::InRange(DirectX::XMFLOAT3 pos)
 	CWindField* WindField = dynamic_cast<CWindField*>(ListShare.front().get());
 	
 	const float fSpanField = 15.0f;					// 地面の大きさ
-	const float Range = 0.0f;						// 範囲
+	const float Range = 5.0f;						// 範囲
 
 	DirectX::XMFLOAT3 fieldPos;
 
