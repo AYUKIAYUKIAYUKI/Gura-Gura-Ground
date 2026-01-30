@@ -22,7 +22,7 @@
     ],
     [
       "Sky",
-      "Data\\TEXTURE\\sky.png"
+      "Data\\TEXTURE\\ice_stage_text.png"
     ],
     [
       "Shadow",
@@ -34,7 +34,7 @@
     ],
     [
       "Human.D",
-      "Data\\TEXTURE\\china.png"
+      "Data\\TEXTURE\\plane_stage_text.png"
     ],
     [
       "Logo.A",
@@ -303,6 +303,14 @@
     [
       "WindArrow_Left",
       "Data\\TEXTURE\\WindArrow_Left.png"
+    ],
+    [
+      "CA",
+      "Data\\TEXTURE\\CA.png"
+    ],
+    [
+      "CB",
+      "Data\\TEXTURE\\CB.png"
     ]
   ]
 }

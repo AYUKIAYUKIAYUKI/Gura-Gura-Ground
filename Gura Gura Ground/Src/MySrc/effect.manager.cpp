@@ -209,7 +209,6 @@ void CEffectManager::Finalize()
 void CEffectManager::Update()
 {
     m_EffectName;
-    EditUI();
     m_manager->Update();    //エフェクシアのマネージャーを更新.
     //一括で更新
     for (auto& i : m_effectsList) {
