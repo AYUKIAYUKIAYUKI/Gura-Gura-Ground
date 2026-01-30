@@ -698,6 +698,28 @@ unsigned char CPlayer::GetIdxPlayer() const
 void CPlayer::SetIdxPlayer(unsigned char wIdx)
 {
 	m_wIdxPlayer = wIdx;
+
+	switch (wIdx)
+	{
+	case 0:
+		SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
+		break;
+
+	case 1:
+		SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_2"));
+		break;
+
+	case 2:
+		SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_3"));
+		break;
+
+	case 3:
+		SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_4"));
+		break;
+
+	default:
+		break;
+	}
 }
 
 //============================================================================
@@ -773,4 +795,9 @@ void CPlayer::CheckDeath()
 		m_bIsDead = true;
 		SetDeath();
 	}
+}
+
+void CPlayer::SetAAA(int IDX)
+{
+
 }
