@@ -993,12 +993,9 @@ void ObstacleEditer::LoadParams(const std::string& fileName)
 {
 	m_CurrentParamIndex = 0;
 	m_PlayModeElapsedTime = 0.0f;
-#ifndef NDEBUG
-	m_PlayMode = false;
-#endif
-#ifdef NDEBUG
+
 	m_PlayMode = true;
-#endif
+
 
 	std::ifstream ifs(fileName);
 	if (!ifs) return;
