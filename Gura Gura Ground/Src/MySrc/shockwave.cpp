@@ -101,7 +101,7 @@ void CShockWave::Push()
 					}
 
 					// リジッドボディを持っていたら
-					Collision::BumperPush(pShockwaveGhost, pRigidBodyGet, 3.0f);
+					Collision::BumperPush(pShockwaveGhost, pRigidBodyGet, 2.5f);
 				}
 			}
 

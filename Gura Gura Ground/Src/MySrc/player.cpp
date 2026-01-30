@@ -521,7 +521,7 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 		pRigidBody->SetImpulse(btDropVec);
 
 		// 落下中に小さな球形の衝撃波を作成
-		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::SPHERE, { 2.0f, 2.0f, 2.0f }, 1);
+		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::SPHERE, { 1.0f, 1.0f, 1.0f }, 1);
 	}
 
 	// 地面と接地したら
@@ -532,8 +532,9 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 
 		useful::Vec3 EffectVec3 = { rStateMachine.m_rPalyer.GetTransform().Pos.x,6.25f,rStateMachine.m_rPalyer.GetTransform().Pos.z };
 		CEffect::Create(CEffectManager::EFFECT_TAG::TAG_HIPDROP, EffectVec3, nullptr, 1.6f);
+
 		// 衝撃波の作成
-		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 6.0f, 1.0f, 6.0f }, 10);
+		rStateMachine.m_rPalyer.CreateShockWave(Collision::SHAPETYPE::CYLINDER, { 5.0f, 0.5f, 5.0f }, 10);
 
 		//ドロップサウンド再生
 		CSoundManger::RefInstance().Play("Drop", false, 0.0f, 1.0f);
