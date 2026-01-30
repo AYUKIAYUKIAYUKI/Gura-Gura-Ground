@@ -73,7 +73,6 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 
 	// Œø‰Ê‰¹F•—‚Ì‰¹
 	CSoundManger::RefInstance().Play("Tornado", false, -0.5f, 0.2f);
-
 	CEffect::Create(CEffectManager::TAG_TORNADE, { 0.0f,0.0f,0.0f }, &m_effPos);
 }
 

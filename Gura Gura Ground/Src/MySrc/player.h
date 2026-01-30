@@ -94,6 +94,8 @@ public:
 		return m_wpField.lock().get();
 	}
 
+	void SetAAA(int IDX);
+
 private:
 
 	//****************************************************

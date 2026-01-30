@@ -20,6 +20,7 @@ class CBeamLight;
 class CSymbol;
 class CPhysicsModel;
 class CRect3D;
+class CHud;
 
 //****************************************************
 // セレクトシーンクラスの定義
@@ -97,4 +98,7 @@ private:
 	int                              m_nRandomIdx;
 	bool                             m_bStageDecided;
 	bool                             m_bChangeScene;
+
+	CHud* m_pHud_CA; // 操作方法A
+	CHud* m_pHud_CB; // 操作方法B
 };

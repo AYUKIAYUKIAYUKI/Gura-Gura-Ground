@@ -472,7 +472,7 @@ void CSceneResult::Update()
 
     bool drawBeam = true;
 
-    if (m_animPhase != ANIM_PHASE::FINISHED)
+    if (m_animPhase >= ANIM_PHASE::TITLE_WAIT && m_animPhase != ANIM_PHASE::FINISHED)
     {
         if (CInputManager::RefInstance().EnhancedEnter())
         {
@@ -760,7 +760,7 @@ void CSceneResult::Update()
         CHud* pButtonA = (i < m_vpSkipButtonA.size()) ? m_vpSkipButtonA[i] : nullptr;
         if (!pSkip || !pButtonA) continue;
 
-        if (m_animPhase != ANIM_PHASE::FINISHED)
+        if (m_animPhase >= ANIM_PHASE::TITLE_WAIT && m_animPhase != ANIM_PHASE::FINISHED)
         {
             // 同じフェードイン値で管理しましょうか
             float fadeRate = 10.0f;
@@ -965,9 +965,14 @@ void CSceneResult::ForceToFinished()
             CEffect::Create(CEffectManager::TAG_SPARKLE, { 10.5f, -0.8f, 0.0f }, {}, { 0.5f });
         }
 
-        CSoundManger::RefInstance().Play("BGM_RESULT", false, 0.0f, 1.0f);
         m_kirakiraEffectCreated = true;
     }
+
+    if (m_animPhase < ANIM_PHASE::SHOW_OTHERS)
+    {
+        CSoundManger::RefInstance().Play("BGM_RESULT", false, 0.0f, 1.0f);
+    }
+
 
     // ビームライト生成
     if (!m_beamLightAppeared && m_animPhase < ANIM_PHASE::PLAYER_TEXT_SCALEUP) {

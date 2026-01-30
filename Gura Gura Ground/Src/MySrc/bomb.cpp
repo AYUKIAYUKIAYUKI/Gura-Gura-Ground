@@ -171,7 +171,7 @@ void CBomb::Action()
 	if (m_nTimer <= 0)
 	{
 		// 効果音：爆弾
-		CSoundManger::RefInstance().Play("Bomb", false, -0.5f, 0.2f);
+		CSoundManger::RefInstance().Play("Bomb", false, -0.5f, 0.6f);
 
 		// コライダーをリジッドボディにキャスト
 		const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());

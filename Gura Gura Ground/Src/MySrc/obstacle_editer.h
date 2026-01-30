@@ -1,6 +1,6 @@
-//============================================================================
+ï¿½ï½¿//============================================================================
 // 
-// áŠQ•¨ƒGƒfƒBƒ^[ [obstacle_editer.h]
+// é««æ‡·ï½®ï½³è¿šï½©ç¹§ï½¨ç¹ï¿½ã…ç¹§ï½¿ç¹ï½¼ [obstacle_editer.h]
 // Author : Sohta Kuki
 // 
 //============================================================================
@@ -10,52 +10,52 @@
 #include "debuff_behavior.h"
 
 //****************************************************
-// áŠQ•¨ƒGƒfƒBƒ^[ƒNƒ‰ƒX‚Ì’è‹`
+// é««æ‡·ï½®ï½³è¿šï½©ç¹§ï½¨ç¹ï¿½ã…ç¹§ï½¿ç¹ï½¼ç¹§ï½¯ç¹ï½©ç¹§ï½¹ç¸ºï½®è³å¤‚ï½¾ï½©
 //****************************************************
 class ObstacleEditer
 {
 public:
     //========================
-    // áŠQ•¨ƒpƒ‰ƒ[ƒ^ƒZƒbƒg
+    // é««æ‡·ï½®ï½³è¿šï½©ç¹ä»£Î›ç¹ï½¡ç¹ï½¼ç¹§ï½¿ç¹§ï½»ç¹ï¿½ãƒ¨
     //========================
     enum class OBS_TYPE : unsigned char
     {
-        NONE = 0,  // –³‚µ
-        BALL,      // ƒ{[ƒ‹
-        BAR,       // –_
-        BOMB,      // ƒ{ƒ€
-        TORNADO,   // —³Šª
-        FALLTETRA, // ã•”—‰º•¨
-        PENDULUM,  // U‚èq
-        BOOMERANG, // ƒu[ƒƒ‰ƒ“
-        BIRDSTRIKE, // ’¹‚ÌŒQ‚ê
-        BARREL,    //ƒ^ƒ‹+ƒIƒCƒ‹
+        NONE = 0,  // è¾Ÿï½¡ç¸º
+        BALL,      // ç¹æ‡Šï¿½ç¹ï½«
+        BAR,       // è­½
+        BOMB,      // ç¹æ‡ŠÎ’
+        TORNADO,   // é¶æ‡·ï½·ï½»
+        FALLTETRA, // è³ä¼Îšé—œï½½è³ç‹—é»„
+        PENDULUM,  // è¬–ï½¯ç¹§é›ï½­
+        BOOMERANG, // ç¹æ‚¶ï¿½ç¹ï½¡ç¹ï½©ç¹ï½³
+        BIRDSTRIKE, // é­‘ï½¥ç¸ºï½®é„’ï½¤ç¹§
+        BARREL,    //ç¹§ï½¿ç¹ï½«+ç¹§ï½ªç¹§ï½¤ç¹ï½«
         MAX
     };
 
     struct SubObstacleParam {
-        OBS_TYPE ManualObstacleType = OBS_TYPE::NONE;  // áŠQ•¨ƒ^ƒCƒv(0:B
-        float ObstacleSpeedX = 0.0f;                   // ‰‘¬“xX
-        float ObstacleSpeedY = 0.0f;                   // ‰‘¬“xY
-        float ObstacleSpeedZ = -5.0f;                  // ‰‘¬“xZ
-        float ObstacleSpawnX = 0.0f;                   // ¶¬ˆÊ’uX
-        float ObstacleSpawnY = 10.0f;                  // ¶¬ˆÊ’uY
-        float ObstacleSpawnZ = 10.0f;                  // ¶¬ˆÊ’uZ
-        float ColliderWidth = 3.0f;                    // ƒRƒ‰ƒCƒ_[‰¡ƒTƒCƒY
-        float ColliderHeight = 3.0f;                   // ƒRƒ‰ƒCƒ_[cƒTƒCƒY
-        float ColliderDepth = 3.0f;                    // ƒRƒ‰ƒCƒ_[ƒTƒCƒY[‚³
-        int BombTimer = 300;                           // ƒ^ƒCƒ}[’l(ƒ{ƒ€—p)
-        float BoomerangOmega = 1.0f;   // ‘¬“x
-        float BoomerangRadius = 12.0f; // ”¼Œa
-        float BoomerangBasePower = 20.0f;      // Šî–{‚Á”ò‚Ñƒpƒ[
-        float BoomerangAddBySpeed = 80.0f;     // ‘¬“xˆË‘¶‰ÁZ
-        float BoomerangMaxFinalPower = 350.0f; //Å‘å
+        OBS_TYPE ManualObstacleType = OBS_TYPE::NONE;  // é««æ‡·ï½®ï½³è¿šï½©ç¹§ï½¿ç¹§ï½¤ç¹(0:B
+        float ObstacleSpeedX = 0.0f;                   // è›»æ™æº·ï½ºï½¦X
+        float ObstacleSpeedY = 0.0f;                   // è›»æ™æº·ï½ºï½¦Y
+        float ObstacleSpeedZ = -5.0f;                  // è›»æ™æº·ï½ºï½¦Z
+        float ObstacleSpawnX = 0.0f;                   // é€•æ»“ï¿½è´å’²ï½½ï½®X
+        float ObstacleSpawnY = 10.0f;                  // é€•æ»“ï¿½è´å’²ï½½ï½®Y
+        float ObstacleSpawnZ = 10.0f;                  // é€•æ»“ï¿½è´å’²ï½½ï½®Z
+        float ColliderWidth = 3.0f;                    // ç¹§ï½³ç¹ï½©ç¹§ï½¤ç¹ç¹ï½¼è®“ï½ªç¹§ï½µç¹§ï½¤ç¹§ï½º
+        float ColliderHeight = 3.0f;                   // ç¹§ï½³ç¹ï½©ç¹§ï½¤ç¹ç¹ï½¼é‚µï½¦ç¹§ï½µç¹§ï½¤ç¹§ï½º
+        float ColliderDepth = 3.0f;                    // ç¹§ï½³ç¹ï½©ç¹§ï½¤ç¹ç¹ï½¼ç¹§ï½µç¹§ï½¤ç¹§ï½ºè±ºï½±ç¸º
+        int BombTimer = 300;                           // ç¹§ï½¿ç¹§ï½¤ç¹æ§­ï¿½è›Ÿï½¤(ç¹æ‡ŠÎ’é€•ï½¨)
+        float BoomerangOmega = 1.0f;   // é¨¾æº·ï½ºï½¦
+        float BoomerangRadius = 12.0f; // èœŠé›ï½¾
+        float BoomerangBasePower = 20.0f;      // è“ï½ºè­›ï½¬èœ·ï½¹ç¸ºï½£é¬Ÿå¸™ï¿½ç¹ä»£Î¡ç¹ï½¼
+        float BoomerangAddBySpeed = 80.0f;     // é¨¾æº·ï½ºï½¦è“æ™ï½­ä¼œåˆˆé‚‚
+        float BoomerangMaxFinalPower = 350.0f; //è­›èŸï½§
         int   BoomerangHitCooldown = 10;
-        int BoomerangMovePattern = 0; //ƒu[ƒƒ‰ƒ“‚ÌˆÚ“®
+        int BoomerangMovePattern = 0; //ç¹æ‚¶ï¿½ç¹ï½¡ç¹ï½©ç¹ï½³ç¸ºï½®é˜ï½»èœ
     };
 
     struct ObstacleParam {
-        std::vector<SubObstacleParam> subParams; // •¡”áŠQ•¨î•ñ‚ğ‚Ü‚Æ‚ß‚é
+        std::vector<SubObstacleParam> subParams; // éšï¿½ç„šé««æ‡·ï½®ï½³è¿šï½©è« ï¿½ï½±ç¹§åµâˆªç¸ºï½¨ç¹§âˆšï½‹
     };
 
     struct DebuffConfig {
@@ -64,40 +64,43 @@ public:
     };
     static DebuffConfig s_StampConfig, s_BirdConfig, s_OilConfig;
 
-    static const int PARAM_SET_MAX = 6;                // ƒpƒ‰ƒ[ƒ^ƒZƒbƒgÅ‘å”
+    static const int PARAM_SET_MAX = 50;                // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚»ãƒƒãƒˆæœ€å¤§æ•°
     static const int SPAWN_PRESET_MAX = 50;
 
-    void EditCommonParams();                    // ‹¤’Êƒpƒ‰ƒ[ƒ^•ÒWUI
-    void EditerMenu();                          // ƒƒCƒ“•ÒWƒEƒBƒ“ƒhƒE
-    void SpawnTimePresetEditor();               // ƒXƒ|[ƒ“ƒ^ƒCƒ€ƒvƒŠƒZƒbƒg•ÒW
-    void TryManualSpawn();                      // è“®¶¬
-    void SaveParams(const std::string& fileName);    // ƒpƒ‰ƒ[ƒ^•Û‘¶
-    void LoadParams(const std::string& fileName);    // ƒpƒ‰ƒ[ƒ^“Ç‚İ‚İ
-    void SaveCurrentSubObstacleParam(const std::string& fileName);   // Œ»İ‚Ìƒpƒ‰ƒ[ƒ^ƒZƒbƒg‚¾‚¯•Û‘¶
-    void LoadCurrentSubObstacleParam(const std::string& fileName);   // ã‹L‚Ìƒpƒ‰ƒ[ƒ^ƒZƒbƒg‚Ì“Ç‚İ‚İ
-    void AssignRandomSpawnTimes();              // ƒXƒ|[ƒ“ƒ^ƒCƒ€Š„‚è“–‚Äiƒ‰ƒ“ƒ_ƒ€‰»j
-    void PlayModeSpawn(float deltaTime);        // ƒvƒŒƒCƒ‚[ƒhE©“®¶¬ˆ—
-    void ResetPlayMode();                       // ƒvƒŒƒCƒ‚[ƒhƒŠƒZƒbƒg
+    void EditCommonParams();                    // èœˆï½±é¨¾å£¹ãƒ±ç¹ï½©ç¹ï½¡ç¹ï½¼ç¹§ï½¿é‚±ï½¨é«®ï¿½I
+    void EditerMenu();                          // ç¹ï½¡ç¹§ï½¤ç¹ï½³é‚±ï½¨é«®ï¿½ãˆç¹§ï½£ç¹ï½³ç¹å³¨ãˆ
+    void SpawnTimePresetEditor();               // ç¹§ï½¹ç¹æ˜´ï¿½ç¹ï½³ç¹§ï½¿ç¹§ï½¤ç¹ç¹åŠ±Îœç¹§ï½»ç¹ï¿½ãƒ¨é‚±ï½¨é«®
+    void TryManualSpawn();                      // è¬‡å¥è™šé€•æ»“ï¿½
+    void SaveParams(const std::string& fileName);    // ç¹ä»£Î›ç¹ï½¡ç¹ï½¼ç¹§ï½¿è«æ™ï½­
+    void LoadParams(const std::string& fileName);    // ç¹ä»£Î›ç¹ï½¡ç¹ï½¼ç¹§ï½¿éš±ï½­ç¸ºï½¿éœï½¼ç¸ºï½¿
+    void SaveCurrentSubObstacleParam(const std::string& fileName);   // è¿´ï½¾è¨ï½¨ç¸ºï½®ç¹ä»£Î›ç¹ï½¡ç¹ï½¼ç¹§ï½¿ç¹§ï½»ç¹ï¿½ãƒ¨ç¸ºç¸ºå°ï½¿æ™ï½­
+    void LoadCurrentSubObstacleParam(const std::string& fileName);   // è³é¡˜ï½¨å€¥ï¿½ç¹ä»£Î›ç¹ï½¡ç¹ï½¼ç¹§ï½¿ç¹§ï½»ç¹ï¿½ãƒ¨ç¸ºï½®éš±ï½­ç¸ºï½¿éœï½¼ç¸ºï½¿
+    void AssignRandomSpawnTimes();              // ç¹§ï½¹ç¹æ˜´ï¿½ç¹ï½³ç¹§ï½¿ç¹§ï½¤ç¹èœ‘ï½²ç¹§é›ï½½è–™â€»ï¿½åŒ»Î›ç¹ï½³ç¹ç¹è›¹å„ï½¼
+    void PlayModeSpawn(float deltaTime);        // ç¹åŠ±Îç¹§ï½¤ç¹ï½¢ç¹ï½¼ç¹å³¨ï¿½é–¾ï½ªèœæ…•å‡½è¬Œä»™ï¿½é€…
+    void ResetPlayMode();                       // ç¹åŠ±Îç¹§ï½¤ç¹ï½¢ç¹ï½¼ç¹å³¨Îœç¹§ï½»ç¹ï¿½ãƒ¨
     void ShowGlobalGimmickSettingsWindow();
 
-    bool m_PlayMode;                        // ƒvƒŒƒCƒ‚[ƒhƒtƒ‰ƒO
-    float m_PlayModeElapsedTime;             // ƒvƒŒƒCƒ‚[ƒhŒo‰ßŠÔ
-    static int m_CurrentParamIndex;                    // Œ»İ•ÒW’†ƒCƒ“ƒfƒbƒNƒX
-    static std::vector<ObstacleParam> m_ParamSets;     // ƒpƒ‰ƒ[ƒ^ƒZƒbƒg”z—ñ
+    bool m_PlayMode;                        // ç¹åŠ±Îç¹§ï½¤ç¹ï½¢ç¹ï½¼ç¹å³¨ãƒµç¹ï½©ç¹§ï½°
+    float m_PlayModeElapsedTime;             // ç¹åŠ±Îç¹§ï½¤ç¹ï½¢ç¹ï½¼ç¹è‡¥ï½µç¢â„ƒè­ã‚‹ä¿£
+    static int m_CurrentParamIndex;                    // è¿´ï½¾è¨ï½¨é‚±ï½¨é«®ï¿½ï½¸ï½­ç¹§ï½¤ç¹ï½³ç¹ï¿½ãƒ£ç¹§ï½¯ç¹§ï½¹
+    static std::vector<ObstacleParam> m_ParamSets;     // ç¹ä»£Î›ç¹ï½¡ç¹ï½¼ç¹§ï½¿ç¹§ï½»ç¹ï¿½ãƒ¨é©Ÿæ¦Šï¿½
     static ObstacleParam& RefParam() { return m_ParamSets[m_CurrentParamIndex]; }
-    static float s_DecayValue; //ã•”—‰ºáŠQ•¨‚ÉÚG‚µ‚½‚ÌŒ¸‘¬’l
+    static float s_DecayValue; //è³ä¼Îšé—œï½½è³çŸ©å›¿è³ï½³è¿šï½©ç¸ºï½«è¬—ï½¥éš—ï½¦ç¸ºåŠ±â—†è­ã‚…ï¿½è²‚å¹ƒæº·ï½¤
 private:
     float m_ObstacleTimerElapsedTime = 0.0f;
     bool m_CustomTimerNeedReset = false;
     float m_CustomTimerResetCountdown = 0.0f;
 
+    static int s_ParamSetCount;
+    static void ChangeParamSetCount(int delta);
+
     static int m_selectedSubParamIndex;
     static int s_SpawnTimePresetCount;
-    static float s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ; // oŒ»ˆÊ’u
-    static float s_LoadedSpeedX, s_LoadedSpeedY, s_LoadedSpeedZ; // oŒ»‘¬“x
+    static float s_LoadedSpawnX, s_LoadedSpawnY, s_LoadedSpawnZ; // èœƒï½ºè¿´ï½¾è´å’²ï½½ï½®
+    static float s_LoadedSpeedX, s_LoadedSpeedY, s_LoadedSpeedZ; // èœƒï½ºè¿´ï½¾é¨¾æº·ï½ºï½¦
     static std::vector<float> s_SpawnTimePresets;
     static std::vector<float> s_AssignedSpawnTimes;
-    static std::vector<std::pair<int, int>> s_AssignedSpawnParamIndices; // ParamSet‚Ìindex‚ÆsubParam‚Ìindex
+    static std::vector<std::pair<int, int>> s_AssignedSpawnParamIndices; // ParamSetç¸ºï½®indexç¸ºï½¨subParamç¸ºï½®index
     static std::vector<bool> s_SpawnedFlags;
     static std::vector<int> s_SpawnPlayerThresholds;
     static std::vector<int> s_ForcedParamSetIndices;

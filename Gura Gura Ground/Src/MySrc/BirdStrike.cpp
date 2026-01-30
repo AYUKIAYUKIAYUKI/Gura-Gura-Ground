@@ -156,7 +156,7 @@ void CBirdStrike::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	pRoute->SetTrackTarget(spObstacle);
 
 	// Œø‰Ê‰¹F’µ‚Ë‚é‰¹
-	CSoundManger::RefInstance().Play("BirdStrike", false, -0.5f, 0.4f);}
+	CSoundManger::RefInstance().Play("BirdStrike", false, -0.5f, 1.2f);}
 
 //============================================================================
 // XVˆ—
