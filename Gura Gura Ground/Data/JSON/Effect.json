@@ -2,10 +2,14 @@
   "EffectList": {
     "Thunder": "Data\\EFFECT\\Effect\\LightningStrike_2.efkefc",
     "Water": "Data\\EFFECT\\Effect\\ToonWater.efkefc",
-    "Fire": "Data\\EFFECT\\Effect\\Simple_Turbulence_Fireworks.efkefc",
-    "HipDrop": "Data\\EFFECT\\Effect\\HipDrop_Impact.efkefc",
     "FireWorks": "Data\\EFFECT\\Effect\\Fireworks.efkefc",
+    "HipDrop": "Data\\EFFECT\\Effect\\HipDrop_Impact.efkefc",
     "FireWorks_single": "Data\\EFFECT\\Effect\\Fireworks_Single.efkefc",
-    "kirakira": "Data\\EFFECT\\Effect\\kirakira.efkefc"
+    "Tornade": "Data\\EFFECT\\Effect\\Tornade.efkefc",
+    "Bomb": "Data\\EFFECT\\Effect\\bounce.efkefc",
+    "Flash": "Data\\EFFECT\\Effect\\Flash.efkefc",
+    "Smoke": "Data\\EFFECT\\Effect\\smoke.efkefc",
+    "Sparkling": "Data\\EFFECT\\Effect\\kirakira2.efkefc"
+
   }
 }

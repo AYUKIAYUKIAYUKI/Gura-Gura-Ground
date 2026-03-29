@@ -187,6 +187,7 @@ void CBirdStrike::Draw()
 //============================================================================
 void CBirdStrike::Action()
 {
+	if (m_nTime > MoveTime)SetDeath();
 	CGhost* const pGs = dynamic_cast<CGhost*>(GetCollider());
 
 	//Œo‰ß‚ÌŠ„‡‚ğŠÔ‚ÅŒv‘ª

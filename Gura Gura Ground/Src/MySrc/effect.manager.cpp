@@ -15,22 +15,22 @@ namespace {
     void EditUI()
     {
 #ifdef _DEBUG
-        ImGui::SetNextWindowPos(ImVec2(1000, 0));
-        ImGui::SetNextWindowSize(ImVec2(300, 400));
-        ImGui::Begin("Effect Edit");
+    ImGui::SetNextWindowPos(ImVec2(1000, 0));
+    ImGui::SetNextWindowSize(ImVec2(300, 400));
+    ImGui::Begin("Effect Edit");
 
-        if(ImGui::Button("Instance"))CEffectManager::RefInstance();
-        if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_LIGHTNING, {20.0f,0.0f,0.0f});
-        ImGui::SameLine();
-        if (ImGui::Button("Water"))CEffect::Create(L"Data\\EFFECT\\Effect\\Simple_Turbulence_Fireworks.efkefc", { -20.0f,0.0f,0.0f },nullptr,1.0f);
-        if (ImGui::Button("FireWork"))CEffect::Create(CEffectManager::TAG_FIREWORKS_SINGLE, { 0.0f,-20.0f,0.0f });
-        if (ImGui::Button("Kirakira"))CEffect::Create(CEffectManager::kirakira, { 15.0f,0.0f,0.0f }, {}, {0.5f});
+    if (ImGui::Button("Instance"))CEffectManager::RefInstance();
+    if (ImGui::Button("Thunder"))CEffect::Create(CEffectManager::TAG_LIGHTNING, { 20.0f,0.0f,0.0f });
+    ImGui::SameLine();
+    if (ImGui::Button("Water"))CEffect::Create(L"Data\EFFECT\Effect\Simple_Turbulence_Fireworks.efkefc", { -20.0f,0.0f,0.0f }, nullptr, 1.0f);
+    if (ImGui::Button("FireWork"))CEffect::Create(CEffectManager::TAG_FIREWORKS_SINGLE, { 0.0f,-20.0f,0.0f });
+    if (ImGui::Button("Kirakira"))CEffect::Create(CEffectManager::TAG_SPARKLE, { 15.0f,0.0f,0.0f }, {}, { 0.5f });
 
-        ImGui::Button("<");
-        ImGui::SameLine();
-        ImGui::Button(">");
+    ImGui::Button("<");
+    ImGui::SameLine();
+    ImGui::Button(">");
 
-        ImGui::End();
+    ImGui::End();
 #endif // _DEBUG
     }
 }
@@ -57,6 +57,7 @@ void CEffect::Init()
 void CEffect::Uninit()
 {
     if (m_effects != nullptr)    {
+        //if (m_effects->GetRef() == nullptr)return;
         m_effects.Reset();
 
     }
@@ -67,9 +68,11 @@ void CEffect::Uninit()
 //==========================================================================================
 void CEffect::Update()
 {
-    if (m_bPlaying)return;
+    if (!m_bPlaying)return;
     Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
     Effekseer::Vector3D a = { m_pos.x,m_pos.y,m_pos.z };
+
+    m_manager->SetLocation(m_handle, a);
 
     if(m_effects == nullptr)throw std::runtime_error("Effect is nullptr");
     if (!m_manager->Exists(m_handle))
@@ -86,6 +89,35 @@ void CEffect::Draw()
 {
     
 }
+//==========================================================================================
+//外部からコロス処理
+//==========================================================================================
+void CEffect::SetDeath()
+{
+    Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
+    m_manager->StopEffect(m_handle);
+    m_bPlaying = false;
+}
+
+//==========================================================================================
+//外部から速度変える処理
+//==========================================================================================
+void CEffect::SetSpeed(float value)
+{
+    Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
+    m_manager->SetSpeed(m_handle, value);
+}
+
+//==========================================================================================
+//外部から速度変える処理
+//==========================================================================================
+void CEffect::SetRotation(useful::Vec3 axis,float angle)
+{
+    Effekseer::ManagerRef m_manager = CEffectManager::RefInstance().GetManager();
+    Effekseer::Vector3D EffAxis = { axis.x,axis.y,axis.z };
+
+    m_manager->SetRotation(m_handle, EffAxis, angle);
+}
 
 //==========================================================================================
 //生成処理
@@ -100,7 +132,7 @@ CEffect* CEffect::Create(const std::wstring& filename, useful::Vec3 pos,int* han
     if(pEffect->m_effects == nullptr)throw std::runtime_error("Effect is nullptr!!!!!!");
     pEffect->m_pos = pos;
     pEffect->Init();
-    if (handle != nullptr)handle = &pEffect->m_handle;
+    if (handle != nullptr)*handle = pEffect->m_handle;
     return pEffect;
 }
 //==========================================================================================
@@ -132,8 +164,9 @@ CEffect* CEffect::Create(CEffectManager::EFFECT_TAG tag, useful::Vec3 pos, int* 
     if (pEffect->m_effects == nullptr)throw std::runtime_error("Effect is nullptr!!!!!!");
 
     pEffect->m_pos = pos;
+    pEffect->tag = tag;
     pEffect->Init();
-    if (handle != nullptr)handle = &pEffect->m_handle;
+    if (handle != nullptr)*handle = pEffect->m_handle;
     return pEffect;
 }
 
@@ -142,7 +175,6 @@ CEffect* CEffect::Create(CEffectManager::EFFECT_TAG tag, useful::Vec3 pos, int* 
 //ここから下は管理クラス
 CEffectManager::CEffectManager()
 {
-
 }
 
 CEffectManager::~CEffectManager()
@@ -157,12 +189,13 @@ bool CEffectManager::Initialize()
     ID3D11Device* pDevice = CRenderer::RefInstance().GetDevice();
     ID3D11DeviceContext* pContext = CRenderer::RefInstance().GetContext();
     // Effekseerレンダラー作成
-    m_renderer = EffekseerRendererDX11::Renderer::Create(pDevice, pContext,2000);
-    if (m_renderer == nullptr)throw std::runtime_error("Effecseer renderer Error");
+    m_renderer = EffekseerRendererDX11::Renderer::Create(pDevice, pContext,40000);
+    if (m_renderer == nullptr)throw std::runtime_error("Effekseer renderer Error");
+    assert(m_renderer != nullptr);
 
     // Effekseerマネージャ作成
-    m_manager = Effekseer::Manager::Create(2000);
-    if(m_manager == nullptr)throw std::runtime_error("Effecseer manager Error");
+    m_manager = Effekseer::Manager::Create(40000);
+    if(m_manager == nullptr)throw std::runtime_error("Effekseer manager Error");
     // 各種レンダラーを登録
     m_manager->SetSpriteRenderer(m_renderer->CreateSpriteRenderer());
     m_manager->SetRibbonRenderer(m_renderer->CreateRibbonRenderer());
@@ -208,13 +241,13 @@ void CEffectManager::Finalize()
 //==========================================================================================
 void CEffectManager::Update()
 {
-    m_EffectName;
     m_manager->Update();    //エフェクシアのマネージャーを更新.
     //一括で更新
-    for (auto& i : m_effectsList) {
+    for (const auto& i : m_effectsList) {
+        if (i == nullptr)continue;
+
         i->Update();
     }
-    EraseEffect();
 }
 
 //==========================================================================================
@@ -223,11 +256,18 @@ void CEffectManager::Update()
 void CEffectManager::Draw()
 {
     SetCameraMtx();
-
     //エフェクシアのレンダリング
     m_renderer->BeginRendering();
-    m_manager->Draw();
+    for (const auto& e : m_effectsList) {
+        if (e == nullptr)continue;
+        Effekseer::Handle handle = e->GetHandle();
+        m_manager->DrawHandle(e->GetHandle());
+        if (e == nullptr)return;
+    }
+
     m_renderer->EndRendering();
+
+    EraseEffect();
 }
 
 //==========================================================================================
@@ -235,21 +275,41 @@ void CEffectManager::Draw()
 //==========================================================================================
 void CEffectManager::RegistEffect(CEffect* peff)
 {
+    if (peff == nullptr)return;
     m_effectsList.push_back(peff);      //リストに登録
 }
-
+//==========================================================================================
+//マネージャーから削除
+//==========================================================================================
+void CEffectManager::StopAll()
+{
+    for (auto& e : m_effectsList)
+    {
+        e->SetDeath();
+    }
+    Update();
+}
 //==========================================================================================
 //マネージャーから削除
 //==========================================================================================
 void CEffectManager::EraseEffect()
 {
-    for (const auto& e : m_effectsList)
-    {
+    auto it = m_effectsList.begin();
+    while (it != m_effectsList.end()){
         //実行済みかどうか確認
-        if (e->GetPlaying())continue;
-        //リストから除外(アクセス違反を防ぐためErase-removeイディオムを使用)
-        m_effectsList.erase(std::remove(m_effectsList.begin(), m_effectsList.end(),e));
+        if (!(*it)->GetPlaying()) {
+            m_manager->StopEffect((*it)->GetHandle());
+            (*it)->Uninit();
+            delete (*it);
+            //リストから除外
+            it = m_effectsList.erase(it);
+        }
+        else {
+            ++it;
+        }
     }
+    m_effectsList;
+    int i = 11;
 }
 
 //==========================================================================================

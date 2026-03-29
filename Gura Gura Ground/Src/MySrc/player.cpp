@@ -214,9 +214,9 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 		float fSpeed = fSpeedArg;
 
 		//何かしらのデバフが有効なら移動速度に倍率を掛ける
-		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr)
+		if (rStateMachine.m_rPalyer.GetDebuffBehavior() != nullptr)
 		{
-			float Decay = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetDecayValue();
+			float Decay = rStateMachine.m_rPalyer.GetDebuffBehavior()->GetDecayValue();
 			fSpeed *= Decay;
 		}
 
@@ -281,11 +281,6 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 
 			/* ああ…要素ずつ指数減衰 */
 			float fCoef = 0.25f;
-			//何かしらのデバフが有効なら慣性に倍率を掛ける
-			if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
-				float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
-				fCoef *= Inertia;
-			}
 			useful::ExponentialDecay(CurrentVel_XMFLOAT.x, TargeVel_XMFLOAT.x, fCoef);
 			useful::ExponentialDecay(CurrentVel_XMFLOAT.z, TargeVel_XMFLOAT.z, fCoef);
 
@@ -317,10 +312,6 @@ void State::Move(CPlayer::StateMachine& rStateMachine, float fSpeedArg)
 		float fCurrentZ = rCurrentVel.getZ();
 
 		float fCoef = 0.05f;
-		if (rStateMachine.m_rPalyer.GetFallTetraBehavior() != nullptr) {
-			float Inertia = rStateMachine.m_rPalyer.GetFallTetraBehavior()->GetInertiaValue();
-			fCoef *= Inertia;
-		}
 		useful::ExponentialDecay(fCurrentX, 0.0f, fCoef);
 		useful::ExponentialDecay(fCurrentZ, 0.0f, fCoef);
 
@@ -542,8 +533,8 @@ void StateDrop::Execute(CPlayer::StateMachine& rStateMachine)
 		// 通常状態に変更
 		rStateMachine.ChangeState(std::make_unique<StateDefault>());
 
-		//// 塵：拡散発生
-		//CDust::GenerateSpread(rStateMachine.m_rPalyer.GetTransform().Pos, 7);
+		// 塵：拡散発生
+		CDust::GenerateSpread(rStateMachine.m_rPalyer.GetTransform().Pos, 7);
 	}
 }
 
@@ -699,28 +690,6 @@ unsigned char CPlayer::GetIdxPlayer() const
 void CPlayer::SetIdxPlayer(unsigned char wIdx)
 {
 	m_wIdxPlayer = wIdx;
-
-	switch (wIdx)
-	{
-	case 0:
-		SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_1"));
-		break;
-
-	case 1:
-		SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_2"));
-		break;
-
-	case 2:
-		SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_3"));
-		break;
-
-	case 3:
-		SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Player_4"));
-		break;
-
-	default:
-		break;
-	}
 }
 
 //============================================================================
@@ -798,7 +767,39 @@ void CPlayer::CheckDeath()
 	}
 }
 
-void CPlayer::SetAAA(int IDX)
-{
+//==================================================================================================================
+//各状態異常を設定
+void CPlayer::EnableStamp() {
+	if (DB_UseCheck())return;
+	auto db = std::make_shared<Stamp_DB>();
+	db->SetDecayValue(ObstacleEditer::s_StampConfig.DecayValue);
+	db->SetInertiaValue(ObstacleEditer::s_StampConfig.InertiaValue);
 
+	//摩擦を減らす
+	CRigidBody* pRB = dynamic_cast<CRigidBody*>(GetCollider());
+	pRB->SetFriction(db->GetInertiaValue());
+	m_pDebuffBehavior = db;
 }
+void CPlayer::EnableBird() {
+	if (DB_UseCheck())return;
+	auto db = std::make_shared<Bird_DB>();
+	db->SetDecayValue(ObstacleEditer::s_BirdConfig.DecayValue);
+	db->SetInertiaValue(ObstacleEditer::s_BirdConfig.InertiaValue);
+
+	//摩擦を減らす
+	CRigidBody* pRB = dynamic_cast<CRigidBody*>(GetCollider());
+	pRB->SetFriction(db->GetInertiaValue());
+	m_pDebuffBehavior = db;
+}
+void CPlayer::EnableOil() {
+	if (DB_UseCheck())return;
+	auto db = std::make_shared<Oil_DB>();
+	db->SetDecayValue(ObstacleEditer::s_OilConfig.DecayValue);
+	db->SetInertiaValue(ObstacleEditer::s_OilConfig.InertiaValue);
+
+	//摩擦を減らす
+	CRigidBody* pRB = dynamic_cast<CRigidBody*>(GetCollider());
+	pRB->SetFriction(db->GetInertiaValue());
+	m_pDebuffBehavior = db;
+}
+//==================================================================================================================

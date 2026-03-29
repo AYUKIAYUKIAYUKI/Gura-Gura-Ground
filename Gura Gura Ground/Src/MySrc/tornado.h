@@ -75,5 +75,6 @@ private:
 	float m_Width;					// ‰¡•
 	float m_Depth;					// c•
 
-
+	//atode kesu
+	int m_effPos;
 };

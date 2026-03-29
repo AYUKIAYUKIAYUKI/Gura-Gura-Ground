@@ -21,6 +21,7 @@
 // エフェクト
 #include "shadow.h"
 #include "warning.h"
+#include "effect.manager.h"
 
 // 衝撃波の作成のため
 #include "shockwave.h"
@@ -44,7 +45,11 @@ CBomb::CBomb(OBJ::TYPE Type, OBJ::LAYER Layer)
 // デストラクタ
 //============================================================================
 CBomb::~CBomb()
-{}
+{
+	if (CEffectManager::RefInstance().GetEffect(m_nEffHandle) != nullptr) {
+		CEffectManager::RefInstance().GetEffect(m_nEffHandle)->SetDeath();
+	}
+}
 
 //============================================================================
 // コライダーのファクトリ
@@ -84,6 +89,8 @@ void CBomb::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	CWarning* pWarning = CObjectManager::CreateRaw<CWarning>();
 	std::shared_ptr<CObstacle> spObstacle = std::dynamic_pointer_cast<CObstacle>(shared_from_this());
 	pWarning->SetTrackTarget(spObstacle);
+
+	CEffect::Create(CEffectManager::TAG_SMOKE, TF.Pos, &m_nEffHandle, 0.1f* fDepth);
 }
 
 //============================================================================
@@ -116,6 +123,11 @@ void CBomb::Update()
 {
 	// 挙動
 	Action();
+	// コライダーをリジッドボディにキャスト
+	const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
+	useful::Vec3 pos = pRB->GetWorldTransform().Pos;
+	pos.y += 1.4;
+	if (CEffectManager::RefInstance().GetEffect(m_nEffHandle) != nullptr)CEffectManager::RefInstance().GetEffect(m_nEffHandle)->SetLocation(pos);
 
 	// 障害物クラスの更新
 	CObstacle::Update();
@@ -160,6 +172,12 @@ void CBomb::Action()
 	{
 		// 効果音：爆弾
 		CSoundManger::RefInstance().Play("Bomb", false, -0.5f, 0.6f);
+
+		// コライダーをリジッドボディにキャスト
+		const CRigidBody* const pRB = dynamic_cast<CRigidBody*>(GetCollider());
+		useful::Vec3 pos = pRB->GetWorldTransform().Pos;
+		int eadf{};
+		CEffect::Create(CEffectManager::TAG_BOMB, pos, &eadf, 1.4f);
 
 		SetDeath();
 

@@ -34,7 +34,7 @@
 #include "API.texture.manager.h"
 #include <windfield.h>
 #include "field.ice.h"
-
+#include "effect.manager.h"
 
 std::vector<float> times;
 

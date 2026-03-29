@@ -20,6 +20,9 @@
 #include "API.object.manager.h"
 #include "API.sound.manager.h"
 
+//ketsu
+#include "effect.manager.h"
+
 //============================================================================
 // デフォルトコンストラクタ
 //============================================================================
@@ -34,6 +37,7 @@ CTornado::CTornado(OBJ::TYPE Type, OBJ::LAYER Layer)
 	, m_LapCount(1)
 	, m_NowLapCount(0)
 	, m_Life(10)
+	, m_effPos(-1)
 {
 	// モデルのバインド
 	SetModel(CGltfManager::RefInstance().RefRegistry().BindAtKey("Tornado"));
@@ -43,7 +47,9 @@ CTornado::CTornado(OBJ::TYPE Type, OBJ::LAYER Layer)
 // デストラクタ
 //============================================================================
 CTornado::~CTornado()
-{}
+{
+	CEffectManager::RefInstance().GetEffect(m_effPos)->SetDeath();
+}
 
 //============================================================================
 // コライダーのファクトリ
@@ -66,7 +72,8 @@ void CTornado::FactoryCollider(float fWidth, float fHeight, float fDepth)
 	pGhost->SetWorldTransform(TF);
 
 	// 効果音：風の音
-	CSoundManger::RefInstance().Play("Tornado", false, -0.5f, 0.4f);
+	CSoundManger::RefInstance().Play("Tornado", false, -0.5f, 0.2f);
+	CEffect::Create(CEffectManager::TAG_TORNADE, { 0.0f,0.0f,0.0f }, &m_effPos);
 }
 
 //============================================================================
@@ -95,7 +102,9 @@ void CTornado::Update()
 			SetDeath();
 		}
 	}
-
+	// コライダーをゴーストにキャスト
+	const CGhost* const pGhost = dynamic_cast<CGhost*>(GetCollider());
+	if (CEffectManager::RefInstance().GetEffect(m_effPos) != nullptr)CEffectManager::RefInstance().GetEffect(m_effPos)->SetLocation(pGhost->GetWorldTransform().Pos);
 	// 障害物クラスの更新
 	CObstacle::Update();
 }
